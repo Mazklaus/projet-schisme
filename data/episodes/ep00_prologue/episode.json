@@ -1,6 +1,7 @@
 {
   "id": "ep00_prologue",
   "numero": 0,
+  "cache": true,
   "titre": "Prologue (démo technique)",
   "chapitres": [
     {

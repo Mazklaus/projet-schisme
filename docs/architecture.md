@@ -17,6 +17,8 @@ Lead Programmer, 18/11/2026. Ce squelette ne contient que des placeholders. La t
 | `assets/decors/<id>/` | Calques, normales et `decor.json` produits par la chaîne d'images (Tools) |
 | `scenes/` | Scènes `.tscn` (démo, menu) |
 | `tools/ci/` | Vérification des décors, parcours automatique de la démo |
+| `src/jeu/` | Personnage joué (déplacement 2.5D) |
+| `scenes/ullanor/` | Tranche verticale d'Ullanor, voir [tranche-ullanor.md](tranche-ullanor.md) |
 | `tests/unit/` | Tests GUT |
 
 ## Décor 2.5D : le contrat avec la chaîne d'images
@@ -59,7 +61,7 @@ CAPITAINE (froid): Tiens ta position.
 -> FIN
 ```
 
-Commandes gérées par `Chapitre` : `@plan`, `@attendre`, `@lumiere`, `@carton`, `@fin`. Un chapitre ajoute les siennes en surchargeant `_commande_specifique`.
+Commandes gérées par `Chapitre` : `@plan` (avec `&` en dernier argument, la commande n'est pas attendue), `@attendre`, `@lumiere`, `@carton`, `@titre`, `@montrer`, `@cacher`, `@fondu`, `@teinte`, `@echelle`, `@sauver`, `@fin`. Une réplique `NOM (vox):` s'affiche en italique, avec la mention « (vox) ». Un chapitre ajoute les siennes en surchargeant `_commande_specifique`.
 
 Les drapeaux vivent dans la sauvegarde (`Jeu.etat.drapeaux`) et restent partagés entre les épisodes.
 

@@ -1,0 +1,91 @@
+{
+  "plan": "ullanor_triomphe",
+  "description": "Faux screenshot B (validé seul par le GD) : plan large d'Ullanor juste après le triomphe. Esquisse : esquisse_valeurs.png (1920x1080). Coordonnées ci-dessous en 1080p (cible finale 4K = x2).",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "horizon_y": 620,
+  "cle": {
+    "type": "soleil",
+    "position_px": [
+      1150,
+      560
+    ],
+    "hauteur_deg": 8,
+    "couleur": "#FFE8B0",
+    "note": "bas, juste au-dessus du dais, à droite d'Horus : contre-jour sur tout ce qui est devant"
+  },
+  "rebond": {
+    "couleur": "#C99A5B",
+    "force": 0.25
+  },
+  "voile": {
+    "couleur": "#C99A5B",
+    "d0_m": 3000
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel.png",
+      "auteur": "CA2",
+      "contenu": "ciel #6F7FA0 vers horizon #F2C877, soleil #FFE8B0 en (1150, 560), fumées hautes de la bataille finie"
+    },
+    {
+      "fichier": "calques/10_fond.png",
+      "auteur": "CA2",
+      "distance_m": 7000,
+      "contenu": "montagne et citadelle (x 560-1240, sommet ~y 350), plaine"
+    },
+    {
+      "fichier": "calques/20_titans.png",
+      "auteur": "CA2",
+      "distance_m": 1050,
+      "contenu": "deux Warlords dorés (titan_or_ullanor) centrés en x 470 et x 1450, tête ~y 340, juste derrière le dais (plan 1b du script) ; pieds SOUS l'horizon (~y 700) noyés dans la poussière et la foule"
+    },
+    {
+      "fichier": "calques/25_poussiere.png",
+      "auteur": "DA",
+      "distance_m": 1000,
+      "contenu": "nappe de poussière et de fumée qui noie les jambes des Titans et l'horizon (retour du GD : Titans dans le voile, pieds pas sur l'horizon)"
+    },
+    {
+      "fichier": "calques/30_voie.png",
+      "auteur": "CA2",
+      "distance_m": 300,
+      "contenu": "voie de granit en perspective vers le dais (fuite x 970, y 650), bordée de crânes orks en texture, foule de la Légion en blanc de part et d'autre, totems orks brûlés de travers, bannières ; la chaussée visible (~60 m) est l'allée processionnelle centrale, les bords réels des 5 km sont hors champ"
+    },
+    {
+      "fichier": "calques/35_dais.png",
+      "auteur": "CA2",
+      "distance_m": 900,
+      "contenu": "dais au bout de la voie (x 880-1060, base y 665 sous l'horizon, sommet y 640)"
+    },
+    {
+      "fichier": "calques/40_horus.png",
+      "auteur": "CA1",
+      "distance_m": 900,
+      "contenu": "Horus debout sur le dais, x ~968, pieds y 640, ~45 px de haut, bras levé : une silhouette lisible en contre-jour"
+    },
+    {
+      "fichier": "calques/45_vaskar.png",
+      "auteur": "CA1",
+      "distance_m": 6,
+      "contenu": "Vaskar Hol, premier plan droit (x ~1710), casque ôté, coupé à la taille, tourné vers Horus, profil perdu"
+    },
+    {
+      "fichier": "calques/48_dremm.png",
+      "auteur": "CA1",
+      "distance_m": 4,
+      "contenu": "Capitaine Dremm Asaro, premier plan gauche (x ~270), casque sous le bras, coupé à la taille, 3/4 dos vers Horus"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "auteur": "DA",
+      "distance_m": 3
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "DA"
+    }
+  ]
+}

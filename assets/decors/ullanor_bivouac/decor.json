@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "taille": [
+    3840,
+    1080
+  ],
+  "calques": [
+    {
+      "fichier": "00_ciel.png",
+      "profondeur": 0.05,
+      "lumiere": false
+    },
+    {
+      "fichier": "10_fond.png",
+      "profondeur": 0.2,
+      "voile": [
+        "#C99A5B",
+        0.45
+      ]
+    },
+    {
+      "fichier": "20_tentes.png",
+      "normales": "20_tentes_normal.png",
+      "profondeur": 0.6,
+      "voile": [
+        "#C99A5B",
+        0.2
+      ]
+    },
+    {
+      "fichier": "30_sol.png",
+      "normales": "30_sol_normal.png",
+      "profondeur": 1.0
+    }
+  ]
+}

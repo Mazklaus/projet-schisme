@@ -58,6 +58,7 @@ func terminer_chapitre() -> void:
 		if not etat.episodes_termines.has(etat.episode):
 			etat.episodes_termines.append(etat.episode)
 	if s.is_empty():
+		sauver()
 		if changer_de_scene:
 			get_tree().change_scene_to_file.call_deferred(MENU)
 		return

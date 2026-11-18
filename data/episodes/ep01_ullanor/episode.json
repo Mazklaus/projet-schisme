@@ -1,0 +1,14 @@
+{
+  "id": "ep01_ullanor",
+  "numero": 1,
+  "titre": "Ullanor (tranche verticale)",
+  "chapitres": [
+    {
+      "id": "triomphe",
+      "titre": "Après le Triomphe",
+      "scene": "res://scenes/ullanor/tranche_ullanor.tscn",
+      "dialogue": "res://data/dialogues/ep01/ullanor.dlg",
+      "plans": "res://data/episodes/ep01_ullanor/plans.json"
+    }
+  ]
+}
