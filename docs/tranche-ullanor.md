@@ -4,7 +4,7 @@ Sources : `script-tv.md` v0.3 (texte figé) et `game-design-tv.md` v0.2. Le text
 
 ## Jouer
 
-Dans le menu, choisir **Nouvelle partie** (ou « Épisode 1 »).
+Dans le menu, choisir **Nouvelle partie** (ou « Épisode 1 »). Pour aller plus vite, la ligne de commande `projet-schisme -- --nouvelle-partie` lance directement la tranche, sans passer par le menu ; cela marche aussi dans un build exporté.
 
 | Action | Touches |
 |---|---|

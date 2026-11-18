@@ -2,10 +2,17 @@ extends Control
 ## Menu principal provisoire : nouvelle partie, continuer, choix d'épisode, quitter.
 
 func _ready() -> void:
+	# Raccourci pour la QA : « -- --nouvelle-partie[=id_episode] » lance directement une partie.
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--nouvelle-partie"):
+			Jeu.nouvelle_partie(a.get_slice("=", 1) if a.contains("=") else "")
+			return
+	var centre := CenterContainer.new()
+	centre.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(centre)
 	var vb := VBoxContainer.new()
-	vb.set_anchors_preset(Control.PRESET_CENTER)
 	vb.add_theme_constant_override("separation", 12)
-	add_child(vb)
+	centre.add_child(vb)
 	var titre := Label.new()
 	titre.text = ProjectSettings.get_setting("application/config/name")
 	titre.add_theme_font_size_override("font_size", 64)
