@@ -1,0 +1,151 @@
+// Tranche verticale : Ullanor, après le Triomphe.
+// Texte : script-tv.md v0.3 FIGÉE (Narrative Designer, validée par le GD le 18/11).
+// Mécanique : game-design-tv.md v0.2 (Game Designer). Aucune voix : tout s'affiche à l'écran.
+// Les commandes @ sont exécutées par scenes/ullanor/tranche_ullanor.gd (voir son en-tête).
+
+// ---------------------------------------------------------------- 1. Ciné d'ouverture (0:00–0:40)
+=== ouverture
+@decor ullanor
+@cacher Ullanor/Calque_40_horus
+// 1a : plan très large, la voie jusqu'à l'horizon, les Titans à l'échelle.
+@plan 1a &
+@attendre 1.5
+@titre 4 Ullanor. 000.M31.
+@attendre 2.5
+// 1b : la citadelle et les deux Warlords ; l'Empereur se lève, Horus met un genou à terre.
+@plan 1b
+@echelle Ullanor/Calque_10_fond/Empereur 1 1 1.5
+@attendre 1
+// 1c : Horus se relève, la plaine explose.
+@echelle Ullanor/Calque_10_fond/HorusSilhouette 1 1 0.6
+@plan 1c &
+@titre 3 Maître de Guerre.
+// 1d : l'Empereur se détourne et disparaît dans la citadelle.
+@fondu Ullanor/Calque_10_fond/Empereur 0 2
+@attendre 0.5
+// 1e : le rang des Luna Wolves, panoramique jusqu'à Vaskar.
+@plan 1e
+FRÈRE: Il rentre sur Terra. Ils le disent tous.
+// 1f : gros plan sur Vaskar, qui regarde la citadelle vide. Fondu dans le jeu.
+@plan 1f
+@jeu
+
+// ---------------------------------------------------------------- 2. Le champ après la fête (0:40–1:30)
+=== poi_etendard
+VASKAR: Hier, ils étaient des millions. Il a suffi d'un seul mort.
+-> FIN
+
+=== poi_freres
+FRÈRE 1: Deux siècles, et il s'en va.
+FRÈRE 2: Il nous laisse le meilleur de ses fils. Ça me suffit.
+-> FIN
+
+=== poi_ilse
+> Elle lève les yeux vers lui, puis les baisse.
+VASKAR: Combien ?
+ILSE: Pas assez de plaque.
+-> FIN
+
+// Lignes au vox : affichées sans arrêter le jeu.
+=== vox_relance
+DREMM (vox): Hol. Tu te perds encore dans les tunnels ?
+
+// ---------------------------------------------------------------- 3. L'éboulement (1:30–1:50)
+=== vox_eboulement
+ILSE: … ici.
+
+=== vox_rappel
+DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
+
+// ---------------------------------------------------------------- 4. Le choix minuté (8 s)
+=== choix
+* La sortir -> sortir
+* Appeler des auxiliaires -> auxiliaires
+* Obéir -> obeir
+*! 8 -> obeir
+
+// Mémoire du choix (script-tv.md) : relations de -3 à +3, invisibles pour le joueur.
+=== sortir
+~ choix_ullanor = 1
+~ soldate_vivante = true
+~ soldate_connait_sauveur = true
+~ relation_dremm -= 1
+~ relation_ilse += 2
+~ trait_compassion += 1
+@action sortir
+-> fin
+
+=== auxiliaires
+~ choix_ullanor = 2
+~ soldate_vivante = true
+~ soldate_connait_sauveur = false
+~ relation_dremm += 0
+~ relation_ilse += 0
+@action auxiliaires
+-> fin
+
+=== obeir
+~ choix_ullanor = 3
+~ soldate_vivante = false
+~ relation_dremm += 1
+// Relation Ilse : sans objet (elle meurt) ; la clé reste présente pour la sauvegarde.
+~ relation_ilse += 0
+~ trait_obeissance += 1
+@action obeir
+-> fin
+
+// ---------------------------------------------------------------- 5. Ciné de fin (2:00–2:30)
+=== fin
+@sauver
+@decor ullanor
+@montrer Ullanor/Calque_40_horus
+-> fin_5a_sauvee [si choix_ullanor == 1]
+// 5a (auxiliaires, obéi) : Vaskar est à sa place ; Dremm hoche la tête une fois.
+// (Le hochement de tête sera animé avec les calques de personnages découpés.)
+@plan 5a_rang
+@attendre 1
+-> fin_5b
+
+=== fin_5a_sauvee
+// 5a (sauvée) : Vaskar arrive en retard, couvert de poussière ; Dremm le regarde sans rien dire.
+@teinte Ullanor/Calque_45_vaskar #b3a189
+@plan 5a_retard
+@attendre 1.5
+-> fin_5b
+
+=== fin_5b
+// 5b : premier gros plan sur Horus. Le soleil passe derrière la fumée : le seul présage.
+@montrer GrosPlanHorus
+@attendre 1
+@teinte GrosPlanHorus/Image #4a4540 1
+@attendre 1
+@teinte GrosPlanHorus/Image #ffffff 1
+// 5c : Horus parle.
+HORUS: Ce titre, vous l'avez gagné avec moi.
+HORUS: Il vous appartient autant qu'à moi.
+HORUS: Gardez-le, et rien ne nous arrêtera.
+@cacher GrosPlanHorus
+// 5d : toute la Légion répond.
+@carton 2.5 LUPERCAL !
+-> fin_5e_sauvee [si choix_ullanor == 1]
+-> fin_5e_auxiliaires [si choix_ullanor == 2]
+// 5e (obéi) : derrière le rang, au loin, la poutre tordue, de la poussière, et personne.
+@montrer Ullanor/Calque_30_voie/PoutreSeule
+@plan 5e
+// 5f : écho.
+@carton 3 Le capitaine s'en souviendra.
+-> FIN
+
+=== fin_5e_sauvee
+// 5e (sauvée) : Ilse lève sa plaque gravée ; Dremm voit le geste et ne se retourne pas.
+@montrer Ullanor/Calque_30_voie/IlsePlaque
+@plan 5e
+@carton 3 Elle s'en souviendra.
+-> FIN
+
+=== fin_5e_auxiliaires
+// 5e (auxiliaires) : des auxiliaires emportent une civière ; on ne voit pas qui est dessus.
+@montrer Ullanor/Calque_30_voie/Civiere
+@plan 5e
+@carton 3 Personne ne saura qui l'a sauvée.
+-> FIN

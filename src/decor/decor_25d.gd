@@ -192,7 +192,8 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	# Une échelle nulle rend la transformée de Parallax2D non inversible : plancher minuscule.
 	var p := maxf(float(k.get("profondeur", 1.0)), 0.0001)
 	var couche := Parallax2D.new()
-	couche.name = "Calque_%s" % String(k.fichier).get_basename()
+	# Nom de nœud sans « / » (les fichiers du guide sont dans calques/) : Calque_45_vaskar.
+	couche.name = "Calque_%s" % String(k.fichier).get_file().get_basename()
 	couche.scroll_scale = Vector2(p, p)
 	# Parallax2D décale le calque de (1 - p) × (coin haut-gauche de la caméra). On compense
 	# pour que la composition peinte soit exacte quand la caméra est centrée sur le décor :

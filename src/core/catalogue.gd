@@ -52,7 +52,10 @@ func recharger(dossier := DOSSIER_EPISODES) -> void:
 	ordre = []
 	for ep in liste:
 		episodes[ep.id] = ep
-		ordre.append(ep.id)
+		# Un épisode « cache » (démo technique) reste jouable par son id mais n'entre pas
+		# dans l'enchaînement ni dans le menu.
+		if not ep.get("cache", false):
+			ordre.append(ep.id)
 
 
 ## Lit et valide un episode.json. Renvoie {} (avec un avertissement) s'il est invalide.

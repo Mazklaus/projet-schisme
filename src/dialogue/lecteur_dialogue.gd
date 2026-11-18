@@ -22,6 +22,8 @@ var _options: Array = []
 var _menu: Dictionary = {}
 ## Garde-fou contre une boucle de sauts sans réplique.
 const MAX_SAUTS := 1000
+const PREFIXE_RELATION := "relation_"
+const RELATION_MAX := 3
 
 
 func _init(dialogue_analyse: Dictionary, drapeaux_partie: Dictionary = {}) -> void:
@@ -62,6 +64,9 @@ func avancer() -> Dictionary:
 					"+=": drapeaux[instr.nom] = int(drapeaux.get(instr.nom, 0)) + instr.valeur
 					"-=": drapeaux[instr.nom] = int(drapeaux.get(instr.nom, 0)) - instr.valeur
 					_: drapeaux[instr.nom] = instr.valeur
+				# Relations : entier de -3 à +3 (game design de la tranche verticale).
+				if String(instr.nom).begins_with(PREFIXE_RELATION) and typeof(drapeaux[instr.nom]) == TYPE_INT:
+					drapeaux[instr.nom] = clampi(drapeaux[instr.nom], -RELATION_MAX, RELATION_MAX)
 			"saut":
 				if _condition(instr):
 					sauts += 1

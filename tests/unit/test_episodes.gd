@@ -2,7 +2,8 @@ extends GutTest
 
 
 func test_catalogue_du_jeu() -> void:
-	assert_true(Catalogue.ordre.has("ep00_prologue"))
+	assert_true(Catalogue.episodes.has("ep00_prologue"))
+	assert_false(Catalogue.ordre.has("ep00_prologue"), "démo cachée du menu")
 	for id in Catalogue.ordre:
 		for c in Catalogue.episode(id).chapitres:
 			assert_true(ResourceLoader.exists(c.scene), c.scene)

@@ -64,10 +64,21 @@ jobs:
           fi
       - name: Parcours de la démo (3 branches du choix)
         run: |
+          set -o pipefail
           for c in 0 1 attendre; do
             ~/godot/godot --headless -s res://tools/ci/parcours_demo.gd -- --choix=$c 2>&1 | tee parcours.log
             if grep -E "SCRIPT ERROR|^ERROR" parcours.log; then exit 1; fi
           done
+      - name: Parcours de la tranche Ullanor (toutes les façons de finir, sauvegarde vérifiée)
+        # Temps accéléré ×4. « flaner » vérifie la relance vox de Dremm à 30 s.
+        run: |
+          set -o pipefail
+          for c in sortir auxiliaires obeir silence rassemblement inaction; do
+            ~/godot/godot --headless -s res://tools/ci/parcours_ullanor.gd -- --choix=$c 2>&1 | tee ullanor.log
+            if grep -E "SCRIPT ERROR|^ERROR" ullanor.log; then exit 1; fi
+          done
+          ~/godot/godot --headless -s res://tools/ci/parcours_ullanor.gd -- --choix=obeir --flaner --sans-poi 2>&1 | tee ullanor.log
+          if grep -E "SCRIPT ERROR|^ERROR" ullanor.log; then exit 1; fi
 
   export:
     name: Export Windows et Linux

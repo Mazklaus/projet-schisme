@@ -99,14 +99,18 @@ func _suivant() -> void:
 	var e := lecteur.avancer()
 	match e.type:
 		"replique":
-			_nom.text = e.personnage.capitalize() if not e.personnage.is_empty() else ""
-			_texte.text = e.texte if not e.personnage.is_empty() else "[i]%s[/i]" % e.texte
+			_nom.text = BoiteDialogue.nom_affiche(e)
+			_texte.text = BoiteDialogue.texte_affiche(e)
 			_texte.visible_ratio = 0.0
 		"choix":
+			# La question est la réplique précédente ou la situation : le menu s'affiche seul.
+			_nom.text = ""
+			_texte.text = ""
 			_texte.visible_ratio = 1.0
 			for o in e.options:
 				var b := Button.new()
 				b.text = o.texte
+				b.add_theme_font_size_override("font_size", 30)
 				b.pressed.connect(_choisir.bind(o.index))
 				_choix.add_child(b)
 			(_choix.get_child(0) as Button).grab_focus.call_deferred()
@@ -122,6 +126,18 @@ func _suivant() -> void:
 		"fin":
 			hide()
 			fini.emit()
+
+
+## « FRÈRE 1 » → « Frère 1 » ; une réplique au vox est signalée et en italique.
+static func nom_affiche(e: Dictionary) -> String:
+	if e.personnage.is_empty():
+		return ""
+	var n: String = e.personnage.substr(0, 1) + e.personnage.substr(1).to_lower()
+	return n + " (vox)" if e.humeur == "vox" else n
+
+
+static func texte_affiche(e: Dictionary) -> String:
+	return "[i]%s[/i]" % e.texte if e.personnage.is_empty() or e.humeur == "vox" else e.texte
 
 
 func _arreter_delai() -> void:

@@ -21,6 +21,10 @@ const COURBES := {
 }
 
 var plans: Array = []
+## Hors séquence, la caméra suit ce nœud (le personnage joué), en douceur.
+var cible: Node2D
+var suivi_vitesse := 4.0
+var suivi_zoom := 1.0
 var temps := 0.0
 var en_cours := false
 var _plan_courant := -1
@@ -34,6 +38,10 @@ func _init() -> void:
 
 func jouer(nouveaux_plans: Array) -> void:
 	plans = nouveaux_plans
+	# Une séquence dont le premier plan a une durée part de l'état actuel de la caméra
+	# (pas de saut) ; un premier plan de durée 0 est une coupe franche.
+	if not plans.is_empty() and float(plans[0].get("duree", 0.0)) > 0.0:
+		plans = [{"position": [position.x, position.y], "zoom": zoom.x, "duree": 0}] + plans
 	temps = 0.0
 	_plan_courant = -1
 	en_cours = not plans.is_empty()
@@ -51,9 +59,20 @@ func passer() -> void:
 
 func _process(delta: float) -> void:
 	if not en_cours:
+		if cible != null and is_instance_valid(cible):
+			var k := 1.0 - exp(-suivi_vitesse * delta)
+			position = position.lerp(cible.global_position, k)
+			zoom = zoom.lerp(Vector2(suivi_zoom, suivi_zoom), k)
 		return
 	temps += delta
 	_appliquer()
+
+
+## Place immédiatement la caméra sur sa cible (début d'une phase de jeu).
+func caler_sur_cible() -> void:
+	if cible != null:
+		position = cible.global_position
+		zoom = Vector2(suivi_zoom, suivi_zoom)
 
 
 func _appliquer() -> void:
