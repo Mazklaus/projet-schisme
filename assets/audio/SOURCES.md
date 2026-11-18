@@ -30,6 +30,7 @@ godot --headless --import
 | `sfx_poutre_grince` | `sfx_poutre_grince` | 3030 | QTE et choix | Boucle de 2 s, collé-glissé de l'acier ; volume et hauteur suivent la jauge |
 | `sfx_choix_tic` | `sfx_choix_tic` | 3040 | choix minuté | Tic sourd à chaque seconde (signal `delai_seconde` de la boîte) |
 | `sfx_choix_battement_01`, `sfx_choix_battement_02` | `sfx_choix_battement` | 3050–3051 | choix minuté | Coup sourd comme un cœur sous l'armure, 0,3 s ; la boîte le rapproche de 1 s à 0,35 s (signal `battement`) |
+| `amb_nef_imperiale` | `amb_nef` | 2004 | décor test de la nef (épisodes suivants) | Boucle de 60 s : pierre immense, air, machines du palais sous le dallage, bannières dans un courant d'air, pas lourds et porte de bronze lointains (réverbération de 8 s), chant grave des salles voisines |
 
 ### Épisode 1 : palette (`tools/son/generer_ep01.py`, qui reprend les instruments de `generer_ullanor.py`)
 
