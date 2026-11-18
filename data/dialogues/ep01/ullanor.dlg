@@ -101,9 +101,9 @@ DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
 @montrer Ullanor/Calque_40_horus
 -> fin_5a_sauvee [si choix_ullanor == 1]
 // 5a (auxiliaires, obéi) : Vaskar est à sa place ; Dremm hoche la tête une fois.
-// (Le hochement de tête sera animé avec les calques de personnages découpés.)
 @plan 5a_rang
-@attendre 1
+@hochement
+@attendre 0.5
 -> fin_5b
 
 === fin_5a_sauvee

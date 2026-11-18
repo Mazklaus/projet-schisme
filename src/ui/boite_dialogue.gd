@@ -7,6 +7,11 @@ extends Control
 
 signal commande(nom: String, args: Array)
 signal fini
+## Choix minuté : émis à l'ouverture (secondes entières restantes) puis à chaque seconde
+## écoulée, jusqu'à 1. Sert au son (tic) et à tout effet calé sur la barre de temps.
+signal delai_seconde(restant: int)
+## Choix minuté : émis quand le temps est écoulé sans réponse (le silence).
+signal delai_expire
 
 @export var caracteres_par_seconde := 45.0
 
@@ -70,10 +75,15 @@ func reprendre() -> void:
 
 func _process(delta: float) -> void:
 	if _delai_total > 0.0:
+		var avant := ceili(_delai_restant)
 		_delai_restant -= delta
 		_barre.value = 100.0 * maxf(_delai_restant, 0.0) / _delai_total
+		var apres := ceili(_delai_restant)
+		if apres < avant and apres >= 1:
+			delai_seconde.emit(apres)
 		if _delai_restant <= 0.0:
 			_arreter_delai()
+			delai_expire.emit()
 			lecteur.expirer()
 			_suivant()
 			return
@@ -119,6 +129,7 @@ func _suivant() -> void:
 				_delai_restant = e.delai
 				_barre.value = 100.0
 				_barre.show()
+				delai_seconde.emit(ceili(e.delai))
 		"commande":
 			_en_attente = true
 			_panneau.hide()

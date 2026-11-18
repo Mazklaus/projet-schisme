@@ -44,7 +44,14 @@ const SHADER_VOILE := """
 shader_type canvas_item;
 uniform vec4 voile : source_color = vec4(0.79, 0.6, 0.36, 1.0);
 uniform float force : hint_range(0.0, 1.0) = 0.0;
+// Zone masquée (UV : x, y, largeur, hauteur) : une partie détachée du calque pour être animée
+// à part (la tête pour un hochement). Largeur nulle : rien n'est masqué.
+uniform vec4 masque = vec4(0.0);
 void fragment() {
+	if (masque.z > 0.0 && UV.x >= masque.x && UV.x < masque.x + masque.z
+			&& UV.y >= masque.y && UV.y < masque.y + masque.w) {
+		discard;
+	}
 	vec4 c = texture(TEXTURE, UV);
 	COLOR = vec4(mix(c.rgb, voile.rgb, force), c.a) * COLOR;
 }
@@ -213,11 +220,7 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		sprite.position = Vector2(k.position[0], k.position[1])
 	sprite.light_mask = MASQUE_LUMIERE if k.get("lumiere", true) else 0
 	if k.has("voile") and float(k.voile[1]) > 0.0:
-		if _shader_voile == null:
-			_shader_voile = Shader.new()
-			_shader_voile.code = SHADER_VOILE
-		var m := ShaderMaterial.new()
-		m.shader = _shader_voile
+		var m := materiau_voile()
 		m.set_shader_parameter("voile", Color(k.voile[0]))
 		m.set_shader_parameter("force", float(k.voile[1]))
 		sprite.material = m
@@ -239,6 +242,86 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		couche.add_child(ombre)
 	add_child(couche)
 	return couche
+
+
+static func materiau_voile() -> ShaderMaterial:
+	if _shader_voile == null:
+		_shader_voile = Shader.new()
+		_shader_voile.code = SHADER_VOILE
+	var m := ShaderMaterial.new()
+	m.shader = _shader_voile
+	return m
+
+
+## Détache la tête d'une figure peinte sur un calque plein cadre pour l'animer à part.
+## La tête est le haut de la silhouette, jusqu'à la ligne où elle s'élargit nettement (les
+## épaules). Renvoie le Sprite2D de la tête, pivot au cou, ou null si rien n'est détecté.
+## Le calque d'origine masque la même zone : aucun double contour.
+func detacher_tete(nom_calque: String) -> Sprite2D:
+	var couche := get_node_or_null(nom_calque)
+	if couche == null:
+		return null
+	var image_sprite := couche.get_node("Image") as Sprite2D
+	var tex := image_sprite.texture as CanvasTexture
+	var zone := Decor25D.zone_tete(tex.diffuse_texture.get_image())
+	if zone.size == Vector2i.ZERO:
+		return null
+	var taille_tex := Vector2(tex.diffuse_texture.get_size())
+	var base := image_sprite.material as ShaderMaterial
+	if base == null:
+		base = materiau_voile()
+		image_sprite.material = base
+	var tete_mat := base.duplicate() as ShaderMaterial
+	tete_mat.set_shader_parameter("masque", Vector4.ZERO)
+	base.set_shader_parameter("masque", Vector4(zone.position.x / taille_tex.x, zone.position.y / taille_tex.y,
+		zone.size.x / taille_tex.x, zone.size.y / taille_tex.y))
+	var tete := Sprite2D.new()
+	tete.name = "Tete"
+	tete.texture = tex
+	tete.material = tete_mat
+	tete.light_mask = image_sprite.light_mask
+	tete.centered = false
+	tete.region_enabled = true
+	tete.region_rect = Rect2(zone)
+	var cou := Vector2(zone.position.x + zone.size.x / 2.0, zone.end.y)
+	tete.position = image_sprite.position + cou
+	tete.offset = Vector2(zone.position) - cou
+	couche.add_child(tete)
+	return tete
+
+
+## Rectangle de la tête dans une image RGBA : haut de la silhouette jusqu'aux épaules.
+static func zone_tete(img: Image) -> Rect2i:
+	var bb := img.get_used_rect()
+	if bb.size == Vector2i.ZERO:
+		return Rect2i()
+	var largeurs: Array[int] = []
+	var gauche := bb.end.x
+	var droite := bb.position.x
+	for y in range(bb.position.y, bb.end.y, 2):
+		var g := -1
+		var d := -1
+		for x in range(bb.position.x, bb.end.x, 2):
+			if img.get_pixel(x, y).a > 0.5:
+				if g < 0:
+					g = x
+				d = x
+		if g < 0:
+			largeurs.append(0)
+			continue
+		var w := d - g
+		# Largeur de référence de la tête : la médiane des lignes déjà vues (un maximum courant
+		# suivrait l'élargissement progressif du cou et ne verrait jamais les épaules).
+		var vues := largeurs.filter(func(v): return v > 0)
+		vues.sort()
+		var ref: int = vues[vues.size() / 2] if not vues.is_empty() else 0
+		# Épaules : la silhouette s'élargit de plus de 60 % par rapport à la tête.
+		if ref > 0 and vues.size() > 10 and w > ref * 1.6:
+			return Rect2i(gauche - 4, bb.position.y, droite - gauche + 8, y - bb.position.y)
+		largeurs.append(w)
+		gauche = mini(gauche, g)
+		droite = maxi(droite, d)
+	return Rect2i()
 
 
 ## Mémoire vidéo estimée des textures du décor (RGBA8 non compressé + mipmaps ignorés), en octets.
