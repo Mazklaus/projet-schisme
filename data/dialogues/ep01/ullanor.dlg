@@ -6,6 +6,8 @@
 // ---------------------------------------------------------------- 1. Ciné d'ouverture (0:00–0:40)
 === ouverture
 @decor ullanor
+// Son : tambours lointains et des millions de pas (amb_ullanor_triomphe).
+@ambiance ullanor_triomphe 1
 @cacher Ullanor/Calque_40_horus
 // 1a : plan très large, la voie jusqu'à l'horizon, les Titans à l'échelle.
 @plan 1a &
@@ -14,13 +16,19 @@
 @attendre 2.5
 // 1b : la citadelle et les deux Warlords ; l'Empereur se lève, Horus met un genou à terre.
 @plan 1b
+// La foule se tait d'un coup : il ne reste que le vent.
+@ambiance ullanor_vent 0.1
 @echelle Ullanor/Calque_10_fond/Empereur 1 1 1.5
 @attendre 1
-// 1c : Horus se relève, la plaine explose.
+// 1c : Horus se relève, la plaine explose (clameur, puis le Triomphe à l'orgue, aux chœurs et aux cuivres).
+@bruitage clameur_maitre
+@musique ullanor_triomphe 1.5
+@ambiance ullanor_triomphe 3
 @echelle Ullanor/Calque_10_fond/HorusSilhouette 1 1 0.6
 @plan 1c &
 @titre 3 Maître de Guerre.
-// 1d : l'Empereur se détourne et disparaît dans la citadelle.
+// 1d : l'Empereur se détourne et disparaît dans la citadelle. La clameur retombe, inquiète.
+@musique ullanor_attente 4
 @fondu Ullanor/Calque_10_fond/Empereur 0 2
 @attendre 0.5
 // 1e : le rang des Luna Wolves, panoramique jusqu'à Vaskar.
@@ -98,6 +106,9 @@ DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
 === fin
 @sauver
 @decor ullanor
+// 5a : le silence de la plaine.
+@musique stop 2
+@ambiance ullanor_vent 2
 @montrer Ullanor/Calque_40_horus
 -> fin_5a_sauvee [si choix_ullanor == 1]
 // 5a (auxiliaires, obéi) : Vaskar est à sa place ; Dremm hoche la tête une fois.
@@ -116,6 +127,8 @@ DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
 === fin_5b
 // 5b : premier gros plan sur Horus. Le soleil passe derrière la fumée : le seul présage.
 @montrer GrosPlanHorus
+// Une note tenue, tant qu'Horus est à l'écran.
+@musique ullanor_horus 2
 @attendre 1
 @teinte GrosPlanHorus/Image #4a4540 1
 @attendre 1
@@ -125,7 +138,9 @@ HORUS: Ce titre, vous l'avez gagné avec moi.
 HORUS: Il vous appartient autant qu'à moi.
 HORUS: Gardez-le, et rien ne nous arrêtera.
 @cacher GrosPlanHorus
-// 5d : toute la Légion répond.
+// 5d : toute la Légion répond. Puis l'ambiance seule (5e).
+@musique stop 0.4
+@bruitage clameur_lupercal
 @carton 2.5 LUPERCAL !
 -> fin_5e_sauvee [si choix_ullanor == 1]
 -> fin_5e_auxiliaires [si choix_ullanor == 2]
