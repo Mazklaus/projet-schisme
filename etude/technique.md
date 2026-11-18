@@ -101,3 +101,43 @@ Pour être franc : **les agents savent écrire du code, des scripts Blender et d
 - Capture de mouvement par vidéo : https://www.rokoko.com/insights/introducing-rokoko-vision-3-0 et https://www.strayspark.studio/blog/ai-mocap-indie-developers-2026-comparison
 - Rendu Unreal sans écran (GPU requis) : https://forums.unrealengine.com/t/rendering-in-headless-mode-possible/475619
 - IP Games Workshop et œuvres de fans : https://pcgamer.com/uk/games-workshop-is-trying-to-shut-down-fan-animations et https://spikeybits.com/2021/07/lookout-youtube-gw-just-updated-their-ip-guidelines.html
+
+---
+
+## Relecture des parties 2 et 3 (Tools Programmer, 18/11/2026)
+
+*Je n'ai rien à corriger sur le fond : le cadrage (AA stylisé, peu de héros, visages MetaHuman, décors procéduraux) me paraît juste. Voici des précisions et des outils manquants. Les points marqués (à vérifier) viennent de ma connaissance et pas d'une source consultée aujourd'hui.*
+
+### A. Ce que nos conteneurs peuvent faire sans GPU (nuance sur le risque n°1)
+
+Le PC de l'utilisateur reste indispensable pour l'éditeur et le rendu final. En revanche, une bonne partie de la chaîne peut tourner dans nos threads et en CI, sur CPU :
+- **Blender en mode headless** (`blender -b -P script.py`) fonctionne sans GPU : modélisation par script, Geometry Nodes, retopologie, UV, export FBX/glTF, et **rendu Cycles sur CPU** (lent, mais suffisant pour des vignettes et des turntables de contrôle). EEVEE, lui, demande un GPU (à vérifier).
+- **Contrôle qualité automatique des assets**, sur le modèle de `check_assets.py` du Dernier Pli : nombre de polygones et budget par catégorie, n-gones, UV qui se chevauchent, densité de texels, échelle, nommage, présence des LOD et des collisions. C'est du Blender Python ou du Python pur sur les glTF, donc faisable par les agents et bloquant en CI.
+- **Unreal en ligne de commande sans rendu** : `UnrealEditor-Cmd … -nullrhi` permet de lancer des commandlets (import en lot via Python, Data Validation, cook, création des .pak par épisode) sans GPU. Mais l'éditeur fait environ 100 Go : ça ne tient ni dans nos conteneurs (environ 28 Go libres) ni sur un runner GitHub standard. Il faut un **runner auto-hébergé**, le PC de l'utilisateur ou une machine cloud, pour la CI Unreal.
+- La **génération 3D par IA auto-hébergée** (Hunyuan3D, TRELLIS) demande aussi un GPU. Depuis nos threads, il ne reste que les API payantes, sinon le PC de l'utilisateur.
+
+### B. Outils qui manquent ou à préciser
+
+| Sujet | Ajout | Pourquoi |
+|---|---|---|
+| Génération 3D IA | **TRELLIS** (Microsoft, licence MIT), **Rodin / Hyper3D**, **Stable Fast 3D / SPAR3D** (licence communautaire Stability, gratuite sous 1 M$, à vérifier) | TRELLIS est la seule option ouverte et sans restriction géographique |
+| Hunyuan3D | **La licence communautaire de Tencent exclut l'Union européenne, le Royaume-Uni et la Corée du Sud** (à vérifier sur la version en cours) | L'utilisateur est en France : l'auto-hébergement serait hors licence. À lire avant tout usage |
+| Reprise des modèles IA | Retopologie : **QuadriFlow** (intégré à Blender), **Instant Meshes** ; UV : **xatlas**, Smart UV de Blender ; reprojection des textures par cuisson (bake) haute vers basse définition | C'est ce qui fait passer un mesh IA de « prototype » à « second plan utilisable ». Tout est scriptable, donc à la portée des agents |
+| Textures et matériaux | Bibliothèques **CC0** (Poly Haven, ambientCG) ; Quixel Megascans, désormais dans Fab (à vérifier : statut gratuit) ; génération de matériaux tuilables par IA | Les matériaux tuilables (métal, pierre, céramite) se génèrent et se vérifient bien. Les héros, beaucoup moins |
+| Capture vidéo | **FreeMoCap** (open source, plusieurs caméras) ; modèles de recherche monoculaires (**WHAM**, **GVHMR**, sortie SMPL, GPU requis, licences souvent non commerciales) | Alternative gratuite à Move.ai pour la previz. Vérifier les licences avant toute utilisation en production |
+| Animation sans capture | **Cascadeur** : poses assistées par IA, physique automatique, gratuit sous un seuil de revenus (à vérifier) ; génération de mouvement depuis le texte (outils commerciaux émergents, qualité inégale) | Plus réaliste que le clé par clé pur dans Control Rig pour nos agents et l'utilisateur |
+| Fab | Fab a deux licences, **Personnelle** et **Professionnelle**. La Pro est exigée au-delà d'un seuil de revenus de l'entité (à vérifier : 100 k$) | À cocher au moment de l'achat |
+| Corps des Astartes | Les corps MetaHuman restent dans des proportions humaines. Un Astartes sans armure, ou un primarque, demande un corps sur mesure ; la tête peut rester MetaHuman | Le tableau de la partie 3 le dit pour l'armure, mais ça vaut aussi pour les corps sans armure |
+| Versionnement | **Perforce (Helix Core)** gratuit jusqu'à 5 utilisateurs (à vérifier) ; Anchorpoint ou Diversion (outils récents, pensés pour Git + jeu) | À comparer aux quotas Git LFS payants de GitHub |
+| Voix de synthèse | Licence commerciale **et** droits des voix (pas de clonage de voix sans accord) | MetaHuman Animator part de l'audio : la qualité de la voix fixe celle du visage |
+
+### C. Ce que les agents peuvent produire en plus (partie 3)
+
+Le tableau de la partie 3 est juste sur les assets. J'ajouterais **les outils de la chaîne, où les agents sont les plus utiles** :
+1. **Génération des séquences depuis le script** : un script Python d'éditeur lit le fichier de dialogues (Ink, Yarn ou maison) et crée la séquence Sequencer avec les pistes de personnages, l'audio, les coupes de caméra par défaut et l'animation faciale tirée de l'audio. L'humain ne fait plus que le réglage des caméras et du jeu. Le traitement en lot depuis l'audio est-il exposé en Python ? (à vérifier, sinon par Blueprint utilitaire).
+2. **Kitbash procédural de décors** : bibliothèque de modules (couloirs, voûtes, piliers) en Blender ou en PCG d'Unreal (*Procedural Content Generation*, en texte via Python), assemblés à partir d'un plan.
+3. **Variations de Légions** : couleurs, insignes et décalcomanies appliqués par script sur une base d'armure (Material Instances), et vérifiés par rendu de vignettes.
+4. **Contrôle qualité et budgets** : voir A, plus le budget de poids par épisode (.pak), comme `poids_web.py` sur le Dernier Pli.
+5. **Previz automatique** : mannequins, caméras et timing tirés du storyboard, pour que l'utilisateur valide le rythme d'une scène avant tout asset final.
+
+**Mon avis sur la tranche verticale** : d'accord. J'ajouterais au périmètre l'outil n°1 (séquence générée depuis un fichier de dialogues). C'est lui qui dira si les agents peuvent produire des épisodes à un rythme tenable, ou s'ils ne font qu'assister un humain dans l'éditeur.
