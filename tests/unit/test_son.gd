@@ -4,7 +4,7 @@ extends GutTest
 
 const DLG := "res://data/dialogues/ep01/ullanor.dlg"
 ## Sons appelés depuis scenes/ullanor/tranche_ullanor.gd (préfixe compris).
-const SONS_SCENE := ["amb_ullanor_bivouac", "sfx_eboulement", "sfx_poutre_grince", "sfx_choix_tic", "sfx_vox_crepite_01"]
+const SONS_SCENE := ["amb_ullanor_bivouac", "sfx_eboulement", "sfx_poutre_grince", "sfx_choix_tic", "sfx_choix_battement_01", "sfx_vox_crepite_01"]
 const PREFIXES := {"ambiance": "amb_", "musique": "mus_", "bruitage": "sfx_"}
 
 
