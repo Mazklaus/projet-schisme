@@ -1,0 +1,28 @@
+{
+  "plan": "guide_tete",
+  "cadre_px": [
+    64,
+    36
+  ],
+  "calques": [
+    {
+      "fichier": "calques/45_perso.png",
+      "distance_m": 5,
+      "tete": {
+        "corps": "calques/45_perso_corps.png",
+        "fichier": "calques/45_perso_tete.png",
+        "avant": "calques/45_perso_avant.png",
+        "pivot_px": [
+          32.0,
+          16.0
+        ],
+        "ordre": [
+          "corps",
+          "tete",
+          "avant"
+        ],
+        "rotation_max_deg": 15
+      }
+    }
+  ]
+}

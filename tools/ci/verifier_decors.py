@@ -33,7 +33,18 @@ def verifier_guide(dossier, chemin, g):
         taille = Image.open(p).size
         if list(taille) != list(cadre):
             erreurs.append(f"{f} : {taille[0]}×{taille[1]} au lieu du cadre {cadre[0]}×{cadre[1]}")
-        for suffixe in ("_normal.png", "_ombre.png"):
+        t = k.get("tete")
+        if isinstance(t, dict):
+            if "pivot_px" not in t:
+                erreurs.append(f"{f} : bloc tete sans pivot_px")
+            for cle in ("corps", "fichier", "avant"):
+                if cle in t:
+                    q = os.path.join(dossier, t[cle])
+                    if not os.path.isfile(q):
+                        erreurs.append(f"{f} : tete.{cle} introuvable ({t[cle]})")
+                    elif Image.open(q).size != taille:
+                        erreurs.append(f"{t[cle]} : taille différente de {f}")
+        for suffixe in ("_normal.png", "_ombre.png", "_plat.png", "_plat_normal.png"):
             q = p[:-4] + suffixe
             if os.path.isfile(q) and Image.open(q).size != taille:
                 erreurs.append(f"{os.path.basename(q)} : taille différente de {f}")
