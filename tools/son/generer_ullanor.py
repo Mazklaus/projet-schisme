@@ -53,6 +53,7 @@ VOYELLES = {  # formants (Hz), voix d'hommes graves
     "o": ((400, 750, 2400), (140, 180, 300), (1.0, 0.6, 0.25)),
     "u": ((320, 650, 2300), (120, 160, 300), (1.0, 0.45, 0.18)),
     "a": ((650, 1080, 2500), (160, 190, 320), (1.0, 0.7, 0.3)),
+    "e": ((480, 1650, 2500), (140, 220, 320), (1.0, 0.5, 0.3)),
 }
 
 
@@ -196,8 +197,11 @@ def tambour_guerre(r, force=1.0):
 ACCORDS = {  # demi-tons depuis ré
     "Dm": (0, 3, 7), "Bb": (-4, 0, 5), "F": (3, 7, 10), "C": (-2, 2, 5), "Gm": (-7, -2, 2),
     "A": (-5, -1, 2), "Eb/D": (0, 1, 5), "Gm/D": (0, 5, 8), "Bb/D": (0, 4, 8),
+    "D": (0, 4, 7), "G": (-7, -3, 0), "Bm": (-3, 0, 4), "Asus4": (-5, 0, 2),
 }
-BASSES = {"Dm": 0, "Bb": -4, "F": 3, "C": -2, "Gm": -7, "A": -5, "Eb/D": 0, "Gm/D": 0, "Bb/D": 0}
+BASSES = {"Dm": 0, "Bb": -4, "F": 3, "C": -2, "Gm": -7, "A": -5, "Eb/D": 0, "Gm/D": 0, "Bb/D": 0,
+          "D": 0, "G": -7, "Bm": -3, "Asus4": -5}
+ORGUE_PLEIN = ((0.5, 0.45), (1, 1.0), (2, 0.6), (3, 0.35), (4, 0.4), (5, 0.12), (6, 0.2), (8, 0.22), (12, 0.08), (16, 0.06))
 
 
 def note(demi, base=D2):
@@ -207,29 +211,46 @@ def note(demi, base=D2):
 # ============================================================================ musique
 
 def mus_triomphe():
-    """Le Triomphe : 8 mesures lentes (50 à la noire), orgue, chœur, cuivres en houle, timbales.
-    i – VI – III – VII – i – iv – V – i : modal, grave, sans batterie ni montée héroïque."""
+    """Le Triomphe : l'apogée de l'Imperium, grandeur sincère et lumineuse (retour du GD, 18/11).
+    Hymne lent en ré majeur (50 à la noire) : I – IV – I – V – vi – IV – V4-3 – I. Plein jeu d'orgue
+    avec mixtures, chœur bouche ouverte, cuivres larges, une ligne de chant qui monte jusqu'à la
+    tonique. Ni batterie, ni montée pop : la grandeur vient de l'ampleur, pas de l'accélération."""
     r = nouveau_hasard(1001)
     noire = 60 / 50
     mesure = 4 * noire
-    grille = ["Dm", "Bb", "F", "C", "Dm", "Gm", "A", "Dm"]
+    grille = ["D", "G", "D", "A", "Bm", "G", "Asus4", "D"]
+    chant = [[4], [5], [7], [7], [9], [9], [12, 11], [12]]                            # depuis ré 4 : fa# sol la la si si ré-do# ré
     L = mk(mesure * len(grille))
     m = np.zeros(L + mk(8))
     for i, a in enumerate(grille):
         t0 = i * mesure
-        place(m, orgue(r, note(BASSES[a], D2), mesure + 0.2, 0.5), t0)                # pédale (16' sous le ré grave)
-        for k, d in enumerate(ACCORDS[a]):
-            place(m, orgue(r, note(d, D2 * 2), mesure + 0.2, 0.35), t0)
-            place(m, choeur(r, note(d, D2 * 2), mesure + 0.6, "o" if i % 2 == 0 else "u", force=0.9), t0)
-        if i in (2, 3, 6, 7):                                                          # cuivres en houle
-            for d in (ACCORDS[a][0], ACCORDS[a][2]):
-                place(m, cuivre(r, note(d, D2), mesure * 0.95, 0.8, attaque=mesure * 0.6), t0)
-        if i in (0, 4):
-            place(m, timbale(r, D2, 0.9), t0)
+        accords = [(a, t0, mesure)]
+        if a == "Asus4":                                                              # la quarte se résout sur la tierce
+            accords = [("Asus4", t0, mesure / 2), ("A", t0 + mesure / 2, mesure / 2)]
+        place(m, orgue(r, note(BASSES[a], D2), mesure + 0.2, 0.45), t0)                # pédale
+        for b, ta, da in accords:
+            for d in ACCORDS[b]:
+                place(m, orgue(r, note(d, D2 * 2), da + 0.2, 0.32, ORGUE_PLEIN), ta)
+                place(m, choeur(r, note(d, D2 * 2), da + 0.6, "a" if i % 2 == 0 else "o", force=0.75,
+                                attaque=0.5), ta)
+        d_chant = mesure / len(chant[i])
+        for k, d in enumerate(chant[i]):                                             # la ligne, au chœur et à la trompette douce
+            tc = t0 + k * d_chant
+            place(m, choeur(r, note(d, D2 * 4), d_chant + 0.5, "a", voix=8, force=0.55, attaque=0.35), tc)
+            if i >= 4:
+                place(m, cuivre(r, note(d, D2 * 4), d_chant * 0.97, 0.22, attaque=0.3), tc)
+        larges = (1, 3, 4, 5, 6, 7)                                                    # cuivres larges, à l'octave
+        if i in larges:
+            for b, ta, da in accords:
+                for d in ACCORDS[b]:
+                    place(m, cuivre(r, note(d, D2 * 2), da * 0.97, 0.45, attaque=min(0.8, da * 0.3)), ta)
+                place(m, cuivre(r, note(BASSES[b], D2), da * 0.97, 0.5, attaque=min(0.8, da * 0.3)), ta)
+        if i in (0, 4, 7):
+            place(m, timbale(r, D2 if a == "D" else note(-3, D2), 0.8), t0)
         if i == 6:
-            for k in range(16):                                                        # roulement sur le V
-                place(m, timbale(r, D2 * 2 ** (-5 / 12), 0.25 + 0.03 * k), t0 + k * noire / 4)
-    st = reverb_st(m, 4.5, 0.45, 1101, sombre=5500)
+            for k in range(8):                                                         # roulement court sur la dominante
+                place(m, timbale(r, note(-5, D2), 0.2 + 0.05 * k), t0 + mesure / 2 + k * noire / 4)
+    st = reverb_st(m, 4.5, 0.42, 1101, sombre=9000)
     return boucler(st, L, 4.0)
 
 
@@ -362,41 +383,65 @@ def foule(r, dur, voix_hz=(95, 240), groupes=28, voyelle="a"):
 
 
 def sfx_clameur_maitre():
-    """1c–1d : la plaine entière explose (montée 0,6 s), puis la clameur retombe, inquiète : il reste
-    une rumeur basse qui s'éteint. 12 s."""
+    """1c : la plaine entière exulte (retour du GD, 18/11) : explosion en 0,5 s, puis des vagues de
+    joie qui repartent, armes levées. À 1d (environ 3 s plus tard), l'Empereur se détourne : la
+    clameur retombe, inquiète, les voix descendent et il reste une rumeur basse qui s'éteint. 13 s."""
     r = nouveau_hasard(3001)
-    D = 12.0
+    D = 13.0
+    BASCULE = 3.2                                                                      # passage de 1c à 1d
     n = mk(D)
     t = np.arange(n) / SR
-    env = np.clip(t / 0.6, 0, 1) ** 1.5 * np.where(t < 4.0, 1.0, np.exp(-(t - 4.0) * 0.55))
-    rumeur = np.clip((t - 3.0) / 2.0, 0, 1) * np.clip((D - t) / 4.0, 0, 1)
-    y = foule(r, D) * env + foule(r, D, (85, 160), 10, "o") * rumeur * 0.12
+    vagues = 1 + 0.18 * np.exp(-((t - 1.6) / 0.35) ** 2) + 0.14 * np.exp(-((t - 2.6) / 0.3) ** 2)
+    env = np.clip(t / 0.5, 0, 1) ** 1.5 * vagues * np.where(t < BASCULE, 1.0, np.exp(-(t - BASCULE) * 0.6))
+    joie = foule(r, D, (125, 310), 30, "a")
+    # la bascule : le haut de la foule s'efface plus vite que le grave, la clameur « tombe »
+    clair = filtre(joie, lo=900)
+    joie = joie - clair * np.clip((t - BASCULE) / 1.5, 0, 1)
+    rumeur = np.clip((t - BASCULE + 0.5) / 2.0, 0, 1) * np.clip((D - t) / 4.0, 0, 1)
+    y = joie * env + foule(r, D, (80, 150), 12, "u") * rumeur * 0.16
+    armes = np.zeros(n)                                                                # armes et étendards levés
+    for _ in range(260):
+        k = mk(0.08)
+        tt = np.arange(k) / SR
+        c = (np.sin(2 * np.pi * r.uniform(600, 1800) * tt) * 0.5 + bruit(r, k, lo=1200, hi=7000)) * np.exp(-tt * 60)
+        place(armes, c * r.uniform(0.2, 1), r.uniform(0.2, BASCULE))
+    y += armes / (np.abs(armes).max() + 1e-9) * 0.12 * np.abs(y).max()
     y += bruit(r, n, lo=30, hi=200) * env * 0.6                                       # le sol qui tremble
-    return reverb_st(y, 3.0, 0.4, 3101, sombre=3000)
+    return reverb_st(y, 3.0, 0.4, 3101, sombre=4500)
 
 
 def sfx_clameur_lupercal():
-    """5d : la Légion répond. Des milliers de poings sur les plastrons d'un seul coup, deux fois, et un
-    grondement de gorges graves, voyelle ouverte, sans syllabes. 9 s."""
+    """5d : la Légion scande son primarque en trois temps, LU-PER-CAL (retour du GD, 18/11) : trois
+    frappes de milliers de poings sur les plastrons, chacune avec un cri de gorge. Trois voyelles
+    (u, e, a) donnent le rythme du nom sans articuler de syllabes ; le troisième cri tient et s'éteint
+    en grondement. 9 s."""
     r = nouveau_hasard(3002)
     D = 9.0
     n = mk(D)
     t = np.arange(n) / SR
+    TEMPS = ((0.0, "u", 0.38, 1.0), (0.62, "e", 0.38, 0.92), (1.24, "a", 1.6, 1.0))   # début, voyelle, tenue, force
     coups = np.zeros(n)
-    for t0, g in ((0.0, 1.0), (0.55, 0.85)):
+    cris = np.zeros(n)
+    for t0, voy, tenue, g in TEMPS:
         for _ in range(400):                                                          # céramite contre céramite
             k = mk(0.12)
             tt = np.arange(k) / SR
             f0 = r.uniform(350, 900)
             c = (np.sin(2 * np.pi * f0 * tt) * 0.6 + bruit(r, k, lo=500, hi=5000)) * np.exp(-tt * 45)
-            place(coups, c * r.uniform(0.4, 1) * g, t0 + abs(r.normal(0, 0.025)))
+            place(coups, c * r.uniform(0.4, 1) * g, t0 + abs(r.normal(0, 0.022)))
         k = mk(0.6)
         tt = np.arange(k) / SR
         place(coups, np.sin(2 * np.pi * 48 * tt) * np.exp(-tt * 7) * 60 * g, t0)        # le poids de la masse
-    env = np.clip((t - 0.5) / 0.4, 0, 1) * np.where(t < 4.0, 1.0, np.exp(-(t - 4.0) * 0.7))
-    gorge = foule(r, D, (70, 120), 24, "a") * env
-    y = coups / (np.abs(coups).max() + 1e-9) * 0.9 + gorge / (np.abs(gorge).max() + 1e-9) * 0.8
-    y += bruit(r, n, lo=30, hi=180) * env * 0.3
+        dc = tenue + (3.0 if voy == "a" else 0.35)
+        cri = foule(r, dc, (80, 135), 18, voy)
+        tc = np.arange(len(cri)) / SR
+        if voy == "a":
+            ec = np.clip(tc / 0.06, 0, 1) * np.where(tc < tenue, 1.0, np.exp(-(tc - tenue) * 1.1))
+        else:
+            ec = np.clip(tc / 0.05, 0, 1) * np.clip((tenue + 0.12 - tc) / 0.12, 0, 1)
+        place(cris, cri / (np.abs(cri).max() + 1e-9) * ec * g, t0 + 0.03)
+    y = coups / (np.abs(coups).max() + 1e-9) * 0.9 + cris / (np.abs(cris).max() + 1e-9) * 0.85
+    y += bruit(r, n, lo=30, hi=180) * np.abs(filtre(cris, hi=8)) * 2.0                  # le sol sous la Légion
     return reverb_st(y, 3.5, 0.4, 3102, sombre=3200)
 
 
@@ -473,6 +518,19 @@ def sfx_choix_tic():
     return np.stack([y, y], 1)
 
 
+def sfx_choix_battement(i):
+    """Le battement du choix minuté (décision QA v1) : un coup sourd, comme un cœur sous l'armure,
+    que la boîte rapproche de 1 s à 0,35 s. Assez court (0,3 s) pour ne jamais se chevaucher."""
+    r = nouveau_hasard(3050 + i)
+    n = mk(0.3)
+    t = np.arange(n) / SR
+    f = (52, 58)[i] * (1 + 0.35 * np.exp(-t * 30))
+    y = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 14) * np.clip(t / 0.004, 0, 1)
+    y += filtre(bruit(r, n), lo=80, hi=400) * np.exp(-t * 60) * 0.35                    # le feutre de la mailloche
+    y = np.tanh(y * 1.4)
+    return np.stack([y, y], 1)
+
+
 # ============================================================================ sortie
 
 if __name__ == "__main__":
@@ -489,3 +547,5 @@ if __name__ == "__main__":
     sauver("sfx_eboulement", sfx_eboulement(), crete=0.89)
     sauver("sfx_poutre_grince", sfx_poutre_grince(), crete=0.5, finir=False)
     sauver("sfx_choix_tic", sfx_choix_tic(), crete=0.5)
+    for i in range(2):
+        sauver(f"sfx_choix_battement_{i + 1:02d}", sfx_choix_battement(i), crete=0.6)
