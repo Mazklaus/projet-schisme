@@ -130,9 +130,10 @@ DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
 // Une note tenue, tant qu'Horus est à l'écran.
 @musique ullanor_horus 2
 @attendre 1
-@teinte GrosPlanHorus/Image #4a4540 1
-@attendre 1
-@teinte GrosPlanHorus/Image #ffffff 1
+// Une ombre de fumée passe sur le visage ; le reflet doré de l'armure reste allumé.
+@fumee GrosPlanHorus/Image 0.9 1.2
+@attendre 0.8
+@fumee GrosPlanHorus/Image 0 1.4
 // 5c : Horus parle.
 HORUS: Ce titre, vous l'avez gagné avec moi.
 HORUS: Il vous appartient autant qu'à moi.
@@ -141,7 +142,7 @@ HORUS: Gardez-le, et rien ne nous arrêtera.
 // 5d : toute la Légion répond. Puis l'ambiance seule (5e).
 @musique stop 0.4
 @bruitage clameur_lupercal
-@carton 2.5 LUPERCAL !
+@clameur 2.5 LUPERCAL !
 -> fin_5e_sauvee [si choix_ullanor == 1]
 -> fin_5e_auxiliaires [si choix_ullanor == 2]
 // 5e (obéi) : derrière le rang, au loin, la poutre tordue, de la poussière, et personne.

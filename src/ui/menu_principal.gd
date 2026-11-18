@@ -1,10 +1,15 @@
 extends Control
 ## Menu principal provisoire : nouvelle partie, continuer, choix d'épisode, quitter.
 
+## Le raccourci de lancement ne sert qu'une fois : un retour au menu affiche le menu.
+static var _raccourci_utilise := false
+
+
 func _ready() -> void:
 	# Raccourci pour la QA : « -- --nouvelle-partie[=id_episode] » lance directement une partie.
 	for a in OS.get_cmdline_user_args():
-		if a.begins_with("--nouvelle-partie"):
+		if a.begins_with("--nouvelle-partie") and not _raccourci_utilise:
+			_raccourci_utilise = true
 			Jeu.nouvelle_partie(a.get_slice("=", 1) if a.contains("=") else "")
 			return
 	var centre := CenterContainer.new()

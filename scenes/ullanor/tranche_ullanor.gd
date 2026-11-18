@@ -4,14 +4,18 @@ extends Chapitre
 ## Déroulé (game-design-tv.md v0.2, script-tv.md v0.3) :
 ##   1. ciné d'ouverture (nœud « ouverture » du .dlg, décor de la DA)       phase « cine »
 ##   2. le champ après la fête : déplacement, 3 points d'intérêt,           phase « jeu »
-##      relance vox de Dremm après RELANCE_VOX_S
-##   3. l'éboulement, derrière Vaskar (passage de EBOULEMENT_X, ou au plus  phase « eboulement »
-##      tard EBOULEMENT_MAX_S), puis « … ici » et le rappel de Dremm
+##      invite de déplacement si le joueur ne bouge pas (AIDE_DEPLACEMENT_S),
+##      relance vox de Dremm après RELANCE_VOX_S d'inactivité
+##   3. l'éboulement, derrière Vaskar quand il passe le poste d'Ilse         phase « eboulement »
+##      (EBOULEMENT_X). Filet : après la relance, GLISSEMENT_S de plus sans
+##      bouger et la caméra glisse jusqu'au poste ; l'éboulement se joue
+##      toujours à l'écran. Puis « … ici » et le rappel de Dremm
 ##      la QTE : près de la poutre, maintenir « interagir » pour soulever   phase « libre »
 ##   4. le choix minuté (8 s, silence = obéir)                              phase « choix »
 ##      Rejoindre le rassemblement sans s'arrêter, ou ne rien faire pendant
 ##      SILENCE_S, vaut aussi « obéir ».
 ##   5. ciné de fin et ses variantes (nœuds « fin… » du .dlg)               phase « fin »
+##   6. écran de fin : le choix fait, Rejouer, Quitter                       phase « ecran_fin »
 ##
 ## Commandes propres à la tranche (en plus de celles de Chapitre) :
 ##   @decor ullanor|bivouac    change de décor (fondu enchaîné court)
@@ -38,8 +42,18 @@ const POUTRE := Vector2(2700, 912)
 ## L'éboulement se produit derrière Vaskar, quand il a dépassé le poste.
 const EBOULEMENT_X := 2980.0
 const RASSEMBLEMENT_X := 3560.0
+## Inactivité (s, sans bouger ni lire) avant la relance vox de Dremm, puis avant que la
+## caméra n'aille montrer l'éboulement.
 const RELANCE_VOX_S := 30.0
-const EBOULEMENT_MAX_S := 50.0
+const GLISSEMENT_S := 30.0
+## Sans mouvement après la prise en main, l'icône des touches apparaît (une seule fois).
+const AIDE_DEPLACEMENT_S := 4.0
+## Ce que l'écran de fin rappelle, selon choix_ullanor (texte provisoire, à valider par le GD).
+const RAPPEL_CHOIX := {
+	1: "Vous avez sorti la soldate des décombres.",
+	2: "Vous avez appelé des auxiliaires.",
+	3: "Vous avez obéi.",
+}
 const SILENCE_S := 20.0
 const QTE_DISTANCE := 190.0
 ## Temps de maintien pour lever la poutre (s).
@@ -52,7 +66,15 @@ var phase := "cine"
 var joueur: PersonnageJoue
 var temps_jeu := 0.0
 var temps_libre := 0.0
+## Secondes passées sans bouger ni lire (remis à zéro à chaque mouvement).
+var inactif := 0.0
 var relance_faite := false
+## La caméra est allée montrer l'éboulement au joueur resté immobile.
+var glissement_fait := false
+var aide_vue := false
+var _a_bouge := false
+var _aide: Control
+var ecran_fin: Control
 var qte := 0.0
 var pois_vus := {}
 var choix_fait := ""
@@ -74,8 +96,12 @@ func _ready() -> void:
 	_attacher_figurants_cine()
 	bivouac.visible = false
 	super._ready()
-	# Le tic sourd du choix minuté, calé sur la barre de temps de la boîte.
-	boite.delai_seconde.connect(func(_restant: int): Son.bruitage("choix_tic"))
+	# Le battement sourd du choix minuté, qui accélère avec le trait de temps (tic en attendant
+	# le fichier du Sound Designer).
+	boite.battement.connect(func(intensite: float):
+		Son.bruitage("choix_battement" if Son.existe("sfx_choix_battement") or Son.existe("sfx_choix_battement_01") \
+			else "choix_tic",
+			lerpf(-8.0, 0.0, intensite)))
 
 
 # --------------------------------------------------------------------------- construction
@@ -103,12 +129,41 @@ func _construire_ui() -> void:
 	_jauge.show_percentage = false
 	_jauge.hide()
 	ui.add_child(_jauge)
+	_aide = _construire_aide_deplacement()
+	ui.add_child(_aide)
 	_voile_noir = ColorRect.new()
 	_voile_noir.color = Color.BLACK
 	_voile_noir.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_voile_noir.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_voile_noir.modulate.a = 0.0
 	ui.add_child(_voile_noir)
+
+
+## Icône discrète des touches de déplacement, en bas de l'écran. Les lettres sont celles du
+## clavier du joueur (ZQSD en AZERTY, WASD en QWERTY).
+func _construire_aide_deplacement() -> Control:
+	var touches := ""
+	for code in [KEY_W, KEY_A, KEY_S, KEY_D]:
+		var k := KEY_NONE
+		if DisplayServer.get_name() != "headless":
+			k = DisplayServer.keyboard_get_label_from_physical(code)
+		touches += OS.get_keycode_string(k if k != KEY_NONE else code)
+	var l := Label.new()
+	l.name = "AideDeplacement"
+	l.text = "%s  ·  ← ↑ → ↓  ·  stick gauche" % touches
+	l.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	l.offset_left = -300
+	l.offset_right = 300
+	l.offset_top = -90
+	l.offset_bottom = -50
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.add_theme_font_size_override("font_size", 24)
+	l.add_theme_color_override("font_color", Color(0.95, 0.9, 0.8))
+	l.add_theme_color_override("font_outline_color", Color.BLACK)
+	l.add_theme_constant_override("outline_size", 6)
+	l.modulate.a = 0.0
+	l.hide()
+	return l
 
 
 func _construire_bivouac() -> void:
@@ -288,10 +343,19 @@ func _process(delta: float) -> void:
 
 func _jeu(delta: float) -> void:
 	temps_jeu += delta
-	if not relance_faite and temps_jeu >= RELANCE_VOX_S:
+	_suivre_aide_deplacement()
+	if joueur.en_mouvement or boite.visible:
+		inactif = 0.0
+	else:
+		inactif += delta
+	if not relance_faite and inactif >= RELANCE_VOX_S:
 		relance_faite = true
+		inactif = 0.0
 		jouer_vox("vox_relance")
-	if not boite.visible and (joueur.position.x >= EBOULEMENT_X or temps_jeu >= EBOULEMENT_MAX_S):
+	elif relance_faite and inactif >= GLISSEMENT_S:
+		_montrer_eboulement()
+		return
+	if not boite.visible and joueur.position.x >= EBOULEMENT_X:
 		_eboulement()
 		return
 	var poi := poi_proche()
@@ -304,6 +368,36 @@ func _jeu(delta: float) -> void:
 		joueur.actif = false
 		pois_vus[poi] = true
 		jouer_noeud(poi)
+
+
+## L'icône des touches apparaît si le joueur n'a pas bougé AIDE_DEPLACEMENT_S après la prise
+## en main, et disparaît au premier mouvement pour ne plus revenir.
+func _suivre_aide_deplacement() -> void:
+	if _a_bouge:
+		return
+	if joueur.en_mouvement:
+		_a_bouge = true
+		if _aide.visible:
+			var t := create_tween()
+			t.tween_property(_aide, "modulate:a", 0.0, 0.4)
+			t.tween_callback(_aide.hide)
+	elif not aide_vue and temps_jeu >= AIDE_DEPLACEMENT_S and not boite.visible:
+		aide_vue = true
+		_aide.show()
+		create_tween().tween_property(_aide, "modulate:a", 0.85, 0.6)
+
+
+## Filet de sécurité : le joueur n'a pas bougé depuis la relance. La caméra glisse doucement
+## jusqu'au poste d'Ilse, et l'éboulement se joue sous ses yeux.
+func _montrer_eboulement() -> void:
+	phase = "eboulement"
+	glissement_fait = true
+	joueur.actif = false
+	_invite.hide()
+	camera.cible = null
+	camera.jouer([{"position": [POSTE.x + 120, camera.position.y], "zoom": 1.0, "duree": 3.5, "courbe": "douce"}])
+	await camera.sequence_terminee
+	_eboulement()
 
 
 func poi_proche() -> String:
@@ -329,6 +423,7 @@ func _inviter(pos: Vector2, texte: String) -> void:
 func _eboulement() -> void:
 	phase = "eboulement"
 	_invite.hide()
+	_aide.hide()
 	Son.bruitage("eboulement")
 	var carcasse: Sprite2D = props.carcasse
 	var t := create_tween().set_parallel()
@@ -345,6 +440,9 @@ func _eboulement() -> void:
 	await get_tree().create_timer(3.0).timeout
 	jouer_vox("vox_rappel")
 	await get_tree().create_timer(3.0).timeout
+	# Après le plan de l'éboulement, la caméra revient doucement sur Vaskar.
+	camera.cible = joueur
+	joueur.actif = true
 	phase = "libre"
 	_grincement = Son.boucle_bruitage("poutre_grince")
 
@@ -409,6 +507,7 @@ func _lancer_choix() -> void:
 	phase = "choix"
 	joueur.actif = false
 	_invite.hide()
+	_jauge.hide()
 	jouer_noeud("choix")
 
 
@@ -431,6 +530,8 @@ func _action(type: String) -> void:
 	_jauge.hide()
 	_invite.hide()
 	var poutre: Sprite2D = props.poutre
+	# Vaskar reste dans le décor (et dans le cadre) : il s'arrête à la bannière de la 27e.
+	var arrivee := minf(joueur.position.x + 450.0, RASSEMBLEMENT_X + 40.0)
 	var t := create_tween()
 	match type:
 		"sortir":
@@ -443,14 +544,13 @@ func _action(type: String) -> void:
 			# Il lâche un signal sur le vox de l'Armée, pose la poutre sur une caisse et repart.
 			t.tween_property(poutre, "position", POUTRE + Vector2(0, -30), 0.4)
 			t.tween_callback(func(): joueur.sprite.flip_h = false)
-			t.tween_property(joueur, "position:x", joueur.position.x + 450, 1.8)
+			t.tween_property(joueur, "position:x", arrivee, 1.8)
 		_:
 			# Il lâche la poutre et se retourne vers la voie.
 			t.tween_property(poutre, "position", POUTRE, 0.15)
 			t.tween_callback(func(): joueur.sprite.flip_h = false)
-			t.tween_property(joueur, "position:x", joueur.position.x + 450, 1.8)
+			t.tween_property(joueur, "position:x", arrivee, 1.8)
 	await t.finished
-	camera.cible = null
 
 
 ## Dremm hoche la tête une fois : la tête est détachée de son calque (Decor25D.detacher_tete)
@@ -471,6 +571,65 @@ func _hochement() -> void:
 	t.tween_property(_tete_dremm, "rotation", 0.0, 0.35).set_trans(Tween.TRANS_SINE)
 	t.parallel().tween_property(_tete_dremm, "position", depart, 0.35)
 	await t.finished
+
+
+# --------------------------------------------------------------------------- écran de fin
+
+## Fin de la tranche : noir franc après l'écho, puis l'écran de fin (plus de rebouclage sur
+## l'ouverture). La partie est sauvegardée et l'épisode marqué terminé avant l'affichage.
+func _finir() -> void:
+	if phase == "ecran_fin":
+		return
+	var suivant := Jeu.clore_chapitre()
+	if not suivant.is_empty():
+		Jeu.aller_au_chapitre(suivant.episode, suivant.chapitre)
+		Jeu.sauver()
+		return
+	phase = "ecran_fin"
+	Son.musique("stop", 1.5)
+	Son.couper("ambiance", 2.5)
+	await _fondu_noir(1.0, 0.6)
+	ecran_fin = _construire_ecran_fin(RAPPEL_CHOIX.get(int(Jeu.drapeau("choix_ullanor", 3)), ""))
+	$UIJeu.add_child(ecran_fin)
+	ecran_fin.modulate.a = 0.0
+	create_tween().tween_property(ecran_fin, "modulate:a", 1.0, 0.8)
+	(ecran_fin.find_child("Rejouer", true, false) as Button).grab_focus.call_deferred()
+
+
+func _construire_ecran_fin(rappel: String) -> Control:
+	var centre := CenterContainer.new()
+	centre.name = "EcranFin"
+	centre.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var vb := VBoxContainer.new()
+	vb.alignment = BoxContainer.ALIGNMENT_CENTER
+	vb.add_theme_constant_override("separation", 18)
+	centre.add_child(vb)
+	var titre := Label.new()
+	titre.text = "Ullanor"
+	titre.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	titre.add_theme_font_size_override("font_size", 84)
+	titre.add_theme_color_override("font_color", Color("#F2EAD3"))
+	vb.add_child(titre)
+	var ligne := Label.new()
+	ligne.name = "Rappel"
+	ligne.text = rappel
+	ligne.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ligne.add_theme_font_size_override("font_size", 30)
+	ligne.add_theme_color_override("font_color", Color("#C9A44C"))
+	vb.add_child(ligne)
+	var espace := Control.new()
+	espace.custom_minimum_size.y = 40
+	vb.add_child(espace)
+	for d in [["Rejouer", func(): Jeu.nouvelle_partie(Jeu.etat.episode)], ["Quitter", func(): get_tree().quit()]]:
+		var b := Button.new()
+		b.name = d[0]
+		b.text = d[0]
+		b.custom_minimum_size = Vector2(320, 0)
+		b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		b.add_theme_font_size_override("font_size", 30)
+		b.pressed.connect(d[1])
+		vb.add_child(b)
+	return centre
 
 
 # --------------------------------------------------------------------------- vox

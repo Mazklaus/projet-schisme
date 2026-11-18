@@ -63,6 +63,10 @@ func _executer(nom: String, args: Array) -> void:
 ##   @fondu <nœud> <opacité> [s]
 ##   @teinte <nœud> <#couleur> [s]   modulate (assombrir, poussière…)
 ##   @echelle <nœud> <sx> <sy> [s]
+##   @fumee <nœud> <force> [s]       ombre de fumée mouvante sur une image ; les reflets
+##                                   clairs et chauds (armure dorée) restent allumés. 0 : dissipée
+##   @clameur <s> <texte…>           cri de foule : texte ivoire et or incrusté sur l'image,
+##                                   avec un tremblement de caméra
 ##   @sauver                         sauvegarde l'état de la partie
 ##   @ambiance <nom> [s]             boucle d'ambiance amb_<nom>, fondu enchaîné (autoload Son)
 ##   @musique <nom|stop> [s]         boucle de musique mus_<nom>, ou coupe la musique
@@ -108,6 +112,27 @@ func executer_commande(nom: String, args: Array) -> void:
 			var n := _noeud(args, 0) as Node2D
 			if n:
 				await _animer(n, "scale", Vector2(float(args[1]), float(args[2])), args, 3)
+		"fumee":
+			var n := _noeud(args, 0) as CanvasItem
+			if n and args.size() > 1:
+				var m := Chapitre.materiau_fumee(n)
+				var cible := float(args[1])
+				var duree := float(args[2]) if args.size() > 2 else 0.0
+				if duree <= 0.0:
+					m.set_shader_parameter("force", cible)
+				else:
+					# tween_method : les uniformes ne sont pas des propriétés listées partout
+					# (pilote factice des tests).
+					var t := create_tween()
+					t.tween_method(func(v: float): m.set_shader_parameter("force", v),
+						float(m.get_shader_parameter("force")), cible, duree)
+					await t.finished
+		"clameur":
+			if args.size() >= 2:
+				var duree := float(args[0])
+				camera.jouer([{"position": [camera.position.x, camera.position.y], "zoom": camera.zoom.x,
+					"duree": minf(duree, 1.6), "courbe": "lineaire", "tremblement": 9}])
+				await afficher_carton(" ".join(args.slice(1)), duree, false, COULEUR_CLAMEUR, CONTOUR_CLAMEUR)
 		"sauver":
 			Jeu.sauver()
 		"ambiance":
@@ -143,8 +168,56 @@ func _animer(n: Object, propriete: String, valeur: Variant, args: Array, i_duree
 	await t.finished
 
 
+const COULEUR_CLAMEUR := Color("#F2EAD3")
+const CONTOUR_CLAMEUR := Color("#B8892E")
+const SHADER_FUMEE := """
+shader_type canvas_item;
+// Ombre de fumée qui passe sur l'image : deux couches de bruit qui dérivent. Les pixels
+// clairs et chauds (reflets dorés) sont épargnés, pour que l'ombre ait une cause visible.
+uniform sampler2D bruit : repeat_enable, filter_linear;
+uniform float force = 0.0;
+uniform vec2 vitesse = vec2(0.05, 0.012);
+uniform vec3 teinte : source_color = vec3(0.30, 0.28, 0.26);
+void fragment() {
+	vec4 c = texture(TEXTURE, UV);
+	float n = texture(bruit, UV * vec2(1.1, 0.7) + TIME * vitesse).r;
+	float n2 = texture(bruit, UV * 2.4 - TIME * vitesse * 1.8).r;
+	float fumee = smoothstep(0.3, 0.7, n * 0.7 + n2 * 0.3);
+	float lum = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+	float reflet = smoothstep(0.55, 0.8, lum) * smoothstep(0.0, 0.12, c.r - c.b);
+	float ombre = force * mix(0.45, 1.0, fumee) * (1.0 - 0.85 * reflet);
+	c.rgb = mix(c.rgb, c.rgb * teinte, ombre);
+	COLOR = c;
+}
+"""
+
+
+## Matériau de fumée d'un nœud (créé à la première utilisation).
+static func materiau_fumee(n: CanvasItem) -> ShaderMaterial:
+	if n.material is ShaderMaterial and (n.material as ShaderMaterial).shader.resource_name == "fumee":
+		return n.material
+	var sh := Shader.new()
+	sh.resource_name = "fumee"
+	sh.code = SHADER_FUMEE
+	var bruit := FastNoiseLite.new()
+	bruit.frequency = 0.012
+	bruit.fractal_octaves = 4
+	var tex := NoiseTexture2D.new()
+	tex.noise = bruit
+	tex.seamless = true
+	tex.width = 256
+	tex.height = 256
+	var m := ShaderMaterial.new()
+	m.shader = sh
+	m.set_shader_parameter("bruit", tex)
+	m.set_shader_parameter("force", 0.0)
+	n.material = m
+	return m
+
+
 ## Texte plein écran (sur fond noir, ou sur l'image), avec fondu. Placeholder visuel.
-func afficher_carton(texte: String, duree: float, fond_noir := true) -> void:
+func afficher_carton(texte: String, duree: float, fond_noir := true, couleur := Color.WHITE,
+		contour := Color.BLACK) -> void:
 	var couche := CanvasLayer.new()
 	couche.layer = 50
 	var fond := ColorRect.new()
@@ -157,7 +230,8 @@ func afficher_carton(texte: String, duree: float, fond_noir := true) -> void:
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.set_anchors_preset(Control.PRESET_FULL_RECT)
 	l.add_theme_font_size_override("font_size", 56)
-	l.add_theme_color_override("font_outline_color", Color.BLACK)
+	l.add_theme_color_override("font_color", couleur)
+	l.add_theme_color_override("font_outline_color", contour)
 	l.add_theme_constant_override("outline_size", 0 if fond_noir else 10)
 	fond.add_child(l)
 	couche.add_child(fond)
