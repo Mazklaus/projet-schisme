@@ -18,7 +18,8 @@ extends Node2D
 ##      "position": [x, y],                # facultatif, coin haut-gauche en pixels du décor
 ##      "lumiere": true,                   # facultatif (vrai par défaut) : reçoit les Light2D
 ##      "ombre": "00_ciel_ombre.png",      # facultatif : ombres portées, en multiplication
-##      "voile": ["#C99A5B", 0.3]}]}       # facultatif : couleur et force du voile atmosphérique
+##      "voile": ["#C99A5B", 0.3],         # facultatif : couleur et force du voile atmosphérique
+##      "melange": "addition"}]}           # facultatif : calque en addition (particules, lueurs)
 ##
 ## L'origine du nœud est le coin haut-gauche du décor. Chaque calque devient un Parallax2D
 ## (scroll_scale = profondeur) contenant un Sprite2D texturé par une CanvasTexture
@@ -127,8 +128,12 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			if voile.has("couleur") and voile.has("d0_m"):
 				c.voile = [voile.couleur, 1.0 - exp(-d / float(voile.d0_m))]
 		else:
-			c.profondeur = 0.0 if f.get_file().begins_with("00_") else 1.0
+			var ciel := f.get_file().begins_with("00_")
+			c.profondeur = 0.0 if ciel else 1.0
 			c.lumiere = k.get("lumiere", false)
+			if not ciel:
+				# Particules : posées en addition légère, comme dans assembler.py.
+				c.melange = k.get("melange", "addition")
 		if ResourceLoader.exists(dossier.path_join(base + "_normal.png")):
 			c.normales = base + "_normal.png"
 		if ResourceLoader.exists(dossier.path_join(base + "_ombre.png")):
@@ -215,6 +220,10 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		m.set_shader_parameter("voile", Color(k.voile[0]))
 		m.set_shader_parameter("force", float(k.voile[1]))
 		sprite.material = m
+	elif k.get("melange", "") == "addition":
+		var add := CanvasItemMaterial.new()
+		add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		sprite.material = add
 	couche.add_child(sprite)
 	if k.has("ombre"):
 		# Ombres portées : calque à part en multiplication, déplaçable avec la lumière.

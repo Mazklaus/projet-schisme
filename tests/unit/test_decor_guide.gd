@@ -17,6 +17,8 @@ func test_conversion() -> void:
 	assert_eq(c[2].ombre, "calques/40_perso_ombre.png")
 	assert_almost_eq(c[1].voile[1], 1.0 - exp(-2.0), 0.001, "voile t = 1 - exp(-d/d0)")
 	assert_eq([c[3].profondeur, c[3].lumiere], [1.0, false], "particules devant, non éclairées")
+	assert_eq(c[3].melange, "addition")
+	assert_false(c[0].has("melange"), "le ciel reste en mélange normal")
 
 
 func test_construction() -> void:
