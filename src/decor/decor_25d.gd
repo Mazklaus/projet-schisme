@@ -21,6 +21,14 @@ extends Node2D
 ##      "voile": ["#C99A5B", 0.3],         # facultatif : couleur et force du voile atmosphérique
 ##      "melange": "addition"}]}           # facultatif : calque en addition (particules, lueurs)
 ##
+## Format du guide, tête séparée (facultatif, par calque de personnage) :
+##   "tete": {"corps": "calques/45_vaskar_corps.png", "fichier": "calques/45_vaskar_tete.png",
+##            "avant": "calques/45_vaskar_avant.png", "pivot_px": [1702.8, 507.9],
+##            "ordre": ["corps", "tete", "avant"], "rotation_max_deg": 15}
+## Sans ce bloc, detacher_tete() découpe la tête automatiquement dans le calque.
+## Pour chaque fichier, une version <nom>_plat.png (sans lumière cuite) est préférée si elle
+## existe, avec <nom>_plat_normal.png : le moteur éclaire lui-même.
+##
 ## L'origine du nœud est le coin haut-gauche du décor. Chaque calque devient un Parallax2D
 ## (scroll_scale = profondeur) contenant un Sprite2D texturé par une CanvasTexture
 ## (couleur + normales). Les lumières de la scène (PointLight2D, DirectionalLight2D) éclairent
@@ -143,8 +151,23 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				c.melange = k.get("melange", "addition")
 		if ResourceLoader.exists(dossier.path_join(base + "_normal.png")):
 			c.normales = base + "_normal.png"
+		# Version « plate » (albédo × occlusion, sans lumière cuite) : c'est elle que le moteur
+		# éclaire, sinon le contre-jour peint compterait deux fois. Le nœud garde le nom du calque.
+		if ResourceLoader.exists(dossier.path_join(base + "_plat.png")):
+			c.nom = f.get_file().get_basename()
+			c.fichier = base + "_plat.png"
+			if ResourceLoader.exists(dossier.path_join(base + "_plat_normal.png")):
+				c.normales = base + "_plat_normal.png"
 		if ResourceLoader.exists(dossier.path_join(base + "_ombre.png")):
 			c.ombre = base + "_ombre.png"
+		if typeof(k.get("tete")) == TYPE_DICTIONARY:
+			var t: Dictionary = k.tete
+			var manquants := ["corps", "fichier", "avant"].filter(
+				func(cle): return t.has(cle) and not ResourceLoader.exists(dossier.path_join(t[cle])))
+			if not t.has("pivot_px") or not t.has("fichier") or not t.has("corps") or not manquants.is_empty():
+				push_warning("Décor %s : bloc « tete » de %s incomplet, ignoré (%s)" % [g.get("plan", "?"), f, manquants])
+			else:
+				c.tete = t
 		calques.append(c)
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
 		"source": "guide", "cle": g.get("cle", {})}
@@ -200,7 +223,7 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	var p := maxf(float(k.get("profondeur", 1.0)), 0.0001)
 	var couche := Parallax2D.new()
 	# Nom de nœud sans « / » (les fichiers du guide sont dans calques/) : Calque_45_vaskar.
-	couche.name = "Calque_%s" % String(k.fichier).get_file().get_basename()
+	couche.name = "Calque_%s" % k.get("nom", String(k.fichier).get_file().get_basename())
 	couche.scroll_scale = Vector2(p, p)
 	# Parallax2D décale le calque de (1 - p) × (coin haut-gauche de la caméra). On compense
 	# pour que la composition peinte soit exacte quand la caméra est centrée sur le décor :
@@ -212,6 +235,10 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	tex.diffuse_texture = load(dossier.path_join(k.fichier))
 	if k.has("normales"):
 		tex.normal_texture = load(dossier.path_join(k.normales))
+	# Tête séparée (bloc « tete » du guide) : le calque affiche le corps seul, la tête et la
+	# partie du col qui passe devant sont des sprites à part (voir _poser_tete).
+	if k.has("tete"):
+		tex = _texture_avec_normales(dossier, k.tete.corps)
 	var sprite := Sprite2D.new()
 	sprite.name = "Image"
 	sprite.texture = tex
@@ -229,6 +256,8 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 		sprite.material = add
 	couche.add_child(sprite)
+	if k.has("tete"):
+		_poser_tete(couche, sprite, dossier, k.tete)
 	if k.has("ombre"):
 		# Ombres portées : calque à part en multiplication, déplaçable avec la lumière.
 		var ombre := Sprite2D.new()
@@ -242,6 +271,43 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		couche.add_child(ombre)
 	add_child(couche)
 	return couche
+
+
+## Texture couleur + normales d'une partie ; préfère la version plate (_plat, _plat_normal).
+static func _texture_avec_normales(dossier: String, fichier: String) -> CanvasTexture:
+	var base := fichier.get_basename()
+	var tex := CanvasTexture.new()
+	var plat := ResourceLoader.exists(dossier.path_join(base + "_plat.png"))
+	tex.diffuse_texture = load(dossier.path_join(base + ("_plat.png" if plat else ".png")))
+	for n in ([base + "_plat_normal.png", base + "_normal.png"] if plat else [base + "_normal.png"]):
+		if ResourceLoader.exists(dossier.path_join(n)):
+			tex.normal_texture = load(dossier.path_join(n))
+			break
+	return tex
+
+
+## Tête séparée livrée par la chaîne d'images : corps (déjà dans « Image »), tête, puis
+## « avant » (le col devant le cou), dans l'ordre de « ordre ». Plein cadre, même origine.
+## La tête pivote autour de pivot_px ; sa rotation est bornée par rotation_max_deg.
+func _poser_tete(couche: Node, corps: Sprite2D, dossier: String, t: Dictionary) -> void:
+	var pivot := Vector2(t.pivot_px[0], t.pivot_px[1])
+	var ordre: Array = t.get("ordre", ["corps", "tete", "avant"])
+	for partie in ordre:
+		if partie == "corps" or (partie == "avant" and not t.has("avant")):
+			continue
+		var s := Sprite2D.new()
+		s.name = "Tete" if partie == "tete" else "Avant"
+		s.texture = _texture_avec_normales(dossier, t.fichier if partie == "tete" else t.avant)
+		s.centered = false
+		s.light_mask = corps.light_mask
+		s.material = corps.material
+		if partie == "tete":
+			s.position = corps.position + pivot
+			s.offset = -pivot
+			s.set_meta("rotation_max", deg_to_rad(float(t.get("rotation_max_deg", 15.0))))
+		else:
+			s.position = corps.position
+		couche.add_child(s)
 
 
 static func materiau_voile() -> ShaderMaterial:
@@ -261,6 +327,9 @@ func detacher_tete(nom_calque: String) -> Sprite2D:
 	var couche := get_node_or_null(nom_calque)
 	if couche == null:
 		return null
+	# Tête déjà livrée en calque séparé (bloc « tete ») : rien à détacher.
+	if couche.has_node("Tete"):
+		return couche.get_node("Tete")
 	var image_sprite := couche.get_node("Image") as Sprite2D
 	var tex := image_sprite.texture as CanvasTexture
 	var zone := Decor25D.zone_tete(tex.diffuse_texture.get_image())
@@ -286,6 +355,7 @@ func detacher_tete(nom_calque: String) -> Sprite2D:
 	var cou := Vector2(zone.position.x + zone.size.x / 2.0, zone.end.y)
 	tete.position = image_sprite.position + cou
 	tete.offset = Vector2(zone.position) - cou
+	tete.set_meta("rotation_max", deg_to_rad(15.0))
 	couche.add_child(tete)
 	return tete
 
@@ -330,8 +400,16 @@ func memoire_textures() -> int:
 	var total := 0
 	for c in calques:
 		var tex := (c.get_node("Image") as Sprite2D).texture as CanvasTexture
-		var ombre := c.get_node_or_null("Ombre") as Sprite2D
-		for t in [tex.diffuse_texture, tex.normal_texture, ombre.texture if ombre else null]:
+		for t in [tex.diffuse_texture, tex.normal_texture]:
 			if t != null:
 				total += t.get_width() * t.get_height() * 4
+		for nom in ["Ombre", "Tete", "Avant"]:
+			var s := c.get_node_or_null(nom) as Sprite2D
+			if s == null or (nom == "Tete" and s.region_enabled):
+				continue  # une tête détachée partage la texture du calque
+			var st := s.texture
+			var lst: Array = [st.diffuse_texture, st.normal_texture] if st is CanvasTexture else [st]
+			for t in lst:
+				if t != null:
+					total += t.get_width() * t.get_height() * 4
 	return total
