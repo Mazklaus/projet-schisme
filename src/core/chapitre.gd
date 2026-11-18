@@ -64,6 +64,10 @@ func _executer(nom: String, args: Array) -> void:
 ##   @teinte <nœud> <#couleur> [s]   modulate (assombrir, poussière…)
 ##   @echelle <nœud> <sx> <sy> [s]
 ##   @sauver                         sauvegarde l'état de la partie
+##   @ambiance <nom> [s]             boucle d'ambiance amb_<nom>, fondu enchaîné (autoload Son)
+##   @musique <nom|stop> [s]         boucle de musique mus_<nom>, ou coupe la musique
+##   @bruitage <nom>                 bruitage sfx_<nom> (ou une de ses variantes), une fois
+##   (les commandes de son rendent la main tout de suite)
 ##   @fin                            termine le chapitre
 ## Les chemins de nœuds sont relatifs à la scène de chapitre.
 func executer_commande(nom: String, args: Array) -> void:
@@ -106,6 +110,15 @@ func executer_commande(nom: String, args: Array) -> void:
 				await _animer(n, "scale", Vector2(float(args[1]), float(args[2])), args, 3)
 		"sauver":
 			Jeu.sauver()
+		"ambiance":
+			if not args.is_empty():
+				Son.ambiance(args[0], float(args[1]) if args.size() > 1 else 2.0)
+		"musique":
+			if not args.is_empty():
+				Son.musique(args[0], float(args[1]) if args.size() > 1 else 2.0)
+		"bruitage":
+			if not args.is_empty():
+				Son.bruitage(args[0])
 		"fin":
 			_finir()
 		_:

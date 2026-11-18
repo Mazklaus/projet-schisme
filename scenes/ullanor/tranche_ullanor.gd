@@ -63,6 +63,8 @@ var _jauge: ProgressBar
 var _voile_noir: ColorRect
 var _vox_file: Array[String] = []
 var _vox_actif := false
+## Grincement de la poutre pendant la QTE et le choix (volume et hauteur suivent qte).
+var _grincement: AudioStreamPlayer
 
 
 func _ready() -> void:
@@ -72,6 +74,8 @@ func _ready() -> void:
 	_attacher_figurants_cine()
 	bivouac.visible = false
 	super._ready()
+	# Le tic sourd du choix minuté, calé sur la barre de temps de la boîte.
+	boite.delai_seconde.connect(func(_restant: int): Son.bruitage("choix_tic"))
 
 
 # --------------------------------------------------------------------------- construction
@@ -260,6 +264,8 @@ func _dialogue_fini() -> void:
 
 
 func _commencer_jeu() -> void:
+	Son.ambiance("ullanor_bivouac", 2.0)
+	Son.musique("stop", 6.0)
 	await _changer_decor("bivouac")
 	phase = "jeu"
 	camera.cible = joueur
@@ -323,6 +329,7 @@ func _inviter(pos: Vector2, texte: String) -> void:
 func _eboulement() -> void:
 	phase = "eboulement"
 	_invite.hide()
+	Son.bruitage("eboulement")
 	var carcasse: Sprite2D = props.carcasse
 	var t := create_tween().set_parallel()
 	t.tween_property(carcasse, "rotation", -0.35, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -339,6 +346,7 @@ func _eboulement() -> void:
 	jouer_vox("vox_rappel")
 	await get_tree().create_timer(3.0).timeout
 	phase = "libre"
+	_grincement = Son.boucle_bruitage("poutre_grince")
 
 
 func _poussiere(pos: Vector2) -> void:
@@ -392,6 +400,9 @@ func _trembler_poutre() -> void:
 	var poutre: Sprite2D = props.poutre
 	var ampli := 2.5 * qte
 	poutre.position = POUTRE + Vector2(randf_range(-ampli, ampli), -14.0 * qte + randf_range(-ampli, ampli))
+	if _grincement:
+		_grincement.volume_db = linear_to_db(maxf(qte, 0.001))
+		_grincement.pitch_scale = 0.9 + 0.25 * qte
 
 
 func _lancer_choix() -> void:
@@ -413,6 +424,10 @@ func _decider(noeud: String) -> void:
 func _action(type: String) -> void:
 	phase = "fin"
 	choix_fait = type
+	if _grincement:
+		create_tween().tween_property(_grincement, "volume_db", Son.SILENCE_DB, 0.3)
+		get_tree().create_timer(0.35).timeout.connect(_grincement.queue_free)
+		_grincement = null
 	_jauge.hide()
 	_invite.hide()
 	var poutre: Sprite2D = props.poutre
@@ -479,6 +494,8 @@ func _vox_suivant() -> void:
 		return
 	_vox_actif = true
 	var texte: String = _vox_file.pop_front()
+	if texte.contains("(vox)"):
+		Son.bruitage("vox_crepite")
 	_vox.text = texte
 	_vox.show()
 	await get_tree().create_timer(maxf(2.5, texte.length() * 0.06)).timeout
