@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "taille": [
+    2560,
+    1080
+  ],
+  "calques": [
+    {
+      "fichier": "00_ciel.png",
+      "profondeur": 0.05,
+      "lumiere": false
+    },
+    {
+      "fichier": "10_collines.png",
+      "normales": "10_collines_n.png",
+      "profondeur": 0.3
+    },
+    {
+      "fichier": "20_ruines.png",
+      "normales": "20_ruines_n.png",
+      "profondeur": 0.6
+    },
+    {
+      "fichier": "30_sol.png",
+      "normales": "30_sol_n.png",
+      "profondeur": 1.0
+    },
+    {
+      "fichier": "40_colonne.png",
+      "normales": "40_colonne_n.png",
+      "profondeur": 1.3,
+      "position": [
+        1700,
+        380
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "ep00_prologue",
+  "numero": 0,
+  "titre": "Prologue (démo technique)",
+  "chapitres": [
+    {
+      "id": "c01",
+      "titre": "Démo : décor, caméra, choix",
+      "scene": "res://scenes/demo/chapitre_demo.tscn",
+      "dialogue": "res://data/dialogues/ep00/c01.dlg",
+      "plans": "res://data/episodes/ep00_prologue/c01_plans.json"
+    },
+    {
+      "id": "c02",
+      "titre": "Démo : conséquences",
+      "scene": "res://scenes/demo/chapitre_demo.tscn",
+      "dialogue": "res://data/dialogues/ep00/c02.dlg",
+      "plans": "res://data/episodes/ep00_prologue/c01_plans.json"
+    }
+  ]
+}

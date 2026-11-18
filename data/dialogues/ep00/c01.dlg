@@ -1,0 +1,28 @@
+// Démo technique du lecteur de dialogues : texte provisoire, pas le script du jeu.
+=== debut
+@carton 2.5 Prologue. Démo technique.
+@plan ouverture
+> Une plaine de cendre, au crépuscule.
+CAPITAINE: Tiens ta position.
+SOLDATE (blessée): À l'aide… sous la poutre…
+@lumiere Soleil 0.4 1.0
+@plan eboulement
+-> choix
+
+=== choix
+// Choix minuté : sans réponse en 8 s, le silence vaut « obéir ».
+* La sortir de là -> aider
+* Obéir au capitaine -> obeir
+*! 8 -> obeir
+
+=== aider
+~ soldate_vivante = true
+~ relation_capitaine -= 1
+CAPITAINE: Tu as quitté le rang.
+-> FIN
+
+=== obeir
+~ soldate_vivante = false
+~ relation_capitaine += 1
+> Il lâche la poutre et se retourne.
+-> FIN
