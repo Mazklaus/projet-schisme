@@ -66,3 +66,15 @@ func test_noeud_entre_est_signale() -> void:
 	watch_signals(l)
 	l.avancer()
 	assert_signal_emitted_with_parameters(l, "noeud_entre", ["b"])
+
+
+func test_boite_compte_les_secondes_du_choix_minute() -> void:
+	var d := FormatDialogue.analyser("=== a\n* x -> b\n*! 3 -> b\n=== b\nA: b")
+	var boite := BoiteDialogue.new()
+	add_child_autofree(boite)
+	watch_signals(boite)
+	boite.lancer(LecteurDialogue.new(d), "a")
+	for i in 40:
+		boite._process(0.1)
+	assert_signal_emit_count(boite, "delai_seconde", 3, "3, 2, 1")
+	assert_signal_emitted(boite, "delai_expire")

@@ -17,6 +17,7 @@ extends Chapitre
 ##   @decor ullanor|bivouac    change de décor (fondu enchaîné court)
 ##   @jeu                      la ciné d'ouverture rend la main au joueur
 ##   @action sortir|auxiliaires|obeir   ce que fait Vaskar après le choix
+##   @hochement                Dremm hoche la tête une fois (5a, auxiliaires et obéi)
 ##
 ## Personnages et objets : placeholders (tools/placeholders/generer_tranche_ullanor.py),
 ## remplacés au même nom par la chaîne d'images.
@@ -221,6 +222,8 @@ func _commande_specifique(nom: String, args: Array) -> void:
 			phase = "vers_jeu"
 		"action":
 			await _action(args[0] if not args.is_empty() else "obeir")
+		"hochement":
+			await _hochement()
 		_:
 			await super._commande_specifique(nom, args)
 
@@ -433,6 +436,25 @@ func _action(type: String) -> void:
 			t.tween_property(joueur, "position:x", joueur.position.x + 450, 1.8)
 	await t.finished
 	camera.cible = null
+
+
+## Dremm hoche la tête une fois : la tête est détachée de son calque (Decor25D.detacher_tete)
+## et pivote au cou, puis revient.
+var _tete_dremm: Sprite2D
+
+func _hochement() -> void:
+	if _tete_dremm == null:
+		_tete_dremm = ullanor.detacher_tete("Calque_48_dremm")
+	if _tete_dremm == null:
+		push_warning("Hochement : tête de Dremm introuvable dans son calque")
+		return
+	var depart := _tete_dremm.position
+	var t := create_tween()
+	t.tween_property(_tete_dremm, "rotation", 0.09, 0.28).set_trans(Tween.TRANS_SINE)
+	t.parallel().tween_property(_tete_dremm, "position", depart + Vector2(0, 4), 0.28)
+	t.tween_property(_tete_dremm, "rotation", 0.0, 0.35).set_trans(Tween.TRANS_SINE)
+	t.parallel().tween_property(_tete_dremm, "position", depart, 0.35)
+	await t.finished
 
 
 # --------------------------------------------------------------------------- vox

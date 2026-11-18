@@ -33,7 +33,9 @@ Les relations sont bornées de −3 à +3. Elles sont sauvegardées dans `user:/
 
 Les personnages et objets du bivouac, le décor du bivouac, les silhouettes de l'Empereur et d'Horus dans l'ouverture et le gros plan d'Horus sont générés par `tools/placeholders/generer_tranche_ullanor.py`. Il suffit de les remplacer en gardant le même nom de fichier (`assets/tranche_ullanor/props/<nom>.png` et `_normal.png`).
 
-Pas encore fait : le son et la musique (rien n'est branché) et le hochement de tête de Dremm en 5a. Ce dernier attend des calques de personnages découpés.
+Pas encore fait : le son et la musique (rien n'est branché).
+
+Le hochement de tête de Dremm en 5a (`@hochement`) détache automatiquement la tête de son calque plein cadre (`Decor25D.detacher_tete`), du haut de la silhouette jusqu'aux épaules, et la fait pivoter au cou. Rien n'est à préparer côté images.
 
 ## Tests automatiques
 
