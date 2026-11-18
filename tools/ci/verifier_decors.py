@@ -18,9 +18,41 @@ CALQUES_MAX = 16
 NOM = re.compile(r"^\d{2}_[a-z0-9_]+\.png$")
 
 
+def verifier_guide(dossier, chemin, g):
+    """<plan>.json du guide de style de la DA (§6) : fichiers, _normal et _ombre à la bonne taille."""
+    erreurs = []
+    cadre = g.get("cadre_px")
+    if not (isinstance(cadre, list) and len(cadre) == 2):
+        return ["cadre_px absent ou invalide"]
+    for k in g.get("calques") or []:
+        f = k.get("fichier", "")
+        p = os.path.join(dossier, f)
+        if not os.path.isfile(p):
+            print(f"::warning file={chemin}::{f} absent (calque ignoré par le moteur)")
+            continue
+        taille = Image.open(p).size
+        if list(taille) != list(cadre):
+            erreurs.append(f"{f} : {taille[0]}×{taille[1]} au lieu du cadre {cadre[0]}×{cadre[1]}")
+        for suffixe in ("_normal.png", "_ombre.png"):
+            q = p[:-4] + suffixe
+            if os.path.isfile(q) and Image.open(q).size != taille:
+                erreurs.append(f"{os.path.basename(q)} : taille différente de {f}")
+    return erreurs
+
+
 def verifier(dossier):
     erreurs = []
     chemin = os.path.join(dossier, "decor.json")
+    if not os.path.isfile(chemin):
+        for f in sorted(os.listdir(dossier)):
+            if f.endswith(".json"):
+                with open(os.path.join(dossier, f), encoding="utf-8") as fic:
+                    try:
+                        g = json.load(fic)
+                    except ValueError as e:
+                        return [f"{f} illisible : {e}"]
+                if "cadre_px" in g:
+                    return verifier_guide(dossier, os.path.join(dossier, f), g)
     try:
         with open(chemin, encoding="utf-8") as f:
             d = json.load(f)

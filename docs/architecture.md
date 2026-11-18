@@ -30,6 +30,16 @@ Le format est défini dans `assets/decors/<id>/decor.json`. Il est documenté en
 - `lumiere` vaut `false` pour un ciel qui ne doit pas recevoir les lumières.
 - Cadre de référence : la composition est exacte quand la caméra est centrée sur le décor au zoom 1.
 
+Le moteur lit aussi tel quel le format du guide de style de la DA (`guide-de-style.md`, §6), sans conversion préalable : le `<plan>.json` qui contient `cadre_px` (par exemple `ullanor.json`). Dans ce format :
+
+- `distance_m` donne la parallaxe en 1/d, et le calque le plus proche sert de référence (profondeur 1). On peut forcer la référence avec `distance_reference_m`.
+- Un calque sans distance est soit le ciel (`00_…`, fixe), soit des particules (au premier plan). Ni l'un ni l'autre n'est éclairé.
+- Les fichiers `<nom>_normal.png` et `<nom>_ombre.png` (en multiplication) sont repris automatiquement.
+- Le `voile` (couleur, `d0_m`) est appliqué par un shader, avec t = 1 − exp(−d/d0), comme dans `assembler.py`.
+- Un calque absent est ignoré, avec un avertissement.
+
+Pour comparer avec l'assemblage de la DA, `tools/ci/capture_decor.gd` rend un décor tel que le moteur l'affiche.
+
 L'éclairage passe par des `PointLight2D` ou `DirectionalLight2D` placées dans la scène, avec un `CanvasModulate` pour l'ambiance. Les normales donnent le relief.
 
 ## Dialogues (`.dlg`)

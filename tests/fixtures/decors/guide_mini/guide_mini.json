@@ -1,0 +1,27 @@
+{
+  "plan": "guide_mini",
+  "cadre_px": [
+    64,
+    36
+  ],
+  "voile": {
+    "couleur": "#C99A5B",
+    "d0_m": 3000
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel.png"
+    },
+    {
+      "fichier": "calques/10_fond.png",
+      "distance_m": 6000
+    },
+    {
+      "fichier": "calques/40_perso.png",
+      "distance_m": 5
+    },
+    {
+      "fichier": "calques/90_particules.png"
+    }
+  ]
+}
