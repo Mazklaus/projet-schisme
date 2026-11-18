@@ -1,0 +1,5 @@
+.godot/
+*.import.tmp
+/build/
+/export_presets.cfg.local
+__pycache__/

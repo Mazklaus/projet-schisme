@@ -1,0 +1,11 @@
+{
+  "ouverture": [
+    {"position": [1280, 400], "zoom": 0.75, "duree": 0},
+    {"position": [1500, 560], "zoom": 1.0, "duree": 3.0, "courbe": "douce"},
+    {"position": [1900, 640], "zoom": 1.4, "duree": 2.0, "courbe": "sortie"}
+  ],
+  "eboulement": [
+    {"position": [1900, 640], "zoom": 1.4, "duree": 0.8, "courbe": "lineaire", "tremblement": 24},
+    {"position": [1280, 540], "zoom": 1.0, "duree": 1.5, "courbe": "douce"}
+  ]
+}

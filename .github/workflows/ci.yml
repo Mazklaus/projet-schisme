@@ -1,0 +1,97 @@
+# CI du projet Schisme (dépôt privé : les minutes Actions sont comptées, la CI reste légère).
+# Sur chaque PR et sur main : vérification des décors, tests GUT, parcours complet de la démo.
+# L'export Windows/Linux ne tourne qu'à la demande (workflow_dispatch) : les modèles d'export
+# pèsent ~1 Go, et les builds restent des artefacts privés du dépôt (ne jamais les diffuser).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      exporter:
+        description: "Exporter les builds Windows et Linux"
+        type: boolean
+        default: false
+
+env:
+  GODOT_VERSION: "4.7.2"
+  GODOT_RELEASE: "stable"
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  decors:
+    name: Contrat des décors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install --quiet pillow
+      - run: python3 tools/ci/verifier_decors.py .
+
+  tests:
+    name: Tests et parcours de la démo
+    needs: decors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}
+      - name: Installer Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          V="${GODOT_VERSION}-${GODOT_RELEASE}"
+          mkdir -p ~/godot
+          curl -fsSL -o /tmp/godot.zip "https://github.com/godotengine/godot/releases/download/${V}/Godot_v${V}_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d ~/godot
+          mv ~/godot/Godot_v${V}_linux.x86_64 ~/godot/godot
+      - name: Import
+        run: ~/godot/godot --headless --import
+      - name: Tests GUT
+        # GUT ignore en silence un script qui ne compile pas : on échoue explicitement.
+        run: |
+          set -o pipefail
+          ~/godot/godot --headless -s addons/gut/gut_cmdln.gd -gconfig=res://.gutconfig.json -gexit 2>&1 | tee gut.log
+          if grep -E "SCRIPT ERROR|Failed to load script|Ignoring script" gut.log; then
+            echo "::error::Un script ne compile pas (voir ci-dessus)"; exit 1
+          fi
+      - name: Parcours de la démo (3 branches du choix)
+        run: |
+          for c in 0 1 attendre; do
+            ~/godot/godot --headless -s res://tools/ci/parcours_demo.gd -- --choix=$c 2>&1 | tee parcours.log
+            if grep -E "SCRIPT ERROR|^ERROR" parcours.log; then exit 1; fi
+          done
+
+  export:
+    name: Export Windows et Linux
+    if: github.event_name == 'workflow_dispatch' && inputs.exporter
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Godot et modèles d'export
+        run: |
+          V="${GODOT_VERSION}-${GODOT_RELEASE}"
+          curl -fsSL -o /tmp/godot.zip "https://github.com/godotengine/godot/releases/download/${V}/Godot_v${V}_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d /tmp && mv /tmp/Godot_v${V}_linux.x86_64 /tmp/godot
+          curl -fsSL -o /tmp/tpl.tpz "https://github.com/godotengine/godot/releases/download/${V}/Godot_v${V}_export_templates.tpz"
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}
+          unzip -q -j /tmp/tpl.tpz "templates/linux_release.x86_64" "templates/windows_release_x86_64.exe" "templates/version.txt" -d ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}
+      - name: Export
+        run: |
+          mkdir -p build/linux build/windows
+          /tmp/godot --headless --import
+          /tmp/godot --headless --export-release "Linux" build/linux/projet-schisme.x86_64
+          /tmp/godot --headless --export-release "Windows" build/windows/projet-schisme.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: builds-prives
+          path: build/
+          retention-days: 7
