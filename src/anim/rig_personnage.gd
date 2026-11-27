@@ -24,6 +24,9 @@ const ORDRE := [
 ## Variantes : même os que leur pièce de base pour les angles, une seule visible à la fois.
 const VARIANTES := {"main_avant_pointe": "main_avant", "main_avant_poing": "main_avant",
 	"main_avant_pommeau": "main_avant", "tete_face": "tete", "tete_casque": "tete"}
+## Part de la rotation du bras que suit l'épaulière (une épaulière d'Astartes ne se lève pas
+## avec le bras comme une aile : elle pivote bien moins que lui).
+const EPAULIERE_SUIT := 0.35
 const MAINS := ["main_avant", "main_avant_pointe", "main_avant_poing", "main_avant_pommeau"]
 ## Profil de mouvement par défaut (humain) ; gestes.json « profils » le précise par type de rig.
 ## Un Astartes (2,30 m, armure énergétique) marche plus lentement, avec moins d'amplitude et plus
@@ -65,6 +68,9 @@ var _relancer := false
 ## Pièces dédiées à un geste (« montre » dans gestes.json) : cachées hors de leur geste.
 var _pieces_de_geste: Array = []
 var _hauteur := 0.0
+## Hauteur de hanche rapportée à celle d'Ilse (165 px source) : la descente du bassin d'un
+## geste (agenouiller) suit la taille du personnage.
+var echelle_hanche := 1.0
 var _phase_marche := 0.0
 var _poids_marche := 0.0
 var _temps := 0.0
@@ -96,6 +102,7 @@ func construire(d: Dictionary, dossier: String) -> void:
 	_hauteur = 0.0
 	for n in P:
 		_hauteur = maxf(_hauteur, pieds.y - float(P[n].pose[1]))
+	echelle_hanche = (pieds.y - _pivot_planche(P.cuisse_avant).y) / 165.0 if P.has("cuisse_avant") else 1.0
 	squelette = Skeleton2D.new()
 	squelette.name = "Squelette"
 	add_child(squelette)
@@ -273,7 +280,7 @@ func avancer(delta: float) -> void:
 		and (g.get("tenir", false) or _temps_geste < _entree + float(g.get("duree", 1.0)))
 	if actif != _transition_vers_geste or _relancer:
 		_relancer = false
-		_lancer_transition(os_du_geste(g) if actif else {}, float(g.get("bassin_y", 0.0)) if actif else 0.0, actif)
+		_lancer_transition(os_du_geste(g) if actif else {}, bassin_du_geste(g) if actif else 0.0, actif)
 	_t_transition = minf(1.0, _t_transition + delta / (_entree if actif else _sortie))
 	var f := courbe_geste(_t_transition)
 	for n in _cible_geste:
@@ -288,6 +295,8 @@ func avancer(delta: float) -> void:
 	for n in _pose_geste:
 		angles[n] = float(angles.get(n, 0.0)) * (1.0 - _poids) + _pose_geste[n]
 	angles["tete"] = float(angles.get("tete", 0.0)) + regard_deg
+	for c in ["avant", "arriere"]:
+		angles["epauliere_" + c] = -float(angles.get("bras_" + c, 0.0)) * (1.0 - EPAULIERE_SUIT)
 	for n in os:
 		var base: String = VARIANTES.get(n, n)
 		os[n].rotation = deg_to_rad(float(angles.get(base, 0.0)))
@@ -378,6 +387,15 @@ func os_du_geste(g: Dictionary) -> Dictionary:
 	for n in g.get("os", {}):
 		r[n] = float(g.os[n]) * k
 	return r
+
+
+## Descente du bassin d'un geste : celle du bloc propre au type, sinon celle du geste à
+## l'échelle de la hanche du personnage.
+func bassin_du_geste(g: Dictionary) -> float:
+	var propre: Dictionary = g.get(type_rig, {})
+	if propre.has("bassin_y"):
+		return float(propre.bassin_y)
+	return float(g.get("bassin_y", 0.0)) * echelle_hanche
 
 
 func _variantes(main: String, tete: String, casque_tenu: bool) -> void:

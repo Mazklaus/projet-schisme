@@ -11,6 +11,15 @@
         "main_avant": -5,
         "torse": -3,
         "tete": -4
+      },
+      "astartes": {
+        "os": {
+          "bras_avant": -90,
+          "avant_bras_avant": -6,
+          "main_avant": -4,
+          "torse": -2,
+          "tete": -3
+        }
       }
     },
     "croiser_bras": {

@@ -182,7 +182,7 @@ func test_astartes_plus_lourd_et_plus_lent() -> void:
 	# Gestes économes : même geste, moins d'amplitude, entrée plus longue.
 	a.jouer_geste("montrer")
 	_avancer(a, 1.5)
-	assert_almost_eq(rad_to_deg(a.os.bras_avant.rotation), -80.0 * float(a.profil.gestes), 3.0)
+	assert_almost_eq(rad_to_deg(a.os.bras_avant.rotation), -90.0, 3.0, "bloc propre : le bras dégage le torse")
 	assert_gt(a.duree_visible("montrer"), h.duree_visible("montrer"))
 
 
@@ -202,3 +202,26 @@ func test_casque_sans_piece() -> void:
 	assert_true(r.jouer_geste("main_pommeau"))
 	_avancer(r, 1.5)
 	assert_true(r.pieces.main_avant.visible, "pas de main_avant_pommeau livrée : main ordinaire")
+
+
+
+func test_epauliere_suit_peu_le_bras() -> void:
+	# Pièce d'épaulière ajoutée à Ilse pour le test (le contrat la réserve aux Astartes).
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d.pieces["epauliere_avant"] = {"fichier": "bras_avant.png", "pose": [6, 61], "pivot": [17, 18], "parent": "bras_avant"}
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	r.jouer_geste("montrer")
+	_avancer(r, 1.5)
+	var bras := rad_to_deg(r.os.bras_avant.rotation)
+	var globale := bras + rad_to_deg(r.os.epauliere_avant.rotation)
+	assert_almost_eq(globale, bras * RigPersonnage.EPAULIERE_SUIT, 1.0, "l'épaulière ne se lève pas comme une aile")
+
+
+func test_bassin_a_l_echelle_de_la_hanche() -> void:
+	var r := _rig()
+	assert_almost_eq(r.echelle_hanche, 1.0, 0.01, "Ilse sert de référence")
+	r.echelle_hanche = 1.2
+	assert_almost_eq(r.bassin_du_geste({"bassin_y": 85}), 102.0, 0.01)
+	assert_eq(r.bassin_du_geste({"bassin_y": 85, "humain": {"bassin_y": 40}}), 40.0)
