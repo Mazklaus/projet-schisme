@@ -2,7 +2,7 @@
  "perso": "ilse",
  "type": "humain",
  "planche": [
-  117,
+  126,
   358
  ],
  "pieds": [
@@ -223,6 +223,18 @@
    "pivot": [
     18,
     31
+   ],
+   "parent": "torse"
+  },
+  "mains_graver": {
+   "fichier": "mains_graver.png",
+   "pose": [
+    13,
+    116
+   ],
+   "pivot": [
+    19,
+    15
    ],
    "parent": "torse"
   },

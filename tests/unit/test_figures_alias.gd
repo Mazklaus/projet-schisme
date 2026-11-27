@@ -26,7 +26,7 @@ func test_poser_figure_sprite() -> void:
 func test_alias_etat_selon() -> void:
 	var r := CJ.resoudre_decor("archive_fin")
 	assert_eq(r.decor, "archive")
-	assert_eq(CJ.etat_selon(r.etat_selon, {"choix_ep01_orvane": 1}), "fin_courte")
-	assert_eq(CJ.etat_selon(r.etat_selon, {"choix_ep01_orvane": 2}), "fin_longue")
+	assert_eq(CJ.etat_selon(r.etat_selon, {"choix_ep01_orvane": 1}), "fin_longue")
+	assert_eq(CJ.etat_selon(r.etat_selon, {"choix_ep01_orvane": 2}), "fin_courte")
 	assert_eq(CJ.resoudre_decor("archive_ch2_fin").etat, "ch2_fin")
 	assert_true(CJ.resoudre_decor("orvane_matin").etat_selon.is_empty())
