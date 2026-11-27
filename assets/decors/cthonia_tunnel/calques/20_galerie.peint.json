@@ -1,0 +1,14 @@
+{
+ "outil": "peindre_plan.py",
+ "source": "/home/user/tp3/install_tmp/cthonia_tunnel/20_galerie.png",
+ "sortie": "calques/20_galerie.png",
+ "date": "2026-11-27T19:46:29",
+ "reglages": {
+  "paliers": 7,
+  "sp": 9,
+  "sr": 20,
+  "grosse": 16,
+  "fine": 6,
+  "ouverture": 0
+ }
+}

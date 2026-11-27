@@ -1,0 +1,41 @@
+{
+  "entree": "episode-01/terra_unification/calques/10_ruines.png",
+  "sortie": "calques/10_ruines.png",
+  "date": "2026-11-27T16:11:55",
+  "modeles": [
+    "Lykon/dreamshaper-xl-lightning",
+    "diffusers/controlnet-depth-sdxl-1.0-small",
+    "madebyollin/sdxl-vae-fp16-fix"
+  ],
+  "invite": ", ruined gothic arcology towers, gutted facades, hanging collapsed floors, twisted steel girders, broken spires, depth between blocks, pale ash haze, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+  "invite_negative": "people, figures, faces, text, letters, glowing light, lamp, sun, colour, saturated, smooth, flat, plain, stripes, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
+  "reglages": {
+    "modele": "xl",
+    "preset": "ruined gothic arcology towers, gutted facades, hanging collapsed floors, twisted steel girders, broken spires, depth between blocks, pale ash haze",
+    "invite": "",
+    "force": 0.75,
+    "pas": 8,
+    "cfg": 2.0,
+    "controle": 0.5,
+    "largeur": 1536,
+    "profondeur": "",
+    "fond": "B6AE9C",
+    "marge": 0.08,
+    "alpha_nouveau": false,
+    "lumiere": 10.0,
+    "couleur": 0.7,
+    "composantes": false,
+    "masque": "",
+    "proteger": "",
+    "negatif": "people, figures, faces, text, letters, glowing light, lamp, sun, colour, saturated, smooth, flat, plain, stripes",
+    "identite": "",
+    "identite_force": 0.6,
+    "graines": "62"
+  },
+  "statut": "fige",
+  "note": "passer statut a 'fige' quand la DA a choisi et le GD valide",
+  "pretraitement": "pretexture amp 0.25 graine 2",
+  "choix": "DA 27/11 19:49 (10_ruines_g62)",
+  "installe": "2026-11-27T19:50:17",
+  "note_4k": "4k = agrandissement provisoire du 1080 peint, à refaire au lot 4k de fin"
+}

@@ -18,7 +18,7 @@ const ORDRE := [
 	"bras_tendu_arriere", "bras_arriere", "avant_bras_arriere", "main_arriere", "epauliere_arriere", "cuisse_arriere",
 	"jambe_arriere", "pied_arriere", "cape", "arme_dos", "bassin", "arme_fourreau", "torse", "tete", "tete_face", "tete_casque",
 	"yeux_fermes", "yeux_fermes_face", "cuisse_avant", "jambe_avant", "pied_avant", "bras_avant",
-	"avant_bras_avant", "main_avant", "main_avant_pointe", "main_avant_poing", "main_avant_pommeau", "casque_main", "bras_croises", "bras_tendu", "arme_levee", "arme_main",
+	"avant_bras_avant", "main_avant", "main_avant_pointe", "main_avant_poing", "main_avant_pommeau", "casque_main", "bras_croises", "mains_graver", "bras_tendu", "arme_levee", "arme_main",
 	"epauliere_avant",
 ]
 ## Variantes : même os que leur pièce de base pour les angles, une seule visible à la fois.
@@ -268,7 +268,12 @@ func jouer_geste(nom: String) -> bool:
 ## Temps avant que le geste soit lisible (posé) : l'entrée, plus la durée s'il ne se tient pas.
 func duree_visible(nom: String) -> float:
 	var g: Dictionary = _gestes.get("gestes", {}).get(nom, {})
-	return _entree + (0.0 if g.get("tenir", false) else float(g.get("duree", 0.0)))
+	return _entree_du_geste(g) + (0.0 if g.get("tenir", false) else float(g.get("duree", 0.0)))
+
+
+## Durée d'entrée : celle du profil, sauf si le geste en fixe une (« entree_s », geste lent).
+func _entree_du_geste(g: Dictionary) -> float:
+	return float(g.get("entree_s", _entree))
 
 
 func geste_en_cours() -> String:
@@ -319,11 +324,11 @@ func avancer(delta: float) -> void:
 	var g: Dictionary = _gestes.get("gestes", {}).get(_geste, {})
 	_temps_geste += delta
 	var actif: bool = not g.is_empty() and _geste != "repos" \
-		and (g.get("tenir", false) or _temps_geste < _entree + float(g.get("duree", 1.0)))
+		and (g.get("tenir", false) or _temps_geste < _entree_du_geste(g) + float(g.get("duree", 1.0)))
 	if actif != _transition_vers_geste or _relancer:
 		_relancer = false
 		_lancer_transition(os_du_geste(g) if actif else {}, bassin_du_geste(g) if actif else 0.0, actif)
-	_t_transition = minf(1.0, _t_transition + delta / (_entree if actif else _sortie))
+	_t_transition = minf(1.0, _t_transition + delta / (_entree_du_geste(g) if actif else _sortie))
 	var f := courbe_geste(_t_transition)
 	for n in _cible_geste:
 		_pose_geste[n] = lerpf(float(_depart_geste.get(n, 0.0)), float(_cible_geste[n]), f)

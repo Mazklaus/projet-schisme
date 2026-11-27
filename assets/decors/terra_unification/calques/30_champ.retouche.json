@@ -1,0 +1,40 @@
+{
+  "entree": "/mnt/project-files/etude-heresie/episode-01/terra_unification/calques/30_champ.png",
+  "sortie": "calques/30_champ.png",
+  "date": "2026-11-27T15:27:44",
+  "modeles": [
+    "Lykon/dreamshaper-xl-lightning",
+    "diffusers/controlnet-depth-sdxl-1.0-small",
+    "madebyollin/sdxl-vae-fp16-fix"
+  ],
+  "invite": ", muddy no man's land, shell craters, coiled barbed wire on stakes, wrecked tank hull with broken cannon, pale ash mud, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+  "invite_negative": "people, figures, faces, text, letters, glowing light, lamp, sun, colour, saturated, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
+  "reglages": {
+    "modele": "xl",
+    "preset": "muddy no man's land, shell craters, coiled barbed wire on stakes, wrecked tank hull with broken cannon, pale ash mud",
+    "invite": "",
+    "force": 0.7,
+    "pas": 8,
+    "cfg": 2.0,
+    "controle": 0.5,
+    "largeur": 1536,
+    "profondeur": "",
+    "fond": "B6AE9C",
+    "marge": 0.08,
+    "alpha_nouveau": false,
+    "lumiere": 10.0,
+    "couleur": 0.7,
+    "composantes": false,
+    "masque": "",
+    "proteger": "prot_lumiere.png",
+    "negatif": "people, figures, faces, text, letters, glowing light, lamp, sun, colour, saturated",
+    "identite": "",
+    "identite_force": 0.6,
+    "graines": "62"
+  },
+  "statut": "fige",
+  "note": "passer statut a 'fige' quand la DA a choisi et le GD valide",
+  "choix": "DA 27/11 15:56 (30_champ_g62)",
+  "installe": "2026-11-27T15:58:22",
+  "note_4k": "4k = agrandissement provisoire du 1080 peint, à refaire au lot 4k de fin"
+}
