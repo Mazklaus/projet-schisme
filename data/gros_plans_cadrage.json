@@ -103,24 +103,55 @@
    "gauche": {
     "x": 513.0,
     "crane": 148,
-    "largeur": 217
+    "largeur": 217,
+    "menton": 385
    },
    "droite": {
     "x": 510.0,
     "crane": 148,
-    "largeur": 217
+    "largeur": 217,
+    "menton": 385
+   }
+  },
+  "KRENN": {
+   "gauche": {
+    "x": 513.7,
+    "crane": 100,
+    "largeur": 229,
+    "menton": 375
+   },
+   "droite": {
+    "x": 502.1,
+    "crane": 102,
+    "largeur": 227,
+    "menton": 380
    }
   },
   "SEFA": {
    "gauche": {
     "x": 509.7,
     "crane": 193,
-    "largeur": 254
+    "largeur": 243,
+    "menton": 455
    },
    "droite": {
     "x": 510.0,
     "crane": 212,
-    "largeur": 254
+    "largeur": 212
+   }
+  },
+  "VASKAR": {
+   "gauche": {
+    "x": 507.0,
+    "crane": 102,
+    "largeur": 232,
+    "menton": 385
+   },
+   "droite": {
+    "x": 511.7,
+    "crane": 115,
+    "largeur": 221,
+    "menton": 375
    }
   }
  }

@@ -382,8 +382,9 @@ static func construire_sprite_buste(chemin: String, tete_fond: Dictionary, cote:
 	if sp.flip_h:
 		tete_b = tete_b.duplicate()
 		tete_b.x = taille.x - float(tete_b.x)
-	# Tête : RAPPORT_TETE largeur de silhouette, crâne et menton aux cibles.
-	var tete_h := float(tete_b.largeur) * RAPPORT_TETE
+	# Tête : du crâne au menton relevé, sinon RAPPORT_TETE largeur de silhouette ; aux cibles.
+	var tete_h := float(tete_b.menton) - float(tete_b.crane) if tete_b.has("menton") \
+		else float(tete_b.largeur) * RAPPORT_TETE
 	var h := Decor25D.taille_ecran().y
 	var ech := (MENTON_CIBLE - CRANE_CIBLE) * h / tete_h
 	# Cou : un peu sous le menton.

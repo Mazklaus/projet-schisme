@@ -26,6 +26,12 @@ def peau(a):
     return (r > g) & (g > b) & (r - b > 0.10) & (a[..., 3] > 0.5)
 
 
+# Menton (ligne du buste final neutre, 1024 px), relevé à l'œil sur une grille : la silhouette ne
+# le donne pas (cou et gorgerin des Astartes). Sans relevé, le jeu estime 1,08 largeur de tête.
+MENTON = {("dremm", "gauche"): 385, ("dremm", "droite"): 385, ("sefa", "gauche"): 455,
+          ("krenn", "gauche"): 375, ("krenn", "droite"): 380, ("vaskar", "gauche"): 385,
+          ("vaskar", "droite"): 375}
+
 sortie = {"note": "généré par tools/gros_plans/cadrage.py (calcul de CA1) : ne pas éditer", "fonds": {}, "bustes": {}}
 for dossier in sorted(glob.glob(os.path.join(DEPOT, "assets/decors/*_gros_plan"))):
     fid = os.path.basename(dossier)
@@ -74,9 +80,13 @@ for dossier in sorted(glob.glob(os.path.join(DEPOT, "assets/personnages/*"))):
             larg.append(d - g)
             milieux.append((g + d) / 2)
             cx = int(round((g + d) / 2))
-        largeur = int(max(larg))
+        # Largeur de la tête : au plus 260 px sous le crâne (au-delà, col et gorgerin des Astartes
+        # s'élargissent sans rupture nette).
+        largeur = int(max(larg[:260]))
         x = float(np.mean(milieux[len(milieux) // 4:]))
         sortie["bustes"].setdefault(perso.upper(), {})[cote] = {
             "x": round(x, 1), "crane": crane, "largeur": largeur}
+        if (perso, cote) in MENTON:
+            sortie["bustes"][perso.upper()][cote]["menton"] = MENTON[(perso, cote)]
 json.dump(sortie, open(os.path.join(DEPOT, "data/gros_plans_cadrage.json"), "w"), ensure_ascii=False, indent=1)
 print(len(sortie["fonds"]), "fonds,", len(sortie["bustes"]), "bustes")
