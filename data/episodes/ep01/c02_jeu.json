@@ -97,7 +97,240 @@
           "energie": 2.5,
           "rayon_px": 900
         },
-        "ambiance": "#FFF6E6"
+        "ambiance": "#FFF6E6",
+        "trajet": [
+          [
+            1560,
+            480
+          ],
+          [
+            1080,
+            640
+          ]
+        ],
+        "duree_trajet": 7.0,
+        "echelle_trajet": [
+          0.4,
+          1.15
+        ]
+      },
+      "plan": "unif_lumiere_approche",
+      "arret_tirs": {
+        "duree": 1.5,
+        "sens": "droite_vers_gauche"
+      },
+      "figures": [
+        {
+          "id": "soldats_parapet",
+          "calque": "Calque_40_soldats",
+          "geste": "baisser_arme",
+          "debut_s": 2.0,
+          "vague_s": 0.4
+        }
+      ],
+      "particules": [
+        {
+          "type": "poussiere",
+          "suit": "lumiere",
+          "zone_px": [
+            -120,
+            40,
+            240,
+            80
+          ],
+          "densite": 0.4
+        }
+      ]
+    },
+    "unification": {
+      "tirs": [
+        {
+          "de": [
+            [
+              700,
+              1700
+            ],
+            540
+          ],
+          "vers": [
+            [
+              200,
+              1800
+            ],
+            730
+          ],
+          "type": "laser",
+          "couleur": "#FF7A3A",
+          "cadence_s": 0.7,
+          "dispersion_px": 180
+        },
+        {
+          "de": [
+            330,
+            720
+          ],
+          "vers": [
+            [
+              600,
+              1700
+            ],
+            540
+          ],
+          "type": "laser",
+          "couleur": "#FF7A3A",
+          "cadence_s": 1.3,
+          "eclair_bouche": true
+        },
+        {
+          "de": [
+            760,
+            720
+          ],
+          "vers": [
+            [
+              600,
+              1700
+            ],
+            540
+          ],
+          "type": "laser",
+          "couleur": "#FF7A3A",
+          "cadence_s": 1.3,
+          "eclair_bouche": true,
+          "decalage_s": 0.4
+        },
+        {
+          "de": [
+            1480,
+            720
+          ],
+          "vers": [
+            [
+              600,
+              1700
+            ],
+            540
+          ],
+          "type": "laser",
+          "couleur": "#FF7A3A",
+          "cadence_s": 1.3,
+          "eclair_bouche": true,
+          "decalage_s": 0.8
+        },
+        {
+          "de": [
+            1640,
+            720
+          ],
+          "vers": [
+            [
+              600,
+              1700
+            ],
+            540
+          ],
+          "type": "laser",
+          "couleur": "#FF7A3A",
+          "cadence_s": 1.3,
+          "eclair_bouche": true,
+          "decalage_s": 1.1
+        }
+      ],
+      "obus": {
+        "zone_px": [
+          400,
+          520,
+          1100,
+          60
+        ],
+        "debut_s": 3.0,
+        "intervalle_s": [
+          6,
+          9
+        ],
+        "couleur": "#FFD8A0",
+        "energie": 2.0,
+        "tremblement_px": 5
+      },
+      "particules": [
+        {
+          "type": "cendres",
+          "zone_px": [
+            0,
+            300,
+            1920,
+            600
+          ],
+          "densite": 0.3
+        }
+      ],
+      "figures": [
+        {
+          "id": "soldat_cri",
+          "perso": "soldat_armee",
+          "de": [
+            330,
+            740
+          ],
+          "geste": "accroupi",
+          "debut_s": 8.0
+        }
+      ]
+    },
+    "krenn_releve": {
+      "plan": "unif_releve",
+      "figures": [
+        {
+          "id": "krenn",
+          "perso": "krenn_jeune",
+          "de": [
+            1020,
+            900
+          ],
+          "echelle": 0.8,
+          "geste": "se_relever",
+          "duree": 2.0
+        }
+      ]
+    },
+    "krenn_genoux": {
+      "plan": "unif_genoux",
+      "figures": [
+        {
+          "id": "krenn",
+          "perso": "krenn_jeune",
+          "de": [
+            1020,
+            900
+          ],
+          "echelle": 0.8,
+          "geste": "front_au_sol"
+        }
+      ]
+    },
+    "unification_fin": {
+      "plan": "unif_depart",
+      "lumiere_descendante": {
+        "calque": "Calque_35_lumiere",
+        "trajet": [
+          [
+            1080,
+            640
+          ],
+          [
+            1700,
+            470
+          ]
+        ],
+        "duree_trajet": 4.0,
+        "echelle_trajet": [
+          1.15,
+          0.3
+        ]
+      },
+      "reprise_tirs": {
+        "debut_s": 2.5,
+        "sens": "droite_vers_gauche"
       }
     }
   }
