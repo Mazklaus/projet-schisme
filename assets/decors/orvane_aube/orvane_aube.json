@@ -1,0 +1,150 @@
+{
+  "nom": "orvane_aube",
+  "lieu": "Orvane, la citadelle prise, vue d'un toit (ép. 1 ch. 4 §6, @plan citadelle_tombe ; @plan hololithe_horus se superpose)",
+  "statut": "v1.1 (correctif DA : citadelle ×1,5, à 467 m)",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "resolution_4k": "calques/4k/",
+  "camera": {
+    "hauteur_m": 28,
+    "focale_px_1080p": 1150,
+    "point_de_fuite_px": [
+      900,
+      600
+    ],
+    "note": "plan large d'établissement ; citadelle à 700 m sur sa butte, en contre-jour"
+  },
+  "etats": {
+    "a_l_heure": {
+      "ciel": "00_ciel_a_l_heure",
+      "canvas_modulate": "#6A6070",
+      "soleil_px": [
+        1250,
+        585
+      ],
+      "note": "choix_ep01_orvane == 1 : le soleil touche l'horizon, la citadelle tombe avant lui"
+    },
+    "en_retard": {
+      "ciel": "00_ciel_en_retard",
+      "canvas_modulate": "#8C8A92",
+      "soleil_px": [
+        1380,
+        250
+      ],
+      "note": "défaut (2 ou 3) : « Le soleil est déjà levé » ; lumière plus haute et plus plate, moins de brume"
+    }
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel_a_l_heure.png",
+      "ordre": 0,
+      "etat": "a_l_heure"
+    },
+    {
+      "fichier": "calques/00_ciel_en_retard.png",
+      "ordre": 0,
+      "etat": "en_retard"
+    },
+    {
+      "fichier": "calques/10_citadelle.png",
+      "ordre": 10,
+      "parallaxe": 0.03,
+      "normal": "calques/10_citadelle_normal.png",
+      "eclaire": true,
+      "note": "forteresse gothique massive, bastions à contreforts, donjon étagé ; brèches sur l'enceinte"
+    },
+    {
+      "fichier": "calques/12_brume.png",
+      "ordre": 12,
+      "fusion": "mélange (alpha)",
+      "intensite_par_etat": {
+        "a_l_heure": 0.9,
+        "en_retard": 0.4
+      },
+      "note": "brume de vallée au pied de la butte"
+    },
+    {
+      "fichier": "calques/20_ville.png",
+      "ordre": 20,
+      "parallaxe": 0.25,
+      "normal": "calques/20_ville_normal.png",
+      "eclaire": true,
+      "note": "rangs de toits, perspective aérienne"
+    },
+    {
+      "fichier": "calques/35_drapeau_gouverneur.png",
+      "ordre": 35,
+      "anim": "descend le long du mât au début du plan"
+    },
+    {
+      "fichier": "calques/36_etendard_croissant.png",
+      "ordre": 36,
+      "anim": "monte ensuite : la citadelle est prise (croissant de la Légion, pas d'Œil)"
+    },
+    {
+      "fichier": "calques/46_feux.png",
+      "ordre": 46,
+      "fusion": "additif",
+      "emissif": true,
+      "anim": "scintillement",
+      "intensite_par_etat": {
+        "a_l_heure": 1.0,
+        "en_retard": 0.6
+      }
+    },
+    {
+      "fichier": "calques/60_vaisseaux.png",
+      "ordre": 60,
+      "anim": "trois vaisseaux d'assaut en orbite lente autour de la citadelle (silhouettes originales, découpables en sprites)"
+    },
+    {
+      "fichier": "calques/70_fumees.png",
+      "ordre": 70,
+      "anim": "colonnes qui montent et se couchent vers la droite"
+    },
+    {
+      "fichier": "calques/50_toit.png",
+      "ordre": 50,
+      "parallaxe": 1.0,
+      "normal": "calques/50_toit_normal.png",
+      "eclaire": true,
+      "note": "toit, cheminées et linge au premier plan, noirs"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "ordre": 51,
+      "fusion": "additif",
+      "couleur": "#E8B48A",
+      "intensite_par_etat": {
+        "a_l_heure": 0.5,
+        "en_retard": 0.35
+      }
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "ordre": 90,
+      "anim": "cendres"
+    }
+  ],
+  "lumieres": [
+    {
+      "nom": "soleil",
+      "type": "DirectionalLight2D + halo dans le ciel",
+      "couleur": "#E8B48A",
+      "energie_par_etat": {
+        "a_l_heure": 1.0,
+        "en_retard": 0.7
+      },
+      "note": "à contre-jour : la citadelle et le toit restent sombres, les arêtes côté soleil s'allument"
+    }
+  ],
+  "apercus": {
+    "a_l_heure": "apercu_a_l_heure.png (10 %)",
+    "en_retard": "apercu_en_retard.png (10 %)"
+  },
+  "note_valeurs": "plan d'extérieur large : 10 % sous #1A1612, volontairement plus clair que les intérieurs",
+  "regles": "pas d'Œil d'Horus (le croissant seulement), aucun texte lisible, aucune image officielle",
+  "source": "etude-heresie/cA2/or_aube_calques.py [--4k]"
+}

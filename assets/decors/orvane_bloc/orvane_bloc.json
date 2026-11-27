@@ -1,0 +1,159 @@
+{
+  "nom": "orvane_bloc",
+  "lieu": "Orvane, l'immeuble d'habitation du choix minuté C7 (ép. 1 ch. 4 §5)",
+  "statut": "essai v1, en revue DA",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "resolution_4k": "calques/4k/",
+  "camera": {
+    "hauteur_m": 1.6,
+    "focale_px_1080p": 1000,
+    "lacet_deg": 22,
+    "tangage_deg": 16,
+    "note": "contre-plongée trois-quarts : la façade de 31 m écrase le cadre ; l'est pâlit à droite derrière l'angle du bloc"
+  },
+  "echelle": {
+    "facade_z_m": 15,
+    "hauteur_bloc_m": 31,
+    "etage_m": 3.2,
+    "astartes_m": 2.3
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel_nuit.png",
+      "ordre": 0,
+      "etat": "nuit"
+    },
+    {
+      "fichier": "calques/00_ciel_aube_naissante.png",
+      "ordre": 0,
+      "etat": "aube_naissante"
+    },
+    {
+      "fichier": "calques/00_ciel_aube.png",
+      "ordre": 0,
+      "etat": "aube"
+    },
+    {
+      "fichier": "calques/10_fond.png",
+      "ordre": 10,
+      "parallaxe": 0.05,
+      "note": "toits bas vers l'est et citadelle, à droite"
+    },
+    {
+      "fichier": "calques/30_facade.png",
+      "ordre": 30,
+      "normal": "calques/30_facade_normal.png",
+      "ombre": "calques/30_facade_ombre.png",
+      "eclaire": true,
+      "note": "façade, balcons, impacts, drapeaux du gouverneur ; l'ombre des balcons ne vaut qu'avec la lumière d'aube"
+    },
+    {
+      "fichier": "calques/gabarit_36_fenetres.png",
+      "ordre": 36,
+      "note": "gabarit : tireurs et « visages qui ne tirent pas », à moitié cachés par les cadres ; CA1 fera les vrais"
+    },
+    {
+      "fichier": "calques/gabarit_40_personnages.png",
+      "ordre": 40,
+      "note": "gabarit : Vaskar accroupi derrière la margelle, Dremm debout au vox"
+    },
+    {
+      "fichier": "calques/45_fenetres_allumees.png",
+      "ordre": 45,
+      "fusion": "additif",
+      "emissif": true,
+      "intensite_par_etat": {
+        "nuit": 1.0,
+        "aube_naissante": 0.7,
+        "aube": 0.3
+      }
+    },
+    {
+      "fichier": "calques/46_tirs.png",
+      "ordre": 46,
+      "fusion": "additif",
+      "emissif": true,
+      "anim": "éclairs de bouche par à-coups, chaque fenêtre sur son propre rythme (masque par fenêtre ou découpe en sprites)",
+      "intensite_par_etat": {
+        "nuit": 1.0,
+        "aube_naissante": 1.0,
+        "aube": 0.8
+      }
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "ordre": 50,
+      "parallaxe": 1.1,
+      "normal": "calques/50_avant_plan_normal.png",
+      "eclaire": true,
+      "note": "margelle de fontaine et gravats"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "ordre": 51,
+      "fusion": "additif",
+      "couleur_intensite_par_etat": {
+        "nuit": [
+          "#FFE6B0",
+          0.25
+        ],
+        "aube_naissante": [
+          "#C8B0B8",
+          0.4
+        ],
+        "aube": [
+          "#E8B48A",
+          0.6
+        ]
+      }
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "ordre": 90,
+      "anim": "fumée des tirs accrochée à la façade, poussière"
+    }
+  ],
+  "lumieres": [
+    {
+      "nom": "aube_est",
+      "type": "DirectionalLight2D (ou PointLight2D très lointaine à droite)",
+      "couleur": "#E8B48A",
+      "direction": "de la droite, rasante",
+      "energie_par_etat": {
+        "nuit": 0.0,
+        "aube_naissante": 0.6,
+        "aube": 1.2
+      },
+      "note": "l'horloge du choix : interpoler sur la durée du compte à rebours C7"
+    },
+    {
+      "nom": "eclairs_tirs",
+      "type": "PointLight2D par fenêtre de tir, très courte portée (120 px)",
+      "couleur": "#FFE6B0",
+      "energie": 0.8,
+      "note": "synchronisées avec 46_tirs"
+    }
+  ],
+  "etats": {
+    "nuit": {
+      "canvas_modulate": "#4E5A78"
+    },
+    "aube_naissante": {
+      "canvas_modulate": "#4A4A60"
+    },
+    "aube": {
+      "canvas_modulate": "#5E5C6C"
+    }
+  },
+  "transition": "nuit → aube_naissante → aube pendant le compte à rebours du C7 (même mécanique que orvane_rues)",
+  "apercus": {
+    "nuit": "apercu_nuit.png (41 %, rez-de-chaussée et avant-plan noirs)",
+    "aube_naissante": "apercu_aube_naissante.png (27 %)",
+    "aube": "apercu_aube.png (20 %)"
+  },
+  "regles": "pas d'Œil d'Horus, aucun texte lisible, aucune image officielle",
+  "source": "etude-heresie/cA2/or_bloc_calques.py [--4k]"
+}

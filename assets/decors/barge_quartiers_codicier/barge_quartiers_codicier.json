@@ -1,0 +1,131 @@
+{
+  "plan": "barge_quartiers_codicier",
+  "episode": 1,
+  "chapitres": [
+    5
+  ],
+  "etat": "pur",
+  "description": "Barge de bataille, quartiers du codicier Aun Varo : PLONGÉE LÉGÈRE sur le pupitre (œil à 3,1 m, pupitre décentré). Calme, studieux, inquiet : livres partout (aucun titre lisible), rouleaux, piles au sol ; une lampe-lumen à cage de laiton = la seule source chaude ; Vaskar en retrait dans l'embrasure, découpé par le froid du couloir. Générateur : cA2/barge_quartiers_codicier_calques.py [--4k] ; base : planche barge v2, B-6.",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "hauteur_m": 3.1,
+    "focale_px": 900,
+    "point_de_fuite_px": [
+      1180,
+      300
+    ],
+    "note": "plongée légère par horizon remonté"
+  },
+  "regle_palette": "acier sombre, or terni assourdi aux nervures et au rebord du pupitre, cuir des livres ; chaud de la lumen contre froid du couloir",
+  "echelle": {
+    "salle_m": "7,2 de large, arcs à 3,4, clé à 5,2, profondeur 11",
+    "astartes_m": 2.3
+  },
+  "eclairage": "calques en ALBÉDO + occlusion ; ombres radiales de la lumen cuites dans 20_salle_ombre",
+  "cle": {
+    "type": "lampe-lumen à cage de laiton (PointLight2D)",
+    "position_px": [
+      1382,
+      618
+    ],
+    "position_m": [
+      1.35,
+      0.98,
+      6.0
+    ],
+    "couleur": "#FFB868",
+    "energie": 1.8,
+    "portee_px": 520,
+    "scintillement": {
+      "amplitude": 0.03,
+      "note": "quasi fixe"
+    }
+  },
+  "appoints": [
+    {
+      "type": "couloir froid par l'embrasure (PointLight2D)",
+      "position_px": [
+        1671,
+        532
+      ],
+      "couleur": "#8FA0B0",
+      "energie": 0.55,
+      "portee_px": 200
+    },
+    {
+      "type": "CanvasModulate",
+      "couleur": "#16141A"
+    }
+  ],
+  "calques": [
+    {
+      "fichier": "calques/10_voute.png",
+      "normal": "calques/10_voute_normal.png",
+      "auteur": "CA2",
+      "distance_m": "0 à 11",
+      "contenu": "voûte basse d'acier, nervures d'or terni assourdi, sans rosaces"
+    },
+    {
+      "fichier": "calques/20_salle.png",
+      "normal": "calques/20_salle_normal.png",
+      "ombre": "calques/20_salle_ombre.png",
+      "auteur": "CA2",
+      "distance_m": "0,2 à 11",
+      "contenu": "sol, murs, tapis sombre, embrasure du couloir au mur droit ; ombres radiales de la lumen"
+    },
+    {
+      "fichier": "calques/25_personnages_fond.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": 6.85,
+      "contenu": "Aun Varo assis derrière le pupitre, de profil, penché sur le livre (coupé à la taille par le calque 35). Gabarit : calques/gabarit_25_personnages_fond.png"
+    },
+    {
+      "fichier": "calques/30_bibliotheque.png",
+      "normal": "calques/30_bibliotheque_normal.png",
+      "auteur": "CA2",
+      "distance_m": "2,6 à 11",
+      "contenu": "rayonnages d'acier pleins sur le mur du fond et le mur gauche, livres, rouleaux couchés ; piles de livres au sol (aucun titre lisible)"
+    },
+    {
+      "fichier": "calques/35_pupitre.png",
+      "normal": "calques/35_pupitre_normal.png",
+      "auteur": "CA2",
+      "distance_m": "5,6 à 6,5",
+      "contenu": "pupitre de bois sombre à liseré, livre ouvert (lignes illisibles), encrier, plaques de données, socle de la lumen"
+    },
+    {
+      "fichier": "calques/40_personnages.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": 6.6,
+      "contenu": "Vaskar debout en retrait dans l'embrasure, de profil, découpé par le froid du couloir. Gabarit : calques/gabarit_40_personnages.png"
+    },
+    {
+      "fichier": "calques/45_lampe.png",
+      "auteur": "CA2",
+      "distance_m": 6.0,
+      "contenu": "globe lumen dans sa cage de laiton (émissif)"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": 2.3,
+      "contenu": "coin de rayonnage et pile de livres presque noirs en bas à gauche, liseré chaud"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA2",
+      "distance_m": "5 à 7",
+      "contenu": "poussière dans la lumière ; à animer"
+    }
+  ],
+  "normales": "convention OpenGL (Y+), alpha = alpha du calque",
+  "4k": "calques/4k/ (mêmes noms, positions px x2)",
+  "apercus": [
+    "apercu.png"
+  ],
+  "statut": "essai"
+}

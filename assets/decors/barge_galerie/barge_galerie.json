@@ -1,0 +1,102 @@
+{
+  "plan": "barge_galerie",
+  "episode": 1,
+  "chapitres": [
+    5
+  ],
+  "etat": "pur",
+  "description": "Barge de bataille, galerie d'observation : une seule baie gothique d'acier (ogive, 3 meneaux, traverses rivetées, liseré d'or terni), plus petite et plus brute que la verrière du Vengeful Spirit. Dehors Orvane et la flotte du détachement ; contre-jour, Vaskar et Dremm en silhouette, ombres des meneaux projetées vers nous. Générateur : cA2/barge_galerie_calques.py [--4k] ; base : planche barge v2, B-5.",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "hauteur_m": 1.7,
+    "focale_px": 900,
+    "point_de_fuite_px": [
+      900,
+      600
+    ]
+  },
+  "regle_palette": "acier #5E646A et acier sombre, or terni en liseré de l'ogive seulement ; la lumière vient du dehors (Orvane bleu-gris, aube chaude au limbe)",
+  "echelle": {
+    "baie_m": "9 de large, appui à 0,9, sommet de l'ogive à 6,5, à 9 m",
+    "astartes_m": 2.3
+  },
+  "eclairage": "calques en ALBÉDO ; ombres des meneaux et flaque de lumière cuites dans 20_baie_ombre (multiply, blanc neutre)",
+  "cle": {
+    "type": "lumière d'Orvane par la baie (DirectionalLight2D vers la caméra, ou PointLight2D large posée dans la baie)",
+    "position_px": [
+      900,
+      510
+    ],
+    "couleur": {
+      "nuit": "#B8C8E0",
+      "aube": "mélange #B8C8E0 / #E8C8A0 à 55 %"
+    },
+    "energie": {
+      "nuit": 0.9,
+      "aube": 1.25
+    },
+    "portee_px": 950
+  },
+  "appoints": [
+    {
+      "type": "CanvasModulate",
+      "couleur": "#1C2026",
+      "note": "ambiant froid ; aucune autre source"
+    }
+  ],
+  "etats": {
+    "nuit": "00_exterieur_nuit",
+    "aube": "00_exterieur_aube : le soleil point au limbe d'Orvane (horloge du choix C7) ; fondu possible entre les deux pendant le chapitre"
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_exterieur_nuit.png",
+      "auteur": "CA2",
+      "distance_m": "infini",
+      "contenu": "étoiles, Orvane (pierre bleu-gris, terminateur), flotte du détachement en silhouettes gothiques"
+    },
+    {
+      "fichier": "calques/00_exterieur_aube.png",
+      "auteur": "CA2",
+      "distance_m": "infini",
+      "contenu": "même cadre, limbe chaud et soleil qui point à droite"
+    },
+    {
+      "fichier": "calques/20_baie.png",
+      "normal": "calques/20_baie_normal.png",
+      "ombre": "calques/20_baie_ombre.png",
+      "auteur": "CA2",
+      "distance_m": "1,5 à 9",
+      "contenu": "mur d'acier, pilastres rivetés, allège et appui, ogive percée dans l'alpha, meneaux et traverses opaques, liseré d'or terni, plancher ; ombres des meneaux vers nous"
+    },
+    {
+      "fichier": "calques/40_personnages.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": "7,4 à 8,3",
+      "contenu": "Vaskar (profil, plus près de la baie) et Dremm adossé près du meneau droit, PAS alignés, en silhouette à contre-jour avec un liseré froid. Gabarit : calques/gabarit_40_personnages.png"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": "2 à 2,4",
+      "contenu": "colonne d'acier presque noire coupée à droite (liseré froid), rambarde basse en bas du cadre"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA2",
+      "distance_m": "4 à 8,5",
+      "contenu": "poussière dans la lumière de la baie ; à animer"
+    }
+  ],
+  "normales": "convention OpenGL (Y+), alpha = alpha du calque",
+  "4k": "calques/4k/ (mêmes noms, positions px x2)",
+  "apercus": [
+    "apercu_nuit.png",
+    "apercu_aube.png"
+  ],
+  "statut": "essai"
+}

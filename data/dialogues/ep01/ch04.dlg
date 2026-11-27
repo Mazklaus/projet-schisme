@@ -1,0 +1,209 @@
+// Épisode 1, chapitre 4 « Conformité » : répliques, v0.1 (Narrative Designer, 27/11).
+// Structure : ch03-05-sequenciers.md v0.2 (validé). Clés : ch03-05-game-design.md (Game Designer).
+// Note du GD : Horus SÉDUIT d'abord. La dureté vient au milieu de la générosité.
+// MAJ 27/11 (canon) : les remembrancers du corps principal arrivent trois mois après 63-19 ; ici, seule une avant-garde de trois (dont Sefa) rejoint la 27e sur la barge du détachement.
+// Aucune voix. Répliques de 2 lignes au plus. Les @ sont indicatifs.
+
+// ================================================================ 0. L'archive
+=== archive_ch4
+@decor archive
+@plan archive_drapeau
+> Un drapeau, à moitié brûlé, plié avec soin.
+@carton 3 Orvane. Un monde qui avait dit non.
+-> briefing
+
+// ================================================================ 1. Le briefing d'Horus (scène dirigée)
+=== briefing
+@decor barge_salle_briefing
+// CANON (scène dirigée) : Horus en hololithe devant les capitaines. Répliques originales.
+> L'hololithe s'allume. Horus, plus grand que nature, même en lumière bleue.
+HORUS: Capitaines. Asaro. Approche.
+> Dremm s'avance, surpris.
+HORUS: La 27e a perdu onze frères à Ullanor. Je connais leurs noms.
+HORUS: Je les ai lus hier soir. Tous les onze.
+> Le silence. Puis Horus sourit.
+HORUS: Et l'un d'eux me devait encore un pari. Je ne le lui réclamerai pas.
+> Les capitaines rient. Même Dremm. Surtout Dremm.
+HORUS: Orvane est un monde humain. Des nôtres, qui ont oublié qu'ils l'étaient.
+HORUS: Je veux leur citadelle avant l'aube.
+HORUS: Ils apprendront ce que vaut un refus. Ensuite, ils apprendront ce que vaut un oui.
+> L'hololithe s'éteint. Dremm reste un moment à regarder l'endroit où il était.
+DREMM: Il savait mon nom, Hol.
+-> approche
+
+// ================================================================ 2. L'approche (ciné)
+=== approche
+@decor orvane_nuit
+@plan stormbirds
+> Les Stormbirds descendent dans la nuit.
+> En bas, des fenêtres allumées. Du linge tendu entre les tours. Des drapeaux.
+VASKAR: Ils ont des enfants, en bas.
+FRÈRE: Tout le monde a des enfants.
+-> emissaire
+
+// ================================================================ 3. L'émissaire
+=== emissaire
+@decor orvane_barricade
+> Un homme en manteau de cérémonie, seul, les mains vides, devant la barricade.
+ÉMISSAIRE: Le gouverneur demande des conditions. Garder nos lois. Nos fêtes. Nos noms.
+DREMM: La conformité ne se négocie pas.
+ÉMISSAIRE: Alors qu'est-ce qu'elle laisse ?
+> Dremm se tourne vers Vaskar.
+* Soutenir Dremm -> emissaire_dremm
+* « Qu'est-ce que vous voulez vraiment ? » -> emissaire_demander
+*! 8 -> emissaire_dremm
+
+=== emissaire_dremm
+~ trait_vaskar_orgueil += 1
+~ trait_vaskar_compassion += 0
+VASKAR: Elle laisse la vie à ceux qui ouvrent.
+> L'émissaire baisse la tête et repart vers la barricade.
+-> assaut
+
+=== emissaire_demander
+~ trait_vaskar_orgueil += 0
+~ trait_vaskar_compassion += 1
+VASKAR: Qu'est-ce que vous voulez vraiment ?
+ÉMISSAIRE: Qu'on se souvienne qu'on était là avant vous.
+DREMM: On s'en souviendra. Après.
+-> assaut
+
+// ================================================================ 4. L'assaut (séquence légère)
+=== assaut
+@decor orvane_rues
+@jeu
+// Avancer, se couvrir, franchir des barricades. Pas de système de combat.
+DREMM (vox): La 27e avance. Personne ne traîne.
+-> FIN
+
+// Rencontre facultative, sur la ligne de l'Armée (si vivant_ilse).
+=== assaut_ilse
+-> assaut_ilse_scene [si vivant_ilse == true]
+-> FIN
+
+=== assaut_ilse_scene
+> Une ligne de l'Armée, accroupie derrière un mur. Le 4e de Kalthar.
+> Une soldate lève la tête. Un poinçon à la ceinture.
+-> assaut_ilse_plaque [si ep01_plaque_gardee == true]
+ILSE: Encore vous. Les géants passent toujours devant.
+VASKAR: Restez derrière nous.
+ILSE: C'est ce qu'on fait. Depuis le début.
+-> FIN
+
+=== assaut_ilse_plaque
+> Elle voit le bord de métal sous son plastron. Elle sait ce que c'est.
+ILSE: Vous l'avez gardée.
+VASKAR: Il reste de la place dessus.
+ILSE: Pas pour ce soir, j'espère.
+-> FIN
+
+// ================================================================ 5. Le bloc d'habitation : C7
+=== bloc
+@decor orvane_bloc
+> Un immeuble d'habitation. Des tirs depuis les étages. Aux fenêtres, des visages qui ne tirent pas.
+> À l'est, le ciel pâlit.
+DREMM (vox): On perce. Maintenant. Il veut la citadelle avant l'aube.
+-> bloc_ilse_ligne [si vivant_ilse == true]
+-> bloc_choix
+
+=== bloc_ilse_ligne
+ILSE (vox de l'Armée): Il y a des familles dans les caves. On peut les sortir par l'arrière.
+-> bloc_choix
+
+=== bloc_choix
+* Percer -> percer
+* Attendre la reddition -> attendre
+* Faire sortir les civils d'abord -> evacuer [si vivant_ilse]
+*! 8 -> percer
+
+=== percer
+~ choix_ep01_orvane = 1
+~ relation_dremm += 1
+~ trait_vaskar_obeissance += 1
+~ trait_vaskar_compassion += 0
+-> percer_ilse [si vivant_ilse == true]
+~ relation_ilse += 0
+-> percer_suite
+
+=== percer_ilse
+// Elle vit et elle voit.
+~ relation_ilse -= 1
+-> percer_suite
+
+=== percer_suite
+> La façade cède. La poussière, encore. Le même cadrage bas qu'à Ullanor.
+@carton 3 Orvane s'en souviendra.
+-> citadelle
+
+=== attendre
+~ choix_ep01_orvane = 2
+~ relation_dremm -= 1
+~ relation_ilse += 0
+~ trait_vaskar_obeissance += 0
+~ trait_vaskar_compassion += 1
+VASKAR: Ils vont se rendre. Laissons-leur une minute.
+DREMM (vox): Hol. Il n'y a pas de minute.
+> Une minute. Puis une deuxième. Un drapeau blanc sort d'une fenêtre.
+@carton 3 Dremm s'en souviendra.
+-> citadelle
+
+=== evacuer
+~ choix_ep01_orvane = 3
+~ relation_dremm -= 1
+~ relation_ilse += 1
+~ trait_vaskar_obeissance += 0
+~ trait_vaskar_compassion += 1
+VASKAR: Varga. Par l'arrière. Je couvre la façade.
+ILSE (vox de l'Armée): On y va.
+> Des familles sortent des caves en file, sous le bras d'un géant.
+@carton 3 Dremm s'en souviendra.
+-> citadelle
+
+// ================================================================ 6. La citadelle tombe à l'aube
+=== citadelle
+@decor orvane_aube
+@plan citadelle_tombe
+> La citadelle tombe.
+-> citadelle_a_l_heure [si choix_ep01_orvane == 1]
+// Défaut (2 ou 3) : en retard.
+> Le soleil est déjà levé.
+@plan hololithe_horus
+HORUS: En retard, capitaine.
+> Rien de plus. L'hololithe s'éteint.
+DREMM: Il ne l'oubliera pas, Hol.
+-> retombee_rues
+
+=== citadelle_a_l_heure
+> Le soleil se lève sur la citadelle prise.
+@plan hololithe_horus
+HORUS: Avant l'aube. Asaro, la 27e boira dans ma propre coupe ce soir.
+DREMM: Tu l'as entendu ? SA coupe.
+-> retombee_rues
+
+// ================================================================ 7. Retombée
+=== retombee_rues
+@decor orvane_matin
+@jeu
+-> retombee_percer [si choix_ep01_orvane == 1]
+// Défaut (2 ou 3) : les civils vivants, la 27e humiliée.
+> Des civils assis par terre, vivants, une couverture sur les épaules.
+FRÈRE: On a perdu l'honneur de l'aube pour eux.
+-> retombee_ilse_vivants [si vivant_ilse == true]
+VASKAR: Ils ont perdu moins.
+-> FIN
+
+=== retombee_ilse_vivants
+ILSE: Je n'aurai pas à les graver. Ceux-là.
+VASKAR: Gardez la place pour d'autres.
+-> FIN
+
+=== retombee_percer
+> Des corps sous des draps, devant l'immeuble. Des petits.
+-> retombee_ilse_morts [si vivant_ilse == true]
+FRÈRE: La citadelle est à nous. Avant l'aube.
+-> FIN
+
+=== retombee_ilse_morts
+> Ilse s'agenouille devant les draps. Elle sort son poinçon. Elle ne regarde pas Vaskar.
+ILSE: Il va me falloir une autre plaque.
+-> FIN

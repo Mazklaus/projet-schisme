@@ -86,10 +86,13 @@ static func chemin_json(id: String, dossier_decors := DOSSIER) -> String:
 	var dossier := dossier_decors.path_join(id)
 	if FileAccess.file_exists(dossier.path_join("decor.json")):
 		return dossier.path_join("decor.json")
+	if FileAccess.file_exists(dossier.path_join(id + ".json")):
+		return dossier.path_join(id + ".json")
 	var dir := DirAccess.open(dossier)
 	if dir:
 		for f in dir.get_files():
-			if f.get_extension() == "json" and FileAccess.get_file_as_string(dossier.path_join(f)).contains("\"cadre_px\""):
+			var texte := FileAccess.get_file_as_string(dossier.path_join(f)) if f.get_extension() == "json" else ""
+			if texte.contains("\"cadre_px\"") or texte.contains("\"resolution\""):
 				return dossier.path_join(f)
 	return dossier.path_join("decor.json")
 
@@ -103,6 +106,8 @@ static func lire(id: String, dossier_decors := DOSSIER) -> Dictionary:
 	var d = JSON.parse_string(FileAccess.get_file_as_string(chemin))
 	if typeof(d) == TYPE_DICTIONARY and d.has("cadre_px"):
 		d = depuis_guide(d, chemin.get_base_dir())
+	elif typeof(d) == TYPE_DICTIONARY and d.has("resolution") and d.has("calques"):
+		d = depuis_planche(d, chemin.get_base_dir())
 	var erreurs := valider(d)
 	if not erreurs.is_empty():
 		return {"erreurs": erreurs}
@@ -117,6 +122,64 @@ static func lire(id: String, dossier_decors := DOSSIER) -> Dictionary:
 ##   (au premier plan, profondeur 1, non éclairées) ;
 ## - <nom>_normal.png et <nom>_ombre.png à côté du calque sont repris s'ils existent ;
 ## - voile atmosphérique t = 1 - exp(-d / d0) vers la couleur « voile ».
+## Format « planche » de CA2 (décors d'Orvane) : resolution, calques avec ordre, parallaxe,
+## eclaire, normal, ombre, fusion, etat, intensite(_par_etat), couleur(_intensite_par_etat),
+## modulate_par_etat ; lumieres avec energie(_par_etat) ; etats {nom: {canvas_modulate}} ou
+## canvas_modulate global. Ramené au format moteur, avec « etats » et des réglages par état
+## que appliquer_etat() anime.
+static func depuis_planche(g: Dictionary, dossier: String) -> Dictionary:
+	var liste: Array = g.calques.filter(func(k): return typeof(k) == TYPE_DICTIONARY and k.has("fichier"))
+	liste.sort_custom(func(a, b): return float(a.get("ordre", 0)) < float(b.get("ordre", 0)))
+	var calques := []
+	for k in liste:
+		var f: String = k.fichier
+		var gabarit := f.get_base_dir().path_join("gabarit_" + f.get_file())
+		if not ResourceLoader.exists(dossier.path_join(f)) and ResourceLoader.exists(dossier.path_join(gabarit)):
+			f = gabarit
+		if not ResourceLoader.exists(dossier.path_join(f)):
+			push_warning("Décor %s : calque absent, ignoré : %s" % [g.get("nom", "?"), f])
+			continue
+		var c := {"fichier": f, "nom": String(k.fichier).get_file().get_basename().trim_prefix("gabarit_")}
+		var ciel := String(c.nom).begins_with("00_")
+		c.profondeur = clampf(float(k.get("parallaxe", 0.0 if ciel else 1.0)), 0.0, 2.0)
+		c.lumiere = bool(k.get("eclaire", false))
+		if typeof(k.get("normal")) == TYPE_STRING and ResourceLoader.exists(dossier.path_join(k.normal)):
+			c.normales = k.normal
+		if typeof(k.get("ombre")) == TYPE_STRING and ResourceLoader.exists(dossier.path_join(k.ombre)):
+			c.ombre = k.ombre
+		if String(k.get("fusion", "")).contains("additif"):
+			c.melange = "addition"
+		for cle in ["etat", "intensite_par_etat", "couleur_intensite_par_etat", "modulate_par_etat"]:
+			if k.has(cle):
+				c[cle] = k[cle]
+		if k.has("couleur") or k.has("intensite"):
+			var t := Color(k.get("couleur", "#FFFFFF"))
+			t.a = float(k.get("intensite", 1.0))
+			c.teinte = t.to_html()
+		calques.append(c)
+	var lum: Array = []
+	for L in g.get("lumieres", []):
+		if typeof(L) != TYPE_DICTIONARY or typeof(L.get("position_px")) != TYPE_ARRAY:
+			continue
+		var e := {"position_px": L.position_px, "couleur": L.get("couleur", "#FFFFFF"),
+			"rayon_px": float(L.get("rayon_px", 600)) / 2.5, "hauteur_px": 200.0,
+			"scintillement": 0.1 if typeof(L.get("scintillement")) == TYPE_BOOL and L.scintillement \
+				else float(L.get("scintillement", 0.0)) if typeof(L.get("scintillement")) in [TYPE_FLOAT, TYPE_INT] else 0.0}
+		if typeof(L.get("energie_par_etat")) == TYPE_DICTIONARY:
+			e.energie_par_etat = L.energie_par_etat
+			e.intensite = float(L.energie_par_etat.values()[0])
+		else:
+			e.intensite = float(L.get("energie", 1.0))
+		if L.has("nom"):
+			e.nom = L.nom
+		lum.append(e)
+	var etats: Dictionary = g.etats if typeof(g.get("etats")) == TYPE_DICTIONARY else {}
+	var ambiant := String(g.get("canvas_modulate", ""))
+	return {"version": VERSION_FORMAT, "taille": g.resolution, "calques": calques, "source": "planche",
+		"lumieres": lum, "ambiant": ambiant, "etats": etats, "veille": {},
+		"etat_initial": g.get("etat_initial", etats.keys()[0] if not etats.is_empty() else "")}
+
+
 ## Vrai si le moteur éclaire ce plan (lumières d'état, ou clé / appoint prévus en Light2D) :
 ## alors seulement on affiche les versions « _plat » (albédo sans lumière cuite). Sans lumière
 ## du moteur (Ullanor : soleil peint), une version plate sortirait blanche et sans modelé.
@@ -206,6 +269,41 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				c.tete = t.duplicate()
 				c.tete["plat"] = eclaire
 		calques.append(c)
+	# « etats » du guide : {nom: "00_exterieur_nuit : …"} ; le calque nommé n'est visible que
+	# dans son état.
+	# « variantes » (pont d'embarquement) : {nom: "05_exterieur_arrivee + 85_rais + …"} ;
+	# chaque calque <NN>_<nom> cité n'appartient qu'aux états qui le citent.
+	var etats_guide := {}
+	var descr := {}
+	for champ in ["etats", "variantes"]:
+		if typeof(g.get(champ)) == TYPE_DICTIONARY:
+			for nom in g[champ]:
+				descr[nom] = String(g[champ][nom]) if typeof(g[champ][nom]) == TYPE_STRING else ""
+	if not descr.is_empty():
+		var re := RegEx.create_from_string("\\b\\d{2}_[a-z0-9_]+")
+		var cites := {}  # calque -> états qui le citent
+		for nom in descr:
+			etats_guide[nom] = {}
+			for m in re.search_all(descr[nom]):
+				var cite := m.get_string()
+				if not cites.has(cite):
+					cites[cite] = []
+				cites[cite].append(nom)
+		for c in calques:
+			var base := String(c.fichier).get_file().get_basename().trim_suffix("_plat")
+			for cite in cites:
+				if (base == cite or String(c.get("nom", "")) == cite) and cites[cite].size() < descr.size():
+					c.etat = cites[cite][0] if cites[cite].size() == 1 else cites[cite]
+	# Sans « etats », les énergies par état de la clé (arrivee / orbite) en tiennent lieu ; un
+	# calque <NN>_<nom>_<etat> n'est alors visible que dans cet état.
+	var cle_brute = g.get("cle")
+	if etats_guide.is_empty() and typeof(cle_brute) == TYPE_DICTIONARY and typeof(cle_brute.get("energie")) == TYPE_DICTIONARY:
+		for nom in cle_brute.energie:
+			etats_guide[nom] = {}
+	for nom in etats_guide:
+		for c in calques:
+			if not c.has("etat") and String(c.fichier).get_file().get_basename().ends_with("_" + nom):
+				c.etat = nom
 	var lum: Array = g.lumieres.duplicate() if typeof(g.get("lumieres")) == TYPE_ARRAY else []
 	var cle: Dictionary = g.cle if typeof(g.get("cle")) == TYPE_DICTIONARY else {}
 	var ambiant := ""
@@ -233,7 +331,8 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				var n := float(m.get_string(1))
 				ambiant = Color(n, n, n).to_html(false)
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
-		"source": "guide", "cle": cle, "lumieres": lum, "ambiant": ambiant, "veille": veille}
+		"source": "guide", "cle": cle, "lumieres": lum, "ambiant": ambiant, "veille": veille,
+		"etats": etats_guide, "etat_initial": etats_guide.keys()[0] if not etats_guide.is_empty() else ""}
 
 
 ## Lumières ponctuelles décrites par la clé ou un appoint du guide de la DA : une seule
@@ -251,7 +350,9 @@ static func lumieres_du_plan(L: Dictionary) -> Array:
 	var amplitude := float(sc.get("amplitude", 0.0)) if typeof(sc) == TYPE_DICTIONARY else float(sc)
 	var sortie: Array = []
 	# Le guide écrit « energie » ou « force », « portee_px » (rayon d'action) ou « rayon_px ».
-	var energie := float(L.get("energie", L.get("force", 1.0)))
+	var brute = L.get("energie", L.get("force", 1.0))
+	var par_etat: Dictionary = brute if typeof(brute) == TYPE_DICTIONARY else {}
+	var energie := float(par_etat.values()[0]) if not par_etat.is_empty() else float(brute)
 	if points.size() > 1:
 		# Groupe (bougies) : une lumière de groupe au barycentre, à traîne longue (profil de
 		# l'aperçu de la DA : 1,4·exp(−r/380) + 0,4·exp(−r/110)), qui porte les piliers et la
@@ -273,9 +374,12 @@ static func lumieres_du_plan(L: Dictionary) -> Array:
 				"rayon_px": float(L.get("portee_bougie_px", 120.0)) / 2.5, "scintillement": amplitude})
 		return sortie
 	for pt in points:
-		sortie.append({"position_px": pt, "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
+		var e := {"position_px": pt, "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
 			"rayon_px": float(L.get("portee_px", L.get("rayon_px", 300))) / 2.5, "scintillement": amplitude,
-			"hauteur_px": 200.0})
+			"hauteur_px": 200.0}
+		if not par_etat.is_empty():
+			e.energie_par_etat = par_etat
+		sortie.append(e)
 	# Cône (lampe à main de Cthonia) : une seconde lumière orientée vers « vers_px ».
 	var cone = L.get("cone")
 	if typeof(cone) == TYPE_DICTIONARY and typeof(cone.get("vers_px")) == TYPE_ARRAY:
@@ -334,6 +438,73 @@ func construire() -> void:
 	ambiant = Color(d.ambiant) if not String(d.get("ambiant", "")).is_empty() else Color(0, 0, 0, 0)
 	if not d.get("veille", {}).is_empty():
 		_poser_veille(d.veille)
+	etats = d.get("etats", {})
+	if not String(d.get("etat_initial", "")).is_empty():
+		appliquer_etat(d.etat_initial, 0.0)
+
+
+# --------------------------------------------------------------------------- états
+
+## États d'un lieu (nuit, aube…) : ciel, CanvasModulate, intensité et teinte de calques,
+## énergie des lumières. Le chapitre suit « ambiant » (signal etat_change).
+signal etat_change(nom: String, duree: float)
+var etats: Dictionary = {}
+var etat := ""
+
+
+func appliquer_etat(nom: String, duree := 0.0) -> void:
+	if not etats.is_empty() and not etats.has(nom):
+		push_warning("Décor %s : état inconnu « %s »" % [id_decor, nom])
+		return
+	etat = nom
+	var t: Tween = create_tween().set_parallel() if duree > 0.0 else null
+	var d := lire(id_decor, dossier_decors)
+	for i in calques.size():
+		if i >= d.calques.size():
+			break
+		var k: Dictionary = d.calques[i]
+		var image := calques[i].get_node(^"Image") as CanvasItem
+		var cible := image.modulate
+		var teinte := image.self_modulate
+		if k.has("etat"):
+			var dans: bool = k.etat.has(nom) if typeof(k.etat) == TYPE_ARRAY else k.etat == nom
+			cible.a = 1.0 if dans else 0.0
+		if typeof(k.get("intensite_par_etat")) == TYPE_DICTIONARY and k.intensite_par_etat.has(nom):
+			cible.a = float(k.intensite_par_etat[nom])
+		if typeof(k.get("modulate_par_etat")) == TYPE_DICTIONARY and k.modulate_par_etat.has(nom):
+			var v := float(k.modulate_par_etat[nom])
+			cible = Color(v, v, v, cible.a)
+		if typeof(k.get("couleur_intensite_par_etat")) == TYPE_DICTIONARY and k.couleur_intensite_par_etat.has(nom):
+			var ci: Array = k.couleur_intensite_par_etat[nom]
+			teinte = Color(ci[0])
+			teinte.a = float(ci[1])
+		calques[i].visible = true
+		if t:
+			t.tween_property(image, "modulate", cible, duree)
+			t.tween_property(image, "self_modulate", teinte, duree)
+		else:
+			image.modulate = cible
+			image.self_modulate = teinte
+	for l in get_children():
+		if l is PointLight2D and l.has_meta("couleur_par_etat") and l.get_meta("couleur_par_etat").has(nom):
+			var c: Color = l.get_meta("couleur_par_etat")[nom]
+			if t:
+				t.tween_property(l, "color", c, duree)
+			else:
+				l.color = c
+		if l is PointLight2D and l.has_meta("energie_par_etat"):
+			var e: Dictionary = l.get_meta("energie_par_etat")
+			if e.has(nom):
+				var v := float(e[nom])
+				l.set_meta("energie", v)
+				if t:
+					t.tween_property(l, "energy", v, duree)
+				else:
+					l.energy = v
+	var cm = etats.get(nom, {}).get("canvas_modulate") if typeof(etats.get(nom)) == TYPE_DICTIONARY else null
+	if typeof(cm) == TYPE_STRING:
+		ambiant = Color(cm)
+	etat_change.emit(nom, duree)
 
 
 ## Teinte de CanvasModulate voulue par le plan (« appoints » de la DA) ; alpha 0 : aucune.
@@ -373,12 +544,21 @@ func _poser_lumieres(liste: Array) -> void:
 		l.position = Vector2(L.position_px[0], L.position_px[1])
 		l.rotation = float(L.get("orientation", 0.0))
 		l.texture_scale = float(L.get("rayon_px", 120)) * 2.5 / 128.0
-		l.color = Color(L.get("couleur", "#FFB060"))
+		var coul = L.get("couleur", "#FFB060")
+		if typeof(coul) == TYPE_DICTIONARY and not coul.is_empty():
+			var par_etat := {}
+			for nom in coul:
+				par_etat[nom] = couleur_guide(coul[nom])
+			l.set_meta("couleur_par_etat", par_etat)
+			coul = coul.values()[0]
+		l.color = couleur_guide(coul)
 		l.energy = float(L.get("intensite", 1.0))
 		# Hauteur (normal maps) : une lumière de groupe éclaire de face, sinon les murs tournés
 		# vers la caméra ne reçoivent presque rien.
 		l.height = float(L.get("hauteur_px", 40.0))
 		l.range_item_cull_mask = MASQUE_LUMIERE | 1
+		if typeof(L.get("energie_par_etat")) == TYPE_DICTIONARY:
+			l.set_meta("energie_par_etat", L.energie_par_etat)
 		var sc := float(L.get("scintillement", 0.0))
 		if sc > 0.0:
 			l.set_meta("energie", l.energy)
@@ -637,3 +817,20 @@ func memoire_textures() -> int:
 				if t != null:
 					total += t.get_width() * t.get_height() * 4
 	return total
+
+
+## Couleur écrite par la DA : « #RRGGBB », ou « mélange #A / #B à 55 % » (55 % de B).
+static func couleur_guide(v) -> Color:
+	if typeof(v) == TYPE_COLOR:
+		return v
+	var texte := String(v)
+	var re := RegEx.create_from_string("#[0-9A-Fa-f]{6}")
+	var trouves := re.search_all(texte)
+	if trouves.is_empty():
+		return Color(texte) if Color.html_is_valid(texte) else Color("#FFB060")
+	var c := Color(trouves[0].get_string())
+	if trouves.size() > 1 and texte.contains("%"):
+		var pct := RegEx.create_from_string("(\\d+)\\s*%").search(texte)
+		if pct:
+			c = c.lerp(Color(trouves[1].get_string()), float(pct.get_string(1)) / 100.0)
+	return c

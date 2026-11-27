@@ -1,0 +1,94 @@
+{
+  "_doc": "Zones du chapitre 4. L'assaut : avancer de gauche à droite (pas de combat), Ilse croisée si elle vit ; le bord droit mène au bloc (C7). La retombée : marcher, puis fin du chapitre.",
+  "decors": {
+    "orvane_rues": {
+      "etat": "nuit"
+    },
+    "orvane_bloc": {
+      "etat": "nuit"
+    },
+    "orvane_aube": {
+      "etat_selon": {
+        "drapeau": "choix_ep01_orvane",
+        "valeurs": {
+          "1": "a_l_heure"
+        },
+        "defaut": "en_retard"
+      }
+    }
+  },
+  "assaut": {
+    "decor": "orvane_rues",
+    "depart": [
+      200,
+      1000
+    ],
+    "limites": [
+      140,
+      940,
+      1640,
+      110
+    ],
+    "pois": {
+      "assaut_ilse": [
+        950,
+        990
+      ]
+    },
+    "figurants": {
+      "assaut_ilse": "ilse"
+    },
+    "conditions": {
+      "assaut_ilse": "vivant_ilse"
+    },
+    "declencheurs": [
+      {
+        "x": 1600,
+        "noeud": "bloc"
+      },
+      {
+        "apres": [],
+        "max_s": 180,
+        "noeud": "bloc"
+      }
+    ]
+  },
+  "retombee_rues": {
+    "decor": "orvane_matin",
+    "depart": [
+      200,
+      1000
+    ],
+    "limites": [
+      140,
+      940,
+      1640,
+      110
+    ],
+    "declencheurs": [
+      {
+        "x": 1600,
+        "noeud": "FIN"
+      },
+      {
+        "apres": [],
+        "max_s": 90,
+        "noeud": "FIN"
+      }
+    ]
+  },
+  "mises_en_scene": {
+    "bloc_choix": {
+      "etats": [
+        [
+          "aube_naissante",
+          4.0
+        ],
+        [
+          "aube",
+          4.0
+        ]
+      ]
+    }
+  }
+}

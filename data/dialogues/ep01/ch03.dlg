@@ -1,0 +1,222 @@
+// Épisode 1, chapitre 3 « Les remembrancers » : répliques, v0.1 (Narrative Designer, 27/11).
+// Structure : ch03-05-sequenciers.md v0.2 (validé). Clés : ch03-05-game-design.md (Game Designer).
+// MAJ 27/11 (canon) : les remembrancers du corps principal arrivent trois mois après 63-19 ; ici, seule une avant-garde de trois (dont Sefa) rejoint la 27e sur la barge du détachement.
+// Aucune voix. Répliques de 2 lignes au plus. Les @ sont indicatifs.
+
+// ================================================================ 0. L'archive
+=== archive_ch3
+@decor archive
+@plan archive_ecriture
+// Gros plan : la ligne écrite sur la plaque de données, avec le trait barré particulier.
+@carton 3 Nous étions trois. Les autres viendraient plus tard.
+-> embarquement
+
+// ================================================================ 1. Le pont d'embarquement
+=== embarquement
+@decor barge_pont_embarquement
+> Une lumière trop vive. Une navette s'ouvre. Trois civils descendent, minuscules.
+> La 27e forme la haie. Vaskar est dans le rang.
+> Une femme trébuche. Sa sacoche s'ouvre. Des plaques glissent sur le pont.
+> Personne ne bouge.
+* Ramasser les plaques -> plaques_ramasser
+* Ne pas bouger -> plaques_rang
+*! 5 -> plaques_rang
+
+=== plaques_ramasser
+~ relation_sefa += 1
+~ trait_vaskar_compassion += 1
+~ trait_vaskar_obeissance += 0
+~ ep01_plaques_ramassees = true
+> Vaskar sort du rang et s'accroupit. Les plaques tiennent dans sa main comme des cartes.
+SEFA: Merci. Je pensais que vous ne bougiez pas.
+VASKAR: Pas souvent.
+DREMM (vox): Hol. Le rang.
+-> quartiers_civils
+
+=== plaques_rang
+~ relation_sefa += 0
+~ trait_vaskar_compassion += 0
+~ trait_vaskar_obeissance += 1
+~ ep01_plaques_ramassees = false
+> Elle ramasse seule, à genoux entre deux géants immobiles.
+> En se relevant, elle regarde Vaskar. Lui seul a baissé les yeux.
+-> quartiers_civils
+
+// ================================================================ 2. Les quartiers des remembrancers (4 points, Sefa obligatoire)
+=== quartiers_civils
+@decor barge_quartiers_civils
+@jeu
+-> FIN
+
+=== poi_peintre
+> Un peintre mélange des blancs sur une palette. Aucun ne lui convient.
+PEINTRE: Votre armure. Ce n'est pas du blanc. C'est de l'os, avec de la lune dedans.
+VASKAR: C'est du blanc.
+PEINTRE: Vous ne l'avez jamais regardée.
+-> FIN
+
+=== poi_poete
+POÈTE: Un mot de votre monde natal. N'importe lequel.
+VASKAR: « Étai. »
+POÈTE: Qu'est-ce que ça veut dire ?
+VASKAR: Ce qui tient le plafond. Jusqu'à ce que ça ne tienne plus.
+-> FIN
+
+=== poi_frere
+> Un frère de la 27e, adossé à une colonne, regarde les civils s'installer.
+FRÈRE: Des touristes. Ils vont nous suivre partout pour écrire des chansons.
+FRÈRE: Moi, je ne parle pas aux chansons.
+-> FIN
+
+=== poi_sefa
+> Sefa range ses plaques sur une table trop basse pour elle, et beaucoup trop basse pour lui.
+SEFA: Sefa Morn. Chroniqueuse. On m'a donnée à la 27e.
+-> sefa_rencontre_ramassees [si ep01_plaques_ramassees == true]
+SEFA: Vous êtes celui qui n'a pas bougé.
+-> entretien
+
+=== sefa_rencontre_ramassees
+SEFA: Vous êtes celui qui a bougé.
+-> entretien
+
+// ================================================================ 3. L'entretien
+=== entretien
+SEFA: Ullanor. Vous y étiez. Racontez-moi.
+VASKAR: Il a été nommé. Tout le monde l'a vu.
+SEFA: Je ne veux pas ce que tout le monde a vu. Je veux ce que vous avez vu.
+-> entretien_sortir [si choix_ep01_ullanor == 1]
+-> entretien_aux [si choix_ep01_ullanor == 2]
+-> entretien_obeir
+
+// C6 : pas de minuteur (entretien lent). Les trois branches portent les mêmes clés.
+=== entretien_sortir
+* « Je suis arrivé en retard. Pour une soldate. » -> recit_verite_sortir
+* « Il a été nommé. Nous étions là. C'est tout ce qui compte. » -> recit_triomphe
+* Refuser de parler -> recit_refus
+
+=== entretien_aux
+* « J'ai appelé à l'aide, et je suis reparti. » -> recit_verite_aux
+* « Il a été nommé. Nous étions là. C'est tout ce qui compte. » -> recit_triomphe
+* Refuser de parler -> recit_refus
+
+=== entretien_obeir
+* « J'ai laissé une soldate sous une poutre. » -> recit_verite_obeir
+* « Il a été nommé. Nous étions là. C'est tout ce qui compte. » -> recit_triomphe
+* Refuser de parler -> recit_refus
+
+=== recit_verite_sortir
+VASKAR: Je suis arrivé en retard au plus grand jour de la Légion.
+VASKAR: Une soldate était sous une poutre. Je l'ai sortie.
+SEFA: Personne ne m'a raconté ça.
+VASKAR: Personne ne l'a regardé.
+-> recit_verite
+
+=== recit_verite_aux
+VASKAR: Une soldate était sous une poutre. J'ai appelé à l'aide.
+VASKAR: Je suis reparti avant de savoir. Je ne sais toujours pas.
+SEFA: Vous voulez que je le cherche ?
+VASKAR: Non. Je veux que ce soit écrit.
+-> recit_verite
+
+=== recit_verite_obeir
+VASKAR: Une soldate était sous une poutre. On m'a rappelé.
+VASKAR: Je l'ai laissée. J'étais à ma place quand il a parlé.
+SEFA: Pourquoi me le dire ?
+VASKAR: Parce que quelqu'un devrait le savoir.
+-> recit_verite
+
+=== recit_verite
+~ choix_ep01_recit = 1
+~ relation_sefa += 1
+~ relation_dremm -= 1
+~ trait_vaskar_obeissance += 0
+~ trait_vaskar_doute += 0
+@carton 3 Elle l'écrira.
+-> dremm_sefa
+
+=== recit_triomphe
+~ choix_ep01_recit = 2
+~ relation_sefa += 0
+~ relation_dremm += 0
+~ trait_vaskar_obeissance += 1
+~ trait_vaskar_doute += 0
+VASKAR: Il a été nommé. Nous étions là. C'est tout ce qui compte.
+SEFA: C'est ce que tout le monde me dit.
+VASKAR: Alors c'est vrai.
+@carton 3 Elle l'écrira.
+-> dremm_sefa
+
+=== recit_refus
+~ choix_ep01_recit = 3
+~ relation_sefa -= 1
+~ relation_dremm += 0
+~ trait_vaskar_obeissance += 0
+~ trait_vaskar_doute += 1
+> Vaskar se lève. La table lui arrive aux genoux.
+SEFA: Le silence aussi, ça s'écrit.
+@carton 3 Elle écrira votre silence.
+-> dremm_sefa
+
+// ================================================================ 4. Dremm et Sefa (vu de loin par Vaskar)
+=== dremm_sefa
+@plan dremm_sefa_loin
+> Plus loin, Dremm s'est assis par terre pour être à sa hauteur. Elle rit.
+DREMM: … et quand il s'est relevé, Sefa Morn, toute la plaine a crié son nom.
+DREMM: Écrivez ça. Écrivez qu'on y était.
+-> dremm_sefa_soldate [si choix_ep01_recit == 1]
+// Défaut : Sefa note, sans question.
+SEFA: Je l'écris.
+-> plaque_sefa
+
+=== dremm_sefa_soldate
+SEFA: Et la soldate ?
+> Le visage de Dremm se ferme. Il cherche Vaskar des yeux. Il le trouve.
+DREMM: Quelle soldate ?
+-> plaque_sefa
+
+// ================================================================ 5. La plaque (variante)
+=== plaque_sefa
+-> plaque_sefa_scene [si ep01_plaque_gardee == true]
+// Défaut : scène sautée.
+~ connait_sefa_plaque = false
+~ relation_sefa += 0
+-> sefa_seule
+
+=== plaque_sefa_scene
+> Sefa s'arrête devant Vaskar. Elle regarde le bord de métal sous son plastron.
+SEFA: Ce n'est pas une pièce d'armure, ça.
+* La lui montrer -> plaque_montrer
+* Refuser -> plaque_refuser
+
+=== plaque_montrer
+~ connait_sefa_plaque = true
+~ relation_sefa += 1
+> Elle lit les noms un par un, en remuant les lèvres.
+SEFA: Qui les a gravés ?
+VASKAR: Quelqu'un qui n'avait pas assez de plaque.
+-> sefa_seule
+
+=== plaque_refuser
+~ connait_sefa_plaque = false
+~ relation_sefa += 0
+VASKAR: Non.
+SEFA: Un jour, peut-être.
+-> sefa_seule
+
+// ================================================================ 6. Sefa seule (ciné, non jouable)
+=== sefa_seule
+@decor barge_quartiers_sefa
+@plan sefa_ecrit
+> La nuit de bord. Une lampe. Elle écrit.
+// Gros plan : le même trait barré que sur la plaque de l'archive (scène 0).
+@plan sefa_trait
+-> accroche_orvane
+
+// ================================================================ 7. Accroche
+=== accroche_orvane
+@decor barge_quartiers_27
+> Briefing général. Un monde humain, au bord de la carte, a dit non.
+DREMM: Orvane. Ils refusent la conformité.
+DREMM: La 27e part avec le détachement. Et le Maître de Guerre nous regarde.
+> Dremm sourit.
+-> FIN

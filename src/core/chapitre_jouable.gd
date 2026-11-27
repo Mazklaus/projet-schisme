@@ -110,6 +110,15 @@ func _mise_en_scene_du_noeud(noeud: String) -> void:
 		Son.ambiance(m.ambiance[0], float(m.ambiance[1]) if m.ambiance.size() > 1 else 2.0)
 	if m.has("lumiere_montante"):
 		_lumiere_montante(m.lumiere_montante)
+	# « etats » : [[nom, durée], …] enchaînés sur le décor affiché (l'aube pendant le C7).
+	if m.has("etats") and decor_par_id(decor_courant) is Decor25D:
+		_enchainer_etats(decor_par_id(decor_courant), m.etats)
+
+
+func _enchainer_etats(d: Decor25D, liste: Array) -> void:
+	for e in liste:
+		d.appliquer_etat(String(e[0]), float(e[1]))
+		await get_tree().create_timer(float(e[1])).timeout
 
 
 ## Une lumière qui monte (l'Empereur à l'Unification, DA) : un calque de 0 à 1 avec une montée
@@ -328,7 +337,8 @@ func _lumiere(pos: Vector2, couleur: Color, echelle: float) -> PointLight2D:
 # --------------------------------------------------------------------------- décors
 
 ## Décor par son id (ou alias) : celui de la scène, celui des assets, ou un décor provisoire.
-func decor_par_id(id: String) -> Node2D:
+func decor_par_id(id_demande: String) -> Node2D:
+	var id: String = resoudre_decor(id_demande).decor
 	if decors.has(id):
 		return decors[id]
 	var d: Node2D
@@ -336,6 +346,14 @@ func decor_par_id(id: String) -> Node2D:
 			FileAccess.file_exists("%s/%s/%s.json" % [DOSSIER_DECORS, id, id]):
 		var dec := Decor25D.new()
 		dec.id_decor = id
+		# Changement d'état (aube pendant le C7) : l'ambiant de la scène suit le décor affiché.
+		dec.etat_change.connect(func(_nom, duree):
+			var amb := get_node_or_null(^"Ambiance") as CanvasModulate
+			if amb and dec.visible and dec.ambiant.a > 0.0:
+				if duree > 0.0:
+					create_tween().tween_property(amb, "color", dec.ambiant, duree)
+				else:
+					amb.color = dec.ambiant)
 		d = dec
 	else:
 		d = _decor_provisoire(id)
@@ -398,9 +416,46 @@ func monde_de(d: Node2D) -> Node2D:
 	return m
 
 
-func _changer_decor(id: String) -> void:
+## Alias de décors (data/decors_alias.json) : nom du .dlg → {decor, etat}.
+static var _alias: Dictionary = {}
+
+
+static func resoudre_decor(id: String) -> Dictionary:
+	if _alias.is_empty():
+		var a = JSON.parse_string(FileAccess.get_file_as_string("res://data/decors_alias.json")) \
+			if FileAccess.file_exists("res://data/decors_alias.json") else {}
+		_alias = a if typeof(a) == TYPE_DICTIONARY else {"_vide": true}
+	var r = _alias.get(id)
+	if typeof(r) == TYPE_DICTIONARY:
+		return {"decor": r.get("decor", id), "etat": r.get("etat", "")}
+	return {"decor": id, "etat": ""}
+
+
+## État d'un décor à son entrée : alias (orvane_matin), sinon « decors » du fichier jeu
+## ({"etat": "nuit"} ou {"etat_selon": {"drapeau": "choix_ep01_orvane", "valeurs": {"1": "a_l_heure"},
+## "defaut": "en_retard"}}).
+func _etat_a_l_entree(id: String, etat_alias: String) -> String:
+	if not etat_alias.is_empty():
+		return etat_alias
+	var c = zones.get("decors", {}).get(id, {})
+	if typeof(c) != TYPE_DICTIONARY:
+		return ""
+	if c.has("etat_selon"):
+		var e: Dictionary = c.etat_selon
+		var v = Jeu.etat.drapeaux.get(e.get("drapeau", ""))
+		var cle := str(int(v)) if typeof(v) in [TYPE_INT, TYPE_FLOAT] else str(v)
+		return String(e.get("valeurs", {}).get(cle, e.get("defaut", "")))
+	return String(c.get("etat", ""))
+
+
+func _changer_decor(id_demande: String) -> void:
+	var r := resoudre_decor(id_demande)
+	var id: String = r.decor
 	var cible := decor_par_id(id)
+	var etat := _etat_a_l_entree(id, r.etat)
 	if cible.visible and decor_courant == id:
+		if cible is Decor25D and not etat.is_empty() and cible.etat != etat:
+			cible.appliquer_etat(etat, 1.5)
 		return
 	await _fondu_noir(1.0, 0.35)
 	for d in decors.values():
@@ -408,6 +463,8 @@ func _changer_decor(id: String) -> void:
 	decor_courant = id
 	if cible is Decor25D:
 		decor = cible
+		if not etat.is_empty():
+			cible.appliquer_etat(etat, 0.0)
 	var son_decor = zones.get("ambiances", {}).get(id)
 	if typeof(son_decor) == TYPE_STRING:
 		Son.ambiance(son_decor, 1.5)
@@ -487,6 +544,11 @@ func _commencer_jeu(nom: String) -> void:
 	_placer_joueur(d)
 	pois = {}
 	for k in config.get("pois", {}):
+		# « conditions » : {"poi_ilse": "vivant_ilse"} : le point (et son figurant) n'existe que
+		# si le drapeau est vrai.
+		var si = config.get("conditions", {}).get(k)
+		if typeof(si) == TYPE_STRING and not Jeu.etat.drapeaux.get(si, false):
+			continue
 		var p: Array = config.pois[k]
 		pois[k] = Vector2(p[0], p[1])
 	for k in config.get("figurants", {}):

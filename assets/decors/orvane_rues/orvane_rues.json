@@ -1,0 +1,235 @@
+{
+  "nom": "orvane_rues",
+  "lieu": "Orvane, la rue habitée (OR-2), ép. 1 ch. 4, choix minuté C7",
+  "statut": "v2 (corrections DA : avant-plan, nuit, aube), en revue DA",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "resolution_4k": "calques/4k/",
+  "camera": {
+    "hauteur_m": 1.7,
+    "focale_px_1080p": 1100,
+    "decalage_x_m": 0.9,
+    "lacet_deg": 12,
+    "point_de_fuite_px": [
+      726,
+      600
+    ],
+    "note": "cadrage de biais : fond de rue dans le tiers gauche"
+  },
+  "echelle": {
+    "astartes_m": 2.3,
+    "civil_m": 1.75,
+    "rue_largeur_m": 4.8,
+    "auvents_m": 2.65
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel_nuit.png",
+      "ordre": 0,
+      "etat": "nuit"
+    },
+    {
+      "fichier": "calques/00_ciel_matin.png",
+      "ordre": 0,
+      "etat": "matin"
+    },
+    {
+      "fichier": "calques/00_ciel_aube_naissante.png",
+      "ordre": 0,
+      "etat": "aube_naissante"
+    },
+    {
+      "fichier": "calques/00_ciel_aube.png",
+      "ordre": 0,
+      "etat": "aube"
+    },
+    {
+      "fichier": "calques/10_fond.png",
+      "ordre": 10,
+      "parallaxe": 0.05,
+      "note": "citadelle à 600 m, place"
+    },
+    {
+      "fichier": "calques/30_facades.png",
+      "ordre": 30,
+      "parallaxe": 1.0,
+      "normal": "calques/30_facades_normal.png",
+      "ombre": "calques/30_facades_ombre.png",
+      "eclaire": true
+    },
+    {
+      "fichier": "calques/32_linge.png",
+      "ordre": 32,
+      "parallaxe": 1.0,
+      "anim": "vent : ondulation verticale lente, amplitude 6 px, déphasée par fil",
+      "modulate_par_etat": {
+        "nuit": 1.0,
+        "aube_naissante": 0.55,
+        "aube": 0.28,
+        "matin": 0.75
+      },
+      "note": "fanions en silhouette à contre-jour à l'aube"
+    },
+    {
+      "fichier": "calques/35_barricade.png",
+      "ordre": 35,
+      "parallaxe": 1.0,
+      "normal": "calques/35_barricade_normal.png",
+      "eclaire": true
+    },
+    {
+      "fichier": "calques/37_brume.png",
+      "ordre": 37,
+      "fusion": "mélange (alpha)",
+      "intensite_par_etat": {
+        "nuit": 0.0,
+        "aube_naissante": 0.45,
+        "aube": 0.9,
+        "matin": 0.6
+      },
+      "note": "nappe et voile de fond de rue, masqués par la profondeur (façades proches nettes) ; sous les personnages"
+    },
+    {
+      "fichier": "calques/gabarit_40_personnages.png",
+      "ordre": 40,
+      "note": "gabarit : Vaskar (de dos), Dremm (trois-quarts), civils derrière la barricade ; pas un asset"
+    },
+    {
+      "fichier": "calques/45_fenetres_allumees.png",
+      "ordre": 45,
+      "fusion": "additif",
+      "emissif": true,
+      "intensite_par_etat": {
+        "nuit": 1.35,
+        "aube_naissante": 0.6,
+        "aube": 0.1,
+        "matin": 0.0
+      }
+    },
+    {
+      "fichier": "calques/46_feu.png",
+      "ordre": 46,
+      "fusion": "additif",
+      "emissif": true,
+      "anim": "scintillement 6-9 Hz, échelle verticale 0.9-1.1",
+      "note": "flammes + braises montantes"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "ordre": 50,
+      "parallaxe": 1.15,
+      "normal": "calques/50_avant_plan_normal.png",
+      "eclaire": true,
+      "note": "pilier de boutique (~9 % de la largeur) collé au bord droit, auvent, lanterne éteinte à cage de laiton"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "ordre": 51,
+      "fusion": "additif",
+      "couleur_intensite_par_etat": {
+        "nuit": [
+          "#E07A3A",
+          0.7
+        ],
+        "aube_naissante": [
+          "#C89090",
+          0.45
+        ],
+        "aube": [
+          "#E8B48A",
+          0.6
+        ],
+        "matin": [
+          "#C8C8D0",
+          0.3
+        ]
+      },
+      "note": "liseré chaud du pilier : brasero la nuit, ciel à l'aube"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "ordre": 90,
+      "anim": "cendres montantes près du feu, fumée lente"
+    }
+  ],
+  "lumieres": [
+    {
+      "nom": "cle_aube",
+      "type": "PointLight2D",
+      "couleur": "#E8B48A",
+      "position_px": [
+        717,
+        578
+      ],
+      "rayon_px": 960,
+      "note": "contre-jour du fond de rue ; n'éclaire que la profondeur > 14 m (masque de profondeur ou occluders sur les façades proches)",
+      "energie_par_etat": {
+        "nuit": 0.0,
+        "aube_naissante": 0.95,
+        "aube": 1.9,
+        "matin": 0.5
+      }
+    },
+    {
+      "nom": "feu_barricade",
+      "type": "PointLight2D",
+      "couleur": "#E07A3A",
+      "position_px": [
+        683,
+        633
+      ],
+      "rayon_px": 920,
+      "scintillement": true,
+      "energie_par_etat": {
+        "nuit": 2.3,
+        "aube_naissante": 0.9,
+        "aube": 0.3,
+        "matin": 0.0
+      }
+    },
+    {
+      "nom": "feu_flaque_sol",
+      "type": "PointLight2D (texture ellipse aplatie, au ras des pavés)",
+      "couleur": "#E07A3A",
+      "position_px": [
+        683,
+        633
+      ],
+      "note": "flaque chaude sur les pavés, ~4 m autour du brasero, même énergie que feu_barricade × 0.4"
+    }
+  ],
+  "etats": {
+    "nuit": {
+      "ciel": "00_ciel_nuit",
+      "canvas_modulate": "#46506E"
+    },
+    "aube_naissante": {
+      "ciel": "00_ciel_aube_naissante",
+      "canvas_modulate": "#4C4458"
+    },
+    "aube": {
+      "ciel": "00_ciel_aube",
+      "canvas_modulate": "#5E5664"
+    },
+    "matin": {
+      "ciel": "00_ciel_matin",
+      "canvas_modulate": "#7A7C86",
+      "note": "brasero éteint (46_feu masqué), fenêtres éteintes, fumée (37_brume 0.6)"
+    }
+  },
+  "transition": "le choix C7 est minuté : interpoler nuit → aube_naissante → aube sur la durée du compte à rebours (ciel en fondu, modulate, énergies)",
+  "apercus": {
+    "nuit": "apercu_nuit.png (25 % sous #1A1612)",
+    "aube_naissante": "apercu_aube_naissante.png (41 %)",
+    "aube": "apercu_aube.png (45 %, premier plan volontairement sombre en contre-jour)",
+    "matin": "apercu_matin.png (19 %)"
+  },
+  "regles": "pas d'Œil d'Horus (emblème : bande blanche sur pourpre, gouverneur), aucun texte lisible, aucune image officielle",
+  "source": "etude-heresie/cA2/or_rue_calques.py [--4k]",
+  "facades_note": "base en aplats ; passe de retouche TP2 prévue ensuite",
+  "alias": {
+    "orvane_matin": "même lieu, état matin (retombée, ch. 4 §7)"
+  }
+}

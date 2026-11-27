@@ -1,0 +1,186 @@
+{
+  "nom": "orvane_soir",
+  "lieu": "Orvane, cour de la citadelle : la 27e grave ses morts (ép. 1 ch. 5 §1, jouable, POI poi_mur)",
+  "statut": "v1.1 (correctif DA : pilier droit retiré)",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "resolution_4k": "calques/4k/",
+  "camera": {
+    "hauteur_m": 1.7,
+    "focale_px_1080p": 1050,
+    "lacet_deg": -23,
+    "note": "le mur à gauche en trois-quarts, la cour et le parapet à droite ; le mur fuit vers le tiers droit"
+  },
+  "echelle": {
+    "mur_h_m": 9,
+    "contreforts_tous_les_m": 7,
+    "noms_hauteur_m": [
+      1.44,
+      1.9
+    ],
+    "place_libre_jusqua_m": 3.5,
+    "astartes_m": 2.3
+  },
+  "poi_mur": {
+    "position_px": [
+      778,
+      608
+    ],
+    "zone_px": [
+      [
+        611,
+        691
+      ],
+      [
+        887,
+        355
+      ]
+    ],
+    "note": "bloc lisse dressé : 3 lignes d'entailles fraîches (illisibles) et la place vide au-dessus ; mise en avant possible en modulant 34_gravures"
+  },
+  "etats": {
+    "soir": {
+      "ciel": "00_ciel_soir",
+      "canvas_modulate": "#463E54"
+    },
+    "crepuscule": {
+      "ciel": "00_ciel_crepuscule",
+      "canvas_modulate": "#2C3050",
+      "note": "pour la phase jouable si elle s'étire : les braseros prennent le relais"
+    }
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel_soir.png",
+      "ordre": 0,
+      "etat": "soir"
+    },
+    {
+      "fichier": "calques/00_ciel_crepuscule.png",
+      "ordre": 0,
+      "etat": "crepuscule"
+    },
+    {
+      "fichier": "calques/10_fond.png",
+      "ordre": 10,
+      "parallaxe": 0.05,
+      "note": "la ville en contrebas au-delà du parapet"
+    },
+    {
+      "fichier": "calques/30_mur.png",
+      "ordre": 30,
+      "normal": "calques/30_mur_normal.png",
+      "ombre": "calques/30_mur_ombre.png",
+      "eclaire": true,
+      "note": "mur à grand appareil, contreforts, créneaux, cour dallée, parapet ; ombre des contreforts : état soir seulement"
+    },
+    {
+      "fichier": "calques/34_gravures.png",
+      "ordre": 34,
+      "normal": "calques/34_gravures_normal.png",
+      "eclaire": true,
+      "note": "les trois noms : entailles de couteau illisibles + poussière de pierre au pied du mur"
+    },
+    {
+      "fichier": "calques/38_braseros.png",
+      "ordre": 38,
+      "eclaire": true
+    },
+    {
+      "fichier": "calques/gabarit_40_personnages.png",
+      "ordre": 40,
+      "note": "gabarit : le graveur face au mur, un frère en retrait, un autre vers le parapet, un assis tête basse (pas alignés)"
+    },
+    {
+      "fichier": "calques/46_feu.png",
+      "ordre": 46,
+      "fusion": "additif",
+      "emissif": true,
+      "anim": "flammes 6-9 Hz",
+      "intensite_par_etat": {
+        "soir": 0.5,
+        "crepuscule": 1.0
+      }
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "ordre": 50,
+      "parallaxe": 1.1,
+      "normal": "calques/50_avant_plan_normal.png",
+      "eclaire": true,
+      "note": "dernière marche de la cour, sombre, en bas du cadre"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "ordre": 51,
+      "fusion": "additif",
+      "couleur_intensite_par_etat": {
+        "soir": [
+          "#E8905A",
+          0.5
+        ],
+        "crepuscule": [
+          "#E07A3A",
+          0.5
+        ]
+      },
+      "note": "arête de la marche"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "ordre": 90,
+      "anim": "poussière dorée dans la lumière rasante"
+    }
+  ],
+  "lumieres": [
+    {
+      "nom": "soleil_couchant",
+      "type": "DirectionalLight2D",
+      "couleur": "#E8905A",
+      "direction": "de la droite, rasante",
+      "energie_par_etat": {
+        "soir": 1.0,
+        "crepuscule": 0.2
+      },
+      "note": "rasante pour que les arêtes fraîches des entailles accrochent (normal map de 34)"
+    },
+    {
+      "nom": "brasero_1",
+      "type": "PointLight2D",
+      "couleur": "#E07A3A",
+      "position_px": [
+        1124,
+        652
+      ],
+      "rayon_px": 640,
+      "energie_par_etat": {
+        "soir": 0.5,
+        "crepuscule": 1.6
+      },
+      "scintillement": true
+    },
+    {
+      "nom": "brasero_2",
+      "type": "PointLight2D",
+      "couleur": "#E07A3A",
+      "position_px": [
+        1650,
+        641
+      ],
+      "rayon_px": 640,
+      "energie_par_etat": {
+        "soir": 0.5,
+        "crepuscule": 1.6
+      },
+      "scintillement": true
+    }
+  ],
+  "apercus": {
+    "soir": "apercu_soir.png (6 %)",
+    "crepuscule": "apercu_crepuscule.png (16 %)"
+  },
+  "regles": "aucun texte lisible (les noms sont des entailles), pas d'Œil d'Horus, aucune image officielle",
+  "source": "etude-heresie/cA2/or_soir_calques.py [--4k]"
+}

@@ -1,0 +1,115 @@
+{
+  "plan": "barge_briefing",
+  "episode": 1,
+  "chapitres": [
+    4
+  ],
+  "etat": "pur",
+  "description": "Barge de bataille, salle de briefing : l'hololith d'Horus est la SEULE source, froide et monumentale. Figure en armure faite de lumière (4,2 m), lisible comme un homme et non comme un symbole : aucun visage, aucun œil, aucun emblème. Officiers en arc irrégulier autour de la table-projecteur octogonale, Vaskar de dos au premier plan. Générateur : cA2/barge_briefing_calques.py [--4k] ; base : planche barge v2, B-4.",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "hauteur_m": 2.6,
+    "focale_px": 950,
+    "point_de_fuite_px": [
+      960,
+      520
+    ],
+    "note": "œil légèrement haut : on domine la table"
+  },
+  "regle_palette": "acier sombre, or terni assourdi en liseré (voûte, rebord de table) ; tout est teinté par le cyan de l'hololith ; deux étendards repliés au fond (tissu mat)",
+  "echelle": {
+    "salle_m": "14 de large, arcs à 6, clé à 10, profondeur 22",
+    "table_m": "octogone de 4,6, plateau à 1",
+    "hololith_m": 4.2,
+    "astartes_m": 2.3
+  },
+  "eclairage": "calques en ALBÉDO + occlusion ; ombres des officiers cuites dans 20_salle_ombre (radiales depuis l'hololith)",
+  "cle": {
+    "type": "hololith (PointLight2D au centre de la figure)",
+    "position_px": [
+      960,
+      480
+    ],
+    "position_m": [
+      0,
+      3.1,
+      12
+    ],
+    "couleur": "#8FD6E8",
+    "energie": 1.7,
+    "portee_px": 620,
+    "scintillement": {
+      "amplitude": 0.08,
+      "frequence_hz": [
+        8,
+        14
+      ],
+      "note": "micro-coupures synchrones avec les glitchs de 45_hololith"
+    }
+  },
+  "appoints": [
+    {
+      "type": "CanvasModulate",
+      "couleur": "#0E1416",
+      "note": "aucune autre source"
+    }
+  ],
+  "calques": [
+    {
+      "fichier": "calques/10_voute.png",
+      "normal": "calques/10_voute_normal.png",
+      "auteur": "CA2",
+      "distance_m": "2 à 22",
+      "contenu": "voûte d'acier, doubleaux d'or terni assourdi, sans rosaces"
+    },
+    {
+      "fichier": "calques/20_salle.png",
+      "normal": "calques/20_salle_normal.png",
+      "ombre": "calques/20_salle_ombre.png",
+      "auteur": "CA2",
+      "distance_m": "2 à 22",
+      "contenu": "sol, murs rivetés, écrans de données éteints (aucun texte), porte blindée au fond, deux étendards repliés, gradins bas en arc derrière la table ; ombres radiales des officiers"
+    },
+    {
+      "fichier": "calques/30_table.png",
+      "normal": "calques/30_table_normal.png",
+      "auteur": "CA2",
+      "distance_m": "9 à 15",
+      "contenu": "table-projecteur octogonale d'acier, liseré d'or terni, lentille du projecteur, plaques de données (illisibles)"
+    },
+    {
+      "fichier": "calques/40_personnages.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": "6 à 16",
+      "contenu": "5 officiers en arc IRRÉGULIER autour de la table (hauteurs, profils, penchés) + 2 plus proches de nous à droite (l'un penché, l'autre assis sur le gradin) pour la profondeur ; Vaskar de dos et de trois-quarts au premier plan (PASSE DEVANT la lumière de l'hololith : au-dessus de 45 ou sur un calque 47). Gabarit : calques/gabarit_40_personnages.png"
+    },
+    {
+      "fichier": "calques/45_hololith.png",
+      "auteur": "CA2",
+      "distance_m": 12,
+      "contenu": "figure de lumière en ADDITIF : armure (plastron, épaulières en dôme, bras, jambes, gorgerin, tête nue sans traits, pan de cape), lignes de balayage, deux glitchs, cône de projection. À animer : défilement des lignes, glitchs, légère respiration d'opacité. Le Lead peut aussi l'animer en shader"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": 3.4,
+      "contenu": "rebord de console presque noir en bas du cadre, liseré froid, témoins éteints"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA2",
+      "distance_m": 12,
+      "contenu": "poussière dans le faisceau ; à animer"
+    }
+  ],
+  "normales": "convention OpenGL (Y+), alpha = alpha du calque",
+  "4k": "calques/4k/ (mêmes noms, positions px x2)",
+  "apercus": [
+    "apercu.png"
+  ],
+  "statut": "essai v2"
+}

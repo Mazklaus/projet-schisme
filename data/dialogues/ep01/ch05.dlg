@@ -1,0 +1,171 @@
+// Épisode 1, chapitre 5 « Le nom des morts » : répliques, v0.1 (Narrative Designer, 27/11).
+// Structure : ch03-05-sequenciers.md v0.2 (validé). Clés : ch03-05-game-design.md (Game Designer).
+// MAJ 27/11 (canon) : les remembrancers du corps principal arrivent trois mois après 63-19 ; ici, seule une avant-garde de trois (dont Sefa) rejoint la 27e sur la barge du détachement.
+// Aucune voix. Répliques de 2 lignes au plus. Les @ sont indicatifs.
+
+// ================================================================ 0. L'archive
+=== archive_ch5
+@decor archive
+@plan archive_liste
+> Une liste de noms, écrite à la main. Des noms d'Orvane.
+-> archive_ch5_percer [si choix_ep01_orvane == 1]
+@carton 3 Peu de noms, cette fois.
+-> graver
+
+=== archive_ch5_percer
+@carton 3 Personne d'autre ne les avait notés.
+-> graver
+
+// ================================================================ 1. Graver les morts
+=== graver
+@decor orvane_soir
+@jeu
+> Le soir. La 27e grave ses morts sur un mur de la citadelle.
+FRÈRE: Trois. Pour une ville entière.
+-> FIN
+
+=== poi_mur
+> Trois noms de frères, frais dans la pierre. Au-dessus, la place pour d'autres.
+VASKAR: Il reste de la place.
+-> FIN
+
+=== poi_ilse_grave
+-> poi_ilse_grave_scene [si vivant_ilse == true]
+-> FIN
+
+=== poi_ilse_grave_scene
+> Ilse, assise contre le mur, grave sur une plaque neuve. Ce sont des noms d'Orvane.
+VASKAR: Ce ne sont pas les vôtres.
+ILSE: Si. Maintenant, si.
+-> FIN
+
+=== poi_sefa_note
+> Sefa recopie les noms du mur. Puis elle se tourne vers ceux qu'on ne gravera pas.
+SEFA: Les leurs aussi. Sinon, qui ?
+-> FIN
+
+// ================================================================ 2. La rumeur, de face : C8
+=== rumeur_nom
+> Dremm passe le doigt dans un nom frais.
+DREMM: Tu crois qu'il aurait dû accepter le nom ?
+DREMM: Les Sons of Horus. Dis-le, pour voir.
+* « Il aurait dû accepter. » -> nom_accepter
+* « Il a eu raison. » -> nom_raison
+* Ne rien dire -> nom_silence
+*! 8 -> nom_silence
+
+// C8 : choix invisible, sans écho. Lu au changement de nom (fin de l'épisode 2).
+=== nom_accepter
+~ choix_ep01_nom = 1
+~ trait_vaskar_orgueil += 1
+VASKAR: Il aurait dû accepter. On l'a gagné, ce nom. Ici aussi.
+DREMM: Un jour, il le prendra. Et on le portera les premiers.
+-> codicier
+
+=== nom_raison
+~ choix_ep01_nom = 2
+~ trait_vaskar_fraternite += 1
+VASKAR: Il a eu raison. On est des Luna Wolves. C'est déjà un nom de frères.
+DREMM: Tu parles comme un vieux de Terra.
+-> codicier
+
+=== nom_silence
+~ choix_ep01_nom = 3
+~ trait_vaskar_doute += 1
+> Vaskar regarde la place vide au-dessus des noms.
+DREMM: Toujours ailleurs, toi.
+-> codicier
+
+// ================================================================ 3. Le codicier
+=== codicier
+@decor barge_quartiers_codicier
+> Des livres. Une lumière tamisée. Aun Varo ne lève pas les yeux de sa page.
+VARO: Les frères ne viennent pas ici. Ils ont peur de ce que je sais.
+VASKAR: Et qu'est-ce que vous savez ?
+VARO: Ce que je vois. Je préfère ne pas le dire.
+// Le seul signe du chapitre : ses yeux se voilent une seconde (règle du GD : par les yeux).
+@effet varo_yeux_voiles
+* « Qu'est-ce que vous voyez ? » -> varo_demander
+* Ne pas insister -> varo_laisser
+
+=== varo_demander
+~ trait_vaskar_doute += 1
+VARO: Une lumière très forte. Et derrière elle, rien du tout.
+VARO: Ce n'est sans doute qu'un rêve de codicier fatigué.
+-> ordre_depart
+
+=== varo_laisser
+~ trait_vaskar_doute += 0
+VARO: Merci. Les autres insistent toujours.
+-> ordre_depart
+
+// ================================================================ 4. L'ordre de départ
+=== ordre_depart
+@decor barge_quartiers_27
+> Une annonce de bord.
+> Le détachement rejoint la flotte de la 63e expédition. Cap sur le système 63-19.
+KRENN: La flotte du Maître de Guerre. On rentre à la maison.
+-> galerie_fin
+
+// ================================================================ 5. La galerie : dernière scène de l'épisode
+=== galerie_fin
+@decor barge_galerie
+@plan galerie_etoiles
+-> galerie_fin_haute [si relation_dremm >= 2]
+-> galerie_fin_basse [si relation_dremm <= -2]
+// Défaut : relation neutre (-1 à +1).
+DREMM: 63-19. Je n'ai jamais vu un nom aussi laid pour un monde.
+VASKAR: Ils l'appelleront autrement, après.
+DREMM: Tout s'appelle autrement, après.
+DREMM: Tu te perds encore dans les tunnels, Hol ?
+VASKAR: Pas ce soir.
+-> archive_fin
+
+=== galerie_fin_haute
+DREMM: Tu te souviens du serment ? Aucun de nous ne restera seul.
+-> galerie_fin_haute_loge [si choix_ep01_loge == 1]
+DREMM: Même sans l'avoir juré. Je le jure pour deux.
+-> galerie_fin_haute_suite
+
+=== galerie_fin_haute_loge
+VASKAR: Je l'ai juré.
+-> galerie_fin_haute_suite
+
+=== galerie_fin_haute_suite
+DREMM: Où il ira, on ira. Lui devant, nous derrière.
+> Dremm pose la main sur l'épaule de Vaskar. Comme dans le tunnel.
+-> archive_fin
+
+=== galerie_fin_basse
+> Ils regardent les étoiles, à deux pas l'un de l'autre. Un pas de trop.
+DREMM: Tu as changé depuis Ullanor.
+VASKAR: Toi aussi.
+DREMM: Moi, j'ai monté. Toi, tu regardes en bas.
+> Dremm s'en va le premier.
+-> archive_fin
+
+// ================================================================ 6. L'archive : fin de l'épisode 1
+=== archive_fin
+@decor archive
+@plan archive_table_fin
+// Sur la table, à côté de la plaque d'Ilse : la plaque de données de Sefa (celle du chapitre 3).
+> À côté de la plaque gravée, une plaque de données usée.
+-> archive_fin_verite [si choix_ep01_recit == 1]
+-> archive_fin_refus [si choix_ep01_recit == 3]
+// Défaut (2, triomphe) :
+@carton 4 Ce qu'il m'a dit, je l'ai gardé. Ce qu'il ne m'a pas dit aussi.
+-> archive_fin_sauver
+
+=== archive_fin_verite
+@carton 4 Ce qu'il m'a dit, je l'ai gardé.
+-> archive_fin_sauver
+
+=== archive_fin_refus
+@carton 4 Il ne m'a rien dit. Je l'ai gardé aussi.
+-> archive_fin_sauver
+
+=== archive_fin_sauver
+// Fin de l'épisode 1 : ajouter ep01 à episodes_termines, sauvegarder (spec §6).
+@sauver_episode ep01
+@titre 4 Fin de l'épisode 1. Le Maître de Guerre.
+-> FIN

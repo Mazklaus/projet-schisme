@@ -1,0 +1,59 @@
+{
+  "_doc": "Zone du chapitre 5. Le mur où l'on grave les morts : le mur obligatoire, Ilse si elle vit, la note de Sefa ; puis la rumeur du nom (C8).",
+  "decors": {
+    "orvane_soir": {
+      "etat": "soir"
+    }
+  },
+  "graver": {
+    "decor": "orvane_soir",
+    "depart": [
+      300,
+      930
+    ],
+    "limites": [
+      200,
+      860,
+      1560,
+      160
+    ],
+    "pois": {
+      "poi_mur": [
+        778,
+        900
+      ],
+      "poi_ilse_grave": [
+        1260,
+        910
+      ],
+      "poi_sefa_note": [
+        1560,
+        930
+      ]
+    },
+    "figurants": {
+      "poi_ilse_grave": "ilse",
+      "poi_sefa_note": "sefa"
+    },
+    "conditions": {
+      "poi_ilse_grave": "vivant_ilse"
+    },
+    "obligatoires": [
+      "poi_mur"
+    ],
+    "declencheurs": [
+      {
+        "apres": [
+          "poi_mur"
+        ],
+        "max_s": 45,
+        "noeud": "rumeur_nom"
+      },
+      {
+        "apres": [],
+        "max_s": 180,
+        "noeud": "rumeur_nom"
+      }
+    ]
+  }
+}

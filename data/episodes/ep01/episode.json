@@ -22,6 +22,30 @@
       "dialogue": "res://data/dialogues/ep01/ch02.dlg",
       "jeu": "res://data/episodes/ep01/c02_jeu.json",
       "plans": "res://data/episodes/ep01/plans.json"
+    },
+    {
+      "id": "c03",
+      "titre": "Les remembrancers",
+      "scene": "res://scenes/chapitres/chapitre_jouable.tscn",
+      "dialogue": "res://data/dialogues/ep01/ch03.dlg",
+      "plans": "res://data/episodes/ep01/plans.json",
+      "jeu": "res://data/episodes/ep01/c03_jeu.json"
+    },
+    {
+      "id": "c04",
+      "titre": "Conformité",
+      "scene": "res://scenes/chapitres/chapitre_jouable.tscn",
+      "dialogue": "res://data/dialogues/ep01/ch04.dlg",
+      "plans": "res://data/episodes/ep01/plans.json",
+      "jeu": "res://data/episodes/ep01/c04_jeu.json"
+    },
+    {
+      "id": "c05",
+      "titre": "Le nom des morts",
+      "scene": "res://scenes/chapitres/chapitre_jouable.tscn",
+      "dialogue": "res://data/dialogues/ep01/ch05.dlg",
+      "plans": "res://data/episodes/ep01/plans.json",
+      "jeu": "res://data/episodes/ep01/c05_jeu.json"
     }
   ]
 }
