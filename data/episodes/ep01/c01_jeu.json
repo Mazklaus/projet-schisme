@@ -407,6 +407,22 @@
           }
         }
       }
+    },
+    "triomphe": {
+      "plein_ecran": {
+        "dossier": "res://assets/plans/oeil_vaskar",
+        "image": "10_oeil_ouvert.png",
+        "clignement": [
+          "20_paupiere_mi.png",
+          "21_paupiere_fermee.png"
+        ],
+        "clignement_s": 0.6,
+        "couleur_entree": "#FFE8C0",
+        "entree_s": 0.35,
+        "tenue_s": 1.4,
+        "sortie_s": 0.6,
+        "_note": "Raccord par le regard : l'œil de l'enfant (cthonia_regard), puis celui de Vaskar adulte (CA1, commande du GD 27/11), qui s'ouvre sur Ullanor 1a."
+      }
     }
   }
 }
