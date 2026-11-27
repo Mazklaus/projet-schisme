@@ -1,0 +1,6 @@
+{
+ "outil": "peindre_plan.py",
+ "sortie": "30_voie.png",
+ "date": "2026-11-18T00:00:00",
+ "note": "marqueur posé après coup par le Tools Programmer (27/11) : calque issu de la passe peindre_plan de la tranche, avant que l'outil écrive ce fichier"
+}

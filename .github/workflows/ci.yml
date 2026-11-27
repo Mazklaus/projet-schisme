@@ -34,6 +34,28 @@ jobs:
       - run: python3 tools/ci/verifier_cles.py .
       # Spec du système de choix (Game Designer) : nommage, canon, défauts minutés, règle 3.1.
       - run: python3 tools/ci/verif_choix.py data/dialogues/ep01 --registre data/personnages.json
+      # Suivi de production (GD) : rapport par épisode dans le résumé de la CI et en artefact.
+      # Liste de travail, non bloquante, sauf deux erreurs : calque 4k d'avant la retouche, décor « fini » sans capture.
+      - name: Suivi de production des épisodes
+        run: |
+          pip install --quiet numpy
+          python3 -m unittest discover -s tools/ci/tests
+          mkdir -p suivi
+          code=0
+          for d in data/dialogues/ep*/; do
+            ep=$(basename "$d")
+            # historique du dépôt + ligne de ce build (non commitée : on la régénère en local avec --historique)
+            cp "qa/historique_$ep.csv" "suivi/" 2>/dev/null || true
+            python3 tools/ci/verifier_episode.py "$ep" --sortie "suivi/suivi_$ep.md" --historique "suivi/historique_$ep.csv" || code=1
+            cat "suivi/suivi_$ep.md" >> "$GITHUB_STEP_SUMMARY"
+          done
+          exit $code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: suivi-production
+          path: suivi/
+          retention-days: 14
 
   tests:
     name: Tests et parcours de la démo
