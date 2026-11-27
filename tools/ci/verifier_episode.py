@@ -22,7 +22,7 @@ et du Sound Designer) :
 Erreurs bloquantes en CI (code 1, même sans --strict) :
   - un calque 4k plus ancien que sa retouche (calques/4k/<calque>.png daté avant le .retouche.json), ou qui,
     réduit en 1080, ne ressemble pas au calque retouché (écart moyen > 14/255 : 4k resté en maquette) ;
-  - un décor marqué « fini » (champ statut du JSON) sans capture en jeu (qa/captures/<décor>*.png ou
+  - un décor marqué « fini » (champ statut du JSON) sans capture en jeu (qa/captures/[<build>/]<décor>*.png/.jpg ou
     capture_jeu*.png dans le dossier du décor).
 Le séquencier sert à vérifier que chaque chapitre a ses répliques.
 
@@ -307,10 +307,12 @@ def finition_decor(dossier, racine):
                         r["erreurs"].append(f"calques/4k/{os.path.basename(p)} ne correspond pas au calque retouché "
                                             f"(écart moyen {e:.0f}/255) : 4k d'avant la retouche ?")
     if "fini" in str(r["statut"]).lower():
-        captures = glob.glob(os.path.join(racine, "qa", "captures", nom + "*.png")) + \
-            glob.glob(os.path.join(dossier, "capture_jeu*.png"))
+        captures = [c for motif in (os.path.join(racine, "qa", "captures", nom + "*"),
+                                    os.path.join(racine, "qa", "captures", "*", nom + "*"),
+                                    os.path.join(dossier, "capture_jeu*"))
+                    for c in glob.glob(motif) if c.lower().endswith((".png", ".jpg"))]
         if not captures:
-            r["erreurs"].append(f"statut « {r['statut']} » sans capture en jeu (qa/captures/{nom}*.png)")
+            r["erreurs"].append(f"statut « {r['statut']} » sans capture en jeu (qa/captures/{nom}*.jpg ou .png)")
     r["maquette"] = not r["peints"]
     r["pct"] = round(100 * r["surface_peinte"] / r["surface"]) if r["surface"] else 0
     return r
