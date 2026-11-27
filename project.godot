@@ -7,6 +7,8 @@ config/name="Projet Schisme"
 config/description="Jeu narratif 2.5D à épisodes (prototype privé)."
 run/main_scene="res://scenes/ui/menu_principal.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/show_image=false
 
 [autoload]
 

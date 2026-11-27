@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsseprs1f3m7e"
-path="res://.godot/imported/ilse_normal.png-c22050de44e3d4a7e87f15076f2b3a48.ctex"
+uid="uid://tr127gh3ippa"
+path="res://.godot/imported/41_lisere_froid.png-bbf90e6aaccbf3053b59d19c3071f440.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/tranche_ullanor/props/ilse_normal.png"
-dest_files=["res://.godot/imported/ilse_normal.png-c22050de44e3d4a7e87f15076f2b3a48.ctex"]
+source_file="res://assets/decors/vs_galerie/calques/41_lisere_froid.png"
+dest_files=["res://.godot/imported/41_lisere_froid.png-bbf90e6aaccbf3053b59d19c3071f440.ctex"]
 
 [params]
 

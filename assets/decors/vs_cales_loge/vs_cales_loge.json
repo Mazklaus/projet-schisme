@@ -152,7 +152,9 @@
       "note": "désynchronisé par bougie"
     },
     "couleur_groupe": "#E89A50",
-    "portee_bougie_px": 120
+    "portee_bougie_px": 120,
+    "energie_bougie": 0.05,
+    "lumiere_groupe": "au barycentre, texture radiale à longue traîne ~1100 px, hauteur 500 px pour les normal maps (réglage en jeu du Lead, PR #13)"
   },
   "appoints": [
     {
@@ -188,35 +190,40 @@
       "fichier": "calques/10_voute.png",
       "normal": "calques/10_voute_normal.png",
       "auteur": "CA2",
-      "distance_m": "2,5 à 22 (hauteur 3,6 à 7)",
-      "contenu": "voûte basse du kit, nervures d'or terni, conduites techniques"
+      "distance_m": 12.25,
+      "contenu": "voûte basse du kit, nervures d'or terni, conduites techniques",
+      "note": "distance : 2,5 à 22 (hauteur 3,6 à 7) m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/20_cale.png",
       "normal": "calques/20_cale_normal.png",
       "ombre": "calques/20_cale_ombre.png",
       "auteur": "CA2",
-      "distance_m": "2,5 à 22",
-      "contenu": "sol, murs, colonnes engagées, porte du couloir au mur droit (z 9), caisses"
+      "distance_m": 12.25,
+      "contenu": "sol, murs, colonnes engagées, porte du couloir au mur droit (z 9), caisses",
+      "note": "distance : 2,5 à 22 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/25_personnages_fond.png",
       "auteur": "CA1 / kit Blender",
-      "distance_m": "5,6 à 7",
-      "contenu": "côté lointain de la table, PAS alignés : un frère penché coudes sur la table (profil), un renversé en arrière qui rit, un de profil tourné vers son voisin, Dremm debout gobelet levé ; un frère accoudé en bout de table à droite. Coupés à la taille par le calque 30. Gabarit : calques/gabarit_25_personnages_fond.png"
+      "distance_m": 6.3,
+      "contenu": "côté lointain de la table, PAS alignés : un frère penché coudes sur la table (profil), un renversé en arrière qui rit, un de profil tourné vers son voisin, Dremm debout gobelet levé ; un frère accoudé en bout de table à droite. Coupés à la taille par le calque 30. Gabarit : calques/gabarit_25_personnages_fond.png",
+      "note": "distance : 5,6 à 7 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/30_table.png",
       "normal": "calques/30_table_normal.png",
       "auteur": "CA2",
-      "distance_m": "4 à 7",
-      "contenu": "caisse retournée en table, bancs bas, gobelets (certains renversés), cruche, miche"
+      "distance_m": 5.5,
+      "contenu": "caisse retournée en table, bancs bas, gobelets (certains renversés), cruche, miche",
+      "note": "distance : 4 à 7 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/40_personnages.png",
       "auteur": "CA1 / kit Blender",
-      "distance_m": "3,8 à 9",
-      "contenu": "deux frères de dos qui encadrent la table aux bords du cadre (presque noirs, règle 5) ; Vaskar debout à la porte, en silhouette contre le couloir froid. Gabarit : calques/gabarit_40_personnages.png"
+      "distance_m": 6.4,
+      "contenu": "deux frères de dos qui encadrent la table aux bords du cadre (presque noirs, règle 5) ; Vaskar debout à la porte, en silhouette contre le couloir froid. Gabarit : calques/gabarit_40_personnages.png",
+      "note": "distance : 3,8 à 9 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/45_bougies.png",

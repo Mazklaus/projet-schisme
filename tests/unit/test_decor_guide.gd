@@ -66,3 +66,48 @@ func test_version_plate_seulement_sous_lumieres_du_moteur() -> void:
 	var u := Decor25D.lire("ullanor")
 	for c in u.calques:
 		assert_false(String(c.fichier).ends_with("_plat.png"), "Ullanor : %s" % c.fichier)
+
+
+func _guide_interieur() -> Dictionary:
+	return {"plan": "interieur", "cadre_px": [64, 36], "calques": [
+		{"fichier": "calques/00_ciel.png", "distance_m": 10000.0, "note": "distance : infini m (valeur représentative ci-dessus)"},
+		{"fichier": "calques/10_fond.png", "distance_m": 20},
+		{"fichier": "calques/40_perso.png", "distance_m": 8}],
+		"cle": {"type": "lampe (PointLight2D)", "position_px": [40, 10], "couleur": "#FFB868", "energie": 1.6, "portee_px": 30},
+		"appoints": [{"type": "veille froide", "couleur": "#C8D2DC", "niveau": 0.3, "zone": "fond seulement ; ambiant 0,17 ailleurs"}]}
+
+
+func test_infini_normalise_reste_sans_parallaxe() -> void:
+	var d := Decor25D.depuis_guide(_guide_interieur(), FIXTURES.path_join("guide_mini"))
+	assert_eq(d.calques[0].profondeur, 0.0, "10000 + note « infini » : ciel fixe")
+	assert_eq(d.calques[0].lumiere, false)
+
+
+func test_ambiant_ecrit_avec_virgule_avant_ailleurs() -> void:
+	var d := Decor25D.depuis_guide(_guide_interieur(), FIXTURES.path_join("guide_mini"))
+	assert_almost_eq(Color(d.ambiant).r, 0.17, 0.01, "« ambiant 0,17 ailleurs »")
+
+
+func test_personnages_eclaires_par_une_cle_basse_a_eux() -> void:
+	var d := Decor25D.depuis_guide(_guide_interieur(), FIXTURES.path_join("guide_mini"))
+	assert_eq(d.calques[2].get("masque_lumiere"), Decor25D.MASQUE_PERSONNAGES)
+	assert_false(d.calques[1].has("masque_lumiere"), "le décor garde la clé haute")
+	var basses: Array = d.lumieres.filter(func(e): return e.get("masque", 0) == Decor25D.MASQUE_PERSONNAGES)
+	assert_eq(basses.size(), 1)
+	assert_eq(basses[0].hauteur_px, Decor25D.HAUTEUR_MODELE_PX)
+
+
+func test_melange_garde_sur_un_calque_a_distance() -> void:
+	var g := _guide_interieur()
+	g.calques[2]["melange"] = "addition"
+	var d := Decor25D.depuis_guide(g, FIXTURES.path_join("guide_mini"))
+	assert_eq(d.calques[2].get("melange"), "addition")
+
+
+func test_cle_en_contre_jour_coupe_presque_la_copie_basse() -> void:
+	var g := _guide_interieur()
+	g.cle["note"] = "lumière de la baie, vers la caméra"
+	var d := Decor25D.depuis_guide(g, FIXTURES.path_join("guide_mini"))
+	var basses: Array = d.lumieres.filter(func(e): return e.get("masque", 0) == Decor25D.MASQUE_PERSONNAGES)
+	var cles: Array = d.lumieres.filter(func(e): return e.get("masque", 0) != Decor25D.MASQUE_PERSONNAGES and e.get("profil", "") == "apercu")
+	assert_almost_eq(float(basses[0].intensite), float(cles[0].intensite) * Decor25D.ENERGIE_MODELE_CONTRE_JOUR, 0.001)

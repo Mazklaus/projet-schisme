@@ -1,83 +1,83 @@
 {
- "plan": "barge_quartiers_codicier_gros_plan",
- "episode": 1,
- "decor_source": "barge_quartiers_codicier",
- "cadre_px": [
-  1920,
-  1080
- ],
- "usage": "ch05 codicier",
- "type": "longue traîne : recadrage flou du décor (liste validée par le DA le 27/11)",
- "source": "aperçu(s) du décor, fenêtre [150, 250, 950, 700] agrandie x2.40, préflou 2 px, flou 14 px ; les silhouettes éventuelles du décor sont fondues dans le flou",
- "zones_calmes": {
-  "gauche": {
-   "x_px": [
-    190,
-    850
-   ]
+  "plan": "barge_quartiers_codicier_gros_plan",
+  "episode": 1,
+  "decor_source": "barge_quartiers_codicier",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "usage": "ch05 codicier",
+  "type": "longue traîne : recadrage flou du décor (liste validée par le DA le 27/11)",
+  "source": "aperçu(s) du décor, fenêtre [150, 250, 950, 700] agrandie x2.40, préflou 2 px, flou 14 px ; les silhouettes éventuelles du décor sont fondues dans le flou",
+  "zones_calmes": {
+    "gauche": {
+      "x_px": [
+        190,
+        850
+      ]
+    },
+    "droite": {
+      "x_px": [
+        1070,
+        1730
+      ]
+    }
   },
-  "droite": {
-   "x_px": [
-    1070,
-    1730
-   ]
-  }
- },
- "lumieres": "reprendre la clé et les appoints du décor source (voir lumieres_source) : mêmes directions et couleurs",
- "lumieres_source": {
-  "cle": {
-   "type": "lampe-lumen à cage de laiton (PointLight2D)",
-   "position_px": [
-    1382,
-    618
-   ],
-   "position_m": [
-    1.35,
-    0.98,
-    6.0
-   ],
-   "couleur": "#FFB868",
-   "energie": 1.8,
-   "portee_px": 520,
-   "scintillement": {
-    "amplitude": 0.03,
-    "note": "quasi fixe"
-   },
-   "traine_chaude": {
-    "energie": 0.4,
-    "portee_px": 1200,
-    "couleur": "#FFB868",
-    "note": "seconde PointLight2D large et faible sur la lampe, calée en jeu par le Lead (27/11)"
-   }
+  "lumieres": "reprendre la clé et les appoints du décor source (voir lumieres_source) : mêmes directions et couleurs",
+  "lumieres_source": {
+    "cle": {
+      "type": "lampe-lumen à cage de laiton (PointLight2D)",
+      "position_px": [
+        1382,
+        618
+      ],
+      "position_m": [
+        1.35,
+        0.98,
+        6.0
+      ],
+      "couleur": "#FFB868",
+      "energie": 1.8,
+      "portee_px": 520,
+      "scintillement": {
+        "amplitude": 0.03,
+        "note": "quasi fixe"
+      },
+      "traine_chaude": {
+        "energie": 0.4,
+        "portee_px": 1200,
+        "couleur": "#FFB868",
+        "note": "seconde PointLight2D large et faible sur la lampe, calée en jeu par le Lead (27/11)"
+      }
+    },
+    "appoints": [
+      {
+        "type": "couloir froid par l'embrasure (PointLight2D)",
+        "position_px": [
+          1671,
+          532
+        ],
+        "couleur": "#8FA0B0",
+        "energie": 0.55,
+        "portee_px": 200
+      },
+      {
+        "type": "CanvasModulate",
+        "couleur": "#24202A",
+        "note": "calé en jeu par le Lead sur l'aperçu validé (27/11)"
+      }
+    ]
   },
-  "appoints": [
-   {
-    "type": "couloir froid par l'embrasure (PointLight2D)",
-    "position_px": [
-     1671,
-     532
-    ],
-    "couleur": "#8FA0B0",
-    "energie": 0.55,
-    "portee_px": 200
-   },
-   {
-    "type": "CanvasModulate",
-    "couleur": "#24202A",
-    "note": "calé en jeu par le Lead sur l'aperçu validé (27/11)"
-   }
-  ]
- },
- "calques": [
-  {
-   "fichier": "calques/00_fond_flou_pur.png",
-   "etat": "pur",
-   "auteur": "CA2",
-   "distance_m": 8,
-   "note": "déjà éclairé et flou"
-  }
- ],
- "generateur": "cA2/gros_plans_ep01.py barge_quartiers_codicier [--4k]",
- "4k": "calques/4k/ (mêmes noms)",
- "statut": "longue traîne, validée en principe par le DA (27/11)"
+  "calques": [
+    {
+      "fichier": "calques/00_fond_flou_pur.png",
+      "etat": "pur",
+      "auteur": "CA2",
+      "distance_m": 8,
+      "note": "déjà éclairé et flou"
+    }
+  ],
+  "generateur": "cA2/gros_plans_ep01.py barge_quartiers_codicier [--4k]",
+  "4k": "calques/4k/ (mêmes noms)",
+  "statut": "longue traîne, validée en principe par le DA (27/11)"
 }

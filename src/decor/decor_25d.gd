@@ -40,6 +40,21 @@ const DOSSIER := "res://assets/decors"
 const MASQUE_LUMIERE := 1
 ## Calques non éclairés (ciel, particules) : seules les lumières de halo les touchent.
 const MASQUE_HALO := 4
+## Personnages (calques 4x_) d'un intérieur à « loi des aperçus » : la clé y est posée très
+## haute (sans atténuation par les normales), ce qui les aplatissait en blanc (retour DA,
+## barge). Une copie de chaque clé, basse, les éclaire seuls et garde leur modelé.
+const MASQUE_PERSONNAGES := 8
+## Hauteur (px) et énergie relative de cette copie, calées sur apercu_40_pe / apercu_40_b27.
+const HAUTEUR_MODELE_PX := 120.0
+const ENERGIE_MODELE := 0.65
+## Même copie quand la clé est en contre-jour (silhouettes à 0,1–0,15 de valeur).
+const ENERGIE_MODELE_CONTRE_JOUR := 0.15
+
+
+## Clé qui fait face à la caméra, d'après le guide de la DA (type ou note).
+static func est_contre_jour(cle: Dictionary) -> bool:
+	var t := (String(cle.get("type", "")) + " " + String(cle.get("note", ""))).to_lower()
+	return t.contains("vers la caméra") or t.contains("contre-jour") or bool(cle.get("contre_jour", false))
 
 @export var id_decor := "":
 	set(v):
@@ -361,7 +376,7 @@ static func plan_eclaire(g: Dictionary) -> bool:
 
 
 ## distance_m du guide : un nombre, ou un texte de CA2 (« 0,2 à 5,6 », « 1,9 et 5 ») dont on
-## prend la moyenne des nombres ; 0 si aucun nombre (« derrière la porte »).
+## prend la moyenne des nombres ; 0 si aucun nombre (« derrière la porte », « infini »).
 static func distance_guide(v) -> float:
 	if typeof(v) in [TYPE_FLOAT, TYPE_INT]:
 		return float(v)
@@ -387,10 +402,16 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 	var voile: Dictionary = g.voile if typeof(g.get("voile")) == TYPE_DICTIONARY else {}
 	var eclaire := plan_eclaire(g)
 	var calques := []
-	for k in g.get("calques", []):
-		if typeof(k) != TYPE_DICTIONARY or not k.has("fichier"):
-			calques.append(k)
+	for k_brut in g.get("calques", []):
+		if typeof(k_brut) != TYPE_DICTIONARY or not k_brut.has("fichier"):
+			calques.append(k_brut)
 			continue
+		var k: Dictionary = k_brut
+		# JSON normalisé : « infini » devient 10000 avec la note « distance : infini m » ; on
+		# reprend l'infini (sans parallaxe propre, comme avant la normalisation).
+		if String(k.get("note", "")).contains("distance : infini"):
+			k = k.duplicate()
+			k.distance_m = "infini"
 		var f: String = k.fichier
 		var gabarit := f.get_base_dir().path_join("gabarit_" + f.get_file())
 		if not ResourceLoader.exists(dossier.path_join(f)) and ResourceLoader.exists(dossier.path_join(gabarit)):
@@ -414,8 +435,15 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			# false dans le JSON les sort aussi de l'ambiance de la scène.
 			if f.get_file().begins_with("4") and d < 30.0:
 				c.rebond = true
+				c.personnage = true
 			if k.get("ambiance", true) == false:
 				c.hors_ambiance = true
+			# Liseré additif posé à la distance de son calque (41_lisere_froid de vs_galerie).
+			if k.has("melange"):
+				c.melange = k.melange
+				for cle_l in ["force", "durete"]:
+					if k.has(cle_l):
+						c[cle_l] = float(k[cle_l])
 		else:
 			var ciel := f.get_file().begins_with("00_")
 			c.profondeur = 0.0 if ciel else 1.0
@@ -460,6 +488,9 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			else:
 				c.tete = t.duplicate()
 				c.tete["plat"] = eclaire
+		# Le guide écrit « additif » ou « addition ».
+		if String(c.get("melange", "")) in ["additif", "add", "ADD"]:
+			c.melange = "addition"
 		calques.append(c)
 	# « etats » du guide : {nom: "00_exterieur_nuit : …"} ; le calque nommé n'est visible que
 	# dans son état.
@@ -529,9 +560,10 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 		elif a.has("niveau") and a.has("couleur"):
 			# Veille froide sur le fond seulement (« zone : fond et ogive ») ; ambiant ailleurs.
 			veille = {"couleur": a.couleur, "niveau": float(a.niveau)}
-			var m := RegEx.create_from_string("ambiant ailleurs ([0-9.]+)").search(String(a.get("zone", "")))
+			# « ambiant ailleurs 0.17 » ou « ambiant 0,17 ailleurs » (barge_quartiers_27).
+			var m := RegEx.create_from_string("ambiant (?:ailleurs )?([0-9]+(?:[.,][0-9]+)?)").search(String(a.get("zone", "")))
 			if m:
-				var n := float(m.get_string(1))
+				var n := m.get_string(1).replace(",", ".").to_float()
 				ambiant = Color(n, n, n).to_html(false)
 	# Intérieur dont le seul ambiant est « ambiant ailleurs » d'une veille (vs_quartiers_27) : même
 	# loi des aperçus pour la clé (retour DA : la lumière se concentre autour du brasero).
@@ -561,6 +593,30 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				e.profil = "apercu"
 				e.rayon_px = 3.0 * float(e.get("rayon_px", 120))
 				e.hauteur_px = 1500.0
+		# Les personnages gardent leur modelé : copie basse des clés, sur leur seul masque.
+		var personnages := calques.filter(func(c): return typeof(c) == TYPE_DICTIONARY \
+				and c.get("personnage", false) and c.get("lumiere", true))
+		if not personnages.is_empty():
+			for c in personnages:
+				c.masque_lumiere = MASQUE_PERSONNAGES
+			var modeles := []
+			# Clé derrière les personnages (« vers la caméra », « contre-jour ») : la copie basse
+			# est presque coupée, ils restent en silhouette (retour DA, galeries).
+			var dose := ENERGIE_MODELE_CONTRE_JOUR if est_contre_jour(cle) else ENERGIE_MODELE
+			for e in lum:
+				if typeof(e) == TYPE_DICTIONARY and e.get("profil", "") == "apercu":
+					var m: Dictionary = e.duplicate()
+					m.hauteur_px = HAUTEUR_MODELE_PX
+					m.intensite = float(e.get("intensite", 1.0)) * dose
+					if typeof(e.get("energie_par_etat")) == TYPE_DICTIONARY:
+						var pe := {}
+						for nom in e.energie_par_etat:
+							pe[nom] = float(e.energie_par_etat[nom]) * dose
+						m.energie_par_etat = pe
+					m.masque = MASQUE_PERSONNAGES
+					m.erase("halo")
+					modeles.append(m)
+			lum.append_array(modeles)
 	# « reglage_moteur » (Lead, calé sur l'aperçu validé) : {portee, energie, veille} multiplient
 	# la portée et l'énergie des lumières ponctuelles et le niveau de la veille.
 	var rm: Dictionary = g.reglage_moteur if typeof(g.get("reglage_moteur")) == TYPE_DICTIONARY else {}
@@ -891,7 +947,7 @@ func _poser_lumieres(liste: Array) -> void:
 		# Hauteur (normal maps) : une lumière de groupe éclaire de face, sinon les murs tournés
 		# vers la caméra ne reçoivent presque rien.
 		l.height = float(L.get("hauteur_px", 40.0))
-		l.range_item_cull_mask = MASQUE_LUMIERE | 1
+		l.range_item_cull_mask = int(L.get("masque", MASQUE_LUMIERE))
 		if typeof(L.get("energie_par_etat")) == TYPE_DICTIONARY:
 			l.set_meta("energie_par_etat", L.energie_par_etat)
 		if typeof(L.get("compense")) == TYPE_ARRAY:
@@ -1148,7 +1204,7 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	sprite.centered = false
 	if k.has("position"):
 		sprite.position = Vector2(k.position[0], k.position[1])
-	sprite.light_mask = MASQUE_LUMIERE if k.get("lumiere", true) else MASQUE_HALO
+	sprite.light_mask = int(k.get("masque_lumiere", MASQUE_LUMIERE)) if k.get("lumiere", true) else MASQUE_HALO
 	if typeof(k.get("vie")) == TYPE_DICTIONARY and not k.has("tete"):
 		var m := materiau_vivant(k.vie, tex.diffuse_texture)
 		if k.has("voile"):
@@ -1167,6 +1223,14 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		m.set_shader_parameter("voile", Color(k.voile[0]))
 		m.set_shader_parameter("force", float(k.voile[1]))
 		sprite.material = m
+	elif k.get("melange", "") == "addition" and (k.has("force") or k.has("durete")):
+		# Liseré additif dosé : alpha^durete resserre un halo peint en arête fine (retour DA,
+		# 41_lisere_froid de vs_galerie), force le dose.
+		var ml := ShaderMaterial.new()
+		ml.shader = _shader_lisere()
+		ml.set_shader_parameter("force", float(k.get("force", 1.0)))
+		ml.set_shader_parameter("durete", float(k.get("durete", 1.0)))
+		sprite.material = ml
 	elif k.get("melange", "") == "addition":
 		var add := CanvasItemMaterial.new()
 		add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
@@ -1251,6 +1315,21 @@ static func materiau_ombre() -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = _shader_ombre
 	return m
+
+
+static var _lisere: Shader
+static func _shader_lisere() -> Shader:
+	if _lisere == null:
+		_lisere = Shader.new()
+		_lisere.code = """shader_type canvas_item;
+render_mode blend_add;
+uniform float force = 1.0;
+uniform float durete = 1.0;
+void fragment() {
+	COLOR = vec4(COLOR.rgb, pow(COLOR.a, durete) * force);
+}
+"""
+	return _lisere
 
 
 static func materiau_voile() -> ShaderMaterial:

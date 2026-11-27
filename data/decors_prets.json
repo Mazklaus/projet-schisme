@@ -1,0 +1,86 @@
+{
+ "_doc": "Décors synchronisés depuis etude-heresie par tools/synchroniser_decors.py. « prets » : ids validés pour le jeu (en plus des JSON source au statut « figé… » ou « validé DA », ou pret_jeu: true). « garder_json » : JSON du dépôt gardé (format converti pour le moteur). « surcharges » : réglages moteur du Lead réappliqués sur le JSON source.",
+ "prets": [
+  "archive",
+  "barge_briefing",
+  "barge_briefing_gros_plan",
+  "barge_galerie",
+  "barge_galerie_gros_plan",
+  "barge_pont_embarquement",
+  "barge_pont_embarquement_gros_plan",
+  "barge_quartiers_27",
+  "barge_quartiers_27_gros_plan",
+  "barge_quartiers_civils",
+  "barge_quartiers_civils_gros_plan",
+  "barge_quartiers_codicier",
+  "barge_quartiers_codicier_gros_plan",
+  "cthonia_tunnel",
+  "orvane_aube",
+  "orvane_aube_gros_plan",
+  "orvane_barricade",
+  "orvane_barricade_gros_plan",
+  "orvane_bloc",
+  "orvane_bloc_gros_plan",
+  "orvane_nuit",
+  "orvane_nuit_gros_plan",
+  "orvane_rues",
+  "orvane_rues_gros_plan",
+  "orvane_soir",
+  "orvane_soir_gros_plan",
+  "terra_unification",
+  "ullanor_aube",
+  "ullanor_gros_plan_horus",
+  "ullanor_nuit",
+  "ullanor_nuit_gros_plan",
+  "ullanor_ouverture_gros_plan",
+  "ullanor_plaque",
+  "vs_cales_loge",
+  "vs_cales_loge_gros_plan",
+  "vs_galerie",
+  "vs_galerie_gros_plan",
+  "vs_quartiers_27",
+  "vs_quartiers_27_gros_plan"
+ ],
+ "garder_json": [
+  "ullanor_plaque"
+ ],
+ "surcharges": {
+  "vs_quartiers_27": {
+   "reglage_moteur": {
+    "portee": 0.36,
+    "energie": 2.0,
+    "veille": 0.25,
+    "note": "Lead 27/11 : calé sur apercu.png (écart moyen 10,6 ; 28 % sous #1A1612 contre 32 % à l'aperçu) ; veille réchauffée vers la teinte #2A241C à luminance égale (DA)",
+    "veille_teinte": "#2A241C"
+   }
+  },
+  "barge_quartiers_codicier": {
+   "appoints": [
+    {
+     "type": "traîne chaude de la lampe (PointLight2D), loi de l'aperçu 0,4·exp(−r/1200)",
+     "position_px": [
+      1382,
+      618
+     ],
+     "couleur": "#FFB868",
+     "energie": 0.4,
+     "portee_px": 1200
+    },
+    {
+     "type": "couloir froid par l'embrasure (PointLight2D)",
+     "position_px": [
+      1671,
+      532
+     ],
+     "couleur": "#8FA0B0",
+     "energie": 0.55,
+     "portee_px": 200
+    },
+    {
+     "type": "CanvasModulate",
+     "couleur": "#24202A"
+    }
+   ]
+  }
+ }
+}
