@@ -301,7 +301,9 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 		var amb: Dictionary = g.ambiance if typeof(g.get("ambiance")) == TYPE_DICTIONARY else {}
 		# {couleur, niveau} (plans éclairés en Light2D) est l'ambiant de la scène, pas une teinte
 		# des calques : voir « ambiant » plus bas.
-		if amb.has("couleur") and not amb.has("niveau") and k.get("ambiance", true):
+		# Les particules (90_, braises) sont posées après l'image dans assembler.py : pas de teinte.
+		if amb.has("couleur") and not amb.has("niveau") and k.get("ambiance", true) \
+				and not f.get_file().begins_with("90_"):
 			var t := Color(amb.couleur) * float(amb.get("gain", 1.0))
 			t.a = 1.0
 			c.teinte = t.to_html()
@@ -387,6 +389,21 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			if m:
 				var n := float(m.get_string(1))
 				ambiant = Color(n, n, n).to_html(false)
+	# Feux d'un état teinté (ullanor_nuit), comme assembler.py : chaque feu éclaire l'ALBÉDO
+	# (avant la teinte d'ambiance) d'une tache aplatie au sol, exp(−d²/r²) avec y × 1,6, plus un
+	# petit halo additif (0,12 × exp(−6 d²/r²)). La couleur de la Light2D est divisée par la
+	# teinte des calques pour annuler celle-ci ; vacillement ±10 %, désynchronisé par feu.
+	var amb_feux: Dictionary = g.ambiance if typeof(g.get("ambiance")) == TYPE_DICTIONARY else {}
+	if amb_feux.has("couleur") and not amb_feux.has("niveau"):
+		var t := Color(amb_feux.couleur) * float(amb_feux.get("gain", 1.0))
+		for i in lum.size():
+			if typeof(lum[i]) == TYPE_DICTIONARY and lum[i].get("type", "") == "feu":
+				var e: Dictionary = lum[i].duplicate()
+				e.profil = "feu"
+				e.compense = [t.r, t.g, t.b]
+				e.scintillement = 0.1
+				e.halo = 0.12
+				lum[i] = e
 	if loi_apercu:
 		# Même loi pour les appoints (hublot, couloir, traîne de la lampe).
 		for e in lum:
@@ -690,6 +707,9 @@ func _poser_lumieres(liste: Array) -> void:
 		l.position = Vector2(L.position_px[0], L.position_px[1])
 		l.rotation = float(L.get("orientation", 0.0))
 		l.texture_scale = float(L.get("rayon_px", 120)) * 2.5 / 128.0
+		if profil == "feu":
+			# La texture couvre ±3 r (exp(−9) ≈ 0 au bord).
+			l.texture_scale = float(L.get("rayon_px", 120)) * 6.0 / 256.0
 		var coul = L.get("couleur", "#FFB060")
 		if typeof(coul) == TYPE_DICTIONARY and not coul.is_empty():
 			var par_etat := {}
@@ -705,16 +725,51 @@ func _poser_lumieres(liste: Array) -> void:
 		l.range_item_cull_mask = MASQUE_LUMIERE | 1
 		if typeof(L.get("energie_par_etat")) == TYPE_DICTIONARY:
 			l.set_meta("energie_par_etat", L.energie_par_etat)
+		if typeof(L.get("compense")) == TYPE_ARRAY:
+			var k: Array = L.compense
+			l.color = Color(l.color.r / maxf(k[0], 0.02), l.color.g / maxf(k[1], 0.02), l.color.b / maxf(k[2], 0.02))
 		var sc := float(L.get("scintillement", 0.0))
 		if sc > 0.0:
 			l.set_meta("energie", l.energy)
 			l.set_meta("scintillement", sc)
+			l.set_meta("phase", randf() * TAU)
 		add_child(l)
+		if float(L.get("halo", 0.0)) > 0.0:
+			if not textures.has("feu_halo"):
+				textures["feu_halo"] = _texture_lumiere("feu_halo")
+			var h := Sprite2D.new()
+			h.name = "Halo_%02d" % i
+			h.texture = textures["feu_halo"]
+			h.position = l.position
+			h.scale = Vector2.ONE * l.texture_scale
+			var add := CanvasItemMaterial.new()
+			add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+			add.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+			h.material = add
+			h.light_mask = 0
+			h.z_index = 90
+			var c := couleur_guide(L.get("couleur", "#FFB060")) * float(L.get("intensite", 1.0)) * float(L.halo)
+			h.modulate = Color(c.r, c.g, c.b, 1.0)
+			h.set_meta("modulate_base", h.modulate)
+			l.set_meta("halo", h)
+			add_child(h)
 
 
 ## Texture radiale d'une lumière (256 px, rayon 128) : « lineaire » (feux) ou « traine »
 ## (décroissance exponentielle à longue traîne de l'aperçu de la DA, sur un rayon de 1100 px).
 static func _texture_lumiere(profil: String) -> Texture2D:
+	if profil == "feu" or profil == "feu_halo":
+		# Tache de feu aplatie au sol (assembler.py) : exp(−(x² + (1,6 y)²)) sur ±3 r ; le halo est
+		# 6 fois plus serré.
+		var serre := 6.0 if profil == "feu_halo" else 1.0
+		var img_f := Image.create(256, 256, false, Image.FORMAT_L8)
+		for y in 256:
+			for x in 256:
+				var ux := (x - 127.5) / 128.0 * 3.0
+				var uy := (y - 127.5) / 128.0 * 3.0 * 1.6
+				var val := exp(-(ux * ux + uy * uy) * serre)
+				img_f.set_pixel(x, y, Color(val, val, val))
+		return ImageTexture.create_from_image(img_f)
 	if profil.begins_with("cone_"):
 		# Cône doux vers +x (la lumière est tournée par « orientation ») : décroissance radiale
 		# et bords angulaires adoucis.
@@ -774,7 +829,13 @@ func _process(_delta: float) -> void:
 		if l is PointLight2D and l.has_meta("scintillement"):
 			var e: float = l.get_meta("energie")
 			var sc: float = l.get_meta("scintillement")
-			l.energy = e * (1.0 + sc * (sin(t * 7.3 + l.position.x) * 0.6 + sin(t * 13.1 + l.position.y) * 0.4))
+			var ph: float = l.get_meta("phase", 0.0)
+			var f := 1.0 + sc * (sin(t * 7.3 + l.position.x + ph) * 0.6 + sin(t * 13.1 + l.position.y + ph * 1.7) * 0.4)
+			l.energy = e * f
+			if l.has_meta("halo") and is_instance_valid(l.get_meta("halo")):
+				var h: Sprite2D = l.get_meta("halo")
+				var b: Color = h.get_meta("modulate_base")
+				h.modulate = Color(b.r * f, b.g * f, b.b * f, 1.0)
 
 
 func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
