@@ -229,9 +229,12 @@ def rendre(travaux, dossier_png, godot, racine=RACINE):
                                 ensure_ascii=False, indent=1), encoding="utf-8")
     # import incrémental à chaque fois : sinon une classe ajoutée depuis le dernier import (class_name)
     # reste inconnue et le banc échoue à la compilation
+    # Deux passes : sur un clone dont le cache est ancien, la première enregistre les nouvelles classes
+    # mais compile encore des scripts qui les citent (StyleSchisme, MiseEnScene : 124 erreurs le 27/11).
     journal("import du projet")
-    subprocess.run([godot, "--headless", "--path", str(racine), "--import"], check=False,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(2):
+        subprocess.run([godot, "--headless", "--path", str(racine), "--import"], check=False,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     cmd = [godot, "--rendering-driver", "opengl3", "--path", str(racine), "-s", BANC, "--", str(liste)]
     if shutil.which("xvfb-run") and not os.environ.get("DISPLAY"):
         cmd = ["xvfb-run", "-a", "-s", "-screen 0 1920x1080x24"] + cmd
