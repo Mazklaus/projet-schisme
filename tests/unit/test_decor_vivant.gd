@@ -35,7 +35,7 @@ func test_foule_reglable() -> void:
 func test_ullanor_vit_sans_changer_la_composition() -> void:
 	var d := Decor25D.lire("ullanor")
 	assert_false(d.has("erreurs"), str(d.get("erreurs")))
-	var vivants := d.calques.filter(func(c): return c.has("vie")).map(func(c): return String(c.fichier).get_file())
+	var vivants: Array = d.calques.filter(func(c): return c.has("vie")).map(func(c): return String(c.fichier).get_file())
 	for f in ["00_ciel.png", "20_titans.png", "25_poussiere.png", "30_voie.png"]:
 		assert_true(f in vivants, "calque vivant : " + f)
 	assert_eq(d.particules.size(), 4)
