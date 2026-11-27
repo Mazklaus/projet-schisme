@@ -14,6 +14,7 @@ extends SceneTree
 ##   --vitesse=N       accélère le temps (4 par défaut ; 1 pour mesurer la durée réelle)
 ##   --cine            laisse jouer les plans caméra au lieu de les passer
 ##   --captures=DIR    une image à chaque changement de phase (avec xvfb-run, sans --headless)
+##   --rafale=S        avec --captures : une image de plus toutes les S secondes de jeu
 
 const ATTENDU := {
 	"sortir": {"choix_ullanor": 1, "soldate_vivante": true, "soldate_connait_sauveur": true,
@@ -32,6 +33,8 @@ var immobile := false
 var cine := false
 var captures := ""
 var vitesse := 4.0
+var rafale := 0.0
+var _prochaine_rafale := 0.0
 var _images := 0
 var _temps_jeu := 0.0
 var _phase := ""
@@ -56,6 +59,8 @@ func _initialize() -> void:
 			cine = true
 		elif a.begins_with("--vitesse="):
 			vitesse = float(a.get_slice("=", 1))
+		elif a.begins_with("--rafale="):
+			rafale = float(a.get_slice("=", 1))
 		elif a.begins_with("--captures="):
 			captures = a.get_slice("=", 1)
 	if choix not in ["sortir", "auxiliaires", "obeir", "silence", "rassemblement", "inaction"]:
@@ -102,6 +107,9 @@ func _process(delta: float) -> bool:
 			_pois_restants = scene.POI.keys() if poi else []
 		if not captures.is_empty():
 			root.get_texture().get_image().save_png("%s/%02d_%s.png" % [captures, _phases.size(), _phase])
+	if rafale > 0.0 and not captures.is_empty() and _temps_jeu >= _prochaine_rafale:
+		_prochaine_rafale = _temps_jeu + rafale
+		root.get_texture().get_image().save_png("%s/r%05.1f_%s.png" % [captures, _temps_jeu, _phase])
 	if _phase == "ecran_fin":
 		# Laisser l'écran de fin apparaître (capture), puis vérifier.
 		if scene.ecran_fin == null or scene.ecran_fin.modulate.a < 1.0:

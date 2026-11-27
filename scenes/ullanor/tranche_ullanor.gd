@@ -48,11 +48,11 @@ const RELANCE_VOX_S := 30.0
 const GLISSEMENT_S := 30.0
 ## Sans mouvement après la prise en main, l'icône des touches apparaît (une seule fois).
 const AIDE_DEPLACEMENT_S := 4.0
-## Ce que l'écran de fin rappelle, selon choix_ullanor (texte provisoire, à valider par le GD).
+## Ce que l'écran de fin rappelle, selon choix_ullanor (textes du GD, 27/11).
 const RAPPEL_CHOIX := {
-	1: "Vous avez sorti la soldate des décombres.",
-	2: "Vous avez appelé des auxiliaires.",
-	3: "Vous avez obéi.",
+	1: "Vaskar Hol a tiré Ilse Varga des décombres.",
+	2: "Vaskar Hol a appelé des auxiliaires et rejoint les rangs.",
+	3: "Vaskar Hol a rejoint les rangs sans se retourner.",
 }
 const SILENCE_S := 20.0
 const QTE_DISTANCE := 190.0
@@ -424,12 +424,19 @@ func _eboulement() -> void:
 	phase = "eboulement"
 	_invite.hide()
 	_aide.hide()
+	# Vaskar se fige le temps du plan : il ne sort pas du cadre fixe.
+	joueur.actif = false
 	Son.bruitage("eboulement")
 	var carcasse: Sprite2D = props.carcasse
 	var t := create_tween().set_parallel()
 	t.tween_property(carcasse, "rotation", -0.35, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	t.tween_property(carcasse, "position", carcasse.position + Vector2(-90, 30), 0.9)
-	camera.jouer([{"position": [camera.position.x, camera.position.y], "zoom": camera.zoom.x, "duree": 1.4,
+	# Le poste doit être dans le cadre : la caméra se recadre entre le poste et Vaskar (et
+	# y reste jusqu'au rappel de Dremm), quel que soit le chemin qui a mené ici.
+	camera.cible = null
+	var x_cadre := clampf((POSTE.x + joueur.position.x) / 2.0, POSTE.x - 500.0, POSTE.x + 500.0)
+	camera.jouer([{"position": [x_cadre, camera.position.y], "zoom": camera.zoom.x, "duree": 0.5, "courbe": "sortie"},
+		{"position": [x_cadre, camera.position.y], "zoom": camera.zoom.x, "duree": 1.4,
 		"courbe": "lineaire", "tremblement": 18}])
 	_poussiere(POSTE + Vector2(0, -40))
 	props.ilse.visible = false
