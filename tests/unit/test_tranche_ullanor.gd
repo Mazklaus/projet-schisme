@@ -58,7 +58,9 @@ func _verifier_branche(noeud: String, attendu: Dictionary, echo: String, variant
 	var r := _jouer(noeud, dr)
 	for cle in attendu:
 		assert_eq(dr.get(cle), attendu[cle], "%s : %s" % [noeud, cle])
-	assert_has(r.commandes, "carton 3 " + echo, "écho de " + noeud)
+	# La durée du carton suit la règle de lecture (Narrative) : on ne vérifie que le texte.
+	assert_true(r.commandes.any(func(c): return c.begins_with("carton ") and c.ends_with(" " + echo)),
+		"écho de " + noeud)
 	assert_has(r.commandes, "montrer Ullanor/Calque_30_voie/" + variante, "variante 5e de " + noeud)
 	assert_has(r.commandes, "sauver")
 	# La sauvegarde contient le drapeau et les deux relations (critère QA).
