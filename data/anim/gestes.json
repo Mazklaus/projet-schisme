@@ -133,10 +133,9 @@
         "pied_arriere": -55,
         "torse": 18,
         "tete": 22,
-        "bras_avant": -25,
+        "bras_avant": 0,
         "avant_bras_avant": -75,
-        "main_avant": -10,
-        "bras_arriere": -20,
+        "bras_arriere": 0,
         "avant_bras_arriere": -70
       },
       "montre": [
