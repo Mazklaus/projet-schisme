@@ -9,7 +9,7 @@
 @ambiance archive 1.5
 @plan archive_ecriture
 // Gros plan : la ligne écrite sur la plaque de données, avec le trait barré particulier.
-@carton 3 Nous étions trois. Les autres viendraient plus tard.
+@carton 5 Nous étions trois. Les autres viendraient plus tard.
 -> embarquement
 
 // ================================================================ 1. Le pont d'embarquement
@@ -158,7 +158,7 @@ VASKAR: Alors c'est vrai.
 ~ trait_vaskar_doute += 1
 > Vaskar se lève. La table lui arrive aux genoux.
 SEFA: Le silence aussi, ça s'écrit.
-@carton 3 Elle écrira votre silence.
+@carton 3.5 Elle écrira votre silence.
 -> dremm_sefa
 
 // ================================================================ 4. Dremm et Sefa (vu de loin par Vaskar)
@@ -183,7 +183,7 @@ DREMM: Quelle soldate ?
 
 // ================================================================ 5. La plaque (variante)
 === plaque_sefa
--> plaque_sefa_scene [si ep01_plaque_gardee == true]
+-> plaque_sefa_scene [si choix_ep01_plaque == 1]
 // Défaut : scène sautée.
 ~ connait_sefa_plaque = false
 ~ relation_sefa += 0

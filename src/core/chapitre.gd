@@ -108,6 +108,10 @@ func executer_commande(nom: String, args: Array) -> void:
 				# Dernier carton noir du dialogue : il reste noir jusqu'à la suite (écran de fin,
 				# chapitre suivant), sans laisser revoir la scène derrière lui.
 				var final := nom == "carton" and lecteur != null and lecteur.finit_ensuite()
+				# Carton noir suivi d'un changement de décor : la scène passe au noir sous le carton,
+				# qui se retire sur du noir ; le nouveau décor s'ouvre ensuite (QA v2, ch4).
+				if nom == "carton" and not final and lecteur != null and lecteur.decor_ensuite():
+					get_tree().create_timer(0.45).timeout.connect(noircir_sous_carton)
 				await afficher_carton(" ".join(args.slice(1)), float(args[0]), nom == "carton",
 					Color.WHITE, Color.BLACK, final)
 		"montrer", "cacher":
@@ -276,6 +280,11 @@ func afficher_carton(texte: String, duree: float, fond_noir := true, couleur := 
 	t.tween_property(fond, "modulate:a", 0.0, 0.4)
 	await t.finished
 	couche.queue_free()
+
+
+## Scène mise au noir sous un carton noir (surchargé par les chapitres qui ont un voile).
+func noircir_sous_carton() -> void:
+	pass
 
 
 ## Noir laissé par le dernier carton d'un dialogue (voir afficher_carton).

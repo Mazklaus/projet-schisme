@@ -40,6 +40,21 @@ const DOSSIER := "res://assets/decors"
 const MASQUE_LUMIERE := 1
 ## Calques non éclairés (ciel, particules) : seules les lumières de halo les touchent.
 const MASQUE_HALO := 4
+## Personnages (calques 4x_) d'un intérieur à « loi des aperçus » : la clé y est posée très
+## haute (sans atténuation par les normales), ce qui les aplatissait en blanc (retour DA,
+## barge). Une copie de chaque clé, basse, les éclaire seuls et garde leur modelé.
+const MASQUE_PERSONNAGES := 8
+## Hauteur (px) et énergie relative de cette copie, calées sur apercu_40_pe / apercu_40_b27.
+const HAUTEUR_MODELE_PX := 120.0
+const ENERGIE_MODELE := 0.65
+## Même copie quand la clé est en contre-jour (silhouettes à 0,1–0,15 de valeur).
+const ENERGIE_MODELE_CONTRE_JOUR := 0.15
+
+
+## Clé qui fait face à la caméra, d'après le guide de la DA (type ou note).
+static func est_contre_jour(cle: Dictionary) -> bool:
+	var t := (String(cle.get("type", "")) + " " + String(cle.get("note", ""))).to_lower()
+	return t.contains("vers la caméra") or t.contains("contre-jour") or bool(cle.get("contre_jour", false))
 
 @export var id_decor := "":
 	set(v):
@@ -74,6 +89,146 @@ void fragment() {
 }
 """
 static var _shader_voile: Shader
+
+## Foule peinte (calques « personnages ») : la même chose que le voile, plus une respiration et
+## un balancement des figures. Chaque colonne de l'image s'étire vers le haut depuis sa ligne de
+## pieds (texture « pieds », relevée une fois au chargement) ; la phase varie lentement le long
+## de x : les figures voisines ne bougent jamais ensemble, sans déchirure au milieu d'une figure.
+## Les normales suivent le même déplacement que la couleur (sinon la lumière « glisse »).
+const SHADER_FOULE := """
+shader_type canvas_item;
+uniform vec4 voile : source_color = vec4(0.79, 0.6, 0.36, 1.0);
+uniform float force : hint_range(0.0, 1.0) = 0.0;
+uniform vec4 masque = vec4(0.0);
+uniform sampler2D pieds : filter_linear, repeat_disable;
+uniform float respiration = 0.0;
+uniform float balancement = 0.0;
+uniform vec2 taille_px = vec2(1.0);
+uniform float graine = 0.0;
+uniform float vitesse = 1.0;
+varying vec4 modulation;
+void vertex() {
+	modulation = COLOR;
+}
+void fragment() {
+	if (masque.z > 0.0 && UV.x >= masque.x && UV.x < masque.x + masque.z
+			&& UV.y >= masque.y && UV.y < masque.y + masque.w) {
+		discard;
+	}
+	vec2 uv = UV;
+	float pied = texture(pieds, vec2(UV.x, 0.5)).r;
+	float h = pied - UV.y;
+	if (h > 0.0) {
+		float x = UV.x * taille_px.x;
+		float ph = x * 0.011 + 1.7 * sin(x * 0.0037 + graine) + graine;
+		float s = 0.5 + 0.5 * sin(TIME * vitesse * 1.55 + ph);
+		uv.y = pied - h / (1.0 + respiration * s * s * (3.0 - 2.0 * s));
+		uv.x -= balancement * sin(TIME * vitesse * 1.03 + ph * 0.8) * h * taille_px.y / taille_px.x;
+	}
+	vec4 c = texture(TEXTURE, uv);
+	NORMAL_MAP = texture(NORMAL_TEXTURE, uv).rgb;
+	COLOR = vec4(mix(c.rgb, voile.rgb, force), c.a) * modulation;
+}
+"""
+static var _shader_foule: Shader
+## Réglages de la foule peinte (en fraction de la hauteur de chaque figure).
+const FOULE_RESPIRATION := 0.010
+const FOULE_BALANCEMENT := 0.006
+## Largeur d'une colonne de la texture des pieds, en pixels de l'image.
+const FOULE_COLONNE_PX := 8
+
+## Décor peint qui vit (bloc « vie » d'un calque, Ullanor) : le voile habituel, plus
+## - « derive » : une ondulation lente et douce de l'image (bruit qui glisse), pour les fumées et
+##   la poussière : rien ne se déplace dans la composition, la matière bouge sur place ;
+## - « drapeaux » : des rectangles de tissu suspendus (x, y du haut, largeur, hauteur en px),
+##   qui ondulent de plus en plus vers le bas, chacun à sa phase ;
+## - « souffle » : une respiration lente au-dessus d'une ligne de sol (Titans : cheminées et
+##   servos qui se soulèvent de 2 ou 3 px), déphasée le long de x ;
+## - « tetes » : des têtes de machine (Titans) qui balaient de quelques px par à-coups, toutes
+##   les 10 à 15 s, avec un arrêt sec ; « tressaillement » : un sursaut de servo rare.
+##   Des machines immobiles et vivantes à la fois, pas une respiration organique.
+const SHADER_VIVANT := """
+shader_type canvas_item;
+uniform vec4 voile : source_color = vec4(0.79, 0.6, 0.36, 1.0);
+uniform float force : hint_range(0.0, 1.0) = 0.0;
+uniform vec2 taille_px = vec2(1.0);
+uniform float derive_px = 0.0;
+uniform float derive_echelle_px = 120.0;
+uniform vec2 derive_vitesse = vec2(0.02, -0.01);
+uniform sampler2D drapeaux : filter_linear, repeat_disable;
+uniform float drapeau_px = 0.0;
+uniform float souffle_px = 0.0;
+uniform float souffle_periode = 6.0;
+uniform float souffle_sol_px = 1080.0;
+uniform vec4 tetes[4];
+uniform int tetes_n = 0;
+uniform float tete_px = 0.0;
+uniform float tressaillement_px = 0.0;
+varying vec4 modulation;
+float hasard(float n) {
+	return fract(sin(n * 91.345 + 12.9898) * 43758.5453);
+}
+// Position (-1 à 1) d'un balayage par à-coups : une cible nouvelle toutes les 10 à 15 s,
+// atteinte en 1,4 s en accélérant, puis arrêt sec.
+float balayage(float t, float i) {
+	float periode = 10.0 + 5.0 * hasard(i * 7.0 + 1.0);
+	float x = t / periode + hasard(i * 3.0);
+	float n = floor(x);
+	float k = clamp(fract(x) * periode / 1.4, 0.0, 1.0);
+	return mix(hasard(n + i * 101.0) * 2.0 - 1.0, hasard(n + 1.0 + i * 101.0) * 2.0 - 1.0, k * k);
+}
+float bruit(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	float a = fract(sin(dot(i, vec2(127.1, 311.7))) * 43758.5453);
+	float b = fract(sin(dot(i + vec2(1.0, 0.0), vec2(127.1, 311.7))) * 43758.5453);
+	float c = fract(sin(dot(i + vec2(0.0, 1.0), vec2(127.1, 311.7))) * 43758.5453);
+	float d = fract(sin(dot(i + vec2(1.0, 1.0), vec2(127.1, 311.7))) * 43758.5453);
+	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+void vertex() {
+	modulation = COLOR;
+}
+void fragment() {
+	vec2 px = UV * taille_px;
+	vec2 d = vec2(0.0);
+	if (derive_px > 0.0) {
+		vec2 q = px / derive_echelle_px + TIME * derive_vitesse;
+		d += (vec2(bruit(q), bruit(q + vec2(5.2, 1.3))) - 0.5) * 2.0 * derive_px;
+	}
+	if (drapeau_px > 0.0) {
+		vec4 m = texture(drapeaux, UV);
+		d.x += drapeau_px * m.r * sin(TIME * (1.8 + m.b * 1.2) + px.y * 0.22 + m.g * 6.2832);
+	}
+	if (souffle_px > 0.0 && px.y < souffle_sol_px) {
+		float s = 0.5 + 0.5 * sin(TIME * 6.2832 / souffle_periode + UV.x * 4.0);
+		d.y += souffle_px * s * (souffle_sol_px - px.y) / souffle_sol_px;
+	}
+	for (int i = 0; i < tetes_n; i++) {
+		vec4 r = tetes[i];
+		vec2 e = min(px - r.xy, r.xy + r.zw - px);
+		if (e.x > 0.0 && e.y > 0.0) {
+			float w = clamp(min(e.x, e.y) / 5.0, 0.0, 1.0);
+			d.x -= tete_px * w * balayage(TIME, float(i));
+		}
+	}
+	if (tressaillement_px > 0.0 && px.y < souffle_sol_px) {
+		// Un sursaut de 0,2 s, une fois sur deux toutes les 17 s, propre à chaque moitié du cadre.
+		float moitie = step(0.5, UV.x);
+		float x = TIME / 17.0 + moitie * 0.43;
+		float t = fract(x) * 17.0;
+		if (t < 0.2 && hasard(floor(x) + moitie * 33.0) > 0.5) {
+			d.y += tressaillement_px * sin(t * 95.0) * (1.0 - t / 0.2);
+		}
+	}
+	vec2 uv = UV + d / taille_px;
+	vec4 c = texture(TEXTURE, uv);
+	NORMAL_MAP = texture(NORMAL_TEXTURE, uv).rgb;
+	COLOR = vec4(mix(c.rgb, voile.rgb, force), c.a) * modulation;
+}
+"""
+static var _shader_vivant: Shader
 
 var taille := Vector2.ZERO
 var calques: Array[Parallax2D] = []
@@ -221,7 +376,7 @@ static func plan_eclaire(g: Dictionary) -> bool:
 
 
 ## distance_m du guide : un nombre, ou un texte de CA2 (« 0,2 à 5,6 », « 1,9 et 5 ») dont on
-## prend la moyenne des nombres ; 0 si aucun nombre (« derrière la porte »).
+## prend la moyenne des nombres ; 0 si aucun nombre (« derrière la porte », « infini »).
 static func distance_guide(v) -> float:
 	if typeof(v) in [TYPE_FLOAT, TYPE_INT]:
 		return float(v)
@@ -247,10 +402,16 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 	var voile: Dictionary = g.voile if typeof(g.get("voile")) == TYPE_DICTIONARY else {}
 	var eclaire := plan_eclaire(g)
 	var calques := []
-	for k in g.get("calques", []):
-		if typeof(k) != TYPE_DICTIONARY or not k.has("fichier"):
-			calques.append(k)
+	for k_brut in g.get("calques", []):
+		if typeof(k_brut) != TYPE_DICTIONARY or not k_brut.has("fichier"):
+			calques.append(k_brut)
 			continue
+		var k: Dictionary = k_brut
+		# JSON normalisé : « infini » devient 10000 avec la note « distance : infini m » ; on
+		# reprend l'infini (sans parallaxe propre, comme avant la normalisation).
+		if String(k.get("note", "")).contains("distance : infini"):
+			k = k.duplicate()
+			k.distance_m = "infini"
 		var f: String = k.fichier
 		var gabarit := f.get_base_dir().path_join("gabarit_" + f.get_file())
 		if not ResourceLoader.exists(dossier.path_join(f)) and ResourceLoader.exists(dossier.path_join(gabarit)):
@@ -274,8 +435,15 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			# false dans le JSON les sort aussi de l'ambiance de la scène.
 			if f.get_file().begins_with("4") and d < 30.0:
 				c.rebond = true
+				c.personnage = true
 			if k.get("ambiance", true) == false:
 				c.hors_ambiance = true
+			# Liseré additif posé à la distance de son calque (41_lisere_froid de vs_galerie).
+			if k.has("melange"):
+				c.melange = k.melange
+				for cle_l in ["force", "durete"]:
+					if k.has(cle_l):
+						c[cle_l] = float(k[cle_l])
 		else:
 			var ciel := f.get_file().begins_with("00_")
 			c.profondeur = 0.0 if ciel else 1.0
@@ -307,6 +475,10 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			var t := Color(amb.couleur) * float(amb.get("gain", 1.0))
 			t.a = 1.0
 			c.teinte = t.to_html()
+		# Vie du décor (« vie », « foule ») : passée telle quelle au moteur.
+		for cle_vie in ["vie", "foule"]:
+			if k.has(cle_vie):
+				c[cle_vie] = k[cle_vie]
 		if typeof(k.get("tete")) == TYPE_DICTIONARY:
 			var t: Dictionary = k.tete
 			var manquants := ["corps", "fichier", "avant"].filter(
@@ -316,6 +488,9 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			else:
 				c.tete = t.duplicate()
 				c.tete["plat"] = eclaire
+		# Le guide écrit « additif » ou « addition ».
+		if String(c.get("melange", "")) in ["additif", "add", "ADD"]:
+			c.melange = "addition"
 		calques.append(c)
 	# « etats » du guide : {nom: "00_exterieur_nuit : …"} ; le calque nommé n'est visible que
 	# dans son état.
@@ -385,9 +560,10 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 		elif a.has("niveau") and a.has("couleur"):
 			# Veille froide sur le fond seulement (« zone : fond et ogive ») ; ambiant ailleurs.
 			veille = {"couleur": a.couleur, "niveau": float(a.niveau)}
-			var m := RegEx.create_from_string("ambiant ailleurs ([0-9.]+)").search(String(a.get("zone", "")))
+			# « ambiant ailleurs 0.17 » ou « ambiant 0,17 ailleurs » (barge_quartiers_27).
+			var m := RegEx.create_from_string("ambiant (?:ailleurs )?([0-9]+(?:[.,][0-9]+)?)").search(String(a.get("zone", "")))
 			if m:
-				var n := float(m.get_string(1))
+				var n := m.get_string(1).replace(",", ".").to_float()
 				ambiant = Color(n, n, n).to_html(false)
 	# Intérieur dont le seul ambiant est « ambiant ailleurs » d'une veille (vs_quartiers_27) : même
 	# loi des aperçus pour la clé (retour DA : la lumière se concentre autour du brasero).
@@ -417,6 +593,30 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				e.profil = "apercu"
 				e.rayon_px = 3.0 * float(e.get("rayon_px", 120))
 				e.hauteur_px = 1500.0
+		# Les personnages gardent leur modelé : copie basse des clés, sur leur seul masque.
+		var personnages := calques.filter(func(c): return typeof(c) == TYPE_DICTIONARY \
+				and c.get("personnage", false) and c.get("lumiere", true))
+		if not personnages.is_empty():
+			for c in personnages:
+				c.masque_lumiere = MASQUE_PERSONNAGES
+			var modeles := []
+			# Clé derrière les personnages (« vers la caméra », « contre-jour ») : la copie basse
+			# est presque coupée, ils restent en silhouette (retour DA, galeries).
+			var dose := ENERGIE_MODELE_CONTRE_JOUR if est_contre_jour(cle) else ENERGIE_MODELE
+			for e in lum:
+				if typeof(e) == TYPE_DICTIONARY and e.get("profil", "") == "apercu":
+					var m: Dictionary = e.duplicate()
+					m.hauteur_px = HAUTEUR_MODELE_PX
+					m.intensite = float(e.get("intensite", 1.0)) * dose
+					if typeof(e.get("energie_par_etat")) == TYPE_DICTIONARY:
+						var pe := {}
+						for nom in e.energie_par_etat:
+							pe[nom] = float(e.energie_par_etat[nom]) * dose
+						m.energie_par_etat = pe
+					m.masque = MASQUE_PERSONNAGES
+					m.erase("halo")
+					modeles.append(m)
+			lum.append_array(modeles)
 	# « reglage_moteur » (Lead, calé sur l'aperçu validé) : {portee, energie, veille} multiplient
 	# la portée et l'énergie des lumières ponctuelles et le niveau de la veille.
 	var rm: Dictionary = g.reglage_moteur if typeof(g.get("reglage_moteur")) == TYPE_DICTIONARY else {}
@@ -439,7 +639,8 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 		"rebond": g.get("rebond", {}),
 		# Plan à lumière peinte sans « ambiance » (Ullanor) : posé à 1,0, comme assembler.py.
 		"peint_sans_ambiance": not g.has("ambiance") and not plan_eclaire(g), "ambiant": ambiant, "veille": veille,
-		"etats": etats_guide, "etat_initial": etats_guide.keys()[0] if not etats_guide.is_empty() else ""}
+		"etats": etats_guide, "etat_initial": etats_guide.keys()[0] if not etats_guide.is_empty() else "",
+		"particules": g.particules if typeof(g.get("particules")) == TYPE_ARRAY else []}
 
 
 ## Lumières ponctuelles décrites par la clé ou un appoint du guide de la DA : une seule
@@ -542,6 +743,7 @@ func construire() -> void:
 		var k: Dictionary = d.calques[i]
 		calques.append(_creer_calque(dossier, k, i))
 	_poser_lumieres(d.get("lumieres", []))
+	_poser_particules(d.get("particules", []))
 	set_meta("cle", d.get("cle", {}))
 	set_meta("rebond", d.get("rebond", {}))
 	peint_sans_ambiance = bool(d.get("peint_sans_ambiance", false))
@@ -745,7 +947,7 @@ func _poser_lumieres(liste: Array) -> void:
 		# Hauteur (normal maps) : une lumière de groupe éclaire de face, sinon les murs tournés
 		# vers la caméra ne reçoivent presque rien.
 		l.height = float(L.get("hauteur_px", 40.0))
-		l.range_item_cull_mask = MASQUE_LUMIERE | 1
+		l.range_item_cull_mask = int(L.get("masque", MASQUE_LUMIERE))
 		if typeof(L.get("energie_par_etat")) == TYPE_DICTIONARY:
 			l.set_meta("energie_par_etat", L.energie_par_etat)
 		if typeof(L.get("compense")) == TYPE_ARRAY:
@@ -845,6 +1047,120 @@ static func _texture_lumiere(profil: String) -> Texture2D:
 	return tex
 
 
+# --------------------------------------------------------------------------- particules
+
+## Particules vivantes d'un décor peint (« particules » du guide) : chacune est posée dans un
+## calque (« calque » : son nom, sans « Calque_ ») pour suivre sa parallaxe, sur une zone en px :
+##   {"type": "fumee" | "braises" | "poussiere", "calque": "20_titans", "zone": [x, y, w, h],
+##    "nombre": 12, "vent": [vx, vy]}
+## Textures générées (pas d'image à livrer) ; préremplies pour être déjà là au premier plan.
+func _poser_particules(liste: Array) -> void:
+	for p in liste:
+		if typeof(p) != TYPE_DICTIONARY:
+			continue
+		var couche: Node = get_node_or_null("Calque_" + String(p.get("calque", "")))
+		if couche == null:
+			push_warning("Décor %s : particules sur un calque absent (%s)" % [id_decor, p.get("calque")])
+			continue
+		couche.add_child(particules(p))
+
+
+static func particules(p: Dictionary) -> CPUParticles2D:
+	var type := String(p.get("type", "poussiere"))
+	var z: Array = p.get("zone", [0, 0, 100, 100])
+	var e := CPUParticles2D.new()
+	e.name = "Particules_" + type
+	e.local_coords = true
+	e.position = Vector2(float(z[0]) + float(z[2]) / 2.0, float(z[1]) + float(z[3]) / 2.0)
+	e.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	e.emission_rect_extents = Vector2(float(z[2]), float(z[3])) / 2.0
+	var vent := Vector2(5, -2)
+	if typeof(p.get("vent")) == TYPE_ARRAY and p.vent.size() == 2:
+		vent = Vector2(float(p.vent[0]), float(p.vent[1]))
+	e.gravity = vent
+	var rampe := Gradient.new()
+	var echelle := Curve.new()
+	match type:
+		"fumee":
+			e.amount = int(p.get("nombre", 14))
+			e.lifetime = 10.0
+			e.direction = Vector2(0.2, -1)
+			e.spread = 12.0
+			e.initial_velocity_min = 8.0
+			e.initial_velocity_max = 16.0
+			e.scale_amount_min = 0.5
+			e.scale_amount_max = 0.8
+			echelle.add_point(Vector2(0, 0.4))
+			echelle.add_point(Vector2(1, 2.6))
+			rampe.colors = PackedColorArray([Color(0.42, 0.37, 0.33, 0.0), Color(0.42, 0.37, 0.33, 0.32), Color(0.5, 0.45, 0.4, 0.0)])
+			rampe.offsets = PackedFloat32Array([0.0, 0.25, 1.0])
+			e.texture = _tache(64, 0.0)
+			e.angular_velocity_min = -6.0
+			e.angular_velocity_max = 6.0
+			if p.get("bouffees", false):
+				# Évents de machine : la fumée sort par bouffées (une par « cadence_s »), pas en filet.
+				e.lifetime = float(p.get("cadence_s", 7.0))
+				e.explosiveness = 0.75
+				e.randomness = 0.3
+				e.lifetime_randomness = 0.25
+		"braises":
+			e.amount = int(p.get("nombre", 30))
+			e.lifetime = 5.0
+			e.direction = Vector2(0.3, -1)
+			e.spread = 25.0
+			e.initial_velocity_min = 12.0
+			e.initial_velocity_max = 34.0
+			e.tangential_accel_min = -8.0
+			e.tangential_accel_max = 8.0
+			e.scale_amount_min = 0.6
+			e.scale_amount_max = 1.2
+			echelle.add_point(Vector2(0, 1.0))
+			echelle.add_point(Vector2(1, 0.3))
+			rampe.colors = PackedColorArray([Color(1.0, 0.75, 0.35, 0.0), Color(1.0, 0.6, 0.2, 0.9), Color(0.8, 0.25, 0.08, 0.0)])
+			rampe.offsets = PackedFloat32Array([0.0, 0.1, 1.0])
+			e.texture = _tache(8, 0.5)
+			var add := CanvasItemMaterial.new()
+			add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+			e.material = add
+		_:
+			e.amount = int(p.get("nombre", 50))
+			e.lifetime = 14.0
+			e.direction = Vector2(1, -0.2)
+			e.spread = 60.0
+			e.initial_velocity_min = 2.0
+			e.initial_velocity_max = 7.0
+			e.scale_amount_min = 0.4
+			e.scale_amount_max = 1.0
+			echelle.add_point(Vector2(0, 1.0))
+			echelle.add_point(Vector2(1, 1.0))
+			rampe.colors = PackedColorArray([Color(1.0, 0.93, 0.78, 0.0), Color(1.0, 0.93, 0.78, 0.45), Color(1.0, 0.93, 0.78, 0.0)])
+			rampe.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
+			e.texture = _tache(6, 0.3)
+			var add2 := CanvasItemMaterial.new()
+			add2.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+			e.material = add2
+	e.color_ramp = rampe
+	e.scale_amount_curve = echelle
+	e.preprocess = e.lifetime
+	e.light_mask = MASQUE_HALO
+	return e
+
+
+## Tache ronde douce (fumée, braise, grain de poussière) : rayon en px, cœur plein jusqu'à « coeur ».
+static func _tache(taille: int, coeur: float) -> GradientTexture2D:
+	var g := Gradient.new()
+	g.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0)])
+	g.offsets = PackedFloat32Array([coeur, 1.0])
+	var t := GradientTexture2D.new()
+	t.gradient = g
+	t.fill = GradientTexture2D.FILL_RADIAL
+	t.fill_from = Vector2(0.5, 0.5)
+	t.fill_to = Vector2(1.0, 0.5)
+	t.width = taille
+	t.height = taille
+	return t
+
+
 func _process(_delta: float) -> void:
 	# Scintillement des feux : bruit lent et propre à chaque lumière.
 	var t := Time.get_ticks_msec() / 1000.0
@@ -888,12 +1204,33 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	sprite.centered = false
 	if k.has("position"):
 		sprite.position = Vector2(k.position[0], k.position[1])
-	sprite.light_mask = MASQUE_LUMIERE if k.get("lumiere", true) else MASQUE_HALO
-	if k.has("voile") and float(k.voile[1]) > 0.0:
+	sprite.light_mask = int(k.get("masque_lumiere", MASQUE_LUMIERE)) if k.get("lumiere", true) else MASQUE_HALO
+	if typeof(k.get("vie")) == TYPE_DICTIONARY and not k.has("tete"):
+		var m := materiau_vivant(k.vie, tex.diffuse_texture)
+		if k.has("voile"):
+			m.set_shader_parameter("voile", Color(k.voile[0]))
+			m.set_shader_parameter("force", float(k.voile[1]))
+		sprite.material = m
+	elif est_foule(k):
+		var m := materiau_foule(tex.diffuse_texture, String(couche.name),
+			k.foule if typeof(k.get("foule")) == TYPE_DICTIONARY else {})
+		if k.has("voile"):
+			m.set_shader_parameter("voile", Color(k.voile[0]))
+			m.set_shader_parameter("force", float(k.voile[1]))
+		sprite.material = m
+	elif k.has("voile") and float(k.voile[1]) > 0.0:
 		var m := materiau_voile()
 		m.set_shader_parameter("voile", Color(k.voile[0]))
 		m.set_shader_parameter("force", float(k.voile[1]))
 		sprite.material = m
+	elif k.get("melange", "") == "addition" and (k.has("force") or k.has("durete")):
+		# Liseré additif dosé : alpha^durete resserre un halo peint en arête fine (retour DA,
+		# 41_lisere_froid de vs_galerie), force le dose.
+		var ml := ShaderMaterial.new()
+		ml.shader = _shader_lisere()
+		ml.set_shader_parameter("force", float(k.get("force", 1.0)))
+		ml.set_shader_parameter("durete", float(k.get("durete", 1.0)))
+		sprite.material = ml
 	elif k.get("melange", "") == "addition":
 		var add := CanvasItemMaterial.new()
 		add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
@@ -980,6 +1317,21 @@ static func materiau_ombre() -> ShaderMaterial:
 	return m
 
 
+static var _lisere: Shader
+static func _shader_lisere() -> Shader:
+	if _lisere == null:
+		_lisere = Shader.new()
+		_lisere.code = """shader_type canvas_item;
+render_mode blend_add;
+uniform float force = 1.0;
+uniform float durete = 1.0;
+void fragment() {
+	COLOR = vec4(COLOR.rgb, pow(COLOR.a, durete) * force);
+}
+"""
+	return _lisere
+
+
 static func materiau_voile() -> ShaderMaterial:
 	if _shader_voile == null:
 		_shader_voile = Shader.new()
@@ -987,6 +1339,166 @@ static func materiau_voile() -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = _shader_voile
 	return m
+
+
+## Calque de foule peinte : « foule »: true/false dans le JSON, sinon tout calque dont le
+## fichier parle de « personnages » (40_personnages, 25_personnages_fond et leurs gabarits).
+## Pas de foule sur un calque à tête livrée à part (la tête a son propre mouvement) ni sur
+## les particules en addition.
+static func est_foule(k: Dictionary) -> bool:
+	if k.has("tete") or k.get("melange", "") == "addition":
+		return false
+	if typeof(k.get("foule")) == TYPE_DICTIONARY:
+		return true
+	if k.has("foule"):
+		return bool(k.foule)
+	var nom := String(k.get("nom", String(k.get("fichier", "")).get_file().get_basename()))
+	return nom.contains("personnages")
+
+
+## « foule » peut régler le mouvement : {"respiration", "balancement", "vitesse"} (les Titans
+## d'Ullanor respirent plus lentement et plus faiblement qu'une foule).
+static func materiau_foule(image: Texture2D, graine := "", reglages: Dictionary = {}) -> ShaderMaterial:
+	if _shader_foule == null:
+		_shader_foule = Shader.new()
+		_shader_foule.code = SHADER_FOULE
+	var m := ShaderMaterial.new()
+	m.shader = _shader_foule
+	m.set_shader_parameter("respiration", float(reglages.get("respiration", FOULE_RESPIRATION)))
+	m.set_shader_parameter("balancement", float(reglages.get("balancement", FOULE_BALANCEMENT)))
+	m.set_shader_parameter("vitesse", float(reglages.get("vitesse", 1.0)))
+	m.set_shader_parameter("graine", float(absi(hash(graine)) % 1000) / 100.0)
+	if image:
+		m.set_shader_parameter("taille_px", Vector2(image.get_size()))
+		m.set_shader_parameter("pieds", ImageTexture.create_from_image(lignes_de_pieds(image.get_image())))
+	return m
+
+
+## Matériau d'un calque qui vit (bloc « vie ») :
+##   "derive": [amplitude_px, echelle_px, vitesse_x, vitesse_y]   fumées, poussière
+##   "drapeaux": [[x, y_haut, largeur, hauteur], …], "drapeau_px": amplitude au bas du tissu
+##   "souffle": [amplitude_px au sommet, période_s, ligne_de_sol_y_px]
+##   "tetes": [[x, y, largeur, hauteur], …] (4 au plus), "tete_px": balayage maximal
+##   "tressaillement": [amplitude_px, ligne_de_sol_y_px]
+static func materiau_vivant(vie: Dictionary, image: Texture2D) -> ShaderMaterial:
+	if _shader_vivant == null:
+		_shader_vivant = Shader.new()
+		_shader_vivant.code = SHADER_VIVANT
+	var m := ShaderMaterial.new()
+	m.shader = _shader_vivant
+	var taille := Vector2(image.get_size()) if image else Vector2(1920, 1080)
+	m.set_shader_parameter("taille_px", taille)
+	var dv: Array = vie.get("derive", [])
+	if dv.size() >= 2:
+		m.set_shader_parameter("derive_px", float(dv[0]))
+		m.set_shader_parameter("derive_echelle_px", float(dv[1]))
+		if dv.size() >= 4:
+			m.set_shader_parameter("derive_vitesse", Vector2(float(dv[2]), float(dv[3])))
+	var so: Array = vie.get("souffle", [])
+	if so.size() >= 3:
+		m.set_shader_parameter("souffle_px", float(so[0]))
+		m.set_shader_parameter("souffle_periode", float(so[1]))
+		m.set_shader_parameter("souffle_sol_px", float(so[2]))
+	var tetes: Array = vie.get("tetes", [])
+	if not tetes.is_empty():
+		var rects: Array[Vector4] = []
+		for r in tetes.slice(0, 4):
+			rects.append(Vector4(float(r[0]), float(r[1]), float(r[2]), float(r[3])))
+		while rects.size() < 4:
+			rects.append(Vector4.ZERO)
+		m.set_shader_parameter("tetes", rects)
+		m.set_shader_parameter("tetes_n", mini(tetes.size(), 4))
+		m.set_shader_parameter("tete_px", float(vie.get("tete_px", 3.0)))
+	var tr: Array = vie.get("tressaillement", [])
+	if tr.size() >= 2:
+		m.set_shader_parameter("tressaillement_px", float(tr[0]))
+		m.set_shader_parameter("souffle_sol_px", float(tr[1]))
+	var dr: Array = vie.get("drapeaux", [])
+	if not dr.is_empty():
+		m.set_shader_parameter("drapeau_px", float(vie.get("drapeau_px", 2.0)))
+		m.set_shader_parameter("drapeaux", ImageTexture.create_from_image(masque_drapeaux(dr, taille)))
+	return m
+
+
+## Masque des tissus suspendus, à la moitié de la taille de l'image : R = ampleur (0 au point
+## d'attache, 1 en bas, plus grande pour un grand drapeau), G = phase, B = vitesse propre.
+## Le rectangle est élargi de 2 px de chaque côté pour que le bord du tissu puisse onduler.
+static func masque_drapeaux(rects: Array, taille: Vector2) -> Image:
+	var w := maxi(1, int(taille.x) / 2)
+	var h := maxi(1, int(taille.y) / 2)
+	var img := Image.create(w, h, false, Image.FORMAT_RGB8)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1729
+	for r in rects:
+		if typeof(r) != TYPE_ARRAY or r.size() < 4:
+			continue
+		var x0 := int(float(r[0]) - 2.0) / 2
+		var x1 := int(float(r[0]) + float(r[2]) + 2.0) / 2
+		var y0 := int(float(r[1])) / 2
+		var y1 := int(float(r[1]) + float(r[3])) / 2
+		var ampleur := clampf(float(r[2]) / 32.0, 0.35, 1.0)
+		var phase := rng.randf()
+		var vitesse := rng.randf()
+		for y in range(maxi(y0, 0), mini(y1 + 1, h)):
+			var k := clampf(float(y - y0) / maxf(1.0, float(y1 - y0)), 0.0, 1.0)
+			k = pow(k, 1.3) * ampleur
+			for x in range(maxi(x0, 0), mini(x1 + 1, w)):
+				img.set_pixel(x, y, Color(k, phase, vitesse))
+	return img
+
+
+## Ligne des pieds de chaque colonne (FOULE_COLONNE_PX de large) : le bas de la silhouette,
+## en fraction de la hauteur (canal rouge, 1 × colonnes). Une colonne vide prend la valeur de
+## sa voisine non vide la plus proche : le balancement peut y pousser une figure sans saut.
+## Image entièrement vide : 0 partout (rien ne bouge).
+static func lignes_de_pieds(img: Image) -> Image:
+	var colonnes := maxi(1, ceili(img.get_width() / float(FOULE_COLONNE_PX)))
+	var sortie := Image.create(colonnes, 1, false, Image.FORMAT_RF)
+	if img.is_empty():
+		return sortie
+	var petite := img.duplicate() as Image
+	if petite.is_compressed():
+		petite.decompress()
+	petite.convert(Image.FORMAT_RGBA8)
+	# Réduite en moyenne de surface (mipmaps, pas de rebond) et en hauteur aussi (pas de 4 px).
+	var hauteur := maxi(1, img.get_height() / 4)
+	petite.resize(colonnes, hauteur, Image.INTERPOLATE_TRILINEAR)
+	var octets := petite.get_data()
+	var pieds := PackedFloat32Array()
+	pieds.resize(colonnes)
+	for x in colonnes:
+		pieds[x] = -1.0
+		for y in range(hauteur - 1, -1, -1):
+			if octets[(y * colonnes + x) * 4 + 3] > 24:
+				pieds[x] = (y + 1.0) / hauteur
+				break
+	# Colonnes vides : valeur de la plus proche colonne pleine (passe aller puis retour).
+	var derniere := -1.0
+	var distance := PackedInt32Array()
+	distance.resize(colonnes)
+	var rempli := pieds.duplicate()
+	var n := 1 << 30
+	for x in colonnes:
+		if pieds[x] >= 0.0:
+			derniere = pieds[x]
+			n = 0
+		else:
+			n += 1
+		rempli[x] = derniere
+		distance[x] = n
+	derniere = -1.0
+	n = 1 << 30
+	for x in range(colonnes - 1, -1, -1):
+		if pieds[x] >= 0.0:
+			derniere = pieds[x]
+			n = 0
+		else:
+			n += 1
+		if n < distance[x]:
+			rempli[x] = derniere
+	for x in colonnes:
+		sortie.set_pixel(x, 0, Color(maxf(rempli[x], 0.0), 0, 0))
+	return sortie
 
 
 ## Détache la tête d'une figure peinte sur un calque plein cadre pour l'animer à part.

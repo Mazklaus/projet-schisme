@@ -1,75 +1,75 @@
 {
- "plan": "ullanor_gros_plan_horus",
- "episode": 1,
- "plan_scenario": "5b",
- "cadre_px": [
-  1920,
-  1080
- ],
- "description": "Fond du gros plan d'Horus sur le dais, en contre-plongée (~18°) : ciel d'aube d'Ullanor, soleil bas à droite d'Horus (contre-jour), la citadelle noyée de voile derrière lui ; bannières au croissant et braseros du dais flous à l'arrière (profondeur de champ courte). Centre calme : Horus l'occupe des épaules aux deux tiers de la hauteur.",
- "source": "calques de l'image cible (tranche-verticale/calques : 00_ciel, 10_fond, 25_poussiere), fenêtre [677, 360, 1317, 720] agrandie x3, voile de l'assembleur (#C99A5B, d0 3000 m), flou 7 px",
- "cle": {
-  "type": "soleil (contre-jour)",
-  "position_px": [
-   1419,
-   600
+  "plan": "ullanor_gros_plan_horus",
+  "episode": 1,
+  "plan_scenario": "5b",
+  "cadre_px": [
+    1920,
+    1080
   ],
-  "couleur": "#FFE8B0",
-  "note": "derrière Horus, à sa droite : liseré chaud côté droit sur lui (gabarit_41), reflet doré par en dessous (README CA1)"
- },
- "voile": {
-  "couleur": "#C99A5B",
-  "d0_m": 3000
- },
- "rebond": {
-  "couleur": "#C99A5B",
-  "force": 0.25
- },
- "calques": [
-  {
-   "fichier": "calques/00_fond_flou.png",
-   "auteur": "CA2",
-   "distance_m": 7000,
-   "note": "ciel, citadelle et poussière, déjà voilés et flous : ne pas revoiler à l'assemblage",
-   "contenu": "ciel d'aube, soleil bas à droite et sa gloire, citadelle dans le voile"
+  "description": "Fond du gros plan d'Horus sur le dais, en contre-plongée (~18°) : ciel d'aube d'Ullanor, soleil bas à droite d'Horus (contre-jour), la citadelle noyée de voile derrière lui ; bannières au croissant et braseros du dais flous à l'arrière (profondeur de champ courte). Centre calme : Horus l'occupe des épaules aux deux tiers de la hauteur.",
+  "source": "calques de l'image cible (tranche-verticale/calques : 00_ciel, 10_fond, 25_poussiere), fenêtre [677, 360, 1317, 720] agrandie x3, voile de l'assembleur (#C99A5B, d0 3000 m), flou 7 px",
+  "cle": {
+    "type": "soleil (contre-jour)",
+    "position_px": [
+      1419,
+      600
+    ],
+    "couleur": "#FFE8B0",
+    "note": "derrière Horus, à sa droite : liseré chaud côté droit sur lui (gabarit_41), reflet doré par en dessous (README CA1)"
   },
-  {
-   "fichier": "calques/30_dais_flou.png",
-   "auteur": "CA2",
-   "distance_m": 12,
-   "contenu": "arrière du dais : arête de plateforme, deux braseros, quatre bannières au croissant (aucune au centre), flous, en contre-jour"
+  "voile": {
+    "couleur": "#C99A5B",
+    "d0_m": 3000
   },
-  {
-   "fichier": "calques/31_dais_lisere.png",
-   "mode": "additif",
-   "auteur": "CA2",
-   "distance_m": 12,
-   "contenu": "liseré de soleil sur les bannières et l'arête du dais"
+  "rebond": {
+    "couleur": "#C99A5B",
+    "force": 0.25
   },
-  {
-   "fichier": "calques/46_braseros.png",
-   "mode": "additif",
-   "auteur": "CA2",
-   "distance_m": 12,
-   "contenu": "flammes des braseros, floues (vacillement léger)"
-  },
-  {
-   "fichier": "calques/gabarit_40_horus.png",
-   "auteur": "CA2",
-   "pour": "CA1",
-   "distance_m": 3,
-   "contenu": "zone d'Horus : épaulières en dôme, gorgerin à col haut, tête au tiers haut"
-  },
-  {
-   "fichier": "calques/gabarit_41_lisere_horus.png",
-   "mode": "additif",
-   "auteur": "CA2",
-   "pour": "CA1",
-   "distance_m": 3,
-   "contenu": "liseré chaud côté droit (soleil #FFE8B0), à reporter sur le calque d'Horus"
-  }
- ],
- "valeurs_sous_1A1612_pct": 0.0,
- "generateur": "cA2/ullanor_gros_plan_horus_calques.py [--4k]",
- "statut": "validé DA (27/11), correctif dégradé appliqué (flou en flottant + dither)"
+  "calques": [
+    {
+      "fichier": "calques/00_fond_flou.png",
+      "auteur": "CA2",
+      "distance_m": 7000,
+      "note": "ciel, citadelle et poussière, déjà voilés et flous : ne pas revoiler à l'assemblage",
+      "contenu": "ciel d'aube, soleil bas à droite et sa gloire, citadelle dans le voile"
+    },
+    {
+      "fichier": "calques/30_dais_flou.png",
+      "auteur": "CA2",
+      "distance_m": 12,
+      "contenu": "arrière du dais : arête de plateforme, deux braseros, quatre bannières au croissant (aucune au centre), flous, en contre-jour"
+    },
+    {
+      "fichier": "calques/31_dais_lisere.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "distance_m": 12,
+      "contenu": "liseré de soleil sur les bannières et l'arête du dais"
+    },
+    {
+      "fichier": "calques/46_braseros.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "distance_m": 12,
+      "contenu": "flammes des braseros, floues (vacillement léger)"
+    },
+    {
+      "fichier": "calques/gabarit_40_horus.png",
+      "auteur": "CA2",
+      "pour": "CA1",
+      "distance_m": 3,
+      "contenu": "zone d'Horus : épaulières en dôme, gorgerin à col haut, tête au tiers haut"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_horus.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "pour": "CA1",
+      "distance_m": 3,
+      "contenu": "liseré chaud côté droit (soleil #FFE8B0), à reporter sur le calque d'Horus"
+    }
+  ],
+  "valeurs_sous_1A1612_pct": 0.0,
+  "generateur": "cA2/ullanor_gros_plan_horus_calques.py [--4k]",
+  "statut": "validé DA (27/11), correctif dégradé appliqué (flou en flottant + dither)"
 }

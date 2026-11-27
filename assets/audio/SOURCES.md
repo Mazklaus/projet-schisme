@@ -101,3 +101,27 @@ python3 tools/son/encoder_ogg.py /tmp/wav_e2 assets/audio
 | `amb_e2_vox_escouade` | `amb_vox_escouade` | 7010 | ch. 2, le vox de l'escouade | Boucle de 30 s : porteuse, crépitements, appels brefs sans mots dans la bande du vox, clics de micro |
 | `sfx_e2_vox_anomalie` | `sfx_vox_anomalie` | 7011 | ch. 2, « la voix » (Venn) | Sans voix : une respiration trop régulière dans la porteuse, puis le bruit qui bat en deux temps (long-court) trois fois, une modulation qui descend sous le souffle, et la coupure. Ambigu : on peut croire à une panne |
 | `sfx_e2_vox_cris` | `sfx_vox_cris` | 7012 | ch. 2, l'incident de Jubal, entendu au vox | Tirs et cris de gorge sans mots, saturés, puis le canal qui coupe |
+
+### Bruitages d'animation et d'effets (`tools/son/generer_bruitages.py`, graines 8000 à 8185)
+
+Chaque famille a plusieurs variantes ; `Son.bruitage("<famille>")` en tire une au hasard.
+
+```
+python3 tools/son/generer_bruitages.py /tmp/wav_bruit
+python3 tools/son/encoder_ogg.py /tmp/wav_bruit assets/audio
+```
+
+| Fichier | Fonction du générateur | Graine | Où il sonne | Ce que c'est |
+|---|---|---|---|---|
+| `sfx_pas_armure_01`, `sfx_pas_armure_02`, `sfx_pas_armure_03`, `sfx_pas_armure_04`, `sfx_pas_armure_05`, `sfx_pas_armure_06` | `pas_armure` | 8000–8005 | marche des Astartes | Masse sourde, semelle de céramite, plaques qui cliquettent, servo du genou |
+| `sfx_pas_civil_01`, `sfx_pas_civil_02`, `sfx_pas_civil_03`, `sfx_pas_civil_04` | `pas_civil` | 8010–8013 | marche des mortels (Sefa, Ilse, serfs) | Semelle de cuir sur métal ou pierre, sans poids |
+| `sfx_servo_01`, `sfx_servo_02`, `sfx_servo_03`, `sfx_servo_04` | `servo` | 8020–8023 | gestes (bras, tête) | Moteur fin qui monte puis se pose, frottement de joint |
+| `sfx_geste_armure_01`, `sfx_geste_armure_02`, `sfx_geste_armure_03`, `sfx_geste_armure_04` | `geste_armure` | 8030–8033 | gestes | Chocs de céramite feutrés et frottement de sous-combinaison |
+| `sfx_tir_laser_01`, `sfx_tir_laser_02`, `sfx_tir_laser_03` | `tir_laser` | 8040–8042 | tirs (Armée, gardes, insurgés) | Claquement et « zip » qui descend |
+| `sfx_tir_projectile_01`, `sfx_tir_projectile_02`, `sfx_tir_projectile_03` | `tir_projectile` | 8050–8052 | tirs (armes à projectiles) | Claquement et culasse |
+| `sfx_tir_bolter_01`, `sfx_tir_bolter_02`, `sfx_tir_bolter_03` | `tir_bolter` | 8060–8062 | tirs des Astartes | Départ sourd puis détonation de l'obus |
+| `sfx_fumee_boucle` | `fumee_boucle` | 8070 | sous un effet de fumée | Boucle de 4 s : souffle sourd, crépitements, braises |
+| `sfx_bougie_boucle` | `bougie_boucle` | 8071 | près d'une bougie, dans le silence | Boucle de 3 s : flamme qui vacille, mèche qui grésille |
+| `sfx_bougie_souffle` | `bougie_souffle` | 8072 | bougie éteinte | Souffle, flamme qui claque, filet de fumée |
+| `sfx_vitre_01`, `sfx_vitre_02` | `vitre` | 8080–8081 | vitre qui éclate | Choc, éclat, pluie d'éclats |
+| `sfx_vitre_fissure` | `vitre_fissure` | 8085 | vitre qui se fend | Craquement sec qui court sur la surface |

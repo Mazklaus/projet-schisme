@@ -355,19 +355,19 @@
   "hololithe_horus": [
     {
       "position": [
-        960,
-        520
+        1240,
+        620
       ],
-      "zoom": 1.12,
+      "zoom": 1.4,
       "duree": 0
     },
     {
       "position": [
-        960,
-        520
+        1260,
+        640
       ],
-      "zoom": 1.15,
-      "duree": 4.0,
+      "zoom": 1.5,
+      "duree": 4,
       "courbe": "lineaire"
     }
   ],
@@ -392,5 +392,358 @@
         "courbe": "lineaire"
       }
     ]
-  }
+  },
+  "_note_mise_en_scene": "Plans de la mise en scène (Level Designer, 27/11) : fiches etude-heresie/episode-01/mise-en-scene/.",
+  "cthonia_ouverture": {
+    "decor": "cthonia_tunnel",
+    "sequence": [
+      {
+        "position": [
+          700,
+          760
+        ],
+        "zoom": 1.6,
+        "duree": 0
+      },
+      {
+        "position": [
+          520,
+          820
+        ],
+        "zoom": 1.8,
+        "duree": 5,
+        "courbe": "douce"
+      }
+    ]
+  },
+  "cthonia_main_tendue": {
+    "decor": "cthonia_tunnel",
+    "sequence": [
+      {
+        "position": [
+          1200,
+          800
+        ],
+        "zoom": 2.2,
+        "duree": 0
+      },
+      {
+        "position": [
+          1230,
+          790
+        ],
+        "zoom": 2.4,
+        "duree": 4,
+        "courbe": "lineaire"
+      }
+    ]
+  },
+  "cthonia_sortie": {
+    "decor": "cthonia_tunnel",
+    "sequence": [
+      {
+        "position": [
+          1230,
+          790
+        ],
+        "zoom": 2.4,
+        "duree": 0
+      },
+      {
+        "position": [
+          1280,
+          640
+        ],
+        "zoom": 1.6,
+        "duree": 2.5,
+        "courbe": "sortie",
+        "tremblement": 3
+      }
+    ]
+  },
+  "cthonia_seul": {
+    "decor": "cthonia_tunnel",
+    "sequence": [
+      {
+        "position": [
+          1150,
+          840
+        ],
+        "zoom": 2.6,
+        "duree": 0
+      },
+      {
+        "position": [
+          1260,
+          760
+        ],
+        "zoom": 2.2,
+        "duree": 4,
+        "courbe": "lineaire",
+        "tremblement": 2
+      }
+    ]
+  },
+  "cthonia_regard": {
+    "decor": "cthonia_tunnel",
+    "sequence": [
+      {
+        "position": [
+          1300,
+          700
+        ],
+        "zoom": 1.8,
+        "duree": 0
+      },
+      {
+        "position": [
+          1310,
+          680
+        ],
+        "zoom": 3.0,
+        "duree": 6,
+        "courbe": "douce"
+      }
+    ]
+  },
+  "1g_depart": [
+    {
+      "position": [
+        910,
+        360
+      ],
+      "zoom": 2.4,
+      "duree": 0
+    },
+    {
+      "position": [
+        930,
+        200
+      ],
+      "zoom": 1.8,
+      "duree": 5,
+      "courbe": "douce"
+    }
+  ],
+  "unif_lumiere_approche": {
+    "decor": "terra_unification",
+    "sequence": [
+      {
+        "position": [
+          1100,
+          600
+        ],
+        "zoom": 1.15,
+        "duree": 0
+      },
+      {
+        "position": [
+          1060,
+          640
+        ],
+        "zoom": 1.35,
+        "duree": 7,
+        "courbe": "lineaire"
+      }
+    ]
+  },
+  "unif_releve": {
+    "decor": "terra_unification",
+    "sequence": [
+      {
+        "position": [
+          1020,
+          760
+        ],
+        "zoom": 1.9,
+        "duree": 0
+      },
+      {
+        "position": [
+          1020,
+          700
+        ],
+        "zoom": 1.7,
+        "duree": 3,
+        "courbe": "douce"
+      }
+    ]
+  },
+  "unif_genoux": {
+    "decor": "terra_unification",
+    "sequence": [
+      {
+        "position": [
+          1020,
+          820
+        ],
+        "zoom": 2.2,
+        "duree": 0
+      },
+      {
+        "position": [
+          1020,
+          860
+        ],
+        "zoom": 2.4,
+        "duree": 3,
+        "courbe": "lineaire"
+      }
+    ]
+  },
+  "unif_depart": {
+    "decor": "terra_unification",
+    "sequence": [
+      {
+        "position": [
+          1060,
+          640
+        ],
+        "zoom": 1.35,
+        "duree": 0
+      },
+      {
+        "position": [
+          960,
+          560
+        ],
+        "zoom": 1.0,
+        "duree": 6,
+        "courbe": "douce"
+      }
+    ]
+  },
+  "briefing_large": [
+    {
+      "position": [
+        960,
+        600
+      ],
+      "zoom": 1.0,
+      "duree": 0
+    },
+    {
+      "position": [
+        960,
+        580
+      ],
+      "zoom": 1.06,
+      "duree": 10,
+      "courbe": "lineaire"
+    }
+  ],
+  "briefing_horus": [
+    {
+      "position": [
+        960,
+        470
+      ],
+      "zoom": 1.7,
+      "duree": 0
+    },
+    {
+      "position": [
+        960,
+        450
+      ],
+      "zoom": 1.8,
+      "duree": 8,
+      "courbe": "lineaire"
+    }
+  ],
+  "briefing_dremm_avance": [
+    {
+      "position": [
+        860,
+        760
+      ],
+      "zoom": 1.5,
+      "duree": 0
+    },
+    {
+      "position": [
+        900,
+        740
+      ],
+      "zoom": 1.6,
+      "duree": 3,
+      "courbe": "douce"
+    }
+  ],
+  "briefing_rire": [
+    {
+      "position": [
+        960,
+        760
+      ],
+      "zoom": 1.2,
+      "duree": 0
+    },
+    {
+      "position": [
+        960,
+        740
+      ],
+      "zoom": 1.25,
+      "duree": 4,
+      "courbe": "lineaire"
+    }
+  ],
+  "briefing_carte": [
+    {
+      "position": [
+        960,
+        500
+      ],
+      "zoom": 1.5,
+      "duree": 0
+    },
+    {
+      "position": [
+        960,
+        520
+      ],
+      "zoom": 1.4,
+      "duree": 8,
+      "courbe": "douce"
+    }
+  ],
+  "briefing_dur": [
+    {
+      "position": [
+        960,
+        470
+      ],
+      "zoom": 2.0,
+      "duree": 0
+    },
+    {
+      "position": [
+        960,
+        460
+      ],
+      "zoom": 2.15,
+      "duree": 6,
+      "courbe": "lineaire"
+    }
+  ],
+  "retombee_arret": [
+    {
+      "position": [
+        1000,
+        900
+      ],
+      "zoom": 1.15,
+      "duree": 0.8
+    },
+    {
+      "position": [
+        1000,
+        900
+      ],
+      "zoom": 1.15,
+      "duree": 3,
+      "courbe": "lineaire"
+    }
+  ]
 }

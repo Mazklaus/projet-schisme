@@ -8,7 +8,8 @@ extends Node2D
 var actif := false
 ## Zone de marche, en pixels du décor (x, y du sol).
 var limites := Rect2(100, 800, 3640, 200)
-var sprite: Sprite2D
+## Sprite d'un bloc ou RigPersonnage (origine aux pieds dans les deux cas).
+var sprite: Node2D
 ## Vrai pendant une image où le joueur a bougé (invite de déplacement, inactivité).
 var en_mouvement := false
 var _temps := 0.0
@@ -21,12 +22,21 @@ func _process(delta: float) -> void:
 		position += Vector2(v.x, v.y * 0.6) * vitesse * delta
 		position = position.clamp(limites.position, limites.end)
 		if v.x != 0.0 and sprite:
-			sprite.flip_h = v.x < 0.0
+			if sprite is Sprite2D:
+				sprite.flip_h = v.x < 0.0
+			else:
+				sprite.scale.x = absf(sprite.scale.x) * (-1.0 if v.x < 0.0 else 1.0)
 		_temps += delta
 	elif sprite:
 		_temps = 0.0
-	if sprite:
+	if sprite is RigPersonnage:
+		(sprite as RigPersonnage).marche = 1.0 if en_mouvement else 0.0
+	elif sprite:
 		sprite.position.y = -absf(sin(_temps * 9.0)) * 5.0
+		# En marche, le pas prend le relais de la respiration (fondu court, pas de saut).
+		var vie := VieFigure.de(sprite)
+		if vie:
+			vie.intensite = move_toward(vie.intensite, 0.25 if en_mouvement else 1.0, delta * 3.0)
 	var k := inverse_lerp(limites.position.y, limites.end.y, position.y)
 	scale = Vector2.ONE * lerpf(0.9, 1.05, clampf(k, 0.0, 1.0))
 

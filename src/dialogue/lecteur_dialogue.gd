@@ -50,6 +50,34 @@ func finit_ensuite() -> bool:
 	return true
 
 
+## Vrai si, avant toute réplique ou tout choix, le dialogue change de décor (@decor), en suivant
+## les sauts sans condition (QA v2 : un carton suivi d'un changement de décor laissait revoir
+## l'ancienne image pendant son fondu).
+func decor_ensuite() -> bool:
+	var n := noeud
+	var i := _index
+	for _pas in 64:
+		var instructions: Array = dialogue.noeuds.get(n, [])
+		if i >= instructions.size():
+			return false
+		var instr: Dictionary = instructions[i]
+		i += 1
+		match instr.type:
+			"replique", "menu":
+				return false
+			"commande":
+				if instr.nom == "decor":
+					return true
+			"saut":
+				if not String(instr.get("condition", "")).is_empty():
+					return false
+				if instr.cible == FormatDialogue.FIN:
+					return false
+				n = instr.cible
+				i = 0
+	return false
+
+
 func avancer() -> Dictionary:
 	if not _options.is_empty():
 		push_warning("avancer() pendant un choix : appeler choisir()")

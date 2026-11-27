@@ -10,7 +10,7 @@
 @ambiance archive 1.5
 @plan archive_drapeau
 > Un drapeau, à moitié brûlé, plié avec soin.
-@carton 3 Orvane. Un monde qui avait dit non.
+@carton 4 Orvane. Un monde qui avait dit non.
 -> briefing
 
 // ================================================================ 1. Le briefing d'Horus (scène dirigée)
@@ -94,7 +94,7 @@ DREMM (vox): La 27e avance. Personne ne traîne.
 === assaut_ilse_scene
 > Une ligne de l'Armée, accroupie derrière un mur. Le 4e de Kalthar.
 > Une soldate lève la tête. Un poinçon à la ceinture.
--> assaut_ilse_plaque [si ep01_plaque_gardee == true]
+-> assaut_ilse_plaque [si choix_ep01_plaque == 1]
 ILSE: Encore vous. Les géants passent toujours devant.
 VASKAR: Restez derrière nous.
 ILSE: C'est ce qu'on fait. Depuis le début.
@@ -143,7 +143,7 @@ ILSE (vox de l'Armée): Il y a des familles dans les caves. On peut les sortir p
 
 === percer_suite
 > La façade cède. La poussière, encore. Le même cadrage bas qu'à Ullanor.
-@carton 3 Orvane s'en souviendra.
+@carton 3.5 Orvane s'en souviendra.
 -> citadelle
 
 === attendre

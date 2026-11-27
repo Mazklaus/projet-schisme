@@ -46,8 +46,9 @@
     {
       "fichier": "calques/00_ciel.png",
       "auteur": "CA1",
-      "distance_m": "infini",
-      "contenu": "ciel de cendre, blanchi autour de la source"
+      "distance_m": 10000.0,
+      "contenu": "ciel de cendre, blanchi autour de la source",
+      "note": "distance : infini m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/10_ruines.png",
@@ -72,7 +73,10 @@
       "fichier": "calques/40_soldats.png",
       "auteur": "CA1",
       "distance_m": 10,
-      "contenu": "fantassins de l'Unification sur le parapet de sacs (casque à bord, masque, manteau long, fusil à baïonnette) : debout pétrifiés, un genou à terre, recroquevillés tête baissée. Brèche x 900 à 1150 : place du jeune Krenn (personnage jouable, hors calque)."
+      "contenu": "fantassins de l'Unification sur le parapet de sacs (casque à bord, masque, manteau long, fusil à baïonnette) : debout pétrifiés, un genou à terre, recroquevillés tête baissée. Brèche x 900 à 1150 : place du jeune Krenn (personnage jouable, hors calque).",
+      "normal": "calques/40_soldats_normal.png",
+      "ombre": "calques/40_soldats_ombre.png",
+      "statut": "v2 CA1 modelé (albédo sans lumière cuite, éclairé par la Light2D mobile de l Empereur ; ombre statique pour la source à 1240, 520), passe TP2 à venir"
     },
     {
       "fichier": "calques/50_tranchee.png",
