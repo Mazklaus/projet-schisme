@@ -39,8 +39,14 @@
       2.95
     ],
     "couleur": "#FFC27A",
-    "energie": 1.8,
-    "portee_px": 620,
+    "energie": {
+      "veille": 1.8,
+      "nuit_lampe": 2.0
+    },
+    "portee_px": {
+      "veille": 620,
+      "nuit_lampe": 360
+    },
     "scintillement": {
       "amplitude": 0.03,
       "note": "quasi fixe : lampe électrique civile, pas une flamme"
@@ -54,7 +60,10 @@
         485
       ],
       "couleur": "#B8C4D0",
-      "energie": 0.6,
+      "energie": {
+        "veille": 0.6,
+        "nuit_lampe": 0.12
+      },
       "portee_px": 140,
       "note": "hublot à 2,2 m, hauteur d'œil d'Astartes"
     },
@@ -68,7 +77,11 @@
       "fichier": "calques/05_hublot.png",
       "auteur": "CA2",
       "distance_m": "derrière la porte",
-      "contenu": "le couloir des géants derrière le verre, froid et flou"
+      "contenu": "le couloir des géants derrière le verre, froid et flou",
+      "intensite_par_etat": {
+        "veille": 1.0,
+        "nuit_lampe": 0.35
+      }
     },
     {
       "fichier": "calques/00_coque.png",
@@ -123,5 +136,16 @@
   "apercus": [
     "apercu.png"
   ],
-  "statut": "essai v2"
+  "statut": "essai v2",
+  "etats": {
+    "veille": {
+      "canvas_modulate": "#17161A",
+      "note": "état de base : lampe-lumen, hublot et ambiance de la cabine"
+    },
+    "nuit_lampe": {
+      "canvas_modulate": "#0B0C11",
+      "note": "DA 27/11 19:42, Sefa écrit seule : la lampe de bureau est la seule clé chaude ; tout le reste tombe presque au noir ; voile froid très bas venu du hublot"
+    }
+  },
+  "etat_initial": "veille"
 }

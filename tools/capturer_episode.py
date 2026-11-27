@@ -152,6 +152,8 @@ def inventaire(ep, racine=RACINE):
                 p = plans[val]
                 seq = p.get("sequence", []) if isinstance(p, dict) else p
                 decor, etat = resoudre(p["decor"]) if isinstance(p, dict) and p.get("decor") else (courant, etat_courant)
+                if decor == courant and not etat:  # le jeu garde l'état du décor courant (alias)
+                    etat = etat_courant
                 if not decor:
                     manques.append(f"plan « {val} » sans décor connu ({os.path.basename(chemin)})")
                     continue
@@ -223,10 +225,11 @@ def rendre(travaux, dossier_png, godot, racine=RACINE):
     liste = Path(dossier_png) / "travaux.json"
     liste.write_text(json.dumps({"sortie": str(Path(dossier_png).resolve()), "travaux": travaux},
                                 ensure_ascii=False, indent=1), encoding="utf-8")
-    if not (Path(racine) / ".godot" / "imported").is_dir():
-        journal("import du projet (première fois)")
-        subprocess.run([godot, "--headless", "--path", str(racine), "--import"], check=False,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # import incrémental à chaque fois : sinon une classe ajoutée depuis le dernier import (class_name)
+    # reste inconnue et le banc échoue à la compilation
+    journal("import du projet")
+    subprocess.run([godot, "--headless", "--path", str(racine), "--import"], check=False,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     cmd = [godot, "--rendering-driver", "opengl3", "--path", str(racine), "-s", BANC, "--", str(liste)]
     if shutil.which("xvfb-run") and not os.environ.get("DISPLAY"):
         cmd = ["xvfb-run", "-a", "-s", "-screen 0 1920x1080x24"] + cmd
