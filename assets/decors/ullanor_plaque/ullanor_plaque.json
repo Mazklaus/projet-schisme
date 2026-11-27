@@ -1,0 +1,74 @@
+{
+ "plan": "ullanor_plaque",
+ "episode": 1,
+ "chapitres": [
+  1
+ ],
+ "dlg": "episode-01/ch01-repliques.dlg, === aube_plaque_offerte, @plan plaque_gros (« Contre son armure, quelqu'un a posé une plaque gravée. » puis « VASKAR HOL — vivant. »)",
+ "cadre_px": [
+  1920,
+  1080
+ ],
+ "etats": [
+  "aube"
+ ],
+ "generateur": "cA2/ullanor_plaque_calques.py [--4k]",
+ "statut": "en revue DA, puis retouche TP2 (force ~0,5)",
+ "version": 2,
+ "description": "Insert au ras du sol, personne dans le cadre : le bas de l'armure Mk II crème de Vaskar (sabaton, cheville, jambière à bourrelets et rivets) posée sur son râtelier ; contre la jambière, appuyée en biais dans la poussière, la plaque de blindage martelée et cabossée, gravée au poinçon de lignes de noms illisibles ; une rayure fraîche brille sur la dernière ligne. Quelqu'un l'a posée et il est parti. Fond : ullanor_aube flou (citadelle dans le voile, la Légion en rang). Soleil rasant de la gauche : ombres longues vers la droite, gravures qui accrochent la lumière. Pas d'Œil.",
+ "convention": "comme l'archive : calques ÉCLAIRÉS (soleil cuit) + normales OpenGL (Y+) pour la Light2D qui peut relancer ; 45_eclat en additif",
+ "cle": {
+  "type": "soleil rasant (DirectionalLight2D), venu de la gauche",
+  "direction": [
+   0.9285826235029152,
+   -0.14130605140261754,
+   0.3431718391206426
+  ],
+  "couleur": "#FFC9A0"
+ },
+ "composition": "plaque dans les deux tiers hauts (centre px [994, 611]) : la boîte de dialogue couvre le bas du cadre",
+ "calques": [
+  {
+   "fichier": "calques/10_fond.png",
+   "auteur": "CA2",
+   "note": "(ullanor_aube recadré, flou)",
+   "distance_m": 60
+  },
+  {
+   "fichier": "calques/15_sol.png",
+   "auteur": "CA2",
+   "note": "(+normal, poussière, ombres longues cuites)",
+   "distance_m": 3
+  },
+  {
+   "fichier": "calques/20_armure.png",
+   "auteur": "CA2",
+   "note": "(+normal : jambe droite nette, jambe gauche floue, râtelier)",
+   "distance_m": 2
+  },
+  {
+   "fichier": "calques/30_plaque.png",
+   "auteur": "CA2",
+   "note": "(+normal, gravures cuites)",
+   "distance_m": 1.6
+  },
+  {
+   "fichier": "calques/45_eclat.png",
+   "auteur": "CA2",
+   "note": "(additif : la rayure fraîche, peut scintiller)",
+   "melange": "addition"
+  },
+  {
+   "fichier": "calques/90_particules.png",
+   "auteur": "CA2",
+   "note": "(poussière de l'aube)",
+   "melange": "addition"
+  }
+ ],
+ "variante": "variante_mains/ (les mains d'Ilse qui tendent la plaque ; réserve pour le ch. 2)",
+ "apercu": "apercu_aube.png",
+ "valeurs_sous_1A1612_pct": 1.5,
+ "interdits": "aucun texte lisible, aucun Œil d'Horus, personne dans le cadre",
+ "_lead": "Calques convertis en objets pour Decor25D (distances du Lead, plan fixe) ; ambiance non reprise : calques éclairés, soleil et rebond cuits (peint sans ambiance). « plat »: false : rendu posé à 1,0 (CanvasModulate blanc), comme l'aperçu.",
+ "plat": false
+}

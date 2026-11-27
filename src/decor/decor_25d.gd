@@ -887,9 +887,7 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		ombre.texture = load(dossier.path_join(k.ombre))
 		ombre.centered = false
 		ombre.position = sprite.position
-		var mul := CanvasItemMaterial.new()
-		mul.blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
-		ombre.material = mul
+		ombre.material = materiau_ombre()
 		couche.add_child(ombre)
 	add_child(couche)
 	return couche
@@ -930,6 +928,33 @@ func _poser_tete(couche: Node, corps: Sprite2D, dossier: String, t: Dictionary) 
 		else:
 			s.position = corps.position
 		couche.add_child(s)
+
+
+## Ombre portée en multiplication, dosée par son alpha comme dans assembler.py :
+## img × (1 − a·(1 − rvb)). Le mélange MUL de Godot ignore l'alpha : une ombre livrée en RVB noir
+## sous un alpha partiel (Astartes des quartiers) noircissait tout le décor.
+const SHADER_OMBRE := """
+shader_type canvas_item;
+render_mode blend_mul;
+varying vec4 modulation;
+void vertex() {
+	modulation = COLOR;
+}
+void fragment() {
+	vec4 t = texture(TEXTURE, UV);
+	COLOR = vec4(mix(vec3(1.0), t.rgb, t.a) * modulation.rgb, 1.0);
+}
+"""
+static var _shader_ombre: Shader
+
+
+static func materiau_ombre() -> ShaderMaterial:
+	if _shader_ombre == null:
+		_shader_ombre = Shader.new()
+		_shader_ombre.code = SHADER_OMBRE
+	var m := ShaderMaterial.new()
+	m.shader = _shader_ombre
+	return m
 
 
 static func materiau_voile() -> ShaderMaterial:

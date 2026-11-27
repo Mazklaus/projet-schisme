@@ -32,7 +32,10 @@ func test_construction() -> void:
 	var perso := dec.calques[2]
 	assert_eq(String(perso.name), "Calque_40_perso")
 	assert_not_null(perso.get_node_or_null("Ombre"))
-	assert_eq((perso.get_node("Ombre").material as CanvasItemMaterial).blend_mode, CanvasItemMaterial.BLEND_MODE_MUL)
+	# Ombre en multiplication dosée par son alpha (shader « blend_mul »).
+	var mat := perso.get_node("Ombre").material as ShaderMaterial
+	assert_not_null(mat)
+	assert_string_contains(mat.shader.code, "blend_mul")
 	assert_not_null((dec.calques[1].get_node("Image") as Sprite2D).material, "voile sur le fond")
 	assert_eq(BudgetPerf.verifier_decor(dec), PackedStringArray())
 
