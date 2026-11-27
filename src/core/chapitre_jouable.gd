@@ -332,8 +332,22 @@ func _changer_decor(id: String) -> void:
 	decor_courant = id
 	if cible is Decor25D:
 		decor = cible
+	# Plans éclairés en Light2D (DA) : leur CanvasModulate très sombre ; sinon celui de la scène.
+	var amb := get_node_or_null(^"Ambiance") as CanvasModulate
+	if amb:
+		if not amb.has_meta("defaut"):
+			amb.set_meta("defaut", amb.color)
+		amb.color = cible.ambiant if cible is Decor25D and cible.ambiant.a > 0.0 else amb.get_meta("defaut")
 	# En ciné, les plans sont libres ; les limites de la caméra sont posées au début du jeu.
 	_limiter_camera(null)
+	# Nouveau lieu : la caméra repart du cadre de référence du décor (centrée, zoom 1), pas de
+	# l'endroit où était le joueur ; sinon les calques en parallaxe se décalent les uns des autres.
+	# Un @plan qui suit reprend la main.
+	if phase != "jeu" and phase != "vers_jeu":
+		camera.cible = null
+		camera.en_cours = false
+		camera.position = cible.global_position + taille_decor(cible) / 2.0
+		camera.zoom = Vector2.ONE
 	await _fondu_noir(0.0, 0.35)
 
 
