@@ -35,3 +35,12 @@ python3 tools/capturer_episode.py ep01 --garder orvane_rues__nuit orvane_rues__a
 
 Options : `--liste` (cadres prévus, sans rendu), `--seulement 'orvane_*'`, `--reference <build>`,
 `--build <nom>`, `--png`.
+
+## Tableau de bord du GD (publication automatique)
+
+`tools/tableau_de_bord.py --sortie /mnt/project-files/etude-heresie/qa-suivi` tourne toutes les heures
+(tâche planifiée du Tools Programmer). Dès qu'un commit fusionné sur main touche l'épisode 1 (dialogues,
+données d'épisode, décors, personnages, moteur), il relance les captures (SCHISME_SANS_DEBUG=1) et le
+suivi, puis publie dans `qa-suivi/` : `tableau_ep01.md` (page du jour), `suivi_ep01.md`,
+`historique_ep01.csv` et `captures/<build>/` (planches avant/après). Seules les images des deux dernières
+builds sont gardées.

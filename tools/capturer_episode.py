@@ -231,7 +231,8 @@ def rendre(travaux, dossier_png, godot, racine=RACINE):
     if shutil.which("xvfb-run") and not os.environ.get("DISPLAY"):
         cmd = ["xvfb-run", "-a", "-s", "-screen 0 1920x1080x24"] + cmd
     journal(f"rendu de {len(travaux)} cadres")
-    p = subprocess.run(cmd, capture_output=True, text=True)
+    p = subprocess.run(cmd, capture_output=True, text=True,
+                       env=dict(os.environ, SCHISME_SANS_DEBUG=os.environ.get("SCHISME_SANS_DEBUG", "1")))
     echecs = [l for l in (p.stdout + p.stderr).splitlines() if l.startswith("ECHEC") or "SCRIPT ERROR" in l]
     return echecs
 

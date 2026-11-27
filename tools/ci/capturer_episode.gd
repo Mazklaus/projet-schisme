@@ -32,6 +32,12 @@ func _initialize() -> void:
 		return
 	var d = JSON.parse_string(FileAccess.get_file_as_string(args[0]))
 	_cj = load("res://src/core/chapitre_jouable.gd")
+	# SCHISME_SANS_DEBUG=1 : aucune surcouche de débogage dans les images (moniteur de perf).
+	if OS.get_environment("SCHISME_SANS_DEBUG") == "1":
+		var m := root.get_node_or_null(^"MoniteurPerf")
+		if m:
+			m.set("visible", false)
+			m.process_mode = Node.PROCESS_MODE_DISABLED
 	_travaux = d.get("travaux", [])
 	_sortie = String(d.get("sortie", "user://captures"))
 	DirAccess.make_dir_recursive_absolute(_sortie)
