@@ -44,3 +44,15 @@ python3 tools/son/encoder_ogg.py /tmp/wav_ep01 assets/audio
 | `mus_ep01_luna_wolves` | `mus_luna_wolves` | 4001 | épisode 1, thème de la Légion | Boucle de 58 s : sol mixolydien, deux cors à l'unisson (la fraternité), quintes à vide, timbales ; la reprise ajoute l'octave, le chœur et un tambour discret ; la phrase finit sur la quinte, ouverte |
 | `mus_ep01_horus` | `mus_horus_motif` | 4002 | épisode 1, motif d'Horus | Boucle de 19 s : ré – la – ré – do# – ré au cor grave et au chœur sur un ré majeur d'orgue ; à la reprise, le do# glisse sur do naturel et y reste (la note qui doute) |
 | `amb_ep01_cthonia` | `amb_cthonia` | 4003 | flash-backs, tunnels de Cthonia | Boucle de 45 s : roche, gouttes, vapeur dans les conduites, pilon de mine lointain (1 coup / 1,5 s), étais qui travaillent, coups sourds dans une galerie voisine ; espace étroit et sombre |
+
+### Épisode 2 et 3 : Vengeful Spirit (`tools/son/generer_ep02.py`, mêmes outils que `generer_ullanor.py`)
+
+```
+python3 tools/son/generer_ep02.py /tmp/wav_ep02
+python3 tools/son/encoder_ogg.py /tmp/wav_ep02 assets/audio
+```
+
+| Fichier | Fonction du générateur | Graine | Où il sonne | Ce que c'est |
+|---|---|---|---|---|
+| `amb_ep02_vengeful_spirit` | `amb_vengeful_spirit` | 5001 | chapitres 2 et 3, le vaisseau à l'état pur | Boucle de 60 s : cœur du vaisseau (harmoniques stables de 32 Hz), air dans les gaines, relais régulier, escouade qui passe en cadence, sas lourds, machines des ponts inférieurs ; réverbération de cathédrale (6,5 s) |
+| `amb_ep02_loge` | `amb_loge` | 5002 | chapitres 2 et 3, la salle de la loge | Boucle de 45 s : une vingtaine de bougies, une assemblée silencieuse qui respire, armures qui craquent, le cœur du vaisseau étouffé par les murs ; rien d'occulte (ni nappe dissonante ni chuchotement) |
