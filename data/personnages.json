@@ -96,6 +96,12 @@
       "statut": "original",
       "affiliation": "Imperial Fists",
       "premier_episode": "ep08"
+    },
+    "nev": {
+      "nom": "Nev Arran",
+      "statut": "original",
+      "affiliation": "Raven Guard",
+      "premier_episode": "ep10"
     }
   }
 }
