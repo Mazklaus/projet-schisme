@@ -63,10 +63,46 @@ DREMM (enfant): Et on montera ensemble.
 // ================================================================ 2. Le Triomphe (ciné, version longue de la tranche)
 === triomphe
 // CANON : la nomination. L'Empereur et Horus en silhouette lointaine seulement.
-// Reprendre « ouverture » de ullanor.dlg (plans 1a à 1f) tel quel.
+// « ouverture » est redéfini plus bas pour l'épisode (version longue avec 1g_depart).
 @musique stop 2
 @reprendre ullanor:ouverture
 -> FIN
+
+// Version longue de « ouverture », propre à l'épisode (arbitrage du GD, 27/11).
+// Les nœuds de ce fichier priment sur ceux d'ullanor.dlg (@inclure) : la tranche autonome n'est pas touchée.
+// Seul ajout par rapport à la tranche : 2 s de silence, le vent seul, puis le plan 1g_depart (le vaisseau de l'Empereur).
+=== ouverture
+@decor ullanor
+@ambiance ullanor_triomphe 1
+@cacher Ullanor/Calque_40_horus
+@plan 1a &
+@attendre 1.5
+@titre 4 Ullanor. 000.M31.
+@attendre 2.5
+@musique ullanor_triomphe 0.5
+@plan 1b
+@ambiance ullanor_vent 0.1
+@echelle Ullanor/Calque_10_fond/Empereur 1 1 1.5
+@attendre 1
+@bruitage clameur_maitre
+@ambiance ullanor_triomphe 3
+@echelle Ullanor/Calque_10_fond/HorusSilhouette 1 1 0.6
+@plan 1c &
+@titre 3 Maître de Guerre.
+// 1g : 2 s de silence, sans musique, le vent seul. Puis le vaisseau de l'Empereur quitte le dais.
+@musique stop 1
+@ambiance ullanor_vent 1
+@attendre 2
+@plan 1g_depart &
+@fondu Ullanor/Calque_10_fond/Empereur 0 2
+@attendre 3
+@musique ullanor_attente 4
+// 1e : le rang des Luna Wolves, panoramique jusqu'à Vaskar.
+@plan 1e
+FRÈRE: Il rentre sur Terra. Ils le disent tous.
+// 1f : gros plan sur Vaskar, qui regarde la citadelle vide. Fondu dans le jeu.
+@plan 1f
+@jeu
 
 // ================================================================ 3. Le campement (6 points d'intérêt, ordre libre)
 === poi_etendard
