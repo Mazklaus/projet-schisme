@@ -30,3 +30,26 @@ func test_alias_etat_selon() -> void:
 	assert_eq(CJ.etat_selon(r.etat_selon, {"choix_ep01_orvane": 2}), "fin_courte")
 	assert_eq(CJ.resoudre_decor("archive_ch2_fin").etat, "ch2_fin")
 	assert_true(CJ.resoudre_decor("orvane_matin").etat_selon.is_empty())
+
+
+func test_condition_de_zone() -> void:
+	var cfg := {"conditions": {"a": "vivant_ilse", "b": "vivant_ilse == true and choix_ep01_orvane == 1",
+		"c": "vivant_ilse == true and choix_ep01_orvane != 1"}}
+	var dr := {"vivant_ilse": true, "choix_ep01_orvane": 1}
+	assert_true(CJ.condition_de_zone(cfg, "a", dr))
+	assert_true(CJ.condition_de_zone(cfg, "b", dr))
+	assert_false(CJ.condition_de_zone(cfg, "c", dr))
+	assert_true(CJ.condition_de_zone(cfg, "sans", dr))
+	assert_false(CJ.condition_de_zone(cfg, "a", {}))
+
+
+func test_gabarit_ne_compte_pas_comme_peint() -> void:
+	var d := Node2D.new()
+	var c := Node2D.new()
+	c.name = "Calque_40_personnages"
+	c.set_meta("gabarit", true)
+	d.add_child(c)
+	assert_false(CJ.personnages_peints(d))
+	c.set_meta("gabarit", false)
+	assert_true(CJ.personnages_peints(d))
+	d.free()

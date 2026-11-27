@@ -1159,6 +1159,26 @@ func _figurant(parent: Node, nom: String, pos: Vector2) -> Node2D:
 	return f
 
 
+## Condition d'un point ou d'un prop de zone : un nom de drapeau (vrai), ou une expression
+## (« vivant_ilse == true and choix_ep01_orvane != 1 », comme la mise en scène). Absente : vrai.
+static func condition_de_zone(config: Dictionary, cle: String, drapeaux_partie: Dictionary) -> bool:
+	var si = config.get("conditions", {}).get(cle)
+	if typeof(si) != TYPE_STRING or String(si).strip_edges().is_empty():
+		return true
+	var texte := String(si).strip_edges()
+	if texte.is_valid_identifier():
+		return bool(drapeaux_partie.get(texte, false))
+	return MiseEnScene.condition_vraie(texte, drapeaux_partie)
+
+
+## Le décor a ses personnages peints (calque 40_personnages livré, pas son gabarit).
+static func personnages_peints(d: Node) -> bool:
+	if d == null:
+		return false
+	var c := d.get_node_or_null(^"Calque_40_personnages")
+	return c != null and not bool(c.get_meta("gabarit", false))
+
+
 ## Figurant ou prop : un nom seul, ou un objet {nom, geste, miroir, decalage, echelle, position}.
 static func spec_figure(v) -> Dictionary:
 	var o: Dictionary = v if typeof(v) == TYPE_DICTIONARY else {"nom": str(v)}
@@ -1468,18 +1488,31 @@ func _commencer_jeu(nom: String) -> void:
 	for k in config.get("pois", {}):
 		# « conditions » : {"poi_ilse": "vivant_ilse"} : le point (et son figurant) n'existe que
 		# si le drapeau est vrai.
-		var si = config.get("conditions", {}).get(k)
-		if typeof(si) == TYPE_STRING and not Jeu.etat.drapeaux.get(si, false):
+		if not condition_de_zone(config, k, Jeu.etat.drapeaux):
 			continue
 		var p: Array = config.pois[k]
 		pois[k] = Vector2(p[0], p[1])
 	# Décor avec ses personnages peints (calque 40_personnages de CA1) : les figurants
 	# provisoires les doubleraient.
-	var peints := d != null and d.get_node_or_null(^"Calque_40_personnages") != null
+	var peints := personnages_peints(d)
 	for k in config.get("figurants", {}):
 		var spec := spec_figure(config.figurants[k])
 		if not peints and pois.has(k) and not spec.nom.is_empty() and not props.has(spec.nom):
 			poser_figure(_figurant(monde_de(d), spec.nom, pois[k] + Vector2(0, -10)), spec)
+	# « props » de zone : {cle: {nom, position, geste, miroir, decalage, echelle}}, chacun sous sa
+	# condition (« conditions »[cle]). Posés même sur un décor peint : la mise en scène les veut.
+	# Retrouvés par leur nom (@geste ilse agenouiller) et par leur clé.
+	for k in config.get("props", {}):
+		if not condition_de_zone(config, k, Jeu.etat.drapeaux):
+			continue
+		var spec := spec_figure(config.props[k])
+		if spec.nom.is_empty():
+			spec.nom = String(k)
+		if is_instance_valid(props.get(spec.nom)):
+			continue
+		var f := _figurant(monde_de(d), spec.nom, Vector2(float(spec.position[0]), float(spec.position[1])))
+		poser_figure(f, spec)
+		props[String(k)] = f
 	_declenches = {}
 	_vus_depuis = {}
 	_tout_vu_depuis = -1.0

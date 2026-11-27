@@ -1183,6 +1183,8 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	var couche := Parallax2D.new()
 	# Nom de nœud sans « / » (les fichiers du guide sont dans calques/) : Calque_45_vaskar.
 	couche.name = "Calque_%s" % k.get("nom", String(k.fichier).get_file().get_basename())
+	# Gabarit de la DA tenant la place d'un calque pas encore livré : pas des personnages peints.
+	couche.set_meta("gabarit", String(k.fichier).get_file().begins_with("gabarit_"))
 	couche.scroll_scale = Vector2(p, p)
 	# Parallax2D décale le calque de (1 - p) × (coin haut-gauche de la caméra). On compense
 	# pour que la composition peinte soit exacte quand la caméra est centrée sur le décor :
