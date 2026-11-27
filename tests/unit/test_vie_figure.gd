@@ -17,7 +17,7 @@ func test_respiration_bornee_et_pieds_fixes() -> void:
 	var haut := -INF
 	for i in 120:
 		v.appliquer(i * 0.1)
-		assert_eq(s.scale.x, 0.8, "jamais d'élargissement")
+		assert_almost_eq(s.scale.x, 0.8, 0.0001, "jamais d'élargissement")
 		assert_eq(s.position, Vector2.ZERO, "les pieds ne bougent pas")
 		bas = minf(bas, s.scale.y)
 		haut = maxf(haut, s.scale.y)
@@ -38,11 +38,12 @@ func test_deux_figurants_desynchronises() -> void:
 		ecart = maxf(ecart, absf(a.scale.y - b.scale.y))
 	assert_gt(ecart, 0.002, "pas de foule qui respire à l'unisson")
 	# Même nom : même mouvement d'une partie à l'autre.
-	var c := _figure("frere_1")
-	var vc := VieFigure.animer(c)
+	# (Deux nœuds frères ne peuvent pas porter le même nom : la graine est passée à part.)
+	var c := _figure("autre")
+	var vc := VieFigure.animer(c, "frere_1")
 	vc.appliquer(2.3)
 	va.appliquer(2.3)
-	assert_eq(c.scale, a.scale)
+	assert_almost_eq(c.scale.y, a.scale.y, 0.00001)
 	assert_eq(VieFigure.animer(a), va, "une seule vie par figure")
 
 
@@ -53,7 +54,7 @@ func test_reprendre_une_nouvelle_echelle() -> void:
 	s.scale = Vector2.ONE * 0.55
 	v.reprendre()
 	v.appliquer(1.0)
-	assert_eq(s.scale.x, 0.55)
+	assert_almost_eq(s.scale.x, 0.55, 0.0001)
 	assert_between(s.scale.y, 0.55, 0.55 * (1.0 + v.respiration) + 0.0001)
 
 

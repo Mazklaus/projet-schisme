@@ -39,10 +39,13 @@ static func de(figure: Node) -> VieFigure:
 
 ## Phase et périodes propres à une graine (le nom du figurant).
 func regler_graine(graine: String) -> void:
-	var h := absi(hash(graine))
-	_phase = float(h % 1000) / 1000.0 * TAU
-	_periode_souffle = 3.6 + float((h / 1000) % 100) / 100.0 * 1.4
-	_periode_balancement = 5.0 + float((h / 100000) % 100) / 100.0 * 2.5
+	# Le hachage seul ne suffit pas : « frere_1 » et « frere_2 » ne diffèrent que d'une unité.
+	# Le générateur mélange la graine (PCG) : deux noms voisins donnent des phases sans rapport.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(graine)
+	_phase = rng.randf() * TAU
+	_periode_souffle = rng.randf_range(3.6, 5.0)
+	_periode_balancement = rng.randf_range(5.0, 7.5)
 	_temps = 0.0
 
 
