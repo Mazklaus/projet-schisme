@@ -4,20 +4,20 @@
     "decor": "vs_quartiers_27",
     "pois": {
       "poi_trophees": [
-        800,
-        870
+        380,
+        930
       ],
       "poi_joueurs": [
-        1450,
-        880
+        760,
+        900
       ],
       "poi_rumeur": [
-        2050,
-        870
+        1180,
+        910
       ],
       "poi_krenn": [
-        2750,
-        880
+        1560,
+        940
       ]
     },
     "figurants": {
@@ -34,6 +34,16 @@
         "max_s": 300,
         "noeud": "poi_krenn"
       }
+    ],
+    "depart": [
+      200,
+      960
+    ],
+    "limites": [
+      120,
+      880,
+      1680,
+      140
     ]
   },
   "unification": {

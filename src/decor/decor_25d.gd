@@ -131,6 +131,11 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			calques.append(k)
 			continue
 		var f: String = k.fichier
+		var gabarit := f.get_base_dir().path_join("gabarit_" + f.get_file())
+		if not ResourceLoader.exists(dossier.path_join(f)) and ResourceLoader.exists(dossier.path_join(gabarit)):
+			# Personnages pas encore livrés : le gabarit de la DA (silhouettes) tient leur place.
+			push_warning("Décor %s : %s remplacé par son gabarit" % [g.get("plan", "?"), f])
+			f = gabarit
 		if not ResourceLoader.exists(dossier.path_join(f)):
 			# Calque pas encore livré (la DA génère certains calques à l'assemblage) : on le saute.
 			push_warning("Décor %s : calque absent, ignoré : %s" % [g.get("plan", "?"), f])
@@ -179,9 +184,52 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			else:
 				c.tete = t
 		calques.append(c)
+	var lum: Array = g.lumieres.duplicate() if typeof(g.get("lumieres")) == TYPE_ARRAY else []
+	var cle: Dictionary = g.cle if typeof(g.get("cle")) == TYPE_DICTIONARY else {}
+	var ambiant := ""
+	var veille := {}
+	lum.append_array(lumieres_du_plan(cle))
+	for a in g.get("appoints", []) if typeof(g.get("appoints")) == TYPE_ARRAY else []:
+		if typeof(a) != TYPE_DICTIONARY:
+			continue
+		var type := String(a.get("type", ""))
+		if type.contains("CanvasModulate") and not type.contains("Directional") and a.has("couleur"):
+			ambiant = a.couleur
+		elif a.has("position_px"):
+			lum.append_array(lumieres_du_plan(a))
+		elif a.has("niveau") and a.has("couleur"):
+			# Veille froide sur le fond seulement (« zone : fond et ogive ») ; ambiant ailleurs.
+			veille = {"couleur": a.couleur, "niveau": float(a.niveau)}
+			var m := RegEx.create_from_string("ambiant ailleurs ([0-9.]+)").search(String(a.get("zone", "")))
+			if m:
+				var n := float(m.get_string(1))
+				ambiant = Color(n, n, n).to_html(false)
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
-		"source": "guide", "cle": g.cle if typeof(g.get("cle")) == TYPE_DICTIONARY else {},
-		"lumieres": g.lumieres if typeof(g.get("lumieres")) == TYPE_ARRAY else []}
+		"source": "guide", "cle": cle, "lumieres": lum, "ambiant": ambiant, "veille": veille}
+
+
+## Lumières ponctuelles décrites par la clé ou un appoint du guide de la DA : une seule
+## (position_px, portee_px, energie) ou un groupe (bougies_px, energie_totale répartie).
+## Le scintillement {amplitude} est désynchronisé d'une lumière à l'autre (_process).
+static func lumieres_du_plan(L: Dictionary) -> Array:
+	var points: Array = []
+	if typeof(L.get("bougies_px")) == TYPE_ARRAY:
+		points = L.bougies_px
+	elif typeof(L.get("position_px")) == TYPE_ARRAY:
+		points = [L.position_px]
+	if points.is_empty():
+		return []
+	var sc = L.get("scintillement", 0.0)
+	var amplitude := float(sc.get("amplitude", 0.0)) if typeof(sc) == TYPE_DICTIONARY else float(sc)
+	var energie := float(L.get("energie_totale", L.get("energie", 1.0))) / points.size()
+	if points.size() > 1:
+		# Des bougies proches se recouvrent : chacune porte un peu plus que sa part.
+		energie *= 2.0
+	var sortie: Array = []
+	for pt in points:
+		sortie.append({"position_px": pt, "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
+			"rayon_px": float(L.get("portee_px", 300)) / 2.5, "scintillement": amplitude})
+	return sortie
 
 
 static func valider(d) -> PackedStringArray:
@@ -228,6 +276,29 @@ func construire() -> void:
 		var k: Dictionary = d.calques[i]
 		calques.append(_creer_calque(dossier, k, i))
 	_poser_lumieres(d.get("lumieres", []))
+	ambiant = Color(d.ambiant) if not String(d.get("ambiant", "")).is_empty() else Color(0, 0, 0, 0)
+	if not d.get("veille", {}).is_empty():
+		_poser_veille(d.veille)
+
+
+## Teinte de CanvasModulate voulue par le plan (« appoints » de la DA) ; alpha 0 : aucune.
+var ambiant := Color(0, 0, 0, 0)
+const MASQUE_VEILLE := 2
+
+
+## Veille froide qui ne touche que le fond et la voûte (calques 00_ et 10_).
+func _poser_veille(v: Dictionary) -> void:
+	for c in calques:
+		if String(c.name).begins_with("Calque_00_") or String(c.name).begins_with("Calque_10_"):
+			for s in c.find_children("*", "Sprite2D", true, false):
+				s.light_mask |= MASQUE_VEILLE
+	var l := DirectionalLight2D.new()
+	l.name = "Veille"
+	l.color = Color(v.couleur)
+	l.energy = v.niveau
+	l.height = 1.0
+	l.range_item_cull_mask = MASQUE_VEILLE
+	add_child(l)
 
 
 ## Lumières ponctuelles d'un état (feux du bivouac, lampes) : une PointLight2D chacune, avec
