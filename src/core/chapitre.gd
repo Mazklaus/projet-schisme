@@ -279,6 +279,15 @@ func _dialogue_fini() -> void:
 
 ## Lance le dialogue à un nœud donné (points d'intérêt, scènes déclenchées par le jeu).
 func jouer_noeud(nom: String) -> void:
+	# Un dialogue reprend après le dernier carton (la nuit après Ullanor, une relance) : le noir
+	# gardé par ce carton s'efface, sinon tout se jouerait dessous.
+	if is_instance_valid(carton_final):
+		var c := carton_final
+		carton_final = null
+		var fond := c.get_child(0) as CanvasItem
+		var t := c.create_tween()
+		t.tween_property(fond, "modulate:a", 0.0, 0.4)
+		t.tween_callback(c.queue_free)
 	boite.lancer(lecteur, nom)
 
 
