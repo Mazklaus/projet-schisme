@@ -176,8 +176,12 @@ func _decider_replique(e: Dictionary, perso: String, narrateur: bool) -> String:
 		plan = "large"
 		_serres_daffilee = 0
 		return plan
-	# Réplique courte : on garde le plan en cours.
+	# Réplique courte : on garde le plan en cours, sauf si celui qui parle n'a pas de buste
+	# (DA 27/11 : sans buste, pas de gros plan ; on ne lui prête pas le visage d'un autre).
 	if duree_lecture(String(e.get("texte", ""))) < DUREE_MIN_S:
+		if plan != "large" and not peut_serrer(perso):
+			plan = "large"
+			_serres_daffilee = 0
 		return plan
 	if not peut_serrer(perso) or _serres_daffilee >= MAX_SERRES \
 			or HUMEURS_SANS_BUSTE.has(String(e.get("humeur", ""))):

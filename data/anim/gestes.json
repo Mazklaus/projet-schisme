@@ -1,0 +1,205 @@
+{
+  "_doc": "Gestes des rigs de personnages (RigPersonnage). Angles en degrés, ajoutés à la pose de repos ; négatif = vers l'avant (le personnage regarde à droite). « main » : variante de main_avant (pointe, poing). « tete » : « face » montre la tête de face. « bassin_y » : descente du bassin en px source. « tenir » : le geste reste posé jusqu'au suivant (ou @geste <perso> repos). « son » : ample ou fin (bruitage choisi selon le type du rig). Transitions avec anticipation et dépassement (RigPersonnage.courbe_geste). « montre » / « cache » : pièces dédiées affichées ou masquées pendant le geste (bras_croises). « profils » : mouvement par type de rig (pas_rad_s, marche = amplitude, poids_px = descente du bassin au contact, entree_s / sortie_s, gestes = ampleur, souffle_s / souffle). Un geste peut porter un bloc propre à un type (« astartes »: {\"os\": …}). « casque »: \"main\" : casque tenu (tete_casque cachée, casque_main montrée). Règle Astartes (GD) : tout geste qui doit dégager la silhouette de l'armure a sa pièce de remplacement (bras_croises, bras_tendu, plus tard arme_levee) ; le rig bascule au milieu du geste, au moment le plus rapide.",
+  "gestes": {
+    "montrer": {
+      "duree": 1.6,
+      "son": "ample",
+      "main": "pointe",
+      "os": {
+        "bras_avant": -80,
+        "avant_bras_avant": -12,
+        "main_avant": -5,
+        "torse": -3,
+        "tete": -4
+      },
+      "astartes": {
+        "montre": [
+          "bras_tendu_arriere"
+        ],
+        "cache": [
+          "bras_arriere",
+          "avant_bras_arriere",
+          "main_arriere"
+        ],
+        "os": {
+          "torse": -3,
+          "tete": -4,
+          "bras_avant": 6
+        }
+      },
+      "montre": [
+        "bras_tendu"
+      ],
+      "cache": [
+        "bras_avant",
+        "avant_bras_avant",
+        "main_avant",
+        "main_avant_pointe",
+        "main_avant_poing",
+        "main_avant_pommeau"
+      ]
+    },
+    "croiser_bras": {
+      "duree": 2.4,
+      "son": "ample",
+      "tenir": true,
+      "os": {
+        "bras_avant": -8,
+        "avant_bras_avant": -82,
+        "main_avant": -10,
+        "bras_arriere": 4,
+        "avant_bras_arriere": -60,
+        "torse": 2,
+        "tete": 3
+      },
+      "montre": [
+        "bras_croises"
+      ],
+      "cache": [
+        "bras_avant",
+        "avant_bras_avant",
+        "avant_bras_arriere",
+        "main_arriere",
+        "main_avant",
+        "main_avant_pointe",
+        "main_avant_poing",
+        "main_avant_pommeau"
+      ]
+    },
+    "main_epaule": {
+      "duree": 2.0,
+      "son": "ample",
+      "os": {
+        "bras_avant": -30,
+        "avant_bras_avant": -22,
+        "main_avant": 40,
+        "torse": -6,
+        "tete": 8
+      }
+    },
+    "saluer": {
+      "duree": 1.4,
+      "son": "ample",
+      "main": "poing",
+      "os": {
+        "bras_avant": -28,
+        "avant_bras_avant": -128,
+        "torse": -2,
+        "tete": 3
+      }
+    },
+    "degainer": {
+      "duree": 1.2,
+      "son": "ample",
+      "tenir": true,
+      "main": "poing",
+      "os": {
+        "bras_avant": 25,
+        "avant_bras_avant": -55,
+        "torse": -6,
+        "tete": -3
+      }
+    },
+    "agenouiller": {
+      "duree": 2.0,
+      "son": "ample",
+      "tenir": true,
+      "bassin_y": 85,
+      "os": {
+        "cuisse_avant": -99,
+        "jambe_avant": 99,
+        "pied_avant": 0,
+        "cuisse_arriere": 5,
+        "jambe_arriere": 85,
+        "pied_arriere": -55,
+        "torse": 6,
+        "tete": 10,
+        "bras_avant": -10,
+        "avant_bras_avant": -30
+      }
+    },
+    "hocher": {
+      "duree": 0.7,
+      "son": "fin",
+      "os": {
+        "tete": 12
+      }
+    },
+    "tete_baissee": {
+      "duree": 1.8,
+      "son": "fin",
+      "tenir": true,
+      "os": {
+        "tete": 16,
+        "torse": 3
+      }
+    },
+    "tete_levee": {
+      "duree": 1.6,
+      "son": "fin",
+      "os": {
+        "tete": -12
+      }
+    },
+    "tete_face": {
+      "duree": 1.8,
+      "son": "fin",
+      "tete": "face",
+      "os": {}
+    },
+    "casque_sous_bras": {
+      "duree": 3.0,
+      "son": "ample",
+      "tenir": true,
+      "casque": "main",
+      "montre": [
+        "casque_main"
+      ],
+      "os": {
+        "bras_avant": -8,
+        "avant_bras_avant": -75,
+        "main_avant": 10,
+        "torse": 2,
+        "tete": -2
+      }
+    },
+    "main_pommeau": {
+      "duree": 3.0,
+      "son": "fin",
+      "tenir": true,
+      "main": "pommeau",
+      "os": {
+        "bras_avant": 12,
+        "avant_bras_avant": -48,
+        "main_avant": -10,
+        "torse": 1
+      }
+    },
+    "repos": {
+      "duree": 0.1,
+      "os": {}
+    }
+  },
+  "profils": {
+    "humain": {
+      "pas_rad_s": 9.0,
+      "marche": 1.0,
+      "poids_px": 8.0,
+      "entree_s": 0.6,
+      "sortie_s": 0.65,
+      "gestes": 1.0,
+      "souffle_s": 4.2,
+      "souffle": 0.012
+    },
+    "astartes": {
+      "pas_rad_s": 6.0,
+      "marche": 0.65,
+      "poids_px": 14.0,
+      "entree_s": 0.85,
+      "sortie_s": 0.95,
+      "gestes": 0.85,
+      "souffle_s": 5.6,
+      "souffle": 0.008
+    }
+  }
+}

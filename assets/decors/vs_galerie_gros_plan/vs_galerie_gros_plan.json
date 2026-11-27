@@ -1,155 +1,155 @@
 {
- "plan": "vs_galerie_gros_plan",
- "episode": 1,
- "chapitres": [
-  2
- ],
- "decor_source": "vs_galerie",
- "cadre_px": [
-  1920,
-  1080
- ],
- "usage": "fond des gros plans de Dremm et Vaskar dans la galerie d'observation (ch02 : depart, annonce, retombee, retombee_loge), de profil face à la verrière",
- "description": "La verrière de la galerie d'observation, floue derrière les personnages : meneaux d'or, oculus, la flotte blanche sur les étoiles. Deux états de la .dlg : galerie_flotte (jour de bord) et galerie_nuit (nuit de bord, la galerie éteinte, seules les lampes de bord).",
- "source": "calques 4k de vs_galerie (00_exterieur_croisade, 10_flotte, 20_verriere), fenêtre [280, 40, 1112, 508] agrandie x2,31, flou 16 px",
- "zones_calmes": {
-  "gauche": {
-   "x_px": [
-    190,
-    850
-   ]
+  "plan": "vs_galerie_gros_plan",
+  "episode": 1,
+  "chapitres": [
+    2
+  ],
+  "decor_source": "vs_galerie",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "usage": "fond des gros plans de Dremm et Vaskar dans la galerie d'observation (ch02 : depart, annonce, retombee, retombee_loge), de profil face à la verrière",
+  "description": "La verrière de la galerie d'observation, floue derrière les personnages : meneaux d'or, oculus, la flotte blanche sur les étoiles. Deux états de la .dlg : galerie_flotte (jour de bord) et galerie_nuit (nuit de bord, la galerie éteinte, seules les lampes de bord).",
+  "source": "calques 4k de vs_galerie (00_exterieur_croisade, 10_flotte, 20_verriere), fenêtre [280, 40, 1112, 508] agrandie x2,31, flou 16 px",
+  "zones_calmes": {
+    "gauche": {
+      "x_px": [
+        190,
+        850
+      ]
+    },
+    "droite": {
+      "x_px": [
+        1070,
+        1730
+      ]
+    },
+    "regle": "personnages de profil (regard vers la verrière, donc vers le fond) ou de trois quarts ; les meneaux flous ne doivent pas couper un visage : décaler le personnage de ~60 px si besoin"
   },
-  "droite": {
-   "x_px": [
-    1070,
-    1730
-   ]
+  "etats": {
+    "flotte": {
+      "@plan": "galerie_flotte",
+      "scene": "depart (ch02 l.14-20)",
+      "fond": "calques/00_fond_flou_flotte.png",
+      "apercu": "apercu_flotte.png",
+      "lumieres": {
+        "cle": {
+          "source": "soleil hors champ, en haut à droite, au-delà de la planète",
+          "couleur": "#DCE6F0",
+          "direction_camera": [
+            -0.55,
+            -0.45,
+            0.7
+          ],
+          "note": "personnages de profil face à la verrière, en contre-jour : liseré froid côté droit (front, nez, épaulière), comme sur le décor large"
+        },
+        "contre": {
+          "source": "rebond de la planète, bas droite",
+          "couleur": "#6F8FB0",
+          "force": 0.2,
+          "note": "bleu sous le menton, côté verrière"
+        },
+        "appoint": {
+          "source": "lampes de bord",
+          "couleur": "#E8B060",
+          "force": 0.15,
+          "note": "chaud et faible, côté intérieur (dos à la verrière)"
+        }
+      },
+      "valeurs_sous_1A1612_pct": 0.0
+    },
+    "nuit": {
+      "@plan": "galerie_nuit",
+      "scene": "retombee (ch02 l.221-229), nuit de bord",
+      "fond": "calques/00_fond_flou_nuit.png",
+      "apercu": "apercu_nuit.png",
+      "lumieres": {
+        "cle": {
+          "source": "lampes de bord, nuit de bord : la seule lumière de la galerie",
+          "couleur": "#E8B060",
+          "direction_camera": [
+            0.6,
+            0.2,
+            0.77
+          ],
+          "note": "chaude, basse et faible, côté intérieur (bas gauche du cadre) : modelé doux sur la joue tournée vers la caméra"
+        },
+        "contre": {
+          "source": "les étoiles et la verrière",
+          "couleur": "#8FA6C8",
+          "force": 0.25,
+          "note": "liseré froid côté verrière, plus faible que le jour"
+        }
+      },
+      "valeurs_sous_1A1612_pct": 0.4
+    }
   },
-  "regle": "personnages de profil (regard vers la verrière, donc vers le fond) ou de trois quarts ; les meneaux flous ne doivent pas couper un visage : décaler le personnage de ~60 px si besoin"
- },
- "etats": {
-  "flotte": {
-   "@plan": "galerie_flotte",
-   "scene": "depart (ch02 l.14-20)",
-   "fond": "calques/00_fond_flou_flotte.png",
-   "apercu": "apercu_flotte.png",
-   "lumieres": {
+  "lumieres": {
     "cle": {
-     "source": "soleil hors champ, en haut à droite, au-delà de la planète",
-     "couleur": "#DCE6F0",
-     "direction_camera": [
-      -0.55,
-      -0.45,
-      0.7
-     ],
-     "note": "personnages de profil face à la verrière, en contre-jour : liseré froid côté droit (front, nez, épaulière), comme sur le décor large"
+      "source": "soleil hors champ, en haut à droite, au-delà de la planète",
+      "couleur": "#DCE6F0",
+      "direction_camera": [
+        -0.55,
+        -0.45,
+        0.7
+      ],
+      "note": "personnages de profil face à la verrière, en contre-jour : liseré froid côté droit (front, nez, épaulière), comme sur le décor large"
     },
     "contre": {
-     "source": "rebond de la planète, bas droite",
-     "couleur": "#6F8FB0",
-     "force": 0.2,
-     "note": "bleu sous le menton, côté verrière"
+      "source": "rebond de la planète, bas droite",
+      "couleur": "#6F8FB0",
+      "force": 0.2,
+      "note": "bleu sous le menton, côté verrière"
     },
     "appoint": {
-     "source": "lampes de bord",
-     "couleur": "#E8B060",
-     "force": 0.15,
-     "note": "chaud et faible, côté intérieur (dos à la verrière)"
+      "source": "lampes de bord",
+      "couleur": "#E8B060",
+      "force": 0.15,
+      "note": "chaud et faible, côté intérieur (dos à la verrière)"
     }
-   },
-   "valeurs_sous_1A1612_pct": 0.0
   },
-  "nuit": {
-   "@plan": "galerie_nuit",
-   "scene": "retombee (ch02 l.221-229), nuit de bord",
-   "fond": "calques/00_fond_flou_nuit.png",
-   "apercu": "apercu_nuit.png",
-   "lumieres": {
-    "cle": {
-     "source": "lampes de bord, nuit de bord : la seule lumière de la galerie",
-     "couleur": "#E8B060",
-     "direction_camera": [
-      0.6,
-      0.2,
-      0.77
-     ],
-     "note": "chaude, basse et faible, côté intérieur (bas gauche du cadre) : modelé doux sur la joue tournée vers la caméra"
+  "calques": [
+    {
+      "fichier": "calques/00_fond_flou_flotte.png",
+      "etat": "flotte",
+      "auteur": "CA2",
+      "distance_m": 25,
+      "note": "déjà éclairé et flou"
     },
-    "contre": {
-     "source": "les étoiles et la verrière",
-     "couleur": "#8FA6C8",
-     "force": 0.25,
-     "note": "liseré froid côté verrière, plus faible que le jour"
+    {
+      "fichier": "calques/00_fond_flou_nuit.png",
+      "etat": "nuit",
+      "auteur": "CA2",
+      "distance_m": 25,
+      "note": "déjà éclairé et flou"
+    },
+    {
+      "fichier": "calques/gabarit_40_gauche.png",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/gabarit_40_droite.png",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_gauche.png",
+      "mode": "additif",
+      "pour": "CA1",
+      "contenu": "liseré du soleil côté droit (état flotte)"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_droite.png",
+      "mode": "additif",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/90_poussiere.png",
+      "auteur": "CA2",
+      "contenu": "poussière floue, à faire dériver ; état nuit : opacité 0,4"
     }
-   },
-   "valeurs_sous_1A1612_pct": 0.4
-  }
- },
- "lumieres": {
-  "cle": {
-   "source": "soleil hors champ, en haut à droite, au-delà de la planète",
-   "couleur": "#DCE6F0",
-   "direction_camera": [
-    -0.55,
-    -0.45,
-    0.7
-   ],
-   "note": "personnages de profil face à la verrière, en contre-jour : liseré froid côté droit (front, nez, épaulière), comme sur le décor large"
-  },
-  "contre": {
-   "source": "rebond de la planète, bas droite",
-   "couleur": "#6F8FB0",
-   "force": 0.2,
-   "note": "bleu sous le menton, côté verrière"
-  },
-  "appoint": {
-   "source": "lampes de bord",
-   "couleur": "#E8B060",
-   "force": 0.15,
-   "note": "chaud et faible, côté intérieur (dos à la verrière)"
-  }
- },
- "calques": [
-  {
-   "fichier": "calques/00_fond_flou_flotte.png",
-   "etat": "flotte",
-   "auteur": "CA2",
-   "distance_m": 25,
-   "note": "déjà éclairé et flou"
-  },
-  {
-   "fichier": "calques/00_fond_flou_nuit.png",
-   "etat": "nuit",
-   "auteur": "CA2",
-   "distance_m": 25,
-   "note": "déjà éclairé et flou"
-  },
-  {
-   "fichier": "calques/gabarit_40_gauche.png",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/gabarit_40_droite.png",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/gabarit_41_lisere_gauche.png",
-   "mode": "additif",
-   "pour": "CA1",
-   "contenu": "liseré du soleil côté droit (état flotte)"
-  },
-  {
-   "fichier": "calques/gabarit_41_lisere_droite.png",
-   "mode": "additif",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/90_poussiere.png",
-   "auteur": "CA2",
-   "contenu": "poussière floue, à faire dériver ; état nuit : opacité 0,4"
-  }
- ],
- "generateur": "cA2/gros_plans_ep01.py galerie [--4k]",
- "statut": "VALIDÉ par le DA (27/11, corrections faites), 1080 et 4k",
- "4k": "calques/4k/ (mêmes noms)"
+  ],
+  "generateur": "cA2/gros_plans_ep01.py galerie [--4k]",
+  "statut": "VALIDÉ par le DA (27/11, corrections faites), 1080 et 4k",
+  "4k": "calques/4k/ (mêmes noms)"
 }

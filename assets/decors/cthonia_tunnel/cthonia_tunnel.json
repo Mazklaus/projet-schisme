@@ -27,11 +27,11 @@
     "type": "lampe à main (Light2D, point + cône)",
     "position_px": [
       1281,
-      399
+      432
     ],
     "position_m": [
       0.58,
-      1.03,
+      0.91,
       3.6
     ],
     "couleur": "#FFD08A",
@@ -52,7 +52,8 @@
         7
       ],
       "note": "flamme de lampe à huile, irrégulier"
-    }
+    },
+    "note_ca1": "lampe descendue de 33 px (0,12 m) le 27/11 à la demande du DA : bras de Dremm ramené à sa longueur anatomique ; 45_lampe.png décalé d'autant (sauvegarde : 45_lampe_avant_ca1.png)"
   },
   "ambiance": {
     "couleur": "#120D0B",
@@ -77,21 +78,35 @@
       "normal": "calques/20_galerie_normal.png",
       "ombre": "calques/20_galerie_ombre.png",
       "auteur": "CA2",
-      "distance_m": "1 à 40",
-      "contenu": "parois et plafond en roche brute irrégulière (plein cadre dès 0,25 m), blocs en saillie, un rail tordu à demi enfoui, étais inclinés en bois noirci ou en métal tordu (celui de 2,9 m a cédé, poteau tombé en travers), câble détendu ; ombres des étais depuis la lampe (multiplication)"
+      "distance_m": 20.5,
+      "contenu": "parois et plafond en roche brute irrégulière (plein cadre dès 0,25 m), blocs en saillie, un rail tordu à demi enfoui, étais inclinés en bois noirci ou en métal tordu (celui de 2,9 m a cédé, poteau tombé en travers), câble détendu ; ombres des étais depuis la lampe (multiplication)",
+      "note": "distance : 1 à 40 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/30_gravats.png",
       "normal": "calques/30_gravats_normal.png",
       "auteur": "CA2",
-      "distance_m": "1,4 à 3,2",
-      "contenu": "le tas de l'éboulement (plus haut à gauche, passage à droite vers la lampe) ET le mur d'éboulis qui bouche le fond derrière Dremm : une seule sortie, vers la lampe"
+      "distance_m": 2.3,
+      "contenu": "le tas de l'éboulement (plus haut à gauche, passage à droite vers la lampe) ET le mur d'éboulis qui bouche le fond derrière Dremm : une seule sortie, vers la lampe",
+      "note": "distance : 1,4 à 3,2 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/40_personnages.png",
       "auteur": "CA1 / kit Blender",
-      "distance_m": "1,6 (main) et 3,9 (Dremm)",
-      "contenu": "Vaskar enfant : seule la main dépasse, intersection basse gauche (639, 722) ; Dremm enfant accroupi derrière la lampe levée, en contre-jour de sa propre lampe ; gabarit : calques/gabarit_40_personnages.png (pas un asset)"
+      "distance_m": 2.75,
+      "contenu": "Vaskar enfant : seule la main dépasse, intersection basse gauche (639, 722) ; Dremm enfant accroupi derrière la lampe levée, en contre-jour de sa propre lampe ; gabarit : calques/gabarit_40_personnages.png (pas un asset)",
+      "normal": "calques/40_personnages_normal.png",
+      "ombre": "calques/40_personnages_ombre.png",
+      "generateur": "cA1/cthonia_tunnel/rendu_enfants.py (Blender, -- 1920|3840) puis post_cthonia.py",
+      "statut": "validé DA (27/11) : retouche TP2 g41 haillons + finition CA1 (lambeaux, écharpe)",
+      "note": "distance : 1,6 (main) et 3,9 (Dremm) m (valeur représentative ci-dessus)"
+    },
+    {
+      "fichier": "calques/41_lisere_main.png",
+      "auteur": "CA1",
+      "distance_m": 1.6,
+      "mode": "additif",
+      "contenu": "liseré chaud peint sur le bout des doigts et les phalanges de Vaskar tournés vers la lampe (demande DA : trouver la main dans le noir) ; peut suivre le scintillement de la lampe"
     },
     {
       "fichier": "calques/45_lampe.png",
@@ -103,14 +118,16 @@
       "fichier": "calques/50_avant_plan.png",
       "normal": "calques/50_avant_plan_normal.png",
       "auteur": "CA2",
-      "distance_m": "0,9 à 1,1",
-      "contenu": "gros blocs au ras de la caméra, éclat d'étai au bord gauche ; ne traverse pas la diagonale main -> lampe"
+      "distance_m": 1.0,
+      "contenu": "gros blocs au ras de la caméra, éclat d'étai au bord gauche ; ne traverse pas la diagonale main -> lampe",
+      "note": "distance : 0,9 à 1,1 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/90_poussiere.png",
       "auteur": "CA2",
-      "distance_m": "1 à 6",
-      "contenu": "poussière en suspension, dense dans le cône de la lampe ; à animer (dérive lente, plus vive après l'éboulement)"
+      "distance_m": 3.5,
+      "contenu": "poussière en suspension, dense dans le cône de la lampe ; à animer (dérive lente, plus vive après l'éboulement)",
+      "note": "distance : 1 à 6 m (valeur représentative ci-dessus)"
     }
   ],
   "jeu": "la reptation va du bas gauche vers la lampe en suivant le passage à droite du tas ; le cône peut suivre la main en jeu (orientation de la Light2D)",

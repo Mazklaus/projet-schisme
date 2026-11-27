@@ -42,6 +42,12 @@
     "scintillement": {
       "amplitude": 0.03,
       "note": "quasi fixe"
+    },
+    "traine_chaude": {
+      "energie": 0.4,
+      "portee_px": 1200,
+      "couleur": "#FFB868",
+      "note": "seconde PointLight2D large et faible sur la lampe, calée en jeu par le Lead (27/11)"
     }
   },
   "appoints": [
@@ -75,42 +81,55 @@
       "fichier": "calques/10_voute.png",
       "normal": "calques/10_voute_normal.png",
       "auteur": "CA2",
-      "distance_m": "0 à 11",
-      "contenu": "voûte basse d'acier, nervures d'or terni assourdi, sans rosaces"
+      "distance_m": 5.5,
+      "contenu": "voûte basse d'acier, nervures d'or terni assourdi, sans rosaces",
+      "note": "distance : 0 à 11 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/20_salle.png",
       "normal": "calques/20_salle_normal.png",
       "ombre": "calques/20_salle_ombre.png",
       "auteur": "CA2",
-      "distance_m": "0,2 à 11",
-      "contenu": "sol, murs, tapis sombre, embrasure du couloir au mur droit ; ombres radiales de la lumen"
+      "distance_m": 5.6,
+      "contenu": "sol, murs, tapis sombre, embrasure du couloir au mur droit ; ombres radiales de la lumen",
+      "note": "distance : 0,2 à 11 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/25_personnages_fond.png",
       "auteur": "CA1 / kit Blender",
       "distance_m": 6.85,
-      "contenu": "Aun Varo assis derrière le pupitre, de profil, penché sur le livre (coupé à la taille par le calque 35). Gabarit : calques/gabarit_25_personnages_fond.png"
+      "contenu": "Aun Varo assis derrière le pupitre, de trois quarts, penché, mains vers le livre ; capuchon psychique bleu à trois cristaux, liserés librarius bleus (coupé à la taille par le calque 35)",
+      "normal": "calques/25_personnages_fond_normal.png",
+      "ombre": "calques/40_personnages_ombre.png (multiply, noir + alpha, À PLACER SOUS 25 : ombres de Varo et de Vaskar vers la gauche, depuis la lumen et le couloir)"
     },
     {
       "fichier": "calques/30_bibliotheque.png",
       "normal": "calques/30_bibliotheque_normal.png",
       "auteur": "CA2",
-      "distance_m": "2,6 à 11",
-      "contenu": "rayonnages d'acier pleins sur le mur du fond et le mur gauche, livres, rouleaux couchés ; piles de livres au sol (aucun titre lisible)"
+      "distance_m": 6.8,
+      "contenu": "rayonnages d'acier pleins sur le mur du fond et le mur gauche, livres, rouleaux couchés ; piles de livres au sol (aucun titre lisible)",
+      "note": "distance : 2,6 à 11 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/35_pupitre.png",
       "normal": "calques/35_pupitre_normal.png",
       "auteur": "CA2",
-      "distance_m": "5,6 à 6,5",
-      "contenu": "pupitre de bois sombre à liseré, livre ouvert (lignes illisibles), encrier, plaques de données, socle de la lumen"
+      "distance_m": 6.05,
+      "contenu": "pupitre de bois sombre à liseré, livre ouvert (lignes illisibles), encrier, plaques de données, socle de la lumen",
+      "note": "distance : 5,6 à 6,5 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/40_personnages.png",
       "auteur": "CA1 / kit Blender",
       "distance_m": 6.6,
-      "contenu": "Vaskar debout en retrait dans l'embrasure, de profil, découpé par le froid du couloir. Gabarit : calques/gabarit_40_personnages.png"
+      "contenu": "Vaskar debout dans l'embrasure, de profil, tourné vers la pièce, casque à la main côté couloir ; v2 : côté pièce en pénombre (cuite dans l'albédo), seul un reflet chaud de la lumen sur le plastron ; contact net au sol dans 40_personnages_ombre",
+      "normal": "calques/40_personnages_normal.png"
+    },
+    {
+      "fichier": "calques/41_lisere_couloir.png",
+      "auteur": "CA1",
+      "distance_m": 6.6,
+      "contenu": "liseré froid #8FA0B0, net, sur le dos, l'arrière des jambes et l'arête des épaulières de Vaskar (lumière du couloir) ; mode ADD au-dessus de 40, PROTÉGÉ (pas de retouche TP2), à animer avec la PointLight2D du couloir"
     },
     {
       "fichier": "calques/45_lampe.png",
@@ -128,8 +147,9 @@
     {
       "fichier": "calques/90_particules.png",
       "auteur": "CA2",
-      "distance_m": "5 à 7",
-      "contenu": "poussière dans la lumière ; à animer"
+      "distance_m": 6.0,
+      "contenu": "poussière dans la lumière ; à animer",
+      "note": "distance : 5 à 7 m (valeur représentative ci-dessus)"
     }
   ],
   "normales": "convention OpenGL (Y+), alpha = alpha du calque",
@@ -137,5 +157,6 @@
   "apercus": [
     "apercu.png"
   ],
-  "statut": "essai"
+  "statut": "essai",
+  "ambiance": "#24202A"
 }

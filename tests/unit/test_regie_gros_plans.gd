@@ -137,3 +137,17 @@ func test_cadrage_tete_du_gabarit() -> void:
 	assert_almost_eq(sp.position.x + float(b.x) * sp.scale.x, float(tete.x), 0.5, "axe du gabarit")
 	assert_true(sp.material is ShaderMaterial, "normales dosées")
 	sp.free()
+
+
+class RegieSansBusteIlse extends RegieGrosPlans:
+	func buste_existe(perso: String, _cote: String) -> bool:
+		return perso != "ILSE"
+
+
+func test_replique_courte_sans_buste_repasse_en_large() -> void:
+	var r := RegieSansBusteIlse.new({"scenes": [{"chapitre": "c01", "decor": "fond", "noeuds": ["nuit*"],
+		"cotes": {"DREMM": "gauche", "ILSE": "droite"}}]})
+	r.entrer("c01", "nuit")
+	r.decider(_rep("DREMM"))
+	assert_eq(r.decider(_rep("DREMM")), "DREMM")
+	assert_eq(r.decider(_rep("ILSE", "Oui.")), "large", "pas le visage de Dremm sur la voix d'Ilse")

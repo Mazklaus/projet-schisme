@@ -1,103 +1,103 @@
 {
- "plan": "ullanor_nuit_gros_plan",
- "episode": 1,
- "chapitres": [
-  1
- ],
- "decor_source": "ullanor_nuit",
- "cadre_px": [
-  1920,
-  1080
- ],
- "usage": "fond des gros plans de Dremm et Vaskar la nuit du Triomphe (ch01 : nuit_*, aux_*, obeir_*, sortir_*, nuit_confidence_*, nuit_fin)",
- "description": "Le bivouac d'Ullanor la nuit, mise au point sur le personnage : le Titan de gauche et la citadelle en silhouette sur le ciel de nuit, les feux du bivouac en bokeh dans le bas du cadre, braises qui montent. La lueur des feux proches remonte du bas.",
- "source": "état nuit recomposé en 4k par tranche-verticale/assembler.py (calques 4k), flou 11 px en 1080, fenêtre [80, 320, 800, 725] agrandie x2,67 ; voile de lune #4A4870 dans les zones calmes ; feux en bokeh d'après les lumières de ullanor_nuit.json",
- "zones_calmes": {
-  "gauche": {
-   "x_px": [
-    200,
-    800
-   ],
-   "note": "pied du Titan et ciel"
+  "plan": "ullanor_nuit_gros_plan",
+  "episode": 1,
+  "chapitres": [
+    1
+  ],
+  "decor_source": "ullanor_nuit",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "usage": "fond des gros plans de Dremm et Vaskar la nuit du Triomphe (ch01 : nuit_*, aux_*, obeir_*, sortir_*, nuit_confidence_*, nuit_fin)",
+  "description": "Le bivouac d'Ullanor la nuit, mise au point sur le personnage : le Titan de gauche et la citadelle en silhouette sur le ciel de nuit, les feux du bivouac en bokeh dans le bas du cadre, braises qui montent. La lueur des feux proches remonte du bas.",
+  "source": "état nuit recomposé en 4k par tranche-verticale/assembler.py (calques 4k), flou 11 px en 1080, fenêtre [80, 320, 800, 725] agrandie x2,67 ; voile de lune #4A4870 dans les zones calmes ; feux en bokeh d'après les lumières de ullanor_nuit.json",
+  "zones_calmes": {
+    "gauche": {
+      "x_px": [
+        200,
+        800
+      ],
+      "note": "pied du Titan et ciel"
+    },
+    "droite": {
+      "x_px": [
+        1120,
+        1720
+      ],
+      "note": "ciel et bivouac lointain"
+    },
+    "regle": "personnage à gauche ou à droite, tête au tiers haut ; le Titan reste lisible entre les deux"
   },
-  "droite": {
-   "x_px": [
-    1120,
-    1720
-   ],
-   "note": "ciel et bivouac lointain"
+  "lumieres": {
+    "cle": {
+      "source": "le feu de bivouac le plus proche, hors champ en bas (au sol, à ~2 m)",
+      "couleur": "#FF9A48",
+      "direction_camera": [
+        0.35,
+        0.75,
+        -0.55
+      ],
+      "note": "chaude et BASSE : elle éclaire le dessous du menton, des arcades et des épaulières, et la face du personnage tournée vers le bas du cadre ; vacillement 0,15. Personnage à gauche : feu en bas à gauche ; à droite : feu en bas à droite (symétriser x)"
+    },
+    "contre": {
+      "source": "lune",
+      "couleur": "#8FA0C8",
+      "force": 0.3,
+      "direction_camera": [
+        -0.4,
+        -0.7,
+        0.6
+      ],
+      "note": "froide, venue du haut et de derrière, côté opposé à la clé : liseré bleuté sur le haut du crâne et l'épaule, jamais plus fort que le feu"
+    },
+    "ambiance": {
+      "couleur": "#5A6A9A",
+      "gain": 0.34,
+      "note": "même ambiance que le décor large"
+    }
   },
-  "regle": "personnage à gauche ou à droite, tête au tiers haut ; le Titan reste lisible entre les deux"
- },
- "lumieres": {
-  "cle": {
-   "source": "le feu de bivouac le plus proche, hors champ en bas (au sol, à ~2 m)",
-   "couleur": "#FF9A48",
-   "direction_camera": [
-    0.35,
-    0.75,
-    -0.55
-   ],
-   "note": "chaude et BASSE : elle éclaire le dessous du menton, des arcades et des épaulières, et la face du personnage tournée vers le bas du cadre ; vacillement 0,15. Personnage à gauche : feu en bas à gauche ; à droite : feu en bas à droite (symétriser x)"
-  },
-  "contre": {
-   "source": "lune",
-   "couleur": "#8FA0C8",
-   "force": 0.3,
-   "direction_camera": [
-    -0.4,
-    -0.7,
-    0.6
-   ],
-   "note": "froide, venue du haut et de derrière, côté opposé à la clé : liseré bleuté sur le haut du crâne et l'épaule, jamais plus fort que le feu"
-  },
-  "ambiance": {
-   "couleur": "#5A6A9A",
-   "gain": 0.34,
-   "note": "même ambiance que le décor large"
-  }
- },
- "calques": [
-  {
-   "fichier": "calques/00_fond_flou.png",
-   "auteur": "CA2",
-   "distance_m": 300,
-   "note": "déjà éclairé, voilé et flou : ne pas rééclairer"
-  },
-  {
-   "fichier": "calques/32_feux_bokeh.png",
-   "mode": "additif",
-   "auteur": "CA2",
-   "contenu": "feux du bivouac hors de la mise au point, à faire vaciller (0,15)"
-  },
-  {
-   "fichier": "calques/gabarit_40_gauche.png",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/gabarit_40_droite.png",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/gabarit_41_lisere_gauche.png",
-   "mode": "additif",
-   "pour": "CA1",
-   "contenu": "zone de la clé du feu (dessous du visage et des épaules)"
-  },
-  {
-   "fichier": "calques/gabarit_41_lisere_droite.png",
-   "mode": "additif",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/90_braises.png",
-   "mode": "additif",
-   "auteur": "CA2",
-   "contenu": "braises floues qui montent, à animer"
-  }
- ],
- "valeurs_sous_1A1612_pct": 16.2,
- "generateur": "cA2/gros_plans_ep01.py nuit [--4k]",
- "statut": "VALIDÉ par le DA (27/11, corrections faites), 1080 et 4k",
- "4k": "calques/4k/ (mêmes noms)"
+  "calques": [
+    {
+      "fichier": "calques/00_fond_flou.png",
+      "auteur": "CA2",
+      "distance_m": 300,
+      "note": "déjà éclairé, voilé et flou : ne pas rééclairer"
+    },
+    {
+      "fichier": "calques/32_feux_bokeh.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "feux du bivouac hors de la mise au point, à faire vaciller (0,15)"
+    },
+    {
+      "fichier": "calques/gabarit_40_gauche.png",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/gabarit_40_droite.png",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_gauche.png",
+      "mode": "additif",
+      "pour": "CA1",
+      "contenu": "zone de la clé du feu (dessous du visage et des épaules)"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_droite.png",
+      "mode": "additif",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/90_braises.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "braises floues qui montent, à animer"
+    }
+  ],
+  "valeurs_sous_1A1612_pct": 16.2,
+  "generateur": "cA2/gros_plans_ep01.py nuit [--4k]",
+  "statut": "VALIDÉ par le DA (27/11, corrections faites), 1080 et 4k",
+  "4k": "calques/4k/ (mêmes noms)"
 }

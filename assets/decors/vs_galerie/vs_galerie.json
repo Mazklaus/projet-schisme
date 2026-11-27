@@ -88,8 +88,9 @@
     {
       "fichier": "calques/00_exterieur_croisade.png",
       "auteur": "CA2",
-      "distance_m": "infini",
-      "contenu": "voir exterieurs"
+      "distance_m": 10000.0,
+      "contenu": "voir exterieurs",
+      "note": "distance : infini m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/10_flotte.png",
@@ -117,7 +118,21 @@
       "auteur": "CA1 (kit Blender, caméra déduite du JSON : oeil à 3,6 m, 28,6 mm) ; notes dans cA1/vs_galerie/",
       "distance_m": 25,
       "contenu": "Vaskar en profil perdu vers Dremm, Dremm de trois quarts dos ; pieds y ~822, ~140 px ; silhouettes à liseré froid",
-      "statut": "livré"
+      "statut": "v2 CA1 modelé contre-jour (+ _normal, _ombre, 41_lisere_froid) ; passe TP2 g91 à venir",
+      "normal": "calques/40_personnages_normal.png",
+      "ombre": "calques/40_personnages_ombre.png"
+    },
+    {
+      "fichier": "calques/41_lisere_froid.png",
+      "auteur": "CA1",
+      "distance_m": 25,
+      "lumiere": false,
+      "ambiance": false,
+      "melange": "addition",
+      "contenu": "liseré froid #DCE6F0 des personnages en contre-jour, en ADDITIF juste au-dessus de 40",
+      "force": 0.85,
+      "durete": 4.0,
+      "note": "force et durete : dosage moteur du liseré (alpha^durete × force), retour DA du 27/11"
     },
     {
       "fichier": "calques/50_avant_plan.png",
@@ -141,5 +156,17 @@
   ],
   "chaine": "base procédurale CA2 -> (option) retouche img2img figée -> peindre_plan.py en dernier ; les trois états du vaisseau se font sur ces calques",
   "statut": "essai v2 (corrections DA du 27/11)",
-  "bannieres": "motif Luna Wolves : cA1/bannieres/ (option B : croissant noir cerné d'or, cornes en haut, XVI en or, fond ivoire, queue d'aronde) ; à intégrer au coin de bannière de 50_avant_plan à la retouche"
+  "bannieres": "motif Luna Wolves : cA1/bannieres/ (option B : croissant noir cerné d'or, cornes en haut, XVI en or, fond ivoire, queue d'aronde) ; à intégrer au coin de bannière de 50_avant_plan à la retouche",
+  "etats_supplementaires": {
+    "detour": {
+      "episode": 2,
+      "chapitre": 6,
+      "plan": "flotte_change_cap",
+      "exterieur": "calques/00_exterieur_croisade.png",
+      "flotte": "calques/10_flotte_detour.png (remplace 10_flotte)",
+      "apercu": "apercu_detour.png",
+      "generateur": "cA2/vs_galerie_detour_calques.py [--4k]",
+      "note": "la flotte change de cap, toute ensemble, comme un seul animal : même inclinaison de 13° pour tous, traînées de réacteurs qui courbent de l'ancien cap vers le nouveau ; animer en tournant lentement 10_flotte_detour (pivot au centre du cadre)"
+    }
+  }
 }
