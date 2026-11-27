@@ -529,12 +529,15 @@
    "calques/30_galerie.png": "010b2f9e771ef104c15c9d9f75fbd2b9",
    "calques/30_galerie_normal.png": "ee5e9bfed4cf4d51913e515610fcabc9",
    "calques/30_galerie_ombre.png": "2dbae089f064005316f4c303e1361506",
-   "calques/40_personnages.png": "f980f3930b245389020b459268b8bff6",
+   "calques/40_personnages.png": "18d40489776e55e7ea378972cf62b740",
+   "calques/40_personnages_normal.png": "ecbb15435af285d74c87eafb0a8c4347",
+   "calques/40_personnages_ombre.png": "32d9ddc7cd7788cb313aeeafa0bd2600",
+   "calques/41_lisere_froid.png": "4340b1a757bf5bf227022e0cf37d254f",
    "calques/50_avant_plan.png": "7b58b1154fd7e223d8ae3294170c9dbe",
    "calques/50_avant_plan_normal.png": "8853b585ea92b355cc0935f98a81cfd7",
    "calques/90_particules.png": "84defdf46ac142a927d196bae2210bdb",
    "calques/gabarit_40_personnages.png": "f59288cd873cffcdea220e96d281fbfa",
-   "vs_galerie.json": "860ab38218351e2f25d4a6c8c4d77c4d"
+   "vs_galerie.json": "25e3455086fbb89536474618a06adc90"
   },
   "source": "episode-01/vs_galerie"
  },

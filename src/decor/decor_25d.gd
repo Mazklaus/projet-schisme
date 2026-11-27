@@ -336,6 +336,9 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				c.personnage = true
 			if k.get("ambiance", true) == false:
 				c.hors_ambiance = true
+			# Liseré additif posé à la distance de son calque (41_lisere_froid de vs_galerie).
+			if k.has("melange"):
+				c.melange = k.melange
 		else:
 			var ciel := f.get_file().begins_with("00_")
 			c.profondeur = 0.0 if ciel else 1.0

@@ -118,7 +118,18 @@
       "auteur": "CA1 (kit Blender, caméra déduite du JSON : oeil à 3,6 m, 28,6 mm) ; notes dans cA1/vs_galerie/",
       "distance_m": 25,
       "contenu": "Vaskar en profil perdu vers Dremm, Dremm de trois quarts dos ; pieds y ~822, ~140 px ; silhouettes à liseré froid",
-      "statut": "livré"
+      "statut": "v2 CA1 modelé contre-jour (+ _normal, _ombre, 41_lisere_froid) ; passe TP2 g91 à venir",
+      "normal": "calques/40_personnages_normal.png",
+      "ombre": "calques/40_personnages_ombre.png"
+    },
+    {
+      "fichier": "calques/41_lisere_froid.png",
+      "auteur": "CA1",
+      "distance_m": 25,
+      "lumiere": false,
+      "ambiance": false,
+      "melange": "addition",
+      "contenu": "liseré froid #DCE6F0 des personnages en contre-jour, en ADDITIF juste au-dessus de 40"
     },
     {
       "fichier": "calques/50_avant_plan.png",

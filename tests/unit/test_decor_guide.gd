@@ -95,3 +95,10 @@ func test_personnages_eclaires_par_une_cle_basse_a_eux() -> void:
 	var basses: Array = d.lumieres.filter(func(e): return e.get("masque", 0) == Decor25D.MASQUE_PERSONNAGES)
 	assert_eq(basses.size(), 1)
 	assert_eq(basses[0].hauteur_px, Decor25D.HAUTEUR_MODELE_PX)
+
+
+func test_melange_garde_sur_un_calque_a_distance() -> void:
+	var g := _guide_interieur()
+	g.calques[2]["melange"] = "addition"
+	var d := Decor25D.depuis_guide(g, FIXTURES.path_join("guide_mini"))
+	assert_eq(d.calques[2].get("melange"), "addition")
