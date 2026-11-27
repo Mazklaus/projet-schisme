@@ -3,6 +3,14 @@
   "fonds": {
     "vs_quartiers_27_gros_plan": {"exposition": 2.0},
     "orvane_rues_gros_plan|nuit": {"exposition": 0.5},
-    "orvane_rues_gros_plan|matin": {"exposition": 0.7}
+    "orvane_rues_gros_plan|matin": {"exposition": 0.7},
+    "barge_galerie_gros_plan": {"exposition": 1.3},
+    "barge_quartiers_civils_gros_plan": {"exposition": 2.6},
+    "orvane_soir_gros_plan": {"exposition": 0.75},
+    "ullanor_nuit_gros_plan": {"exposition": 1.15},
+    "ullanor_ouverture_gros_plan": {"exposition": 1.0},
+    "vs_cales_loge_gros_plan": {"exposition": 1.6},
+    "vs_galerie_gros_plan|flotte": {"exposition": 1.4},
+    "vs_galerie_gros_plan|nuit": {"exposition": 1.1}
   }
 }
