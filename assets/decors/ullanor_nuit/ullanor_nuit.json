@@ -208,6 +208,11 @@
       "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée"
     },
     {
+      "fichier": "calques/31_foule.png",
+      "distance_m": 300,
+      "note": "CA1 27/11 : foule en contre-jour (remplace les figurines blanches de 30_voie), même distance que la voie ; pas de _normal"
+    },
+    {
       "fichier": "calques/35_dais.png",
       "distance_m": 900,
       "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée"

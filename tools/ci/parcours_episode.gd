@@ -202,6 +202,19 @@ func _verifier(jeu, scene) -> bool:
 		for cle in attendu:
 			if not sauve.drapeaux.has(cle):
 				erreurs.append("%s absent de la sauvegarde" % cle)
+		# --valeurs : chaque drapeau doit exister et valoir exactement ce qui est attendu (QA).
+		for cle in valeurs:
+			if not sauve.drapeaux.has(cle):
+				erreurs.append("%s absent de la sauvegarde (attendu %s)" % [cle, valeurs[cle]])
+				continue
+			var v = sauve.drapeaux[cle]
+			var ok: bool
+			if typeof(valeurs[cle]) == TYPE_BOOL:
+				ok = typeof(v) == TYPE_BOOL and v == valeurs[cle]
+			else:
+				ok = typeof(v) in [TYPE_INT, TYPE_FLOAT] and is_equal_approx(float(v), float(valeurs[cle]))
+			if not ok:
+				erreurs.append("%s vaut %s, attendu %s" % [cle, v, valeurs[cle]])
 	var exiges := chapitre.is_empty()
 	for c in root.get_node(^"Catalogue").episode(episode).chapitres:
 		exiges = exiges or c.id == chapitre

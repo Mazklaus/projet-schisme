@@ -200,3 +200,16 @@ func test_hologramme_sur_plan_puis_extinction() -> void:
 func test_etat_decor_sans_decor_25d_ne_plante_pas() -> void:
 	mes.jouer({"etat_decor": [{"depuis": "avant_aube", "etat": "aube", "duree_s": 1}]}, decor)
 	assert_true(true, "décor sans états : ignoré")
+
+
+func test_eclairs_sur_un_calque_puis_rendu_au_nettoyage() -> void:
+	var couche := Node2D.new()
+	couche.name = "Calque_46_tirs"
+	var img := Sprite2D.new()
+	img.name = "Image"
+	couche.add_child(img)
+	decor.add_child(couche)
+	mes.jouer({"calques": [{"calque": "Calque_46_tirs", "anim": "eclairs"}]}, decor)
+	assert_true(img.material is ShaderMaterial, "éclairs par cellule")
+	mes.nettoyer()
+	assert_null(img.material, "matériau d'origine rendu")
