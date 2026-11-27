@@ -68,13 +68,13 @@ func test_surcharges() -> void:
 
 func test_hors_scene_et_sans_buste_reste_large() -> void:
 	var r := RegieGrosPlans.new({"scenes": [{"chapitre": "c01", "decor": "fond", "noeuds": ["nuit*"],
-		"cotes": {"KRENN": "gauche"}}]})
+		"cotes": {"ILSE": "gauche"}}]})
 	r.entrer("c01", "nuit")
-	r.decider(_rep("KRENN"))
-	assert_eq(r.decider(_rep("KRENN")), "large", "aucun buste de CA1 livré : inerte")
+	r.decider(_rep("ILSE"))
+	assert_eq(r.decider(_rep("ILSE")), "large", "aucun buste de CA1 livré : inerte")
 	r.entrer("c01", "aube")
-	r.surcharger("serre:krenn")
-	assert_eq(r.decider(_rep("KRENN")), "large", "hors scène")
+	r.surcharger("serre:ilse")
+	assert_eq(r.decider(_rep("ILSE")), "large", "hors scène")
 	assert_true(RegieGrosPlans.est_surcharge("serre:krenn"))
 	assert_false(RegieGrosPlans.est_surcharge("archive_table"))
 
@@ -98,8 +98,8 @@ func test_bustes_finaux_de_ca1() -> void:
 	assert_eq(RegieGrosPlans.chemin_buste("DREMM", "droite", "assurance"), d + "dremm/buste_droite_assurance.png")
 	assert_eq(RegieGrosPlans.chemin_buste("SEFA", "gauche", "colere"), d + "sefa/buste_gauche_neutre.png",
 		"expression non peinte : neutre")
-	assert_eq(RegieGrosPlans.chemin_buste("KRENN", "gauche"), d + "krenn/buste.png")
-	assert_false(RegieGrosPlans.new().buste_existe("KRENN", "gauche"))
+	assert_eq(RegieGrosPlans.chemin_buste("ILSE", "gauche"), d + "ilse/buste.png")
+	assert_false(RegieGrosPlans.new().buste_existe("ILSE", "gauche"))
 	assert_true(RegieGrosPlans.eclairage_buste("SEFA", "droite").has("fonds"))
 
 
@@ -131,7 +131,7 @@ func test_cadrage_tete_du_gabarit() -> void:
 	var sp: Sprite2D = CJ.construire_sprite_buste("res://assets/personnages/dremm/buste_gauche_neutre.png", tete, "gauche", "DREMM")
 	var b: Dictionary = CJ.cadrage().bustes.DREMM.gauche
 	var crane: float = sp.position.y + float(b.crane) * sp.scale.y
-	var menton: float = crane + float(b.largeur) * CJ.RAPPORT_TETE * sp.scale.y
+	var menton: float = sp.position.y + float(b.menton) * sp.scale.y
 	assert_almost_eq(crane / 1080.0, 0.15, 0.005, "crâne à 15 % (DA)")
 	assert_almost_eq(menton / 1080.0, 0.45, 0.005, "menton à 45 % (DA)")
 	assert_almost_eq(sp.position.x + float(b.x) * sp.scale.x, float(tete.x), 0.5, "axe du gabarit")
