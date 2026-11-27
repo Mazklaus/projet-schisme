@@ -183,7 +183,7 @@ DREMM: Quelle soldate ?
 
 // ================================================================ 5. La plaque (variante)
 === plaque_sefa
--> plaque_sefa_scene [si ep01_plaque_gardee == true]
+-> plaque_sefa_scene [si choix_ep01_plaque == 1]
 // Défaut : scène sautée.
 ~ connait_sefa_plaque = false
 ~ relation_sefa += 0

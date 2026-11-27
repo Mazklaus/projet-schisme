@@ -33,6 +33,7 @@ jobs:
       - run: python3 tools/ci/verifier_decors.py .
       - run: python3 tools/ci/verifier_cles.py .
       - run: python3 tools/ci/verifier_sync_decors.py .
+      - run: python3 tools/ci/verifier_bustes.py
       # Spec du système de choix (Game Designer) : nommage, canon, défauts minutés, règle 3.1.
       - run: python3 tools/ci/verif_choix.py data/dialogues/ep01 --registre data/personnages.json
       # Suivi de production (GD) : rapport par épisode dans le résumé de la CI et en artefact.

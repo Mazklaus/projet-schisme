@@ -1,0 +1,4 @@
+{
+  "_doc": "Côtés réellement peints des bustes de gros plan quand l'un des deux est l'autre retourné (règle GD 27/11 : pas de miroir sur un personnage asymétrique). tools/ci/verifier_bustes.py refuse qu'une scène place le personnage du côté non peint.",
+  "dremm": ["gauche"]
+}
