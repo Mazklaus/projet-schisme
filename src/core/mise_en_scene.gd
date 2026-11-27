@@ -25,11 +25,11 @@ const VITESSE_TIR_PX_S := 4200.0
 
 ## Préréglages des particules (CPUParticles2D), d'après la poussière de la tranche.
 const PARTICULES := {
-	"poussiere": {"couleur": Color(0.62, 0.55, 0.46, 0.45), "vie": 4.0, "vitesse": [8.0, 30.0], "gravite": [0, 6], "taille": [4.0, 14.0], "direction": [0, -1], "dispersion": 180.0, "quantite": 60},
+	"poussiere": {"fondu": true, "couleur": Color(0.62, 0.55, 0.46, 0.45), "vie": 4.0, "vitesse": [8.0, 30.0], "gravite": [0, 6], "taille": [4.0, 14.0], "direction": [0, -1], "dispersion": 180.0, "quantite": 60},
 	"gravats": {"couleur": Color(0.35, 0.3, 0.26, 0.9), "vie": 1.4, "vitesse": [20.0, 80.0], "gravite": [0, 600], "taille": [3.0, 9.0], "direction": [0, 1], "dispersion": 25.0, "quantite": 50},
-	"fumee": {"couleur": Color(0.4, 0.38, 0.36, 0.28), "vie": 7.0, "vitesse": [10.0, 30.0], "gravite": [6, -12], "taille": [30.0, 70.0], "direction": [0, -1], "dispersion": 30.0, "quantite": 24},
+	"fumee": {"fondu": true, "couleur": Color(0.4, 0.38, 0.36, 0.28), "vie": 7.0, "vitesse": [10.0, 30.0], "gravite": [6, -12], "taille": [30.0, 70.0], "direction": [0, -1], "dispersion": 30.0, "quantite": 24},
 	"braises": {"couleur": Color(1.0, 0.62, 0.25, 0.9), "vie": 2.5, "vitesse": [30.0, 90.0], "gravite": [8, -40], "taille": [1.5, 3.5], "direction": [0, -1], "dispersion": 35.0, "quantite": 30, "addition": true},
-	"cendres": {"couleur": Color(0.85, 0.82, 0.76, 0.6), "vie": 6.0, "vitesse": [10.0, 40.0], "gravite": [10, 8], "taille": [1.5, 4.0], "direction": [1, 0], "dispersion": 180.0, "quantite": 80},
+	"cendres": {"fondu": true, "couleur": Color(0.85, 0.82, 0.76, 0.6), "vie": 6.0, "vitesse": [10.0, 40.0], "gravite": [10, 8], "taille": [1.5, 4.0], "direction": [1, 0], "dispersion": 180.0, "quantite": 80},
 	"etincelles": {"couleur": Color(1.0, 0.85, 0.55, 1.0), "vie": 0.5, "vitesse": [120.0, 320.0], "gravite": [0, 500], "taille": [1.5, 3.0], "direction": [0, -1], "dispersion": 70.0, "quantite": 24, "addition": true},
 	"vitres": {"couleur": Color(0.8, 0.9, 1.0, 0.85), "vie": 1.2, "vitesse": [40.0, 160.0], "gravite": [0, 700], "taille": [2.0, 5.0], "direction": [0, 1], "dispersion": 50.0, "quantite": 90, "addition": true},
 }
@@ -49,6 +49,11 @@ var _tweens_calques: Array[Tween] = []
 var _images_animees: Array[Node2D] = []
 var _bruit := FastNoiseLite.new()
 var _texture_lumiere: Texture2D
+## Particules : un disque doux partagé (jamais de carrés), taille de référence 32 px.
+const TAILLE_GOUTTE := 32.0
+static var _goutte: Texture2D
+## Traînée des tirs : transparente à la queue, pleine à la tête (teintée par self_modulate).
+static var _degrade_trainee: Gradient
 
 
 func _init() -> void:
@@ -235,8 +240,15 @@ func _particules(e: Dictionary) -> void:
 	p.initial_velocity_min = pre.vitesse[0]
 	p.initial_velocity_max = pre.vitesse[1]
 	p.gravity = Vector2(pre.gravite[0], pre.gravite[1])
-	p.scale_amount_min = pre.taille[0]
-	p.scale_amount_max = pre.taille[1]
+	p.texture = _texture_goutte()
+	p.scale_amount_min = pre.taille[0] / TAILLE_GOUTTE * 2.0
+	p.scale_amount_max = pre.taille[1] / TAILLE_GOUTTE * 2.0
+	if pre.has("fondu"):
+		# La particule s'éteint en fin de vie au lieu de disparaître d'un coup.
+		var g := Gradient.new()
+		g.colors = PackedColorArray([Color(1, 1, 1, 0), Color.WHITE, Color(1, 1, 1, 0)])
+		g.offsets = PackedFloat32Array([0.0, 0.2, 1.0])
+		p.color_ramp = g
 	p.color = Color(String(e.couleur)) if e.has("couleur") else pre.couleur
 	p.z_index = Z_EFFETS
 	if pre.get("addition", false):
@@ -254,6 +266,22 @@ func _particules(e: Dictionary) -> void:
 			if is_instance_valid(p):
 				p.emitting = false
 				get_tree().create_timer(p.lifetime).timeout.connect(p.queue_free))
+
+
+static func _texture_goutte() -> Texture2D:
+	if _goutte == null:
+		var g := Gradient.new()
+		g.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0.55), Color(1, 1, 1, 0)])
+		g.offsets = PackedFloat32Array([0.0, 0.45, 1.0])
+		var t := GradientTexture2D.new()
+		t.gradient = g
+		t.fill = GradientTexture2D.FILL_RADIAL
+		t.fill_from = Vector2(0.5, 0.5)
+		t.fill_to = Vector2(1, 0.5)
+		t.width = int(TAILLE_GOUTTE)
+		t.height = int(TAILLE_GOUTTE)
+		_goutte = t
+	return _goutte
 
 
 # ---------------------------------------------------------------------------------- lumières
@@ -356,12 +384,12 @@ func _tirer(e: Dictionary, bouche: PointLight2D) -> void:
 	var bolter: bool = e.get("type") == "bolter"
 	var trace := _trait_libre()
 	var couleur := Color(String(e.couleur)) if e.has("couleur") else (BOLT if bolter else LASER)
-	(trace.get_child(0) as Line2D).default_color = couleur
-	(trace.get_child(0) as Line2D).width = 7.0 if bolter else 5.0
-	(trace.get_child(1) as Line2D).width = 2.5 if bolter else 1.6
+	(trace.get_child(0) as Line2D).self_modulate = couleur
+	(trace.get_child(0) as Line2D).width = 11.0 if bolter else 5.0
+	(trace.get_child(1) as Line2D).width = 1.8 if bolter else 1.6
 	trace.visible = true
 	trace.modulate.a = 1.0
-	var longueur := 70.0 if bolter else 140.0
+	var longueur := 160.0 if bolter else 140.0
 	var duree := maxf(de.distance_to(vers) / VITESSE_TIR_PX_S, 0.06)
 	var ancien: Tween = trace.get_meta("tween") if trace.has_meta("tween") else null
 	if ancien and ancien.is_valid():
@@ -369,11 +397,14 @@ func _tirer(e: Dictionary, bouche: PointLight2D) -> void:
 	var tw := trace.create_tween()
 	trace.set_meta("tween", tw)
 	tw.tween_method(_poser_trait.bind(trace, de, vers, longueur), 0.0, 1.0, duree)
-	tw.tween_callback(func():
-		trace.visible = false
-		_impact(vers, bolter))
+	tw.tween_callback(_impact.bind(vers, bolter))
+	# La traînée chaude reste un instant derrière la tête, puis s'éteint.
+	tw.tween_property(trace, "modulate:a", 0.0, 0.18 if bolter else 0.08)
+	tw.tween_callback(trace.hide)
 	if bouche and is_instance_valid(bouche) and e.get("eclair_bouche", bolter):
 		bouche.position = de
+		_particules({"type": "etincelles", "zone_px": [de.x - 4, de.y - 4, 8, 8], "duree": 0.1,
+			"densite": 0.25, "couleur": "#FFF2D0"})
 		var tb := bouche.create_tween()
 		tb.tween_property(bouche, "energy", 1.4, 0.03)
 		tb.tween_property(bouche, "energy", 0.0, 0.12)
@@ -403,7 +434,8 @@ func _trait_libre() -> Node2D:
 	for i in 2:
 		var l := Line2D.new()
 		l.points = PackedVector2Array([Vector2.ZERO, Vector2.ZERO])
-		l.default_color = COEUR
+		l.gradient = _gradient_trainee()
+		l.self_modulate = COEUR
 		l.material = add
 		l.begin_cap_mode = Line2D.LINE_CAP_ROUND
 		l.end_cap_mode = Line2D.LINE_CAP_ROUND
@@ -413,9 +445,21 @@ func _trait_libre() -> Node2D:
 	return t
 
 
+static func _gradient_trainee() -> Gradient:
+	if _degrade_trainee == null:
+		_degrade_trainee = Gradient.new()
+		_degrade_trainee.colors = PackedColorArray([Color(1, 1, 1, 0), Color(1, 1, 1, 0.6), Color.WHITE])
+		_degrade_trainee.offsets = PackedFloat32Array([0.0, 0.6, 1.0])
+	return _degrade_trainee
+
+
 func _impact(pos: Vector2, bolter: bool) -> void:
 	_particules({"type": "etincelles", "zone_px": [pos.x - 6, pos.y - 6, 12, 12], "duree": 0.3,
 		"densite": 0.6 if bolter else 0.35})
+	if bolter:
+		# Le bolt explose à l'impact : un petit nuage de poussière en plus des étincelles.
+		_particules({"type": "poussiere", "zone_px": [pos.x - 10, pos.y - 10, 20, 20], "duree": 0.2,
+			"densite": 0.15})
 
 
 func _emetteurs() -> Array[Node]:
