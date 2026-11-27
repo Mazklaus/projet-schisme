@@ -68,6 +68,9 @@ var _relancer := false
 ## Pièces dédiées à un geste (« montre » dans gestes.json) : cachées hors de leur geste.
 var _pieces_de_geste: Array = []
 var _pieces_cachees: Array = []
+## Ombre de contact (Sprite2D « Ombre ») et CanvasModulate de la scène, à compenser.
+var ombre: Sprite2D
+var _ambiance: CanvasModulate
 var _hauteur := 0.0
 ## Hauteur de hanche rapportée à celle d'Ilse (165 px source) : la descente du bassin d'un
 ## geste (agenouiller) suit la taille du personnage.
@@ -135,6 +138,8 @@ func construire(d: Dictionary, dossier: String) -> void:
 			break
 	# Ombre de contact (outil preparer_sprite.py) : « ombre » {fichier, pose}, posée sous tout
 	# le reste, en multiplication comme les ombres des décors ; elle ne suit pas les os.
+	# Hors des Light2D (light_mask 0) : en multiplication, une lampe l'éclairait comme un
+	# rectangle. Le CanvasModulate, lui, s'applique quand même : compenser_ambiance().
 	if typeof(d.get("ombre")) == TYPE_DICTIONARY and d.ombre.has("fichier"):
 		var o := Sprite2D.new()
 		o.name = "Ombre"
@@ -142,7 +147,9 @@ func construire(d: Dictionary, dossier: String) -> void:
 		o.texture = _texture(dossier.path_join(String(d.ombre.fichier)))
 		o.position = _vec(d.ombre.get("pose", [0, 0])) - pieds
 		o.material = Decor25D.materiau_ombre()
+		o.light_mask = 0
 		add_child(o)
+		ombre = o
 	# Pièces à plat dans l'ordre z (celles hors contrat à la fin, dans l'ordre du fichier).
 	var noms: Array = ORDRE.filter(func(n): return P.has(n))
 	for n in P:
@@ -197,6 +204,22 @@ func _ready() -> void:
 	for n in pieces:
 		var rt: RemoteTransform2D = pieces[n].get_meta("suivi")
 		rt.remote_path = rt.get_path_to(pieces[n])
+	if ombre:
+		for c in get_tree().root.find_children("*", "CanvasModulate", true, false):
+			if (c as CanvasModulate).get_canvas() == get_canvas():
+				_ambiance = c as CanvasModulate
+				break
+
+
+## Ombre en multiplication : le CanvasModulate s'applique aussi à sa sortie, donc deux fois au
+## fond ; on le compense (comme Decor25D.appliquer_rebond) pour que blanc reste neutre.
+func compenser_ambiance() -> void:
+	if ombre == null:
+		return
+	var amb := Color.WHITE
+	if is_instance_valid(_ambiance) and _ambiance.visible:
+		amb = _ambiance.color
+	ombre.self_modulate = Color(1.0 / maxf(amb.r, 0.05), 1.0 / maxf(amb.g, 0.05), 1.0 / maxf(amb.b, 0.05))
 
 
 static func _vec(a) -> Vector2:
@@ -270,6 +293,7 @@ func _son_geste(ampleur: String) -> void:
 
 func _process(delta: float) -> void:
 	avancer(delta)
+	compenser_ambiance()
 
 
 ## Avance l'animation de delta secondes (appelée chaque image, et par les tests).
