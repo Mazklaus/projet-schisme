@@ -123,6 +123,7 @@
   "portee": 0.36,
   "energie": 2.0,
   "veille": 0.25,
-  "note": "Lead 27/11 : calé sur apercu.png (écart moyen 10,6 ; 28 % sous #1A1612 contre 32 % à l'aperçu)"
+  "note": "Lead 27/11 : calé sur apercu.png (écart moyen 10,6 ; 28 % sous #1A1612 contre 32 % à l'aperçu) ; veille réchauffée vers la teinte #2A241C à luminance égale (DA)",
+  "veille_teinte": "#2A241C"
  }
 }

@@ -427,6 +427,13 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				e.intensite = float(e.get("intensite", 1.0)) * float(rm.get("energie", 1.0))
 		if not veille.is_empty():
 			veille.niveau = float(veille.niveau) * float(rm.get("veille", 1.0))
+			# « veille_teinte » : teinte seule (luminance de la couleur d'origine gardée, donc
+			# l'énergie ne change pas).
+			if rm.has("veille_teinte"):
+				var avant := Color(veille.couleur)
+				var t := Color(rm.veille_teinte)
+				var k := avant.get_luminance() / maxf(t.get_luminance(), 0.001)
+				veille.couleur = Color(t.r * k, t.g * k, t.b * k).to_html(false)
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
 		"source": "guide", "cle": cle, "lumieres": lum, "rais_force": float(g.get("rais_force", 1.0)),
 		"rebond": g.get("rebond", {}),
