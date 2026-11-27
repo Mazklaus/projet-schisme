@@ -49,6 +49,16 @@ const SON_TIRS := {"laser": "tir_laser", "bolter": "tir_bolter", "projectile": "
 const VOLUME_BOUCLE_DB := -8.0
 const VOLUME_TIR_DB := -4.0
 
+## Hologramme (hololithe) : image source cherchée dans ces dossiers ; à défaut, Horus 5b
+## recadré (provisoire, en attendant horus_holo de CA2).
+const DOSSIERS_HOLO := ["res://assets/hologrammes/", "res://assets/props/"]
+## [chemin, recadrage, échelle propre] : le provisoire est ramené à la taille prévue pour
+## horus_holo (environ 120 px de haut en source, A8).
+const HOLO_PROVISOIRE := {"horus_holo": ["res://assets/personnages/horus_5b/horus_5b_neutre_large.png", Rect2(720, 216, 480, 620), 0.3]}
+var _holo_sur_plan: Array = []
+var _hologramme: Node2D = null
+static var _shader_holo: Shader
+
 var decor: Node2D
 var parent: Node2D
 var camera: Camera2D
@@ -127,8 +137,28 @@ func jouer(m: Dictionary, decor_courant: Node2D, parent_effets: Node2D = null) -
 		_programmer(m.reprise_tirs, _reprendre_tirs)
 	if m.has("tirs_cadence"):
 		_regler_cadence(float(m.tirs_cadence))
+	for e in _liste(m.get("hologramme")):
+		if typeof(e) != TYPE_DICTIONARY:
+			continue
+		if e.has("image") and e.has("sur_plan"):
+			_holo_sur_plan.append(e)
+		elif e.has("image"):
+			_programmer(e, _allumer_hologramme.bind(e))
+		else:
+			_programmer(e, _eteindre_hologramme.bind(e))
 	if m.has("plein_ecran"):
 		_programmer(m.plein_ecran, _plein_ecran.bind(m.plein_ecran))
+
+
+## Un plan nommé commence (@plan) : allume ce qui l'attendait (« sur_plan »).
+func plan(nom: String) -> void:
+	var restants: Array = []
+	for e in _holo_sur_plan:
+		if String(e.sur_plan) == nom:
+			_programmer(e, _allumer_hologramme.bind(e))
+		else:
+			restants.append(e)
+	_holo_sur_plan = restants
 
 
 ## Une réplique de plus dans le nœud : lance ce qui attendait cette ligne.
@@ -167,6 +197,8 @@ func nettoyer() -> void:
 	_effets.clear()
 	_tirs.clear()
 	_en_attente.clear()
+	_holo_sur_plan.clear()
+	_hologramme = null
 	if camera:
 		camera.offset = Vector2.ZERO
 
@@ -781,3 +813,121 @@ func _texture_plein_ecran(tex: Texture2D) -> TextureRect:
 	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return r
+
+
+# ------------------------------------------------------------------------------- hologramme
+
+## Texture et recadrage d'une image d'hologramme, ou [null, Rect2()].
+static func texture_hologramme(nom: String) -> Array:
+	for d in DOSSIERS_HOLO:
+		var c: String = d + nom + ".png"
+		if ResourceLoader.exists(c):
+			return [load(c), Rect2(), 1.0]
+	if HOLO_PROVISOIRE.has(nom) and ResourceLoader.exists(HOLO_PROVISOIRE[nom][0]):
+		var p: Array = HOLO_PROVISOIRE[nom]
+		return [load(p[0]), p[1], p[2]]
+	return [null, Rect2(), 1.0]
+
+
+static func shader_hologramme() -> Shader:
+	if _shader_holo == null:
+		_shader_holo = Shader.new()
+		_shader_holo.code = """
+shader_type canvas_item;
+render_mode blend_add, unshaded;
+uniform vec4 teinte : source_color = vec4(0.55, 0.78, 0.88, 1.0);
+uniform float opacite = 0.65;
+uniform float allume = 0.0;
+uniform float lignes = 1.0;
+uniform float pas_lignes = 3.0;
+uniform float grain = 0.0;
+float h(float x) { return fract(sin(x * 127.1) * 43758.5453); }
+void fragment() {
+	float t = TIME;
+	// Décrochages horizontaux brefs : une bande glisse de quelques px, deux fois par seconde au plus.
+	float bande = floor(UV.y * 40.0);
+	float saut = step(0.985, h(bande + floor(t * 9.0))) * (h(bande * 3.1 + t) - 0.5) * 0.04;
+	vec4 c = texture(TEXTURE, UV + vec2(saut, 0.0));
+	float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+	l = clamp((l - 0.25) * 1.7, 0.0, 1.0);
+	float balayage = 0.86 + 0.14 * sin((FRAGCOORD.y / pas_lignes) * 3.14159 + t * 4.0);
+	float ligne_vive = smoothstep(0.02, 0.0, abs(fract(UV.y - t * 0.25) - 0.5) - 0.0) * 0.6;
+	float scintille = 0.88 + 0.12 * h(floor(t * 24.0));
+	float m = mix(1.0, balayage, lignes) * scintille + ligne_vive * lignes;
+	float a = c.a * opacite * allume * m;
+	COLOR = vec4(teinte.rgb * (0.2 + 1.5 * l) * a, a);
+}
+"""
+	return _shader_holo
+
+
+## Allume l'hololithe : grésille à l'entrée (« allume_s »), puis tient en scintillant.
+func _allumer_hologramme(e: Dictionary) -> void:
+	if is_instance_valid(_hologramme):
+		_hologramme.queue_free()
+	var tr := texture_hologramme(String(e.image))
+	if tr[0] == null:
+		push_warning("Mise en scène : image d'hologramme introuvable : %s" % e.image)
+		return
+	var racine := Node2D.new()
+	racine.name = "Hologramme"
+	racine.position = point(e.get("position_px", [960, 540]))
+	racine.z_index = Z_EFFETS
+	var sp := Sprite2D.new()
+	sp.name = "Image"
+	sp.texture = tr[0]
+	if tr[1] != Rect2():
+		sp.region_enabled = true
+		sp.region_rect = tr[1]
+	# Ancré par le bas : la position est le point d'où sort le faisceau.
+	sp.centered = true
+	var region: Rect2 = tr[1]
+	var hauteur: float = region.size.y if region != Rect2() else float((tr[0] as Texture2D).get_height())
+	sp.offset = Vector2(0, -hauteur / 2.0)
+	sp.scale = Vector2.ONE * float(e.get("echelle", 1.0)) * float(tr[2])
+	var mat := ShaderMaterial.new()
+	mat.shader = shader_hologramme()
+	mat.set_shader_parameter("teinte", Color(String(e.get("teinte", "#8CC8E0"))))
+	mat.set_shader_parameter("opacite", float(e.get("opacite", 0.65)))
+	mat.set_shader_parameter("lignes", 1.0 if e.get("lignes", true) else 0.0)
+	mat.set_shader_parameter("allume", 0.0)
+	sp.material = mat
+	racine.add_child(sp)
+	# Lumière bleue portée sur le décor (lit les _normal), éteinte avec l'image.
+	var lum := _lumiere(Vector2(0, -hauteur * sp.scale.y * 0.5), Color(String(e.get("teinte", "#8CC8E0"))), 520)
+	lum.name = "Lumiere"
+	lum.energy = 0.0
+	racine.add_child(lum)
+	_ajouter(racine)
+	_hologramme = racine
+	var duree := maxf(float(e.get("allume_s", 0.5)), 0.05)
+	var t := racine.create_tween()
+	# Grésillement d'entrée : trois sursauts, puis la pleine image.
+	t.tween_property(mat, "shader_parameter/allume", 0.6, duree * 0.2)
+	t.tween_property(mat, "shader_parameter/allume", 0.1, duree * 0.1)
+	t.tween_property(mat, "shader_parameter/allume", 0.8, duree * 0.2)
+	t.tween_property(mat, "shader_parameter/allume", 0.3, duree * 0.1)
+	t.tween_property(mat, "shader_parameter/allume", 1.0, duree * 0.4)
+	racine.create_tween().tween_property(lum, "energy", float(e.get("energie_lumiere", 0.9)), duree)
+
+
+## Éteint l'hololithe : l'image s'écrase en une ligne (« eteint_s »), qui reste un instant
+## (« remanence_s »).
+func _eteindre_hologramme(e: Dictionary) -> void:
+	var racine := _hologramme
+	if not is_instance_valid(racine):
+		return
+	_hologramme = null
+	var sp := racine.get_node(^"Image") as Sprite2D
+	var lum := racine.get_node(^"Lumiere") as PointLight2D
+	var mat := sp.material as ShaderMaterial
+	var eteint := maxf(float(e.get("eteint_s", 0.3)), 0.05)
+	var reste := maxf(float(e.get("remanence_s", 0.0)), 0.0)
+	var sy := sp.scale.y
+	var t := racine.create_tween()
+	t.tween_property(mat, "shader_parameter/allume", 1.4, eteint * 0.25)
+	t.parallel().tween_property(sp, "scale:y", sy * 0.03, eteint).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
+	t.parallel().tween_property(lum, "energy", 0.0, eteint)
+	t.tween_property(mat, "shader_parameter/allume", 0.0, maxf(reste, 0.08))
+	t.tween_callback(racine.queue_free)
+

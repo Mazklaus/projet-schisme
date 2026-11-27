@@ -180,6 +180,8 @@ var _cle_eclairage := ""
 
 ## « @plan large | serre | serre:<perso> » : surcharge de la régie (Narrative).
 func executer_commande(nom: String, args: Array) -> void:
+	if nom == "plan" and not args.is_empty() and mise_en_scene:
+		mise_en_scene.plan(String(args[0]))
 	if nom == "plan" and not args.is_empty() and RegieGrosPlans.est_surcharge(String(args[0])):
 		_regie.surcharger(String(args[0]))
 		return
