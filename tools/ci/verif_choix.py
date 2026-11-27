@@ -43,8 +43,9 @@ def lire(fichiers):
             m = RE_NOEUD.match(l)
             if m:
                 courant = {"nom": m[1], "fichier": pathlib.Path(f).name, "instr": []}
-                noeuds[m[1]] = courant
-                ordre.append(m[1])
+                cle_n = f"{courant['fichier']}:{m[1]}"
+                noeuds[cle_n] = courant
+                ordre.append(cle_n)
                 continue
             if courant is None:
                 continue
@@ -83,10 +84,21 @@ def menus(noeud):
     return res
 
 
+def resoudre(noeuds, fichier, nom):
+    """Nœud `nom` vu depuis `fichier` : d'abord dans le même fichier (les chapitres réutilisent
+    des noms), sinon le premier fichier qui le définit (@inclure)."""
+    if f"{fichier}:{nom}" in noeuds:
+        return f"{fichier}:{nom}"
+    for k in noeuds:
+        if k.split(":", 1)[1] == nom:
+            return k
+    return None
+
+
 def cles_branche(noeuds, depart, vus=None):
     """Clés persistantes écrites depuis `depart` jusqu'au prochain menu (sauts sans condition suivis)."""
     vus = vus or set()
-    if depart in vus or depart not in noeuds:
+    if depart is None or depart in vus or depart not in noeuds:
         return {}
     vus.add(depart)
     ecrit = {}
@@ -103,7 +115,7 @@ def cles_branche(noeuds, depart, vus=None):
             return ecrit
         elif typ == "saut":
             if g[1] is None:
-                for cle, val in cles_branche(noeuds, g[0], vus).items():
+                for cle, val in cles_branche(noeuds, resoudre(noeuds, noeuds[depart]["fichier"], g[0]), vus).items():
                     avant = ecrit.get(cle)
                     if not (avant and avant[0] == "+=" and avant[1].lstrip("+").isdigit() and int(avant[1]) > 0):
                         ecrit[cle] = val
@@ -155,7 +167,7 @@ def main():
         noeud = noeuds[n]
         for typ, g, num in noeud["instr"]:
             cible = g[0] if typ == "saut" else (g[1] if typ in ("choix", "delai") else None)
-            if cible and cible != "FIN" and cible not in noeuds:
+            if cible and cible != "FIN" and resoudre(noeuds, noeud["fichier"], cible) is None:
                 erreurs.append(f"{noeud['fichier']}:{num} : cible inconnue « {cible} »")
         for menu in menus(noeud):
             ou = f"{noeud['fichier']}:{menu['ligne']} ({n})"
@@ -163,14 +175,14 @@ def main():
                 d = [o for o in menu["options"] if o["cible"] == menu["delai"][1]]
                 if not d:
                     # Défaut « quelqu'un parle à sa place » : accepté s'il écrit les mêmes clés qu'une option.
-                    cles_defaut = set(cles_branche(noeuds, menu["delai"][1]))
-                    if not any(cles_defaut == set(cles_branche(noeuds, o["cible"])) for o in menu["options"]):
+                    cles_defaut = set(cles_branche(noeuds, resoudre(noeuds, noeud["fichier"], menu["delai"][1])))
+                    if not any(cles_defaut == set(cles_branche(noeuds, resoudre(noeuds, noeud["fichier"], o["cible"]))) for o in menu["options"]):
                         avis.append(f"{ou} : le défaut minuté vise « {menu['delai'][1]} », qui n'est pas une option du menu et n'en reproduit pas les clés")
                 elif all(o["cond"] for o in d):
                     erreurs.append(f"{ou} : l'option par défaut est conditionnelle")
                 if menu["delai"][0] < 5:
                     erreurs.append(f"{ou} : minuteur de {menu['delai'][0]} s, sous le minimum de 5 s")
-            branches = [cles_branche(noeuds, o["cible"]) for o in menu["options"]]
+            branches = [cles_branche(noeuds, resoudre(noeuds, noeud["fichier"], o["cible"])) for o in menu["options"]]
             listes = [set(b) for b in branches]
             union = set().union(*listes) if listes else set()
             for o, l in zip(menu["options"], listes):
