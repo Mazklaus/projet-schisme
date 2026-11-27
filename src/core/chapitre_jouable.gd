@@ -143,6 +143,7 @@ func _avant_dialogue() -> void:
 	mise_en_scene.camera = camera
 	mise_en_scene.drapeaux = Jeu.etat.drapeaux
 	mise_en_scene.position_joueur = func(): return joueur.global_position if is_instance_valid(joueur) else Vector2(960, 900)
+	mise_en_scene.figurant = func(nom: String): return props.get(nom)
 	add_child(mise_en_scene)
 	_regie = RegieGrosPlans.charger("res://data/episodes/%s/gros_plans.json" % Jeu.etat.episode)
 	lecteur.noeud_entre.connect(_regie_entrer)

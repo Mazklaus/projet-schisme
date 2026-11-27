@@ -42,6 +42,8 @@ var camera: Camera2D
 var drapeaux: Dictionary = {}
 ## Position du joueur (cible « joueur » des tirs) ; Callable qui rend un Vector2.
 var position_joueur := Callable()
+## Figurant posé par le chapitre, par son nom (clé « masquer ») ; Callable qui rend un Node ou null.
+var figurant := Callable()
 
 var lignes := 0
 var _en_attente: Array = []  # [N, Callable] : déclenchés à la N-ième réplique du nœud
@@ -49,6 +51,7 @@ var _effets: Array[Node] = []
 var _tirs: Array[Node2D] = []
 var _tweens_calques: Array[Tween] = []
 var _images_animees: Array[Node2D] = []
+var _masques: Array[CanvasItem] = []
 var _bruit := FastNoiseLite.new()
 var _texture_lumiere: Texture2D
 ## Particules : un disque doux partagé (jamais de carrés), taille de référence 32 px.
@@ -87,6 +90,12 @@ func jouer(m: Dictionary, decor_courant: Node2D, parent_effets: Node2D = null) -
 	_en_attente.clear()
 	if decor == null:
 		return
+	# « masquer » : figurants de l'exploration retirés du plan (Sefa seule), rendus à nettoyer().
+	for nom in _liste(m.get("masquer")):
+		var f = figurant.call(String(nom)) if figurant.is_valid() else null
+		if f is CanvasItem and is_instance_valid(f) and f.visible:
+			f.visible = false
+			_masques.append(f)
 	for e in _liste(m.get("particules")):
 		_programmer(e, _particules.bind(e))
 	for e in _liste(m.get("eclairs")):
@@ -135,6 +144,10 @@ func nettoyer() -> void:
 			img.remove_meta("position_mes")
 			img.remove_meta("alpha_mes")
 	_images_animees.clear()
+	for f in _masques:
+		if is_instance_valid(f):
+			f.visible = true
+	_masques.clear()
 	for n in _effets:
 		if is_instance_valid(n):
 			n.queue_free()

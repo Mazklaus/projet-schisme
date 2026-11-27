@@ -151,3 +151,13 @@ func test_plein_ecran_survit_au_nettoyage_et_se_retire_seul() -> void:
 	assert_not_null(mes.get_node_or_null("PleinEcran"), "il couvre la coupe de décor : pas retiré par nettoyer()")
 	await wait_seconds(0.8)
 	assert_null(mes.get_node_or_null("PleinEcran"), "retiré seul à la fin")
+
+
+func test_masquer_cache_les_figurants_puis_les_rend() -> void:
+	var poete := Node2D.new()
+	decor.add_child(poete)
+	mes.figurant = func(nom: String): return poete if nom == "poete" else null
+	mes.jouer({"masquer": ["poete", "absent"]}, decor)
+	assert_false(poete.visible, "retiré du plan")
+	mes.nettoyer()
+	assert_true(poete.visible, "rendu au changement de plan")
