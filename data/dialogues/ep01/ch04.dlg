@@ -10,7 +10,7 @@
 @ambiance archive 1.5
 @plan archive_drapeau
 > Un drapeau, à moitié brûlé, plié avec soin.
-@carton 3 Orvane. Un monde qui avait dit non.
+@carton 4 Orvane. Un monde qui avait dit non.
 -> briefing
 
 // ================================================================ 1. Le briefing d'Horus (scène dirigée)
@@ -143,7 +143,7 @@ ILSE (vox de l'Armée): Il y a des familles dans les caves. On peut les sortir p
 
 === percer_suite
 > La façade cède. La poussière, encore. Le même cadrage bas qu'à Ullanor.
-@carton 3 Orvane s'en souviendra.
+@carton 3.5 Orvane s'en souviendra.
 -> citadelle
 
 === attendre

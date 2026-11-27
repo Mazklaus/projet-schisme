@@ -10,11 +10,11 @@
 @plan archive_liste
 > Une liste de noms, écrite à la main. Des noms d'Orvane.
 -> archive_ch5_percer [si choix_ep01_orvane == 1]
-@carton 3 Peu de noms, cette fois.
+@carton 3.5 Peu de noms, cette fois.
 -> graver
 
 === archive_ch5_percer
-@carton 3 Personne d'autre ne les avait notés.
+@carton 4 Personne d'autre ne les avait notés.
 -> graver
 
 // ================================================================ 1. Graver les morts
@@ -148,7 +148,7 @@ DREMM (assurance): Où il ira, on ira. Lui devant, nous derrière.
 > Ils regardent les étoiles, à deux pas l'un de l'autre. Un pas de trop.
 DREMM: Tu as changé depuis Ullanor.
 VASKAR: Toi aussi.
-DREMM (assurance): Moi, j'ai monté. Toi, tu regardes en bas.
+DREMM (assurance): Moi, je suis monté. Toi, tu regardes en bas.
 > Dremm s'en va le premier.
 -> archive_fin
 
@@ -163,7 +163,7 @@ DREMM (assurance): Moi, j'ai monté. Toi, tu regardes en bas.
 -> archive_fin_verite [si choix_ep01_recit == 1]
 -> archive_fin_refus [si choix_ep01_recit == 3]
 // Défaut (2, triomphe) :
-@carton 4 Ce qu'il m'a dit, je l'ai gardé. Ce qu'il ne m'a pas dit aussi.
+@carton 6 Ce qu'il m'a dit, je l'ai gardé. Ce qu'il ne m'a pas dit aussi.
 -> archive_fin_sauver
 
 === archive_fin_verite
@@ -171,11 +171,11 @@ DREMM (assurance): Moi, j'ai monté. Toi, tu regardes en bas.
 -> archive_fin_sauver
 
 === archive_fin_refus
-@carton 4 Il ne m'a rien dit. Je l'ai gardé aussi.
+@carton 4.5 Il ne m'a rien dit. Je l'ai gardé aussi.
 -> archive_fin_sauver
 
 === archive_fin_sauver
 // Fin de l'épisode 1 : ajouter ep01 à episodes_termines, sauvegarder (spec §6).
 @sauver_episode ep01
-@titre 4 Fin de l'épisode 1. Le Maître de Guerre.
+@titre 4.5 Fin de l'épisode 1. Le Maître de Guerre.
 -> FIN
