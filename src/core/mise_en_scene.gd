@@ -33,8 +33,21 @@ const PARTICULES := {
 	"cendres": {"fondu": true, "couleur": Color(0.85, 0.82, 0.76, 0.6), "vie": 6.0, "vitesse": [10.0, 40.0], "gravite": [10, 8], "taille": [1.5, 4.0], "direction": [1, 0], "dispersion": 180.0, "quantite": 80},
 	"etincelles": {"couleur": Color(1.0, 0.85, 0.55, 1.0), "vie": 0.5, "vitesse": [120.0, 320.0], "gravite": [0, 500], "taille": [1.5, 3.0], "direction": [0, -1], "dispersion": 70.0, "quantite": 24, "addition": true},
 	"flash": {"fondu": true, "couleur": Color(1.0, 0.48, 0.23, 0.9), "vie": 0.14, "vitesse": [0.0, 4.0], "gravite": [0, 0], "taille": [26.0, 44.0], "direction": [0, -1], "dispersion": 180.0, "quantite": 4, "addition": true},
+	"bougie": {"fondu": true, "couleur": Color(1.0, 0.72, 0.35, 0.8), "vie": 0.6, "vitesse": [6.0, 14.0], "gravite": [0, -20], "taille": [2.0, 5.0], "direction": [0, -1], "dispersion": 8.0, "quantite": 10, "addition": true},
 	"vitres": {"couleur": Color(0.8, 0.9, 1.0, 0.85), "vie": 1.2, "vitesse": [40.0, 160.0], "gravite": [0, 700], "taille": [2.0, 5.0], "direction": [0, 1], "dispersion": 50.0, "quantite": 90, "addition": true},
 }
+
+## Son porté par chaque effet (décision GD du 27/11) : pas de @bruitage dans les .dlg pour un
+## effet visible. Une boucle dure tant que l'effet émet ; un coup part à l'apparition.
+## Une entrée de particules peut changer son son avec « son » (« » : muet).
+const SON_PARTICULES := {
+	"fumee": {"boucle": "fumee_boucle"},
+	"bougie": {"boucle": "bougie_boucle"},
+	"vitres": {"coup": "vitre"},
+}
+const SON_TIRS := {"laser": "tir_laser", "bolter": "tir_bolter", "projectile": "tir_projectile"}
+const VOLUME_BOUCLE_DB := -8.0
+const VOLUME_TIR_DB := -4.0
 
 var decor: Node2D
 var parent: Node2D
@@ -286,11 +299,61 @@ func _particules(e: Dictionary) -> void:
 		p.explosiveness = 0.85
 	_ajouter(p)
 	p.emitting = true
+	_son_particules(e, p)
 	if duree > 0.0 and not e.get("persiste", false):
 		_minuterie(duree, func():
 			if is_instance_valid(p):
 				p.emitting = false
+				_couper_son(p)
 				get_tree().create_timer(p.lifetime).timeout.connect(p.queue_free))
+
+
+## Son d'une entrée de particules : le nom de boucle ou de coup, ou {} si muet.
+static func son_des_particules(e: Dictionary) -> Dictionary:
+	if e.has("son"):
+		var nom := String(e.son)
+		if nom == "":
+			return {}
+		return {"boucle": nom} if nom.ends_with("_boucle") else {"coup": nom}
+	return SON_PARTICULES.get(String(e.get("type", "poussiere")), {})
+
+
+static func son_du_tir(e: Dictionary) -> String:
+	if e.has("son"):
+		return String(e.son)
+	return SON_TIRS.get(String(e.get("type", "laser")), "tir_laser")
+
+
+static func _son() -> Node:
+	var arbre := Engine.get_main_loop() as SceneTree
+	return arbre.root.get_node_or_null("Son") if arbre else null
+
+
+func _son_particules(e: Dictionary, p: Node) -> void:
+	var s := son_des_particules(e)
+	var son := _son()
+	if s.is_empty() or son == null:
+		return
+	if s.has("coup"):
+		son.bruitage(s.coup)
+		return
+	var lecteur: AudioStreamPlayer = son.boucle_bruitage(s.boucle)
+	if lecteur == null:
+		return
+	lecteur.create_tween().tween_property(lecteur, "volume_db", VOLUME_BOUCLE_DB, 0.8)
+	p.set_meta("son_boucle", lecteur)
+	p.tree_exiting.connect(_couper_son.bind(p))
+
+
+func _couper_son(p: Node) -> void:
+	if not is_instance_valid(p) or not p.has_meta("son_boucle"):
+		return
+	var lecteur: AudioStreamPlayer = p.get_meta("son_boucle")
+	p.remove_meta("son_boucle")
+	if is_instance_valid(lecteur) and lecteur.is_inside_tree():
+		var t := lecteur.create_tween()
+		t.tween_property(lecteur, "volume_db", -60.0, 1.0)
+		t.tween_callback(lecteur.queue_free)
 
 
 static func _texture_goutte() -> Texture2D:
@@ -428,6 +491,11 @@ func _tirer(e: Dictionary, bouche: PointLight2D) -> void:
 	# La traînée chaude reste un instant derrière la tête, puis s'éteint.
 	tw.tween_property(trace, "modulate:a", 0.0, 0.18 if bolter else 0.08)
 	tw.tween_callback(trace.hide)
+	# Chaque départ sonne, éclair de bouche visible ou non.
+	var son := _son()
+	var nom_son := son_du_tir(e)
+	if son and nom_son != "":
+		son.bruitage(nom_son, float(e.get("volume_db", VOLUME_TIR_DB)), randf_range(0.94, 1.06))
 	if bouche and is_instance_valid(bouche) and e.get("eclair_bouche", bolter):
 		bouche.position = de
 		_particules({"type": "etincelles", "zone_px": [de.x - 4, de.y - 4, 8, 8], "duree": 0.1,
@@ -555,7 +623,8 @@ func _explosions(e: Dictionary) -> void:
 	_eclair({"position_px": [pos.x, pos.y], "couleur": e.get("couleur", "#FFD8A0"),
 		"energie": e.get("energie", 2.0), "rayon_px": 700})
 	_particules({"type": "gravats", "zone_px": [pos.x - 60, pos.y - 30, 120, 60], "duree": 0.6, "densite": 1.0})
-	_particules({"type": "fumee", "zone_px": [pos.x - 50, pos.y - 40, 100, 60], "duree": 6.0, "densite": 0.4})
+	# Muette : une boucle par obus s'empilerait ; la fumée d'ambiance de la scène porte le son.
+	_particules({"type": "fumee", "zone_px": [pos.x - 50, pos.y - 40, 100, 60], "duree": 6.0, "densite": 0.4, "son": ""})
 	if float(e.get("tremblement_px", 0.0)) > 0.0:
 		_trembler({"amplitude_px": e.tremblement_px, "duree": 0.5})
 	if e.has("intervalle_s"):

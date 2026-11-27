@@ -161,3 +161,20 @@ func test_masquer_cache_les_figurants_puis_les_rend() -> void:
 	assert_false(poete.visible, "retiré du plan")
 	mes.nettoyer()
 	assert_true(poete.visible, "rendu au changement de plan")
+
+
+func test_son_porte_par_les_effets() -> void:
+	assert_eq(MiseEnScene.son_des_particules({"type": "fumee"}), {"boucle": "fumee_boucle"})
+	assert_eq(MiseEnScene.son_des_particules({"type": "bougie"}), {"boucle": "bougie_boucle"})
+	assert_eq(MiseEnScene.son_des_particules({"type": "vitres"}), {"coup": "vitre"})
+	assert_eq(MiseEnScene.son_des_particules({"type": "poussiere"}), {})
+	assert_eq(MiseEnScene.son_des_particules({"type": "fumee", "son": ""}), {})
+	assert_eq(MiseEnScene.son_des_particules({"type": "vitres", "son": "vitre_fissure"}), {"coup": "vitre_fissure"})
+	assert_eq(MiseEnScene.son_du_tir({"type": "bolter"}), "tir_bolter")
+	assert_eq(MiseEnScene.son_du_tir({"type": "laser"}), "tir_laser")
+	assert_eq(MiseEnScene.son_du_tir({"type": "laser", "son": ""}), "")
+	for s in MiseEnScene.SON_PARTICULES.values():
+		var nom: String = s.get("boucle", s.get("coup", ""))
+		assert_true(ResourceLoader.exists("res://assets/audio/sfx_%s.ogg" % nom) or ResourceLoader.exists("res://assets/audio/sfx_%s_01.ogg" % nom), nom)
+	for nom in MiseEnScene.SON_TIRS.values():
+		assert_true(ResourceLoader.exists("res://assets/audio/sfx_%s_01.ogg" % nom), nom)
