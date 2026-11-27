@@ -40,6 +40,7 @@ DREMM (enfant): Attrape. Je te tiens.
 @musique ep01_luna_wolves 1.5
 ~ trait_vaskar_fraternite += 1
 ~ trait_vaskar_orgueil += 0
+> Dremm le tire d'un coup. L'étai lui ouvre la tempe au passage.
 DREMM (enfant): Tu te perds toujours, toi.
 VASKAR (enfant): Tu me retrouves toujours.
 -> cthonia_fin
