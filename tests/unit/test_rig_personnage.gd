@@ -182,7 +182,7 @@ func test_astartes_plus_lourd_et_plus_lent() -> void:
 	# Gestes économes : même geste, moins d'amplitude, entrée plus longue.
 	a.jouer_geste("montrer")
 	_avancer(a, 1.5)
-	assert_almost_eq(rad_to_deg(a.os.bras_avant.rotation), -90.0, 3.0, "bloc propre : le bras dégage le torse")
+	assert_almost_eq(rad_to_deg(a.os.torse.rotation), -3.0, 1.0, "bloc propre : le bras arrière tendu montre")
 	assert_gt(a.duree_visible("montrer"), h.duree_visible("montrer"))
 
 
@@ -247,3 +247,24 @@ func test_piece_de_remplacement_a_mi_geste() -> void:
 	_avancer(r, 3.0)
 	assert_false(r.pieces.bras_tendu.visible, "rendue au repos")
 	assert_true(r.pieces.bras_avant.visible)
+
+
+
+func test_astartes_montre_avec_le_bras_arriere() -> void:
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d.type = "astartes"
+	d.pieces["bras_tendu_arriere"] = {"fichier": "bras_arriere.png", "pose": [46, 61], "pivot": [23, 18], "parent": "torse"}
+	d.pieces["bras_tendu"] = {"fichier": "bras_avant.png", "pose": [6, 61], "pivot": [17, 18], "parent": "torse"}
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	r.avancer(0.016)
+	assert_false(r.pieces.bras_tendu.visible, "pièce dédiée d'un autre type : cachée au repos")
+	r.jouer_geste("montrer")
+	_avancer(r, 1.5)
+	assert_true(r.pieces.bras_tendu_arriere.visible)
+	assert_false(r.pieces.bras_arriere.visible)
+	assert_true(r.pieces.bras_avant.visible, "le bras avant reste en place")
+	_avancer(r, 4.0)
+	assert_false(r.pieces.bras_tendu_arriere.visible)
+	assert_true(r.pieces.bras_arriere.visible)

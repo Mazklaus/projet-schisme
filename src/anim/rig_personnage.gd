@@ -15,7 +15,7 @@ signal geste_termine(nom: StringName)
 const GESTES := "res://data/anim/gestes.json"
 ## Ordre z du contrat, du fond vers l'avant (les variantes suivent leur pièce de base).
 const ORDRE := [
-	"bras_arriere", "avant_bras_arriere", "main_arriere", "epauliere_arriere", "cuisse_arriere",
+	"bras_tendu_arriere", "bras_arriere", "avant_bras_arriere", "main_arriere", "epauliere_arriere", "cuisse_arriere",
 	"jambe_arriere", "pied_arriere", "cape", "bassin", "arme_fourreau", "torse", "tete", "tete_face", "tete_casque",
 	"yeux_fermes", "yeux_fermes_face", "cuisse_avant", "jambe_avant", "pied_avant", "bras_avant",
 	"avant_bras_avant", "main_avant", "main_avant_pointe", "main_avant_poing", "main_avant_pommeau", "casque_main", "bras_croises", "bras_tendu", "arme_levee", "arme_main",
@@ -162,8 +162,10 @@ func construire(d: Dictionary, dossier: String) -> void:
 	profil.merge(_gestes.get("profils", {}).get(type_rig, {}), true)
 	_entree = float(profil.entree_s)
 	_sortie = float(profil.sortie_s)
-	for g in _gestes.get("gestes", {}).values():
-		for n in g.get("montre", []):
+	for g0 in _gestes.get("gestes", {}).values():
+		var g := _geste_du_type(g0)
+		# Toute pièce dédiée, d'un type ou d'un autre, reste cachée hors de son geste.
+		for n in g0.get("montre", []) + g.get("montre", []):
 			if not n in _pieces_de_geste:
 				_pieces_de_geste.append(n)
 		# Pièces ordinaires qu'un geste cache : à rendre visibles ensuite (les mains et la tête
@@ -312,7 +314,7 @@ func avancer(delta: float) -> void:
 	var montre: bool = actif and _poids > 0.5
 	_variantes(String(g.get("main", "")) if montre else "", String(g.get("tete", "")) if montre else "",
 		montre and g.get("casque", "") == "main")
-	_pieces_geste(g if montre else {})
+	_pieces_geste(_geste_du_type(g) if montre else {})
 	# Clignement : 0,12 s toutes les 2 à 6 s.
 	if _temps >= _prochain_clignement and _fin_clignement < 0.0:
 		_fin_clignement = _temps + 0.12
@@ -392,6 +394,19 @@ func os_du_geste(g: Dictionary) -> Dictionary:
 	var r := {}
 	for n in g.get("os", {}):
 		r[n] = float(g.os[n]) * k
+	return r
+
+
+## Geste vu par ce type de rig : son bloc propre (« astartes ») peut remplacer les pièces
+## montrées et cachées (Astartes : « montrer » avec le bras arrière, bras_tendu_arriere).
+func _geste_du_type(g: Dictionary) -> Dictionary:
+	var propre: Dictionary = g.get(type_rig, {})
+	if not propre.has("montre") and not propre.has("cache"):
+		return g
+	var r := g.duplicate()
+	for cle in ["montre", "cache"]:
+		if propre.has(cle):
+			r[cle] = propre[cle]
 	return r
 
 

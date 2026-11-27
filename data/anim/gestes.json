@@ -13,12 +13,18 @@
         "tete": -4
       },
       "astartes": {
+        "montre": [
+          "bras_tendu_arriere"
+        ],
+        "cache": [
+          "bras_arriere",
+          "avant_bras_arriere",
+          "main_arriere"
+        ],
         "os": {
-          "bras_avant": -90,
-          "avant_bras_avant": -6,
-          "main_avant": -4,
-          "torse": -2,
-          "tete": -3
+          "torse": -3,
+          "tete": -4,
+          "bras_avant": 6
         }
       },
       "montre": [
