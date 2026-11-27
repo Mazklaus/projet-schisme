@@ -57,13 +57,20 @@ uniform float force : hint_range(0.0, 1.0) = 0.0;
 // Zone masquée (UV : x, y, largeur, hauteur) : une partie détachée du calque pour être animée
 // à part (la tête pour un hochement). Largeur nulle : rien n'est masqué.
 uniform vec4 masque = vec4(0.0);
+// En Godot 4, le COLOR d'entrée du fragment contient déjà la texture : on garde la modulation
+// seule (couleur de sommet × modulate) depuis vertex(), sinon la texture compte deux fois et
+// tout calque voilé sort assombri (Titans d'Ullanor, retour DA).
+varying vec4 modulation;
+void vertex() {
+	modulation = COLOR;
+}
 void fragment() {
 	if (masque.z > 0.0 && UV.x >= masque.x && UV.x < masque.x + masque.z
 			&& UV.y >= masque.y && UV.y < masque.y + masque.w) {
 		discard;
 	}
 	vec4 c = texture(TEXTURE, UV);
-	COLOR = vec4(mix(c.rgb, voile.rgb, force), c.a) * COLOR;
+	COLOR = vec4(mix(c.rgb, voile.rgb, force), c.a) * modulation;
 }
 """
 static var _shader_voile: Shader

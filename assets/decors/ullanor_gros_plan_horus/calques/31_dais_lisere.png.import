@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://by5mmia4nn1ho"
-path="res://.godot/imported/horus_5b_orgueil_normal.png-447f94c6cce665ebd8bffca2b6457279.ctex"
+uid="uid://csk2jsa4gj0ew"
+path="res://.godot/imported/31_dais_lisere.png-809248a95e7c06f1478982746b1a39bf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/personnages/horus_5b/horus_5b_orgueil_normal.png"
-dest_files=["res://.godot/imported/horus_5b_orgueil_normal.png-447f94c6cce665ebd8bffca2b6457279.ctex"]
+source_file="res://assets/decors/ullanor_gros_plan_horus/calques/31_dais_lisere.png"
+dest_files=["res://.godot/imported/31_dais_lisere.png-809248a95e7c06f1478982746b1a39bf.ctex"]
 
 [params]
 

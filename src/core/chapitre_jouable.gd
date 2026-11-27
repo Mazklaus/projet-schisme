@@ -228,7 +228,8 @@ func _preparer_plan(p: Dictionary) -> void:
 	for nom in p.get("props", {}):
 		if not is_instance_valid(props.get(nom)):
 			var pos: Array = p.props[nom]
-			var s := _prop(d, nom, Vector2(pos[0], pos[1]))
+			# Dans le « Monde » du décor (z 10) : posé à la racine, il passait sous tous les calques.
+			var s := _prop(monde_de(d), nom, Vector2(pos[0], pos[1]))
 			s.add_to_group("props_de_plan")
 	for nom in p.get("textures", {}):
 		var image: Sprite2D = null
@@ -649,6 +650,7 @@ func _commencer_jeu(nom: String) -> void:
 			_prop(monde_de(d), config.figurants[k], pois[k] + Vector2(0, -10))
 	_declenches = {}
 	_vus_depuis = {}
+	_tout_vu_depuis = -1.0
 	temps_jeu = 0.0
 	inactif = 0.0
 	relance_faite = false
@@ -722,10 +724,53 @@ func obligatoires_vus(liste: Array = config.get("obligatoires", [])) -> bool:
 	return liste.all(func(p): return pois_vus.has(p))
 
 
-func _suivre_declencheurs() -> bool:
-	if boite.visible:
+## Règle générale (spec v1.4 §9) : quand tous les points d'intérêt disponibles de la zone sont
+## vus (un point masqué par une condition n'est pas dans « pois »), la suite part TOUT_VU_S
+## secondes après la fin de la dernière réplique ; le max_s des déclencheurs reste un filet.
+const TOUT_VU_S := 3.0
+## Temps de jeu où le dernier point a fini d'être lu (-1 : pas encore tout vu).
+var _tout_vu_depuis := -1.0
+
+
+func tous_pois_vus() -> bool:
+	if pois.is_empty():
 		return false
+	for k in pois:
+		if not pois_vus.has(k) and poi_disponible(k):
+			return false
+	return true
+
+
+func _suivre_declencheurs() -> bool:
+	var i := declencheur_pret()
+	if i < 0:
+		return false
+	_declenches[i] = true
+	_quitter_jeu()
+	jouer_noeud(config.declencheurs[i].noeud)
+	return true
+
+
+## Index du déclencheur qui part maintenant (-1 : aucun) : x franchi, max_s écoulé, ou tout vu.
+func declencheur_pret() -> int:
+	if boite.visible:
+		_tout_vu_depuis = -1.0
+		return -1
+	if _tout_vu_depuis < 0.0 and tous_pois_vus():
+		_tout_vu_depuis = temps_jeu
+	var tout_vu := _tout_vu_depuis >= 0.0 and temps_jeu - _tout_vu_depuis >= TOUT_VU_S
 	var liste: Array = config.get("declencheurs", [])
+	# Tout vu : la suite est celle du filet (premier déclencheur à max_s prêt), sinon le premier
+	# déclencheur prêt.
+	var suite := -1
+	if tout_vu:
+		for i in liste.size():
+			if not _declenches.has(i) and obligatoires_vus(liste[i].get("apres", [])):
+				if liste[i].has("max_s"):
+					suite = i
+					break
+				if suite < 0:
+					suite = i
 	for i in liste.size():
 		var d: Dictionary = liste[i]
 		if _declenches.has(i) or not obligatoires_vus(d.get("apres", [])):
@@ -733,12 +778,9 @@ func _suivre_declencheurs() -> bool:
 		if not _vus_depuis.has(i):
 			_vus_depuis[i] = temps_jeu
 		var par_temps: bool = d.has("max_s") and temps_jeu - _vus_depuis[i] >= float(d.max_s)
-		if joueur.position.x >= float(d.get("x", INF)) or par_temps:
-			_declenches[i] = true
-			_quitter_jeu()
-			jouer_noeud(d.noeud)
-			return true
-	return false
+		if joueur.position.x >= float(d.get("x", INF)) or par_temps or i == suite:
+			return i
+	return -1
 
 
 func _interagir_pois() -> void:

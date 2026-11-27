@@ -51,7 +51,7 @@
       },
       {
         "apres": [],
-        "max_s": 180,
+        "max_s": 90,
         "noeud": "rumeur_nom"
       }
     ]

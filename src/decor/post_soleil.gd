@@ -1,8 +1,9 @@
 class_name PostSoleil
 extends CanvasLayer
-## Soleil peint d'un plan (« cle » de type soleil, Ullanor) : halo additif autour du point et rais
-## par flou radial des zones claires depuis le soleil, à rais_force × 0,45, comme l'assemblage de la
-## DA (tranche-verticale/assembler.py). Passe d'image sous l'interface (calque 1).
+## Soleil peint d'un plan (« cle » de type soleil, Ullanor) : la passe d'image de l'assemblage de la
+## DA (tranche-verticale/assembler.py), dans le même ordre : rais par flou radial des zones claires
+## depuis le soleil (rais_force × 0,45), bloom, étalonnage, vignettage et tonemap doux. Pas de halo
+## ajouté : le soleil est peint dans le ciel. Passe d'image sous l'interface (calque 1).
 
 const SHADER := """
 shader_type canvas_item;
@@ -10,28 +11,23 @@ uniform sampler2D ecran : hint_screen_texture, filter_linear_mipmap;
 uniform vec2 soleil = vec2(0.6, 0.52);
 uniform vec4 couleur : source_color = vec4(1.0, 0.91, 0.69, 1.0);
 uniform float rais = 1.0;
-uniform float halo = 1.0;
-uniform float aspect = 1.7778;
-uniform float seuil = 0.6;
+uniform float seuil = 0.72;
 
 void fragment() {
 	vec2 uv = SCREEN_UV;
 	vec3 base = textureLod(ecran, uv, 0.0).rgb;
+	// Rais : flou radial depuis le soleil des zones claires (moyenne RVB > seuil 0,72).
 	float acc = 0.0;
 	for (int i = 0; i < 24; i++) {
 		float s = 1.0 - float(i) * 0.022;
 		vec2 p = soleil + (uv - soleil) * s;
 		vec3 c = textureLod(ecran, p, 1.0).rgb;
 		float l = (c.r + c.g + c.b) / 3.0;
-		acc += clamp((l - seuil) / (1.0 - seuil), 0.0, 1.0);
+		float dedans = step(0.0, p.x) * step(p.x, 1.0) * step(0.0, p.y) * step(p.y, 1.0);
+		acc += clamp((l - seuil) / (1.0 - seuil), 0.0, 1.0) * dedans;
 	}
-	vec2 d = (uv - soleil) * vec2(aspect, 1.0);
-	float r = length(d);
-	// Point vif, halo moyen, et voile large (~500 px) qui baigne la citadelle.
-	float h = exp(-r * r / 0.003) * 0.7 + exp(-r / 0.3) * 0.3 + exp(-r / 0.46) * 0.22;
-	vec3 img = base + couleur.rgb * (acc / 24.0 * rais * 0.45 + h * halo);
-	// Bloom (assembler.py : seuil 0,85 sur le max RVB, flou ~W/160, ajouté à 0,8) : approché par
-	// les mipmaps de l'écran.
+	vec3 img = base + couleur.rgb * (acc / 24.0 * rais * 0.45);
+	// Bloom (seuil 0,85 sur le max RVB, flou ~W/160, ajouté à 0,8) : approché par les mipmaps.
 	vec3 flou = textureLod(ecran, uv, 3.5).rgb;
 	float mx = max(flou.r, max(flou.g, flou.b));
 	img += clamp((mx - 0.85) / 0.15, 0.0, 1.0) * flou * 0.8;
@@ -39,6 +35,14 @@ void fragment() {
 	float lum = clamp((img.r + img.g + img.b) / 3.0, 0.0, 1.0);
 	img = img * (1.0 - 0.2 * (1.0 - lum)) + vec3(0.227, 0.208, 0.314) * 0.2 * (1.0 - lum) * lum * 2.0;
 	img *= vec3(1.03, 1.0, 0.94);
+	// Vignettage (0,35).
+	vec2 q = (uv - 0.5) * 2.0;
+	img *= 1.0 - 0.35 * dot(q, q) / 2.0;
+	// Tonemap doux sur la luminance (garde la teinte).
+	float m = max(img.r, max(img.g, img.b));
+	if (m > 0.85) {
+		img *= (0.85 + (1.0 - exp(-(m - 0.85) * 4.0)) * 0.15) / m;
+	}
 	COLOR = vec4(img, 1.0);
 }
 """
@@ -94,5 +98,4 @@ func _process(_delta: float) -> void:
 	var ecran := repere.get_global_transform_with_canvas() * position_px
 	var m := _rect.material as ShaderMaterial
 	m.set_shader_parameter("soleil", ecran / taille)
-	m.set_shader_parameter("aspect", taille.x / taille.y)
 
