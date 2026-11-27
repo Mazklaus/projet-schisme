@@ -742,6 +742,8 @@ func _construire_ui() -> void:
 	_vox.offset_bottom = 140
 	_vox.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_vox.add_theme_font_size_override("font_size", 30)
+	_vox.add_theme_font_override("font", StyleSchisme.italique())
+	_vox.add_theme_color_override("font_color", StyleSchisme.TEXTE)
 	_vox.add_theme_color_override("font_outline_color", Color.BLACK)
 	_vox.add_theme_constant_override("outline_size", 8)
 	_ui.add_child(_vox)
@@ -757,6 +759,8 @@ func _construire_ui() -> void:
 	_ui.add_child(_voile_noir)
 	_invite = Label.new()
 	_invite.add_theme_font_size_override("font_size", 26)
+	_invite.add_theme_font_override("font", StyleSchisme.texte(500))
+	_invite.add_theme_color_override("font_color", StyleSchisme.MARBRE)
 	_invite.add_theme_color_override("font_outline_color", Color.BLACK)
 	_invite.add_theme_constant_override("outline_size", 8)
 	_invite.z_index = 100
@@ -780,15 +784,16 @@ func _construire_aide_deplacement() -> Control:
 	l.offset_bottom = -70
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", 34)
-	l.add_theme_color_override("font_color", Color("#F2EAD3"))
+	l.add_theme_font_size_override("font_size", 32)
+	l.add_theme_font_override("font", StyleSchisme.texte(500))
+	l.add_theme_color_override("font_color", StyleSchisme.MARBRE)
 	l.add_theme_color_override("font_outline_color", Color.BLACK)
 	l.add_theme_constant_override("outline_size", 8)
 	var plaque := StyleBoxFlat.new()
 	plaque.bg_color = Color(0.04, 0.03, 0.02, 0.82)
-	plaque.border_color = Color("#C9A44C")
-	plaque.set_border_width_all(2)
-	plaque.set_corner_radius_all(6)
+	plaque.border_color = StyleSchisme.OR_TERNI
+	plaque.set_border_width_all(1)
+	plaque.set_corner_radius_all(0)
 	plaque.content_margin_left = 28
 	plaque.content_margin_right = 28
 	plaque.content_margin_top = 12
@@ -1381,39 +1386,48 @@ func rappel_fin() -> String:
 	return ""
 
 
+## Écran de fin (maquette UI v0.1, écran 8) : « FIN DE L'ÉPISODE N », titre, « Ce que l'archive
+## a gardé » (le rappel, une ou plusieurs lignes), boutons en cartouches.
 func _construire_ecran_fin(titre: String, rappel: String) -> Control:
 	var centre := CenterContainer.new()
 	centre.name = "EcranFin"
 	centre.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var vb := VBoxContainer.new()
 	vb.alignment = BoxContainer.ALIGNMENT_CENTER
-	vb.add_theme_constant_override("separation", 18)
+	vb.add_theme_constant_override("separation", 26)
 	centre.add_child(vb)
-	var l_titre := Label.new()
-	l_titre.text = titre
+	var ep := Catalogue.episode(Jeu.etat.episode)
+	vb.add_child(StyleSchisme.surtitre("FIN DE L'ÉPISODE %d" % int(ep.get("numero", 1))))
+	var l_titre := StyleSchisme.label(titre, StyleSchisme.titre(500), 90, StyleSchisme.MARBRE, 0.06)
 	l_titre.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l_titre.add_theme_font_size_override("font_size", 84)
-	l_titre.add_theme_color_override("font_color", Color("#F2EAD3"))
 	vb.add_child(l_titre)
-	var ligne := Label.new()
+	vb.add_child(StyleSchisme.regle_fleur())
+	if not rappel.is_empty():
+		var tete := StyleSchisme.label("CE QUE L'ARCHIVE A GARDÉ", StyleSchisme.titre(600), 18, StyleSchisme.OR_TERNI, 0.36)
+		tete.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vb.add_child(tete)
+	var ligne := StyleSchisme.label(rappel, StyleSchisme.italique(), 30, Color("#D8CFBB"))
 	ligne.name = "Rappel"
-	ligne.text = rappel
 	ligne.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	ligne.add_theme_font_size_override("font_size", 30)
-	ligne.add_theme_color_override("font_color", Color("#C9A44C"))
+	ligne.add_theme_constant_override("line_spacing", 8)
 	vb.add_child(ligne)
 	var espace := Control.new()
-	espace.custom_minimum_size.y = 40
+	espace.custom_minimum_size.y = 30
 	vb.add_child(espace)
-	for d in [["Rejouer", func(): Jeu.nouvelle_partie(Jeu.etat.episode)], ["Quitter", func(): get_tree().quit()]]:
+	var boutons := HBoxContainer.new()
+	boutons.alignment = BoxContainer.ALIGNMENT_CENTER
+	boutons.add_theme_constant_override("separation", 26)
+	vb.add_child(boutons)
+	for d in [["Rejouer", func(): Jeu.nouvelle_partie(Jeu.etat.episode)],
+			["Menu", func(): get_tree().change_scene_to_file(Jeu.MENU)],
+			["Quitter", func(): get_tree().quit()]]:
 		var b := Button.new()
 		b.name = d[0]
 		b.text = d[0]
-		b.custom_minimum_size = Vector2(320, 0)
-		b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		b.add_theme_font_size_override("font_size", 30)
+		b.custom_minimum_size = Vector2(290, 62)
+		StyleBoxCartouche.habiller(b)
 		b.pressed.connect(d[1])
-		vb.add_child(b)
+		boutons.add_child(b)
 	return centre
 
 
