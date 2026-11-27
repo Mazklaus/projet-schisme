@@ -1,17 +1,17 @@
 {
-  "entree": "episode-01/cthonia_tunnel/calques/50_avant_plan.png",
+  "entree": "episode-01/cthonia_tunnel/calques/50_avant_plan.png (maquette)",
   "sortie": "calques/50_avant_plan.png",
-  "date": "2026-11-27T16:09:36",
+  "date": "2026-11-27T20:02:20",
   "modeles": [
     "Lykon/dreamshaper-xl-lightning",
     "diffusers/controlnet-depth-sdxl-1.0-small",
     "madebyollin/sdxl-vae-fp16-fix"
   ],
-  "invite": ", dark foreground boulders, jagged fractured rock with deep cracks, chipped edges, soot-black stone, grit, splintered wooden plank with fibres, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+  "invite": ", dark foreground boulders, jagged fractured rock with deep cracks, chipped edges, soot-black stone, grit, old splintered wooden plank with wood grain fibres and chips, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
   "invite_negative": "people, figures, child, text, letters, lamp, lantern, light bulb, light source, glowing, wire, cable, smooth, flat, plain, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
   "reglages": {
     "modele": "xl",
-    "preset": "dark foreground boulders, jagged fractured rock with deep cracks, chipped edges, soot-black stone, grit, splintered wooden plank with fibres",
+    "preset": "dark foreground boulders, jagged fractured rock with deep cracks, chipped edges, soot-black stone, grit, old splintered wooden plank with wood grain fibres and chips",
     "invite": "",
     "force": 0.75,
     "pas": 8,
@@ -34,8 +34,8 @@
   },
   "statut": "fige",
   "note": "passer statut a 'fige' quand la DA a choisi et le GD valide",
-  "pretraitement": "gain x2.5, pretexture amp 0.35 graine 5, retouche (graine 62), gain x0.4, lisere.py 1281,399 FFD08A 0.35 ep 4",
-  "choix": "DA 27/11 15:42 (reprises) (50_avant_plan_g63)",
-  "installe": "2026-11-27T19:46:41",
+  "pretraitement": "niveaux sur la planche seule (masque_planche.png : noir 8, blanc 50 -> 0..90, sans gamma), gain x2.5, pretexture amp 0.35 graine 5, retouche graine 62, gain x0.4, lisere.py 1281,399 FFD08A 0.35 ep 4",
+  "choix": "DA 27/11 20:03 (50_avant_plan_g64)",
+  "installe": "2026-11-27T20:04:02",
   "note_4k": "4k = agrandissement provisoire du 1080 peint, à refaire au lot 4k de fin"
 }
