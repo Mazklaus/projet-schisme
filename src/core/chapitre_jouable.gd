@@ -1222,12 +1222,14 @@ var _tout_vu_depuis := -1.0
 
 
 func tous_pois_vus() -> bool:
-	if pois.is_empty():
-		return false
+	# Aucun point disponible (zone vide, Ilse morte) : rien n'a été « tout vu ».
+	var comptes := 0
 	for k in pois:
-		if not pois_vus.has(k) and poi_disponible(k):
+		if pois_vus.has(k):
+			comptes += 1
+		elif poi_disponible(k):
 			return false
-	return true
+	return comptes > 0
 
 
 func _suivre_declencheurs() -> bool:
@@ -1245,7 +1247,12 @@ func declencheur_pret() -> int:
 	if boite.visible:
 		_tout_vu_depuis = -1.0
 		return -1
-	if _tout_vu_depuis < 0.0 and tous_pois_vus():
+	# Spec §9.4 : une zone à déclencheur de position (« x ») avance par le chemin et le filet
+	# max_s, jamais par la règle « tout vu » (assaut du ch. 4 : la suite est au bout de la rue).
+	var par_position := false
+	for d in config.get("declencheurs", []):
+		par_position = par_position or (d as Dictionary).has("x")
+	if not par_position and _tout_vu_depuis < 0.0 and tous_pois_vus():
 		_tout_vu_depuis = temps_jeu
 	var tout_vu := _tout_vu_depuis >= 0.0 and temps_jeu - _tout_vu_depuis >= TOUT_VU_S
 	var liste: Array = config.get("declencheurs", [])
