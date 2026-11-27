@@ -178,3 +178,25 @@ func test_son_porte_par_les_effets() -> void:
 		assert_true(ResourceLoader.exists("res://assets/audio/sfx_%s.ogg" % nom) or ResourceLoader.exists("res://assets/audio/sfx_%s_01.ogg" % nom), nom)
 	for nom in MiseEnScene.SON_TIRS.values():
 		assert_true(ResourceLoader.exists("res://assets/audio/sfx_%s_01.ogg" % nom), nom)
+
+
+func test_hologramme_sur_plan_puis_extinction() -> void:
+	mes.jouer({"hologramme": [
+		{"image": "horus_holo", "position_px": [600, 500], "echelle": 0.6, "allume_s": 0.1, "sur_plan": "hololithe_horus"},
+		{"eteint_s": 0.1, "remanence_s": 0.1, "apres_ligne": 2}]}, decor)
+	assert_null(decor.get_node_or_null("Hologramme"), "attend son plan")
+	mes.plan("autre")
+	assert_null(decor.get_node_or_null("Hologramme"))
+	mes.plan("hololithe_horus")
+	var h := decor.get_node_or_null("Hologramme")
+	assert_not_null(h, "allumé au plan")
+	mes.ligne()
+	assert_true(is_instance_valid(h))
+	mes.ligne()
+	await wait_seconds(0.5)
+	assert_false(is_instance_valid(h), "éteint après la 2e ligne")
+
+
+func test_etat_decor_sans_decor_25d_ne_plante_pas() -> void:
+	mes.jouer({"etat_decor": [{"depuis": "avant_aube", "etat": "aube", "duree_s": 1}]}, decor)
+	assert_true(true, "décor sans états : ignoré")

@@ -33,39 +33,82 @@
   "calques": [
     {
       "fichier": "calques/00_ciel.png",
-      "ambiance": false
+      "ambiance": false,
+      "couleur_intensite_par_etat": {
+        "aube": [
+          "#FFFFFF",
+          1.0
+        ],
+        "avant_aube": [
+          "#56628C",
+          1.0
+        ]
+      }
     },
     {
       "fichier": "calques/10_fond.png",
       "distance_m": 7000,
-      "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée"
+      "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée",
+      "modulate_par_etat": {
+        "aube": 1.0,
+        "avant_aube": 0.6
+      }
     },
     {
       "fichier": "calques/20_titans.png",
-      "distance_m": 1050
+      "distance_m": 1050,
+      "modulate_par_etat": {
+        "aube": 1.0,
+        "avant_aube": 0.6
+      }
     },
     {
       "fichier": "calques/25_poussiere.png",
-      "distance_m": 1000
+      "distance_m": 1000,
+      "modulate_par_etat": {
+        "aube": 1.0,
+        "avant_aube": 0.6
+      }
     },
     {
       "fichier": "calques/30_voie.png",
       "distance_m": 300,
       "ombre": false,
-      "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée"
+      "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée",
+      "modulate_par_etat": {
+        "aube": 1.0,
+        "avant_aube": 0.6
+      }
     },
     {
       "fichier": "calques/35_dais.png",
       "distance_m": 900,
-      "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée"
+      "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée",
+      "modulate_par_etat": {
+        "aube": 1.0,
+        "avant_aube": 0.6
+      }
     },
     {
       "fichier": "calques/50_avant_plan.png",
-      "distance_m": 3
+      "distance_m": 3,
+      "modulate_par_etat": {
+        "aube": 1.0,
+        "avant_aube": 0.6
+      }
     },
     {
       "fichier": "calques/90_particules.png",
       "note": "poussière fine qui retombe"
     }
-  ]
+  ],
+  "etats": {
+    "aube": {
+      "note": "état peint (défaut)"
+    },
+    "avant_aube": {
+      "note": "Lead 27/11, audit texte-image écart 5 : ciel bleu sombre et décor assombri ; la mise en scène fond vers « aube » sur la durée de la scène (le ciel pâlit)"
+    }
+  },
+  "pret_jeu": true
 }

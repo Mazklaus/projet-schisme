@@ -122,14 +122,15 @@
    "calques/20_nef_ombre.png": "46becc00e4bc18487927a48ed6e30022",
    "calques/30_mobilier.png": "4b82604d6b74d2104a6baffd1301d0af",
    "calques/30_mobilier_normal.png": "647ddea54618ae7e8da22d3d18f4f26d",
-   "calques/40_personnages.png": "d8a0fd6222dbd3fe62b7051ef512de6a",
+   "calques/40_personnages.png": "e5f6b927c39ad353af59c4c7e651bfc3",
    "calques/40_personnages_normal.png": "58e4f340a5a0cc35b9738d571eba9d90",
    "calques/40_personnages_ombre.png": "ef3524ecc9d62be88c39fba29dacfc69",
    "calques/45_lampe.png": "89570614fffa649e44e711c1c2692b62",
    "calques/50_avant_plan.png": "0ff41fc00cb55c14c1fe385ef5b7226b",
    "calques/50_avant_plan_normal.png": "c15e5fee723a5ea137361dddab47e299",
    "calques/90_particules.png": "8ea72d5c81ac46a5536e000e78c3bf8b",
-   "calques/gabarit_40_personnages.png": "d7eb8dff4c9de8f677d035a22bc60a82"
+   "calques/gabarit_40_personnages.png": "d7eb8dff4c9de8f677d035a22bc60a82",
+   "calques/masque_visages_40.png": "ed7c270543d4b96ac7d9afd2f71440e4"
   },
   "source": "episode-01/barge_quartiers_27"
  },
@@ -435,15 +436,21 @@
  "ullanor_aube": {
   "fichiers": {
    "calques/00_ciel.png": "bbd651ef971fea42b541e46b9eab5340",
+   "calques/10_fond.peint.json": "b5a300733d54092d0391416a056f5ef9",
    "calques/10_fond.png": "1efc5172a115d9d70ba7e714cb6f0618",
+   "calques/10_fond.retouche.json": "a931660561c1e06a2e68d6455605a657",
    "calques/20_titans.png": "f2327bd390c11e0c0eaec8d639aa04fd",
    "calques/25_poussiere.png": "3cc27c67d3b946aae0fdfc7d7cd8f8d0",
+   "calques/30_voie.peint.json": "b89c348a0a2366a4a567fed59a6fcd99",
    "calques/30_voie.png": "74bdbf9d9a46605b2a36c86354555cce",
+   "calques/30_voie.retouche.json": "48965ae52402b1a1de6ee4ab66ffc2f0",
    "calques/30_voie_ombre.png": "19313f9c3d2454be9724988ce5054efa",
+   "calques/35_dais.peint.json": "8c5640913b6e9efb39f7fcea70dabeab",
    "calques/35_dais.png": "b22b0a5eadf796309bf9e6a3d29e9bb8",
+   "calques/35_dais.retouche.json": "10439c824a5cd255cddcb189db823786",
    "calques/50_avant_plan.png": "953650d41a235f3220282d4a993116ca",
    "calques/90_particules.png": "cbc341ab9f9dab12c383a6a660d2fa1d",
-   "ullanor_aube.json": "1399b47ca218c2090d8bf78f0e024346"
+   "ullanor_aube.json": "b67d604823882e6f0b309e43ed98132e"
   },
   "source": "episode-01/ullanor_aube"
  },
@@ -460,16 +467,22 @@
  "ullanor_nuit": {
   "fichiers": {
    "calques/00_ciel.png": "187b42f3dc546e3f1d227a341055265d",
+   "calques/10_fond.peint.json": "d1de157362e5f5f5fe8610f0f4f4a93d",
    "calques/10_fond.png": "18bc9485c7c292b6fb2bbec4d91d765e",
+   "calques/10_fond.retouche.json": "af85d54b7e0c6f33e1adef45943eafa1",
    "calques/20_titans.png": "f2327bd390c11e0c0eaec8d639aa04fd",
    "calques/25_poussiere.png": "3cc27c67d3b946aae0fdfc7d7cd8f8d0",
+   "calques/30_voie.peint.json": "263ec201e7bb79c1a10b62e33fafc0f3",
    "calques/30_voie.png": "312a0f3bbe62ddeb3c404dc2e23e9a0d",
+   "calques/30_voie.retouche.json": "ea1900f75bfe86315c3cdc09a6b2fe90",
    "calques/30_voie_ombre.png": "19313f9c3d2454be9724988ce5054efa",
    "calques/32_feux.png": "5955ca605f8832fc4dd59a7dd34ff16b",
+   "calques/35_dais.peint.json": "0005918d09553150b6bfd2cc0e40200a",
    "calques/35_dais.png": "5693f5267d687cab27076023a423dcb6",
+   "calques/35_dais.retouche.json": "aa0840b598163132e83ca29101521a1a",
    "calques/50_avant_plan.png": "953650d41a235f3220282d4a993116ca",
    "calques/90_particules.png": "0c6d8030c02058df3146eb1ff485718c",
-   "ullanor_nuit.json": "b025960fa94ce2c737241b56f656a320"
+   "ullanor_nuit.json": "e58c2fa0a099281b455d99c892141c46"
   },
   "source": "episode-01/ullanor_nuit"
  },
@@ -513,15 +526,23 @@
    "calques/20_cale.png": "75b834417c1a5289c3da64622bad49a3",
    "calques/20_cale_normal.png": "ad3cbb6c6afdd0f5e2a568b44f88bf3c",
    "calques/20_cale_ombre.png": "134f12fd2bc6c9be4ac880595f5a7034",
+   "calques/25_personnages_fond.png": "a54d144da4f5600bce70499a8aa1407e",
+   "calques/25_personnages_fond_normal.png": "4dddaa7e2c6add8eb84f7fbe5944763e",
    "calques/30_table.png": "d0db835a4c71ab43b7b1fafb23b44cf1",
    "calques/30_table_normal.png": "143f75256f8815ce330e594193456515",
+   "calques/40_personnages.png": "d5b8f9018ef1874d585e3ff21e6c19ba",
+   "calques/40_personnages_normal.png": "14425218315f8f984229476679a97d8f",
+   "calques/40_personnages_ombre.png": "a16bd7bb520a10012f3b87eac5e99ca7",
+   "calques/40_personnages_vaskar.png": "4bca20b88afc14cf8b98ec621fbaec64",
+   "calques/40_personnages_vaskar_normal.png": "dbef616c7b9282c5e024c45d757ed342",
+   "calques/40_personnages_vaskar_ombre.png": "3e96b213321a7b4d42623a23394d289a",
    "calques/45_bougies.png": "70f9156f516cd1c718fa0bee9f29c0a0",
    "calques/50_avant_plan.png": "8c1a5a06823e67aff3158ffd1e28b842",
    "calques/50_avant_plan_normal.png": "ef0432a27dca92ad10a73704995f3370",
    "calques/90_particules.png": "96efbaa220d160f8cc2d65d9d1595388",
    "calques/gabarit_25_personnages_fond.png": "7cee6ed9312dcadd76a5f137488754a4",
    "calques/gabarit_40_personnages.png": "c102b78237d3cd5a8ba2000930950b6c",
-   "vs_cales_loge.json": "114eaf119b0cdcae229c74d6da0e0d7e"
+   "vs_cales_loge.json": "c9b2e9f6fba777343c870c008349d9da"
   },
   "source": "episode-01/vs_cales_loge"
  },

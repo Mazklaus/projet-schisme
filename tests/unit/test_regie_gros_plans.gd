@@ -68,13 +68,13 @@ func test_surcharges() -> void:
 
 func test_hors_scene_et_sans_buste_reste_large() -> void:
 	var r := RegieGrosPlans.new({"scenes": [{"chapitre": "c01", "decor": "fond", "noeuds": ["nuit*"],
-		"cotes": {"ILSE": "gauche"}}]})
+		"cotes": {"SERGENT": "gauche"}}]})
 	r.entrer("c01", "nuit")
-	r.decider(_rep("ILSE"))
-	assert_eq(r.decider(_rep("ILSE")), "large", "aucun buste de CA1 livré : inerte")
+	r.decider(_rep("SERGENT"))
+	assert_eq(r.decider(_rep("SERGENT")), "large", "aucun buste de CA1 livré : inerte")
 	r.entrer("c01", "aube")
-	r.surcharger("serre:ilse")
-	assert_eq(r.decider(_rep("ILSE")), "large", "hors scène")
+	r.surcharger("serre:sergent")
+	assert_eq(r.decider(_rep("SERGENT")), "large", "hors scène")
 	assert_true(RegieGrosPlans.est_surcharge("serre:krenn"))
 	assert_false(RegieGrosPlans.est_surcharge("archive_table"))
 
@@ -98,8 +98,10 @@ func test_bustes_finaux_de_ca1() -> void:
 	assert_eq(RegieGrosPlans.chemin_buste("DREMM", "droite", "assurance"), d + "dremm/buste_droite_assurance.png")
 	assert_eq(RegieGrosPlans.chemin_buste("SEFA", "gauche", "colere"), d + "sefa/buste_gauche_neutre.png",
 		"expression non peinte : neutre")
-	assert_eq(RegieGrosPlans.chemin_buste("ILSE", "gauche"), d + "ilse/buste.png")
-	assert_false(RegieGrosPlans.new().buste_existe("ILSE", "gauche"))
+	assert_eq(RegieGrosPlans.chemin_buste("ILSE", "gauche"), d + "ilse/buste_gauche_neutre.png")
+	assert_true(RegieGrosPlans.new().buste_existe("ILSE", "gauche"))
+	assert_eq(RegieGrosPlans.chemin_buste("SERGENT", "gauche"), d + "sergent/buste.png")
+	assert_false(RegieGrosPlans.new().buste_existe("SERGENT", "gauche"))
 	assert_true(RegieGrosPlans.eclairage_buste("SEFA", "droite").has("fonds"))
 
 

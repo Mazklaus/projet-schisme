@@ -686,6 +686,13 @@
           ],
           "geste": "vox"
         }
+      ],
+      "etat_decor": [
+        {
+          "etat": "aube_naissante",
+          "duree_s": 30,
+          "apres_ligne": 2
+        }
       ]
     },
     "percer_suite": {

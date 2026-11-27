@@ -217,6 +217,8 @@ DREMM: Personne n'en a besoin. C'est justement pour ça qu'on jure.
 -> loge_echo
 
 === loge_partir
+@decor vs_cales_loge_vaskar
+@ambiance ep02_loge 2
 ~ choix_ep01_loge = 3
 ~ relation_dremm += 0
 ~ trait_vaskar_fraternite += 0
@@ -258,7 +260,7 @@ DREMM (assurance): L'Empereur est parti, Hol. C'est nous qui restons.
 DREMM: Des remembrancers. Les premiers. Des gens qui vont écrire sur nous.
 VASKAR: Écrire quoi ?
 DREMM: Ce qu'on voudra bien leur dire.
-@decor archive
+@decor archive_ch2_fin
 @ambiance archive 2
 @plan archive_table
 > Sur la table, une plaque de données vierge.

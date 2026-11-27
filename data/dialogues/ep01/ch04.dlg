@@ -221,6 +221,7 @@ FRÈRE: La citadelle est à nous. Avant l'aube.
 -> FIN
 
 === retombee_ilse_morts
+@geste ilse agenouiller
 > Ilse s'agenouille devant les draps. Elle sort son poinçon. Elle ne regarde pas Vaskar.
 ILSE: Il va me falloir une autre plaque.
 -> FIN

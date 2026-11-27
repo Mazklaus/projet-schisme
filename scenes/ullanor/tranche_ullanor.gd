@@ -112,7 +112,7 @@ func _construire_bivouac() -> void:
 	_prop(monde, "carcasse", POSTE + Vector2(90, 0))
 	_prop(monde, "ilse", POI.poi_ilse)
 	_prop(monde, "poutre", POUTRE).visible = false
-	_prop(monde, "ilse_main", POUTRE + Vector2(-150, 2)).visible = false
+	_prop(monde, "ilse_main", POUTRE + Vector2(-130, 18)).visible = false
 	_prop(monde, "banniere_27e", Vector2(RASSEMBLEMENT_X + 60, 840))
 	var soleil := _lumiere(Vector2(3300, 520), Color("#FFE8B0"), 10.0)
 	soleil.name = "CleBivouac"
