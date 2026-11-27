@@ -110,6 +110,17 @@ static func ambiance_du_decor(d: Node2D, defaut: Color) -> Color:
 var post_soleil: PostSoleil
 
 
+## Suite après le dernier carton (la nuit après le Triomphe) : le noir du carton passe au voile
+## de la scène, pour que l'ancien décor ne revienne pas pendant le fondu du carton (QA 05:12).
+## Si la suite ne change pas de décor, le voile se lève comme au lancement.
+func jouer_noeud(nom: String) -> void:
+	if is_instance_valid(carton_final) and _voile_noir:
+		_voile_noir.modulate.a = 1.0
+		_decor_demande = false
+		_lever_noir_initial()
+	super.jouer_noeud(nom)
+
+
 ## Si le début du chapitre ne change pas de décor, on lève le noir sur le décor de la scène.
 func _lever_noir_initial() -> void:
 	await get_tree().process_frame
