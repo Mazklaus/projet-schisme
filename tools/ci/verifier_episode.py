@@ -267,6 +267,82 @@ def date_fichier(chemin, racine):
     return os.path.getmtime(chemin)
 
 
+# ---------------------------------------------------------------- « peint » mesuré en jeu (GD, 27/11 soir)
+# Un calque ne compte comme peint que si (1) sa retouche existe, appliquée à une force >= 0,65 (ou le décor est
+# l'image cible elle-même : Ullanor, essai 18) et (2) sa zone visible dans la capture en jeu du décor n'est pas en
+# aplats. Mesure (2) : capture réduite à 960 px, médiane 7 (efface grain et particules), puis part des pixels
+# éclairés dont la couleur reste à moins de 2,5 niveaux de la médiane locale 11x11. Étalonnage 27/11 (build
+# a43ec58) : Ullanor 0,55 à 0,82 sur ses calques peints, galerie de la barge 0,90 à 0,99 → seuil 0,86.
+# Un calque invisible ou dans le noir sur la capture (< 1500 px éclairés) n'entre pas dans le calcul.
+FORCE_MIN = 0.65
+SEUIL_STYLE = 0.86
+DECORS_REFERENCE = ("ullanor",)
+CAPTURES = None            # dossier d'une build de capturer_episode (--captures)
+_W, _H = 960, 540
+
+
+def capture_du_decor(nom):
+    """Plan large du décor dans la build de captures : <nom>.jpg, sinon son premier état <nom>__<etat>.jpg."""
+    if not CAPTURES or not os.path.isdir(CAPTURES):
+        return None
+    for ext in (".jpg", ".png"):
+        if os.path.isfile(os.path.join(CAPTURES, nom + ext)):
+            return os.path.join(CAPTURES, nom + ext)
+    etats = sorted(f for f in os.listdir(CAPTURES) if f.startswith(nom + "__") and "__plan_" not in f
+                   and f.lower().endswith((".jpg", ".png")))
+    return os.path.join(CAPTURES, etats[0]) if etats else None
+
+
+def carte_aplats(capture):
+    """(pixels en aplat, pixels éclairés) en 960x540."""
+    import numpy as np
+    from PIL import Image, ImageFilter
+    im = Image.open(capture).convert("RGB").resize((_W, _H), Image.LANCZOS).filter(ImageFilter.MedianFilter(7))
+    med = np.asarray(im.filter(ImageFilter.MedianFilter(11)), np.float32)
+    a = np.asarray(im, np.float32)
+    return np.abs(a - med).max(-1) < 2.5, a.mean(-1) > 28
+
+
+def zones_visibles(dossier, fichiers):
+    """Zone de chaque calque non recouverte par les calques suivants (ordre du JSON = ordre d'empilement)."""
+    import numpy as np
+    from PIL import Image
+    out, couvre = {}, np.zeros((_H, _W), np.float32)
+    for f in reversed(fichiers):
+        a = np.asarray(Image.open(os.path.join(dossier, f)).convert("RGBA").resize((_W, _H), Image.BILINEAR))[..., 3] / 255.0
+        out[f] = (a > 0.9) & (couvre < 0.5)
+        couvre = np.maximum(couvre, a)
+    return out
+
+
+def style_en_jeu(dossier, nom, fichiers):
+    """{fichier: part d'aplat (None : non mesurable)} ou None sans capture."""
+    cap = capture_du_decor(nom)
+    if not cap:
+        return None
+    try:
+        aplats, clair = carte_aplats(cap)
+        zones = zones_visibles(dossier, fichiers)
+    except (ImportError, OSError, ValueError):
+        return None
+    res = {}
+    for f, z in zones.items():
+        zc = z & clair
+        res[f] = float(aplats[zc].mean()) if zc.sum() >= 1500 else None
+    return res
+
+
+def retouche_suffisante(retouche, nom_decor, peint_json):
+    if nom_decor in DECORS_REFERENCE and peint_json:
+        return True
+    if not isinstance(retouche, dict) or not retouche.get("sortie"):
+        return False
+    try:
+        return float((retouche.get("reglages") or {}).get("force", 0)) >= FORCE_MIN - 1e-6
+    except (TypeError, ValueError):
+        return False
+
+
 def finition_decor(dossier, racine):
     """Avancement visuel d'un dossier de décor : calques peints, aplats, maquette, erreurs 4k et « fini »."""
     chemin, d, _ = json_du_decor(dossier)
@@ -277,7 +353,12 @@ def finition_decor(dossier, racine):
                    if not p.endswith(("_normal.png", "_ombre.png", "_plat.png"))]
     nom = os.path.basename(dossier.rstrip("/"))
     r = {"decor": nom, "calques": 0, "peints": [], "aplats": [], "surface": 0.0, "surface_peinte": 0.0,
-         "erreurs": [], "statut": (d or {}).get("statut", "") if isinstance(d, dict) else ""}
+         "erreurs": [], "statut": (d or {}).get("statut", "") if isinstance(d, dict) else "",
+         "surface_mesuree": 0.0, "surface_peinte_jeu": 0.0, "peints_jeu": [], "refuses": []}
+    presents = [f for f, _, _ in calques if os.path.isfile(os.path.join(dossier, f))
+                and not os.path.basename(f).startswith("gabarit_")]
+    style = style_en_jeu(dossier, nom, presents)
+    r["capture"] = style is not None
     for f, _, _ in calques:
         p = os.path.join(dossier, f)
         if not os.path.isfile(p) or os.path.basename(f).startswith("gabarit_"):
@@ -292,7 +373,21 @@ def finition_decor(dossier, racine):
         if peint:
             r["peints"].append(os.path.basename(f)[:-4])
             r["surface_peinte"] += surf
-        elif mesure and mesure[0] > SEUIL_APLAT and not any(s in os.path.basename(f) for s in AUTO_LISSE):
+        # nouvelle mesure : retouche >= 0,65 et style vérifié sur la capture en jeu
+        lisse = any(x in os.path.basename(f) for x in AUTO_LISSE)
+        mesure_jeu = style.get(f) if style is not None else None
+        if style is not None and mesure_jeu is None:
+            pass                                                   # invisible ou dans le noir : hors calcul
+        else:
+            r["surface_mesuree"] += surf
+            ok = retouche_suffisante(retouche, nom, os.path.isfile(base + ".peint.json"))
+            if ok and mesure_jeu is not None and not lisse and mesure_jeu > SEUIL_STYLE:
+                ok = False
+                r["refuses"].append(f"{os.path.basename(f)[:-4]} (aplats {mesure_jeu:.0%} en jeu)")
+            if ok:
+                r["peints_jeu"].append(os.path.basename(f)[:-4])
+                r["surface_peinte_jeu"] += surf
+        if not peint and mesure and mesure[0] > SEUIL_APLAT and not lisse:
             r["aplats"].append(f"{os.path.basename(f)[:-4]} ({mesure[0]:.0%})")
         if isinstance(retouche, dict):
             q = os.path.join(os.path.dirname(p), "4k", os.path.basename(p))
@@ -313,8 +408,9 @@ def finition_decor(dossier, racine):
                     for c in glob.glob(motif) if c.lower().endswith((".png", ".jpg"))]
         if not captures:
             r["erreurs"].append(f"statut « {r['statut']} » sans capture en jeu (qa/captures/{nom}*.jpg ou .png)")
-    r["maquette"] = not r["peints"]
-    r["pct"] = round(100 * r["surface_peinte"] / r["surface"]) if r["surface"] else 0
+    r["maquette"] = not r["peints_jeu"]
+    r["pct_ancien"] = round(100 * r["surface_peinte"] / r["surface"]) if r["surface"] else 0
+    r["pct"] = round(100 * r["surface_peinte_jeu"] / r["surface_mesuree"]) if r["surface_mesuree"] else 0
     return r
 
 
@@ -522,11 +618,12 @@ def indicateurs(r):
     """% peint (moyenne des scènes), % de personnages en plan large animés, % de décors au statut « fini »."""
     ns = len(r.get("scenes", []))
     peint = round(sum((s["f"] or {}).get("pct", 0) for s in r["scenes"]) / ns) if ns else 0
+    ancien = round(sum((s["f"] or {}).get("pct_ancien", 0) for s in r["scenes"]) / ns) if ns else 0
     sp = r.get("sprites", [])
     anime = round(100 * sum(1 for x in sp if x["etat"] == "animé") / len(sp)) if sp else 0
     fin = r.get("finition", [])
     fini = round(100 * sum(1 for x in fin if "fini" in str(x["statut"]).lower()) / len(fin)) if fin else 0
-    return {"peint": peint, "anime": anime, "fini": fini, "scenes": ns, "points": points_ouverts(r)}
+    return {"peint": peint, "peint_ancien": ancien, "anime": anime, "fini": fini, "scenes": ns, "points": points_ouverts(r)}
 
 
 def historique(chemin, r, racine):
@@ -540,11 +637,15 @@ def historique(chemin, r, racine):
         commit = ""
     i = indicateurs(r)
     ligne = {"date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), "commit": commit, "peint": i["peint"],
-             "anime": i["anime"], "fini": i["fini"], "scenes": i["scenes"], "points_ouverts": i["points"]}
+             "anime": i["anime"], "fini": i["fini"], "scenes": i["scenes"], "points_ouverts": i["points"],
+             "peint_ancien": i["peint_ancien"]}
     lignes = []
     if os.path.isfile(chemin):
         with open(chemin, encoding="utf-8") as f:
             lignes = list(csv.DictReader(f))
+        for x in lignes:                     # lignes d'avant la mesure en jeu : l'ancienne mesure était « peint »
+            if not x.get("peint_ancien"):
+                x["peint_ancien"] = x.get("peint", "")
     if lignes and lignes[-1].get("commit") == commit and lignes[-1]["date"][:10] == ligne["date"][:10]:
         lignes[-1] = {k: str(v) for k, v in ligne.items()}                       # même build : on remplace
     else:
@@ -579,12 +680,21 @@ def rapport_md(r):
          f"{len(r['un_seul_cote'])} buste(s) sans les deux côtés. {len(r['complets'])} décor(s) complet(s).", ""]
     i = indicateurs(r)
     L += [f"**Thermomètre** : {i['peint']} % peint, {i['anime']} % des personnages en plan large animés, "
-          f"{i['fini']} % des décors finis.", ""]
+          f"{i['fini']} % des décors finis. (Ancienne mesure, fiches seules : {i['peint_ancien']} % peint.)", "",
+          f"*Peint = retouche appliquée à force ≥ {FORCE_MIN:.2f} et zone du calque hors aplats sur la capture en jeu "
+          f"(seuil {SEUIL_STYLE:.2f}, étalonné sur Ullanor et la galerie de la barge)"
+          + ("" if CAPTURES else " ; sans build de captures, seule la retouche est vérifiée") + ".*", ""]
     if r.get("historique"):
-        L += ["| Date | Commit | Peint | Animé | Fini | Points ouverts |", "|---|---|---|---|---|---|"]
+        L += ["| Date | Commit | Peint | Peint (ancienne mesure) | Animé | Fini | Points ouverts |",
+              "|---|---|---|---|---|---|---|"]
         for h in r["historique"][-15:]:
-            L.append(f"| {h['date']} | {h['commit']} | {h['peint']} % | {h['anime']} % | {h['fini']} % | {h['points_ouverts']} |")
+            L.append(f"| {h['date']} | {h['commit']} | {h['peint']} % | {h.get('peint_ancien') or h['peint']} % | "
+                     f"{h['anime']} % | {h['fini']} % | {h['points_ouverts']} |")
         L.append("")
+    refus = [(f["decor"], f["refuses"]) for f in r.get("finition", []) if f.get("refuses")]
+    if refus:
+        L += ["**Retouchés mais encore en aplats en jeu** (ne comptent pas comme peints) :", ""]
+        L += [f"- `{d}` : {', '.join(x)}" for d, x in sorted(refus)] + [""]
     if r["chapitres_sans_dlg"]:
         L += ["## Chapitres du séquencier sans répliques (Narrative Designer)", "",
               "Chapitre(s) " + ", ".join(str(k) for k in r["chapitres_sans_dlg"]) + " : aucun .dlg trouvé.", ""]
@@ -693,8 +803,15 @@ def main(argv=None):
     ap.add_argument("--sortie", help="écrire le rapport dans ce fichier (sinon sortie standard)")
     ap.add_argument("--historique", help="CSV d'historique : ajoute la ligne du jour, courbe dans le rapport")
     ap.add_argument("--strict", action="store_true", help="code 1 s'il reste un point ouvert")
+    ap.add_argument("--captures", help="build de capturer_episode (qa/captures/<build>) pour mesurer « peint » en jeu ; "
+                                       "défaut : la plus récente de qa/captures")
     a = ap.parse_args(argv)
     racine = os.path.abspath(a.racine)
+    global CAPTURES
+    CAPTURES = a.captures
+    if not CAPTURES:
+        builds = sorted(glob.glob(os.path.join(racine, "qa", "captures", "*", "index.json")))
+        CAPTURES = os.path.dirname(builds[-1]) if builds else None
     r = analyser(a.episode, racine, a.dlg and os.path.abspath(a.dlg), a.sequencier,
                  [os.path.abspath(d) for d in a.decors])
     if a.historique:

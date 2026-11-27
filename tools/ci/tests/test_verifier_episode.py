@@ -105,10 +105,33 @@ class TestFinition(Base):
         self.assertTrue(f["maquette"])
         self.assertTrue(any(a.startswith("10_salle") for a in f["aplats"]))
         self.assertFalse(any(a.startswith("00_ciel") for a in f["aplats"]))
-        ecrire(f"{self.r}/assets/decors/salle_reelle/calques/10_salle.retouche.json", {"sortie": "x.png", "date": "2026-11-27T05:00:00"})
+        ret = f"{self.r}/assets/decors/salle_reelle/calques/10_salle.retouche.json"
+        ecrire(ret, {"sortie": "x.png", "date": "2026-11-27T05:00:00", "reglages": {"force": 0.5}})
+        f = self.analyser()["scenes"][0]["f"]
+        self.assertTrue(f["maquette"])                           # force < 0,65 : reste maquette
+        self.assertGreater(f["pct_ancien"], 0)                   # ancienne courbe : comptée peinte
+        ecrire(ret, {"sortie": "x.png", "date": "2026-11-27T05:00:00", "reglages": {"force": 0.7}})
         f = self.analyser()["scenes"][0]["f"]
         self.assertFalse(f["maquette"])
         self.assertGreater(f["pct"], 0)
+
+    def test_style_verifie_sur_la_capture(self):
+        cap = f"{self.r}/qa/captures/build"
+        ecrire(f"{self.r}/assets/decors/salle_reelle/calques/20_table.retouche.json",
+               {"sortie": "x.png", "date": "2026-11-27T05:00:00", "reglages": {"force": 0.7}})
+        try:
+            ve.CAPTURES = cap
+            png(f"{cap}/salle_reelle.png", plat=True, taille=(960, 540))        # en jeu : encore en aplats
+            f = self.analyser()["scenes"][0]["f"]
+            self.assertTrue(f["maquette"])
+            self.assertTrue(any(x.startswith("20_table") for x in f["refuses"]))
+            a = np.random.default_rng(2).integers(40, 220, (540, 960, 3)).astype(np.uint8)
+            Image.fromarray(a).save(f"{cap}/salle_reelle.png")                 # en jeu : texture partout
+            f = self.analyser()["scenes"][0]["f"]
+            self.assertEqual(f["refuses"], [])
+            self.assertIn("20_table", f["peints_jeu"])
+        finally:
+            ve.CAPTURES = None
 
     def test_4k_plus_ancien_que_la_retouche(self):
         d = f"{self.r}/assets/decors/salle_reelle/calques"

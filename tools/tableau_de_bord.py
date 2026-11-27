@@ -168,7 +168,8 @@ def main(argv=None):
         shutil.copy2(clone / "qa" / hist.name, hist)
     code_suivi = subprocess.run([sys.executable, str(clone / "tools" / "ci" / "verifier_episode.py"), a.episode,
                                  "--racine", str(clone), "--sortie", str(sortie / f"suivi_{a.episode}.md"),
-                                 "--historique", str(hist)], env=env).returncode
+                                 "--historique", str(hist), "--captures", str(captures / build)],
+                                env=env).returncode
     nettoyer(captures)
     page(sortie, a.episode, build, sha, commits, code_capt, code_suivi)
     etat[cle] = sha
