@@ -133,6 +133,16 @@ func construire(d: Dictionary, dossier: String) -> void:
 		if not avance:
 			push_error("Rig %s : boucle de parents" % perso)
 			break
+	# Ombre de contact (outil preparer_sprite.py) : « ombre » {fichier, pose}, posée sous tout
+	# le reste, en multiplication comme les ombres des décors ; elle ne suit pas les os.
+	if typeof(d.get("ombre")) == TYPE_DICTIONARY and d.ombre.has("fichier"):
+		var o := Sprite2D.new()
+		o.name = "Ombre"
+		o.centered = false
+		o.texture = _texture(dossier.path_join(String(d.ombre.fichier)))
+		o.position = _vec(d.ombre.get("pose", [0, 0])) - pieds
+		o.material = Decor25D.materiau_ombre()
+		add_child(o)
 	# Pièces à plat dans l'ordre z (celles hors contrat à la fin, dans l'ordre du fichier).
 	var noms: Array = ORDRE.filter(func(n): return P.has(n))
 	for n in P:
