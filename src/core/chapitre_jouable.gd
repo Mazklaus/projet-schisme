@@ -710,6 +710,9 @@ func _preparer_plan(p: Dictionary) -> void:
 	if p.has("decor") and p.decor != decor_courant:
 		await _changer_decor(p.decor)
 	var d := decor_par_id(p.get("decor", decor_courant))
+	# « etat » : état propre au plan (la lampe serrée sur Sefa la nuit), posé à la coupe.
+	if p.has("etat") and d is Decor25D and d.etat != String(p.etat):
+		d.appliquer_etat(String(p.etat), float(p.get("fondu_etat", 0.0)))
 	# « props » : {nom: [x, y]} posés sur le décor le temps du plan (la plaque à l'aube).
 	for nom in p.get("props", {}):
 		if not is_instance_valid(props.get(nom)):

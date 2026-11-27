@@ -42,11 +42,13 @@
     "couleur": "#FFC27A",
     "energie": {
       "veille": 1.8,
-      "nuit_lampe": 2.0
+      "nuit_lampe": 2.0,
+      "nuit_lampe_serre": 2.4
     },
     "portee_px": {
       "veille": 620,
-      "nuit_lampe": 200
+      "nuit_lampe": 200,
+      "nuit_lampe_serre": 135
     },
     "scintillement": {
       "amplitude": 0.03,
@@ -63,7 +65,8 @@
       "couleur": "#B8C4D0",
       "energie": {
         "veille": 0.6,
-        "nuit_lampe": 0.12
+        "nuit_lampe": 0.12,
+        "nuit_lampe_serre": 0.12
       },
       "portee_px": 140,
       "note": "hublot à 2,2 m, hauteur d'œil d'Astartes",
@@ -82,7 +85,8 @@
       "contenu": "le couloir des géants derrière le verre, froid et flou",
       "intensite_par_etat": {
         "veille": 1.0,
-        "nuit_lampe": 0.35
+        "nuit_lampe": 0.35,
+        "nuit_lampe_serre": 0.35
       }
     },
     {
@@ -147,6 +151,10 @@
     "nuit_lampe": {
       "canvas_modulate": "#0B0C11",
       "note": "DA 27/11 19:42, Sefa écrit seule : la lampe de bureau est la seule clé chaude ; tout le reste tombe presque au noir ; voile froid très bas venu du hublot ; DA 27/11 20:50 : chute vers le noir à ~1,5 largeur de bureau (portée 200)"
+    },
+    "nuit_lampe_serre": {
+      "canvas_modulate": "#0B0C11",
+      "note": "DA 27/11 20:07 : plans serrés sefa_ecrit et sefa_trait ; même nuit, flaque resserrée autour de la lampe (bords et haut du mur −40 %)"
     }
   },
   "etat_initial": "veille"

@@ -266,6 +266,7 @@
   },
   "sefa_ecrit": {
     "decor": "barge_quartiers_civils",
+    "etat": "nuit_lampe_serre",
     "sequence": [
       {
         "position": [
@@ -288,6 +289,7 @@
   },
   "sefa_trait": {
     "decor": "barge_quartiers_civils",
+    "etat": "nuit_lampe_serre",
     "sequence": [
       {
         "position": [

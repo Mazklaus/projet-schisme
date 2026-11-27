@@ -154,6 +154,8 @@ def inventaire(ep, racine=RACINE):
                 decor, etat = resoudre(p["decor"]) if isinstance(p, dict) and p.get("decor") else (courant, etat_courant)
                 if decor == courant and not etat:  # le jeu garde l'état du décor courant (alias)
                     etat = etat_courant
+                if isinstance(p, dict) and p.get("etat"):  # état propre au plan (plan serré de nuit)
+                    etat = p["etat"]
                 if not decor:
                     manques.append(f"plan « {val} » sans décor connu ({os.path.basename(chemin)})")
                     continue
