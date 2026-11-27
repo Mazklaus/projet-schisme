@@ -2,46 +2,58 @@
  "perso": "ilse",
  "type": "humain",
  "planche": [
-  97,
-  357
+  117,
+  358
  ],
  "pieds": [
-  48,
-  347
+  62,
+  348
  ],
  "pieces": {
+  "arme_dos": {
+   "fichier": "arme_dos.png",
+   "pose": [
+    4,
+    52
+   ],
+   "pivot": [
+    53,
+    109
+   ],
+   "parent": "torse"
+  },
   "avant_bras_avant": {
    "fichier": "avant_bras_avant.png",
    "pose": [
-    10,
-    112
+    23,
+    116
    ],
    "pivot": [
     13,
-    15
+    14
    ],
    "parent": "bras_avant"
   },
   "avant_bras_arriere": {
    "fichier": "avant_bras_arriere.png",
    "pose": [
-    40,
-    112
+    54,
+    116
    ],
    "pivot": [
     18,
-    15
+    14
    ],
    "parent": "bras_arriere"
   },
   "bassin": {
    "fichier": "bassin.png",
    "pose": [
-    9,
-    145
+    22,
+    150
    ],
    "pivot": [
-    34,
+    35,
     31
    ],
    "parent": null
@@ -49,188 +61,188 @@
   "bras_avant": {
    "fichier": "bras_avant.png",
    "pose": [
-    6,
-    63
+    19,
+    69
    ],
    "pivot": [
     14,
-    16
+    13
    ],
    "parent": "torse"
   },
   "bras_arriere": {
    "fichier": "bras_arriere.png",
    "pose": [
-    42,
-    63
+    55,
+    69
    ],
    "pivot": [
-    24,
-    16
+    25,
+    13
    ],
    "parent": "torse"
   },
   "cuisse_avant": {
    "fichier": "cuisse_avant.png",
    "pose": [
-    8,
-    169
+    21,
+    174
    ],
    "pivot": [
     25,
-    13
+    12
    ],
    "parent": "bassin"
   },
   "cuisse_arriere": {
    "fichier": "cuisse_arriere.png",
    "pose": [
-    33,
-    169
+    47,
+    174
    ],
    "pivot": [
-    21,
-    13
+    20,
+    12
    ],
    "parent": "bassin"
   },
   "main_avant": {
    "fichier": "main_avant.png",
    "pose": [
-    23,
+    35,
     178
    ],
    "pivot": [
-    9,
-    4
+    10,
+    9
    ],
    "parent": "avant_bras_avant"
   },
   "main_arriere": {
    "fichier": "main_arriere.png",
    "pose": [
-    42,
+    55,
     178
    ],
    "pivot": [
-    13,
-    4
+    14,
+    9
    ],
    "parent": "avant_bras_arriere"
   },
   "pied_avant": {
    "fichier": "pied_avant.png",
    "pose": [
-    14,
-    326
+    26,
+    328
    ],
    "pivot": [
-    19,
-    6
+    20,
+    4
    ],
    "parent": "jambe_avant"
   },
   "pied_arriere": {
    "fichier": "pied_arriere.png",
    "pose": [
-    34,
-    326
+    48,
+    328
    ],
    "pivot": [
-    20,
-    6
+    19,
+    4
    ],
    "parent": "jambe_arriere"
   },
   "tete": {
    "fichier": "tete.png",
    "pose": [
-    17,
+    30,
     4
    ],
    "pivot": [
-    26,
-    62
+    27,
+    64
    ],
    "parent": "torse"
   },
   "jambe_avant": {
    "fichier": "jambe_avant.png",
    "pose": [
-    16,
-    237
+    29,
+    241
    ],
    "pivot": [
     17,
-    18
+    16
    ],
    "parent": "cuisse_avant"
   },
   "jambe_arriere": {
    "fichier": "jambe_arriere.png",
    "pose": [
-    37,
-    237
+    50,
+    241
    ],
    "pivot": [
     17,
-    18
+    16
    ],
    "parent": "cuisse_arriere"
   },
   "torse": {
    "fichier": "torse.png",
    "pose": [
-    8,
-    59
+    20,
+    53
    ],
    "pivot": [
-    35,
-    98
+    37,
+    108
    ],
    "parent": "bassin"
   },
   "tete_face": {
    "fichier": "tete_face.png",
    "pose": [
-    25,
+    38,
     4
    ],
    "pivot": [
-    18,
-    62
+    19,
+    64
    ],
    "parent": "torse"
   },
   "bras_croises": {
    "fichier": "bras_croises.png",
    "pose": [
-    4,
-    98
+    17,
+    100
    ],
    "pivot": [
     18,
-    30
+    31
    ],
    "parent": "torse"
   },
   "yeux_fermes": {
    "fichier": "yeux_fermes.png",
    "pose": [
-    19,
-    28
+    32,
+    26
    ],
    "pivot": [
     25,
-    8
+    9
    ],
    "parent": "tete"
   },
   "yeux_fermes_face": {
    "fichier": "yeux_fermes_face.png",
    "pose": [
-    26,
-    26
+    39,
+    27
    ],
    "pivot": [
     26,
@@ -241,12 +253,12 @@
   "main_avant_pointe": {
    "fichier": "main_avant_pointe.png",
    "pose": [
-    23,
+    35,
     178
    ],
    "pivot": [
-    9,
-    4
+    10,
+    9
    ],
    "parent": "avant_bras_avant",
    "provisoire": true
@@ -254,12 +266,12 @@
   "main_avant_poing": {
    "fichier": "main_avant_poing.png",
    "pose": [
-    23,
+    35,
     178
    ],
    "pivot": [
-    9,
-    4
+    10,
+    9
    ],
    "parent": "avant_bras_avant",
    "provisoire": true

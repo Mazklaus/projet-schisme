@@ -929,11 +929,15 @@ func _preparer_plan(p: Dictionary) -> void:
 		await _changer_decor(p.decor)
 	var d := decor_par_id(p.get("decor", decor_courant))
 	# « props » : {nom: [x, y]} posés sur le décor le temps du plan (la plaque à l'aube).
+	# Forme objet : {nom: {"position": [x, y], "miroir": true, "decalage": [0, 0], "echelle": 1.0}}.
 	for nom in p.get("props", {}):
 		if not is_instance_valid(props.get(nom)):
-			var pos: Array = p.props[nom]
+			var v = p.props[nom]
+			var spec := spec_figure(v if typeof(v) == TYPE_DICTIONARY else {"position": v})
+			var pos: Array = spec.position
 			# Dans le « Monde » du décor (z 10) : posé à la racine, il passait sous tous les calques.
 			var s := _prop(monde_de(d), nom, Vector2(pos[0], pos[1]))
+			poser_figure(s, spec)
 			s.add_to_group("props_de_plan")
 	for nom in p.get("textures", {}):
 		var image: Sprite2D = null
@@ -1155,6 +1159,36 @@ func _figurant(parent: Node, nom: String, pos: Vector2) -> Node2D:
 	return f
 
 
+## Figurant ou prop : un nom seul, ou un objet {nom, geste, miroir, decalage, echelle, position}.
+static func spec_figure(v) -> Dictionary:
+	var o: Dictionary = v if typeof(v) == TYPE_DICTIONARY else {"nom": str(v)}
+	var dec = o.get("decalage", [0, 0])
+	var pos = o.get("position", [0, 0])
+	return {
+		"nom": String(o.get("nom", "")),
+		"geste": String(o.get("geste", "")),
+		"miroir": bool(o.get("miroir", false)),
+		"decalage": dec if typeof(dec) == TYPE_ARRAY and dec.size() >= 2 else [0, 0],
+		"echelle": float(o.get("echelle", 1.0)),
+		"position": pos if typeof(pos) == TYPE_ARRAY and pos.size() >= 2 else [0, 0],
+	}
+
+
+## Applique décalage, échelle, miroir et geste. Un geste inconnu du rig (ou un sprite) : repos.
+static func poser_figure(f: Node2D, spec: Dictionary) -> void:
+	if f == null:
+		return
+	f.position += Vector2(float(spec.decalage[0]), float(spec.decalage[1]))
+	var e := float(spec.echelle)
+	if e != 1.0:
+		f.scale *= e
+	if spec.miroir:
+		f.scale.x = -absf(f.scale.x)
+	if not String(spec.geste).is_empty() and f is RigPersonnage \
+			and (f as RigPersonnage).gestes_connus().has(spec.geste):
+		(f as RigPersonnage).jouer_geste(spec.geste)
+
+
 func _prop(parent: Node, nom: String, pos: Vector2) -> Sprite2D:
 	var s := _sprite(nom)
 	s.position = pos
@@ -1280,8 +1314,16 @@ static func resoudre_decor(id: String) -> Dictionary:
 		_alias = a if typeof(a) == TYPE_DICTIONARY else {"_vide": true}
 	var r = _alias.get(id)
 	if typeof(r) == TYPE_DICTIONARY:
-		return {"decor": r.get("decor", id), "etat": r.get("etat", "")}
-	return {"decor": id, "etat": ""}
+		# « etat_selon » comme dans les zones : {"drapeau", "valeurs", "defaut"} (archive_fin).
+		return {"decor": r.get("decor", id), "etat": r.get("etat", ""), "etat_selon": r.get("etat_selon", {})}
+	return {"decor": id, "etat": "", "etat_selon": {}}
+
+
+## État choisi par un drapeau de partie : {"drapeau", "valeurs": {"1": "..."}, "defaut"}.
+static func etat_selon(e: Dictionary, drapeaux_partie: Dictionary) -> String:
+	var v = drapeaux_partie.get(e.get("drapeau", ""))
+	var cle := str(int(v)) if typeof(v) in [TYPE_INT, TYPE_FLOAT] else str(v)
+	return String(e.get("valeurs", {}).get(cle, e.get("defaut", "")))
 
 
 ## État d'un décor à son entrée : alias (orvane_matin), sinon « decors » du fichier jeu
@@ -1294,10 +1336,7 @@ func _etat_a_l_entree(id: String, etat_alias: String) -> String:
 	if typeof(c) != TYPE_DICTIONARY:
 		return ""
 	if c.has("etat_selon"):
-		var e: Dictionary = c.etat_selon
-		var v = Jeu.etat.drapeaux.get(e.get("drapeau", ""))
-		var cle := str(int(v)) if typeof(v) in [TYPE_INT, TYPE_FLOAT] else str(v)
-		return String(e.get("valeurs", {}).get(cle, e.get("defaut", "")))
+		return etat_selon(c.etat_selon, Jeu.etat.drapeaux)
 	return String(c.get("etat", ""))
 
 
@@ -1307,6 +1346,8 @@ func _changer_decor(id_demande: String) -> void:
 	var id: String = r.decor
 	var cible := decor_par_id(id)
 	var etat := _etat_a_l_entree(id, r.etat)
+	if not r.etat_selon.is_empty():
+		etat = etat_selon(r.etat_selon, Jeu.etat.drapeaux)
 	if cible.visible and decor_courant == id:
 		if cible is Decor25D and not etat.is_empty() and cible.etat != etat:
 			cible.appliquer_etat(etat, 1.5)
@@ -1436,8 +1477,9 @@ func _commencer_jeu(nom: String) -> void:
 	# provisoires les doubleraient.
 	var peints := d != null and d.get_node_or_null(^"Calque_40_personnages") != null
 	for k in config.get("figurants", {}):
-		if not peints and pois.has(k) and not props.has(config.figurants[k]):
-			_figurant(monde_de(d), config.figurants[k], pois[k] + Vector2(0, -10))
+		var spec := spec_figure(config.figurants[k])
+		if not peints and pois.has(k) and not spec.nom.is_empty() and not props.has(spec.nom):
+			poser_figure(_figurant(monde_de(d), spec.nom, pois[k] + Vector2(0, -10)), spec)
 	_declenches = {}
 	_vus_depuis = {}
 	_tout_vu_depuis = -1.0
