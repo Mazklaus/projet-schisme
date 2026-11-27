@@ -1,0 +1,83 @@
+{
+ "plan": "vs_quartiers_27_gros_plan",
+ "episode": 1,
+ "chapitres": [
+  2
+ ],
+ "decor_source": "vs_quartiers_27",
+ "cadre_px": [
+  1920,
+  1080
+ ],
+ "usage": "ch02 poi_krenn, poi_trophees, retour_empereur, rumeur_* (Vaskar, Dremm)",
+ "description": "Les quartiers de la 27e : le brasero en bas au centre, les rangs de couchettes et de frères fondus, la nef de marbre qui monte vers l'ogive du fond, froide.",
+ "source": "aperçu éclairé de vs_quartiers_27 rendu par cA2/vs_quartiers_27_calques.py sans personnages (gabarits et calques 40 vidés), fenêtre [480, 250, 1440, 790] agrandie x2.00, préflou 2 px, flou 12 px",
+ "zones_calmes": {
+  "gauche": {
+   "x_px": [
+    190,
+    850
+   ]
+  },
+  "droite": {
+   "x_px": [
+    1070,
+    1730
+   ]
+  },
+  "regle": "personnage à gauche ou à droite, tête au tiers haut"
+ },
+ "lumieres": {
+  "cle": {
+   "source": "le brasero, bas et devant",
+   "couleur": "#FFB868",
+   "direction_camera": [
+    0.0,
+    0.5,
+    0.86
+   ],
+   "note": "par en dessous, chaud ; vacillement 0,1 (2 à 5 Hz)"
+  },
+  "contre": {
+   "source": "la veille froide de l'ogive du fond",
+   "couleur": "#C8D2DC",
+   "force": 0.25,
+   "note": "liseré froid du haut, sur le crâne et les épaulières"
+  }
+ },
+ "calques": [
+  {
+   "fichier": "calques/00_fond_flou.png",
+   "auteur": "CA2",
+   "distance_m": 6,
+   "note": "déjà éclairé et flou : ne pas rééclairer"
+  },
+  {
+   "fichier": "calques/gabarit_40_gauche.png",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/gabarit_40_droite.png",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/gabarit_41_lisere_gauche.png",
+   "mode": "additif",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/gabarit_41_lisere_droite.png",
+   "mode": "additif",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/90_particules.png",
+   "auteur": "CA2",
+   "contenu": "braises floues, à animer"
+  }
+ ],
+ "valeurs_sous_1A1612_pct": 0.0,
+ "generateur": "cA2/gros_plans_ep01.py vs_quartiers_27 [--4k]",
+ "4k": "calques/4k/ (mêmes noms)",
+ "statut": "VALIDÉ par le DA (27/11), 1080 et 4k"
+}

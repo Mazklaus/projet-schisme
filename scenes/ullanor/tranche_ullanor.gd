@@ -149,27 +149,38 @@ func _attacher_figurants_cine() -> void:
 ## Gros plan 5b (validé GD) : couleur _fin, une seule carte de normales (armure et cou de TP2,
 ## tête de CA1) et une seule Light2D pour tout le buste, sinon le visage se décolle. L'orgueil
 ## (menton levé, déjà peint) passe en fondu sur le neutre.
-const HORUS_5B := "res://assets/personnages/horus_5b/horus_5b_%s%s.png"
+const HORUS_5B := "res://assets/personnages/horus_5b/horus_5b_%s_large%s.png"
 
 
 func _monter_gros_plan_horus() -> void:
 	var couche := get_node_or_null(^"GrosPlanHorus") as CanvasLayer
 	if couche == null or not ResourceLoader.exists(HORUS_5B % ["neutre", ""]):
 		return
+	# Compensation du CanvasModulate propre à la couche, pour ce qui ne doit pas être assombri.
+	var neutre_amb := Color(1.0 / AMB_GROS_PLAN.r, 1.0 / AMB_GROS_PLAN.g, 1.0 / AMB_GROS_PLAN.b)
+	# Fond : le vrai décor d'Ullanor au crépuscule, peint par CA2 pour ce plan (ciel, citadelle
+	# dans le voile, arrière du dais), déjà voilé et flou comme une faible profondeur de champ.
 	var fond := couche.get_node(^"Image") as Sprite2D
 	fond.name = "Fond"
-	var g := Gradient.new()
-	g.colors = PackedColorArray([Color("#2E2936"), Color("#5E4A40"), Color("#7E6248")])
-	g.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
-	var gt := GradientTexture2D.new()
-	gt.gradient = g
-	gt.fill_from = Vector2(0, 0)
-	gt.fill_to = Vector2(0, 1)
-	gt.width = 64
-	gt.height = 1080
-	fond.texture = gt
-	fond.scale = Vector2(1920.0 / 64.0, 1.0)
-	fond.light_mask = 0
+	fond.position = Vector2(960, 540)
+	fond.scale = Vector2.ONE
+	var ordre := 0
+	for calque in FOND_GROS_PLAN:
+		var sp := fond if ordre == 0 else Sprite2D.new()
+		sp.texture = load(DOSSIER_FOND_GROS_PLAN.path_join(calque[0] + ".png"))
+		sp.light_mask = 0
+		sp.self_modulate = neutre_amb
+		if calque[1]:
+			var add := CanvasItemMaterial.new()
+			add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+			add.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+			sp.material = add
+		if sp != fond:
+			sp.name = "Fond_" + calque[0]
+			sp.position = fond.position
+			couche.add_child(sp)
+			couche.move_child(sp, fond.get_index() + ordre)
+		ordre += 1
 	for expr in ["neutre", "orgueil"]:
 		var s := Sprite2D.new()
 		s.name = "Image" if expr == "neutre" else "Orgueil"
@@ -177,9 +188,8 @@ func _monter_gros_plan_horus() -> void:
 		t.diffuse_texture = load(HORUS_5B % [expr, ""])
 		t.normal_texture = load(HORUS_5B % [expr, "_normal"])
 		s.texture = t
-		# Cadre 1024 carré : agrandi à 1,25 pour un vrai gros plan, sommet du crâne près du haut.
-		s.scale = Vector2.ONE * 1.25
-		s.position = Vector2(960, 60 + (512 - 170) * 1.25)
+		# Version 16:9 de TP2 (épaulières complètes, fourrure) : plein cadre, sur le fond de CA2.
+		s.position = Vector2(960, 540)
 		if expr == "orgueil":
 			s.modulate.a = 0.0
 		var ombre := Sprite2D.new()
@@ -190,20 +200,86 @@ func _monter_gros_plan_horus() -> void:
 		m.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 		ombre.material = m
 		# Multiplication après le CanvasModulate de la couche : compensé pour rester neutre.
-		ombre.self_modulate = Color(1.0 / 0.78, 1.0 / 0.76, 1.0 / 0.76)
+		ombre.self_modulate = neutre_amb
 		s.add_child(ombre)
+		# Lumière de contour chaude venue du soleil bas à droite : fine bande additive (retour GD : -30 %).
+		if ResourceLoader.exists(HORUS_5B % [expr, "_contour"]):
+			var liseret := Sprite2D.new()
+			liseret.name = "Contour"
+			liseret.texture = load(HORUS_5B % [expr, "_contour"])
+			var ma := CanvasItemMaterial.new()
+			ma.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+			ma.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+			liseret.material = ma
+			var c := Color("#FFE8B0")
+			liseret.self_modulate = Color(c.r * neutre_amb.r, c.g * neutre_amb.g, c.b * neutre_amb.b, 0.42)
+			s.add_child(liseret)
 		couche.add_child(s)
 	# Lumière peinte = clé du soleil couchant, à droite ; la Light2D module légèrement le relief
 	# sous un CanvasModulate propre à la couche (ne touche pas la scène).
 	var amb := CanvasModulate.new()
-	amb.color = Color(0.78, 0.76, 0.76)
+	amb.color = AMB_GROS_PLAN
 	couche.add_child(amb)
 	var l := _lumiere(Vector2(1500, 300), Color("#FFE8B0"), 9.0)
 	l.name = "CleHorus"
 	l.energy = 0.45
 	l.height = 400.0
 	couche.add_child(l)
-	fond.self_modulate = Color(1.0 / 0.78, 1.0 / 0.76, 1.0 / 0.76)
+	couche.visibility_changed.connect(_animer_gros_plan_horus.bind(couche))
+
+
+const AMB_GROS_PLAN := Color(0.78, 0.76, 0.76)
+const DOSSIER_FOND_GROS_PLAN := "res://assets/decors/ullanor_gros_plan_horus/calques"
+## [calque, additif] dans l'ordre du JSON de CA2.
+const FOND_GROS_PLAN := [["00_fond_flou", false], ["30_dais_flou", false], ["31_dais_lisere", true], ["46_braseros", true]]
+## Respiration (0,5 % sur ~4 s) et lente poussée de caméra (×1,04) tant que le gros plan est à l'écran.
+const RESPIRATION := 0.005
+const POUSSEE := 1.04
+const POUSSEE_S := 14.0
+var _tweens_gros_plan: Array[Tween] = []
+
+
+func _animer_gros_plan_horus(couche: CanvasLayer) -> void:
+	for t in _tweens_gros_plan:
+		if t and t.is_valid():
+			t.kill()
+	_tweens_gros_plan.clear()
+	var centre := Vector2(960, 540)
+	var buste: Array[Sprite2D] = []
+	for n in [^"Image", ^"Orgueil"]:
+		var s := couche.get_node_or_null(n) as Sprite2D
+		if s:
+			s.scale = Vector2.ONE
+			buste.append(s)
+	_poser_poussee(1.0, couche, centre)
+	if not couche.visible:
+		return
+	var feu := couche.get_node_or_null(^"Fond_46_braseros") as CanvasItem
+	if feu:
+		var v := create_tween().set_loops()
+		for a in [0.82, 1.0, 0.9, 1.0]:
+			v.tween_property(feu, "modulate:a", a, randf_range(0.12, 0.28))
+		_tweens_gros_plan.append(v)
+	var p := create_tween()
+	p.tween_method(_poser_poussee.bind(couche, centre), 1.0, POUSSEE, POUSSEE_S) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_tweens_gros_plan.append(p)
+	if buste.is_empty():
+		return
+	var r := create_tween().set_loops()
+	r.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	for i in buste.size():
+		var etape := r.parallel() if i > 0 else r
+		etape.tween_property(buste[i], "scale", Vector2.ONE * (1.0 + RESPIRATION), 2.0)
+	for i in buste.size():
+		var etape := r.parallel() if i > 0 else r
+		etape.tween_property(buste[i], "scale", Vector2.ONE, 2.0)
+	_tweens_gros_plan.append(r)
+
+
+func _poser_poussee(f: float, couche: CanvasLayer, centre: Vector2) -> void:
+	couche.scale = Vector2.ONE * f
+	couche.offset = centre * (1.0 - f)
 
 
 # --------------------------------------------------------------------------- commandes

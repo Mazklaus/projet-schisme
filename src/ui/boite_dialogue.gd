@@ -7,6 +7,8 @@ extends Control
 
 signal commande(nom: String, args: Array)
 signal fini
+## Chaque réplique ou choix affiché (régie des gros plans).
+signal evenement(e: Dictionary)
 ## Choix minuté : émis à l'ouverture (secondes entières restantes) puis à chaque seconde
 ## écoulée, jusqu'à 1. Sert au son (tic) et à tout effet calé sur la barre de temps.
 signal delai_seconde(restant: int)
@@ -151,6 +153,8 @@ func _suivant() -> void:
 	for b in _choix.get_children():
 		b.queue_free()
 	var e := lecteur.avancer()
+	if e.type == "replique" or e.type == "choix":
+		evenement.emit(e)
 	match e.type:
 		"replique":
 			_nom.text = BoiteDialogue.nom_affiche(e)

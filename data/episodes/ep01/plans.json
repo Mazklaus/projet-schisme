@@ -95,29 +95,23 @@
     ]
   },
   "plaque_gros": {
-    "decor": "ullanor_aube",
-    "props": {
-      "ilse_plaque": [
-        1180,
-        760
-      ]
-    },
+    "decor": "ullanor_plaque",
     "sequence": [
       {
         "position": [
-          1180,
-          700
+          960,
+          540
         ],
-        "zoom": 2.2,
+        "zoom": 1.0,
         "duree": 0
       },
       {
         "position": [
-          1180,
-          690
+          975,
+          560
         ],
-        "zoom": 2.4,
-        "duree": 4.0,
+        "zoom": 1.05,
+        "duree": 5.0,
         "courbe": "douce"
       }
     ]

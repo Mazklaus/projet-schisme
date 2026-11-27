@@ -1,0 +1,113 @@
+{
+ "plan": "orvane_rues_gros_plan",
+ "episode": 1,
+ "decor_source": "orvane_rues",
+ "cadre_px": [
+  1920,
+  1080
+ ],
+ "usage": "ch04 assaut_ilse_* (nuit) ; orvane_matin : retombee_ilse_vivants, retombee_rues",
+ "type": "longue traîne : recadrage flou du décor (liste validée par le DA le 27/11)",
+ "source": "aperçu(s) du décor, fenêtre [600, 60, 1560, 600] agrandie x2.00, préflou 2 px, flou 14 px ; les silhouettes éventuelles du décor sont fondues dans le flou",
+ "zones_calmes": {
+  "gauche": {
+   "x_px": [
+    190,
+    850
+   ]
+  },
+  "droite": {
+   "x_px": [
+    1070,
+    1730
+   ]
+  }
+ },
+ "lumieres": "reprendre la clé et les appoints du décor source (voir lumieres_source) : mêmes directions et couleurs",
+ "lumieres_source": {
+  "lumieres": [
+   {
+    "nom": "cle_aube",
+    "type": "PointLight2D",
+    "couleur": "#E8B48A",
+    "position_px": [
+     717,
+     578
+    ],
+    "rayon_px": 960,
+    "note": "contre-jour du fond de rue ; n'éclaire que la profondeur > 14 m (masque de profondeur ou occluders sur les façades proches)",
+    "energie_par_etat": {
+     "nuit": 0.0,
+     "aube_naissante": 0.95,
+     "aube": 1.9,
+     "matin": 0.5
+    }
+   },
+   {
+    "nom": "feu_barricade",
+    "type": "PointLight2D",
+    "couleur": "#E07A3A",
+    "position_px": [
+     683,
+     633
+    ],
+    "rayon_px": 920,
+    "scintillement": true,
+    "energie_par_etat": {
+     "nuit": 2.3,
+     "aube_naissante": 0.9,
+     "aube": 0.3,
+     "matin": 0.0
+    }
+   },
+   {
+    "nom": "feu_flaque_sol",
+    "type": "PointLight2D (texture ellipse aplatie, au ras des pavés)",
+    "couleur": "#E07A3A",
+    "position_px": [
+     683,
+     633
+    ],
+    "note": "flaque chaude sur les pavés, ~4 m autour du brasero, même énergie que feu_barricade × 0.4"
+   }
+  ],
+  "etats": {
+   "nuit": {
+    "ciel": "00_ciel_nuit",
+    "canvas_modulate": "#46506E"
+   },
+   "aube_naissante": {
+    "ciel": "00_ciel_aube_naissante",
+    "canvas_modulate": "#4C4458"
+   },
+   "aube": {
+    "ciel": "00_ciel_aube",
+    "canvas_modulate": "#5E5664"
+   },
+   "matin": {
+    "ciel": "00_ciel_matin",
+    "canvas_modulate": "#7A7C86",
+    "note": "brasero éteint (46_feu masqué), fenêtres éteintes, fumée (37_brume 0.6)"
+   }
+  }
+ },
+ "calques": [
+  {
+   "fichier": "calques/00_fond_flou_nuit.png",
+   "etat": "nuit",
+   "auteur": "CA2",
+   "distance_m": 8,
+   "note": "déjà éclairé et flou"
+  },
+  {
+   "fichier": "calques/00_fond_flou_matin.png",
+   "etat": "matin",
+   "auteur": "CA2",
+   "distance_m": 8,
+   "note": "déjà éclairé et flou"
+  }
+ ],
+ "generateur": "cA2/gros_plans_ep01.py orvane_rues [--4k]",
+ "4k": "calques/4k/ (mêmes noms)",
+ "statut": "longue traîne, validée en principe par le DA (27/11)"
+}

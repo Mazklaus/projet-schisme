@@ -110,6 +110,17 @@ static func ambiance_du_decor(d: Node2D, defaut: Color) -> Color:
 var post_soleil: PostSoleil
 
 
+## Suite après le dernier carton (la nuit après le Triomphe) : le noir du carton passe au voile
+## de la scène, pour que l'ancien décor ne revienne pas pendant le fondu du carton (QA 05:12).
+## Si la suite ne change pas de décor, le voile se lève comme au lancement.
+func jouer_noeud(nom: String) -> void:
+	if is_instance_valid(carton_final) and _voile_noir:
+		_voile_noir.modulate.a = 1.0
+		_decor_demande = false
+		_lever_noir_initial()
+	super.jouer_noeud(nom)
+
+
 ## Si le début du chapitre ne change pas de décor, on lève le noir sur le décor de la scène.
 func _lever_noir_initial() -> void:
 	await get_tree().process_frame
@@ -126,6 +137,480 @@ func _avant_dialogue() -> void:
 		else:
 			push_error("Fichier jeu illisible : %s" % infos.jeu)
 	lecteur.noeud_entre.connect(_mise_en_scene_du_noeud)
+	_regie = RegieGrosPlans.charger("res://data/episodes/%s/gros_plans.json" % Jeu.etat.episode)
+	lecteur.noeud_entre.connect(_regie_entrer)
+	boite.evenement.connect(_sur_evenement_dialogue)
+
+
+# --------------------------------------------------------------------------- gros plans
+
+## Gros plans de dialogue (fonds de CA2, bustes de CA1) : décidés par la régie, affichés sous les
+## gros plans d'Horus (5) et l'interface (10). Le fond, déjà éclairé, a sa couche (3) ; le buste
+## a la sienne (4), avec son ambiance (CanvasModulate) et ses Light2D clé et contre, qui ne
+## touchent pas le fond. Les Light2D n'éclairent rien dans un CanvasLayer (Godot 4.7,
+## Compatibilité) : le buste est rendu dans un SubViewport transparent, affiché dans la couche.
+const COUCHE_FOND_GROS_PLAN := 3
+const COUCHE_GROS_PLAN := 4
+const FONDU_GROS_PLAN_S := 0.25
+const FONDU_EXPRESSION_S := 0.3
+var _regie := RegieGrosPlans.new()
+var _couche_gp: CanvasLayer
+var _racine_gp: Node2D
+var _fond_gp := ""
+var _couche_buste: CanvasLayer
+var _vue_buste: SubViewport
+var _ecran_buste: Sprite2D
+var _racine_buste: Node2D
+var _cle_buste := ""
+var _cle_eclairage := ""
+
+
+## « @plan large | serre | serre:<perso> » : surcharge de la régie (Narrative).
+func executer_commande(nom: String, args: Array) -> void:
+	if nom == "plan" and not args.is_empty() and RegieGrosPlans.est_surcharge(String(args[0])):
+		_regie.surcharger(String(args[0]))
+		return
+	if nom == "plan" and _regie.plan != "large":
+		_regie.plan_nomme()
+		_afficher_gros_plan("large")
+	await super.executer_commande(nom, args)
+
+
+func _regie_entrer(noeud: String) -> void:
+	_regie.entrer(String(infos.get("id", "")), noeud)
+	if _regie.plan == "large" and _couche_gp and _couche_gp.visible:
+		_afficher_gros_plan("large")
+
+
+func _sur_evenement_dialogue(e: Dictionary) -> void:
+	var avant := _regie.plan
+	var p := _regie.decider(e)
+	if p != avant or (p != "large" and _couche_gp and not _couche_gp.visible):
+		_afficher_gros_plan(p)
+	elif p != "large":
+		_poser_buste(p)
+
+
+func _afficher_gros_plan(p: String) -> void:
+	if p == "large":
+		if _couche_gp and _couche_gp.visible:
+			var t := create_tween().set_parallel()
+			t.tween_property(_racine_gp, "modulate:a", 0.0, FONDU_GROS_PLAN_S)
+			t.tween_property(_ecran_buste, "modulate:a", 0.0, FONDU_GROS_PLAN_S)
+			t.chain().tween_callback(func() -> void:
+				_couche_gp.hide()
+				_couche_buste.hide()
+				_vue_buste.render_target_update_mode = SubViewport.UPDATE_DISABLED)
+		return
+	var id_fond := String(_regie.scene.get("decor", ""))
+	# Sans « etat » dans la scène, le fond suit l'état du décor affiché (aube ou nuit au bloc).
+	var scene_gp: Dictionary = _regie.scene.duplicate()
+	if not scene_gp.has("etat") and decor is Decor25D and not String(decor.etat).is_empty():
+		scene_gp.etat = decor.etat
+	var cle_fond := "%s|%s" % [id_fond, scene_gp.get("etat", "")]
+	if _couche_gp == null:
+		_couche_gp = CanvasLayer.new()
+		_couche_gp.name = "GrosPlanFond"
+		_couche_gp.layer = COUCHE_FOND_GROS_PLAN
+		_couche_gp.visible = false
+		add_child(_couche_gp)
+		_couche_buste = CanvasLayer.new()
+		_couche_buste.name = "GrosPlanDialogue"
+		_couche_buste.layer = COUCHE_GROS_PLAN
+		_couche_buste.visible = false
+		add_child(_couche_buste)
+		_vue_buste = SubViewport.new()
+		_vue_buste.name = "VueBuste"
+		_vue_buste.size = Vector2i(Decor25D.taille_ecran())
+		_vue_buste.transparent_bg = true
+		_couche_buste.add_child(_vue_buste)
+		_ecran_buste = Sprite2D.new()
+		_ecran_buste.name = "EcranBuste"
+		_ecran_buste.centered = false
+		_ecran_buste.texture = _vue_buste.get_texture()
+		_ecran_buste.material = materiau_premultiplie()
+		_couche_buste.add_child(_ecran_buste)
+		_racine_buste = Node2D.new()
+		_racine_buste.name = "Buste"
+		_vue_buste.add_child(_racine_buste)
+	if cle_fond != _fond_gp:
+		if _racine_gp:
+			_racine_gp.queue_free()
+		_racine_gp = construire_fond_gros_plan(id_fond, scene_gp)
+		_couche_gp.add_child(_racine_gp)
+		_fond_gp = cle_fond
+	_poser_buste(p, false)
+	if not _couche_gp.visible:
+		_racine_gp.modulate.a = 0.0
+		_ecran_buste.modulate.a = 0.0
+		_couche_gp.show()
+		_couche_buste.show()
+	_vue_buste.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	var t := create_tween().set_parallel()
+	t.tween_property(_racine_gp, "modulate:a", 1.0, FONDU_GROS_PLAN_S)
+	t.tween_property(_ecran_buste, "modulate:a", 1.0, FONDU_GROS_PLAN_S)
+
+
+## Buste du personnage cadré, à l'expression de la régie, éclairé pour le fond. Un changement
+## d'expression sur le même cadrage se fait en fondu enchaîné (CA1).
+func _poser_buste(p: String, enchaine := true) -> void:
+	if _racine_buste == null:
+		return
+	var cote := _regie.cote_du_plan()
+	var id_fond := String(_regie.scene.get("decor", ""))
+	var cle_ecl := "%s|%s|%s|%s" % [p, cote, _fond_gp, id_fond]
+	if cle_ecl != _cle_eclairage:
+		for n in _vue_buste.get_children():
+			if n != _racine_buste:
+				n.queue_free()
+		var etat := String(_fond_gp.get_slice("|", 1))
+		var tete_x := float(tete_du_fond(id_fond, cote, _racine_gp.get_meta("zones", {}) if _racine_gp else {}).x)
+		for n in construire_eclairage_buste(RegieGrosPlans.eclairage_buste(p, cote), id_fond, cote, etat, tete_x):
+			_vue_buste.add_child(n)
+		_cle_eclairage = cle_ecl
+	var chemin := RegieGrosPlans.chemin_buste(p, cote, _regie.expression)
+	var cle := "%s|%s" % [chemin, cote]
+	if cle == _cle_buste:
+		return
+	var ancien := _racine_buste.get_child(_racine_buste.get_child_count() - 1) as Sprite2D \
+		if _racine_buste.get_child_count() > 0 else null
+	var meme_cadrage: bool = enchaine and ancien != null and ancien.get_meta("cadrage", "") == "%s|%s" % [p, cote]
+	_cle_buste = cle
+	var tete := tete_du_fond(id_fond, cote, _racine_gp.get_meta("zones", {}) if _racine_gp else {})
+	var sp := construire_sprite_buste(chemin, tete, cote, p)
+	# « decalage_x » de la scène {perso: px} : écarter une tête d'un point lumineux du fond
+	# (DA : le hublot de la cabine faisait une auréole à Sefa).
+	sp.position.x += float(_regie.scene.get("decalage_x", {}).get(p.to_upper(), 0.0))
+	sp.set_meta("cadrage", "%s|%s" % [p, cote])
+	_racine_buste.add_child(sp)
+	if meme_cadrage:
+		sp.modulate.a = 0.0
+		var t := create_tween()
+		t.tween_property(sp, "modulate:a", 1.0, FONDU_EXPRESSION_S)
+		t.tween_callback(ancien.queue_free)
+	for n in _racine_buste.get_children():
+		if n != sp and not (meme_cadrage and n == ancien):
+			n.queue_free()
+
+
+## Cadrage des gros plans (tools/gros_plans/cadrage.py, calcul de CA1) : la tête du buste prend
+## la largeur et l'axe de la tête du gabarit 40 du fond, resserrée pour l'émotion (DA 27/11) :
+## haut du crâne à CRANE_CIBLE, menton à MENTON_CIBLE de la hauteur du cadre. Tête du gabarit :
+## crâne 117 px au-dessus des yeux, 280 px du crâne au menton.
+const CADRAGE := "res://data/gros_plans_cadrage.json"
+const CRANE_CIBLE := 0.15
+const MENTON_CIBLE := 0.45
+const GABARIT_CRANE_YEUX := 117.0
+const GABARIT_HAUTEUR_TETE := 280.0
+## Hauteur crâne-menton d'un buste de CA1 ≈ 1,08 largeur maximale de la silhouette de la tête
+## (mesuré sur Dremm et Sefa : 235 / 217 et 255 / 254 ; la chevelure élargit Sefa).
+const RAPPORT_TETE := 1.08
+static var _cadrage: Dictionary
+
+
+static func cadrage() -> Dictionary:
+	if _cadrage.is_empty():
+		var d = JSON.parse_string(FileAccess.get_file_as_string(CADRAGE)) if FileAccess.file_exists(CADRAGE) else null
+		_cadrage = d if typeof(d) == TYPE_DICTIONARY else {"fonds": {}, "bustes": {}}
+	return _cadrage
+
+
+## Tête du gabarit 40 d'un fond à l'écran {x, y (ligne des yeux), largeur} ; sans gabarit, celle
+## des fonds de CA2 (yeux à 497, tête de 211 px), centrée dans la zone calme du côté.
+static func tete_du_fond(id_fond: String, cote: String, zones: Dictionary = {}) -> Dictionary:
+	var t = cadrage().fonds.get(id_fond, {}).get(cote)
+	if typeof(t) != TYPE_DICTIONARY:
+		var zone: Array = zones.get(cote, {}).get("x_px", [0, 960] if cote != "droite" else [960, 1920])
+		t = {"x": (float(zone[0]) + float(zone[1])) / 2.0, "y": 497.0, "largeur": 211.0}
+	return tete_serree(t)
+
+
+## Tête du gabarit resserrée : même axe, échelle et hauteur des yeux tirées des cibles.
+static func tete_serree(t: Dictionary) -> Dictionary:
+	var h := Decor25D.taille_ecran().y
+	var k := (MENTON_CIBLE - CRANE_CIBLE) * h / GABARIT_HAUTEUR_TETE
+	return {"x": float(t.x), "y": CRANE_CIBLE * h + GABARIT_CRANE_YEUX * k, "largeur": float(t.largeur) * k}
+
+
+## Sprite du buste : albédo et normales dosées (visage FORCE_NORMALES_TETE, armure et vêtements
+## FORCE_NORMALES_CORPS : la peinture porte déjà son modelé), tête calée sur celle du gabarit.
+## Un buste générique buste.png (peint pour la gauche) est mis en miroir à droite ; les bustes
+## finaux de CA1 sont peints pour chaque côté.
+const FORCE_NORMALES_TETE := 0.3
+const FORCE_NORMALES_CORPS := 0.5
+const SHADER_BUSTE := """
+shader_type canvas_item;
+uniform sampler2D normales : filter_linear;
+uniform bool a_normales = false;
+uniform float force_tete = 0.3;
+uniform float force_corps = 0.5;
+uniform float y_cou = 0.45;
+void fragment() {
+	if (a_normales) {
+		NORMAL_MAP = texture(normales, UV).rgb;
+		NORMAL_MAP_DEPTH = mix(force_tete, force_corps, smoothstep(y_cou - 0.03, y_cou + 0.03, UV.y));
+	}
+}
+"""
+static var _shader_buste: Shader
+
+
+static func construire_sprite_buste(chemin: String, tete_fond: Dictionary, cote: String, perso := "") -> Sprite2D:
+	var sp := Sprite2D.new()
+	sp.name = chemin.get_file().get_basename()
+	sp.centered = false
+	var tex := load(chemin) as Texture2D
+	sp.texture = tex
+	sp.flip_h = cote == "droite" and chemin.get_file() == "buste.png"
+	if _shader_buste == null:
+		_shader_buste = Shader.new()
+		_shader_buste.code = SHADER_BUSTE
+	var m := ShaderMaterial.new()
+	m.shader = _shader_buste
+	var normale := chemin.get_basename() + "_normal.png"
+	if ResourceLoader.exists(normale):
+		m.set_shader_parameter("normales", load(normale))
+		m.set_shader_parameter("a_normales", true)
+	m.set_shader_parameter("force_tete", FORCE_NORMALES_TETE)
+	m.set_shader_parameter("force_corps", FORCE_NORMALES_CORPS)
+	sp.material = m
+	if tex == null:
+		return sp
+	var taille := tex.get_size()
+	var b = cadrage().bustes.get(perso.to_upper(), {}).get(cote)
+	var tete_b: Dictionary = b if typeof(b) == TYPE_DICTIONARY else {"x": taille.x / 2.0, "crane": taille.y * 0.15, "largeur": taille.x * 0.18}
+	if sp.flip_h:
+		tete_b = tete_b.duplicate()
+		tete_b.x = taille.x - float(tete_b.x)
+	# Tête : RAPPORT_TETE largeur de silhouette, crâne et menton aux cibles.
+	var tete_h := float(tete_b.largeur) * RAPPORT_TETE
+	var h := Decor25D.taille_ecran().y
+	var ech := (MENTON_CIBLE - CRANE_CIBLE) * h / tete_h
+	# Cou : un peu sous le menton.
+	m.set_shader_parameter("y_cou", (float(tete_b.crane) + tete_h * 1.05) / taille.y)
+	sp.scale = Vector2.ONE * ech
+	sp.position = Vector2(float(tete_fond.x) - float(tete_b.x) * ech, CRANE_CIBLE * h - float(tete_b.crane) * ech)
+	return sp
+
+
+## Ambiance et lumières du buste pour un fond : celles du .eclairage.json de CA1 (un fichier par
+## côté), sinon les « lumieres » du fond de CA2 (écrites pour la gauche, x symétrisé à droite) ;
+## sans rien, une clé neutre de face. direction_camera = sens de la lumière (x à droite, y vers le
+## haut, z vers la caméra : z > 0 vient de derrière, rasante ; z < 0 vient de face).
+static func construire_eclairage_buste(ecl: Dictionary, id_fond: String, cote: String, etat := "", tete_x := -1.0) -> Array:
+	var tete := tete_du_fond(id_fond, cote)
+	if tete_x < 0.0:
+		tete_x = float(tete.x)
+	var L: Dictionary = ecl.get("fonds", {}).get(id_fond, {}).get("lumieres", {})
+	# Le .eclairage.json d'un côté droit est déjà symétrisé par CA1 ; le fond, lui, est écrit
+	# pour la gauche.
+	var miroir := cote == "droite" and (L.is_empty() or String(ecl.get("cote_ecran", "gauche")) != "droite")
+	var g := {}
+	var chemin_fond := DOSSIER_DECORS.path_join(id_fond).path_join(id_fond + ".json")
+	if FileAccess.file_exists(chemin_fond):
+		var lu = JSON.parse_string(FileAccess.get_file_as_string(chemin_fond))
+		g = lu if typeof(lu) == TYPE_DICTIONARY else {}
+	if L.is_empty() and typeof(g.get("lumieres")) == TYPE_DICTIONARY:
+		L = g.lumieres
+	var noeuds: Array = []
+	var cm := CanvasModulate.new()
+	cm.name = "Ambiance"
+	var amb: Dictionary = L.get("ambiance", {})
+	var couleur_amb := Color("#2A2A32")
+	if amb.has("couleur"):
+		couleur_amb = Color(String(amb.couleur))
+	else:
+		# Fond de la longue traîne : l'ambiance du décor source pour l'état affiché.
+		var etats: Dictionary = g.get("lumieres_source", {}).get("etats", {}) \
+			if typeof(g.get("lumieres_source")) == TYPE_DICTIONARY else {}
+		for nom in etats:
+			if etats[nom].has("canvas_modulate") and (etat.is_empty() or etat.begins_with(nom) or nom == etat):
+				couleur_amb = Color(String(etats[nom].canvas_modulate))
+				if nom == etat:
+					break
+	var gain := float(amb.get("gain", 1.0))
+	cm.color = Color(couleur_amb.r * gain, couleur_amb.g * gain, couleur_amb.b * gain)
+	noeuds.append(cm)
+	var cle: Dictionary = L.get("cle", {"couleur": "#E0D8CC", "direction_camera": [0.3, -0.3, -0.9]})
+	noeuds.append(_lumiere_buste("Cle", cle, 1.0, miroir, null, tete_x))
+	if L.has("contre"):
+		var contre: Dictionary = L.contre
+		# Contre sans direction : du haut, côté opposé à la clé.
+		var dc = cle.get("direction_camera", [0.3, -0.3, 0.5])
+		noeuds.append(_lumiere_buste("Contre", contre, float(contre.get("force", 0.3)), miroir,
+			[-float(dc[0]), -0.6, 0.6], tete_x))
+	# Plancher du visage (DA, nuit d'Ullanor : les yeux doivent sortir) : un appoint doux de face,
+	# limité à la tête, de la couleur de l'ambiance.
+	var plancher := float(amb.get("plancher_visage", PLANCHER_VISAGE.get(id_fond, 0.0)))
+	if plancher > 0.0:
+		var f := PointLight2D.new()
+		f.name = "PlancherVisage"
+		f.position = Vector2(tete_x, float(tete.y) + 0.3 * float(tete.largeur))
+		f.texture = _texture_lumiere_buste()
+		f.texture_scale = float(tete.largeur) * 1.6 / 128.0
+		f.height = 400.0
+		var c := couleur_amb.lerp(Color.WHITE, 0.5)
+		f.color = c
+		f.energy = plancher
+		noeuds.append(f)
+	return noeuds
+
+
+## Plancher du visage par fond, quand l'.eclairage.json n'a pas « ambiance.plancher_visage ».
+const PLANCHER_VISAGE := {"ullanor_nuit_gros_plan": 0.4}
+## Un contre venu de derrière (DirectionalLight2D rasante) ne rend qu'une fraction de sa force sur
+## les normales : sans gain, la lune de la nuit d'Ullanor ne se voyait pas (DA).
+const GAIN_CONTRE_RASANT := 4.0
+
+
+static func _lumiere_buste(nom: String, d: Dictionary, energie: float, miroir: bool, dir_defaut, tete_x := 480.0) -> Light2D:
+	var couleur := Color(String(d.get("couleur", "#FFFFFF")))
+	var l: Light2D
+	var dir_b = d.get("direction_camera", dir_defaut)
+	if typeof(d.get("position_px")) != TYPE_ARRAY and typeof(dir_b) == TYPE_ARRAY and float(dir_b[1]) > 0.3:
+		# Lumière par en dessous (feu au sol, hors champ) : une source ponctuelle sous le cadre,
+		# qui s'éteint en montant (DA : rien au-dessus des épaulières, un liseré sous la mâchoire).
+		var sx := float(dir_b[0]) * (-1.0 if miroir else 1.0)
+		var pf := PointLight2D.new()
+		pf.position = Vector2(tete_x - sx * 700.0, 1080.0 + 300.0)
+		pf.texture = _texture_lumiere_buste()
+		pf.texture_scale = 1400.0 / 128.0
+		pf.height = 20.0
+		l = pf
+		energie *= 3.0
+	elif typeof(d.get("position_px")) == TYPE_ARRAY:
+		var pl := PointLight2D.new()
+		var pos := Vector2(d.position_px[0], d.position_px[1])
+		pl.position = Vector2(1920.0 - pos.x, pos.y) if miroir else pos
+		pl.texture = _texture_lumiere_buste()
+		pl.texture_scale = 1400.0 / 128.0
+		pl.height = 80.0
+		l = pl
+	else:
+		var dir = dir_b if dir_b != null else [0.0, -0.3, -0.9]
+		var dl := DirectionalLight2D.new()
+		var sx := float(dir[0]) * (-1.0 if miroir else 1.0)
+		var sy := -float(dir[1])
+		var z := float(dir[2])
+		# DirectionalLight2D éclaire vers +y à rotation nulle.
+		dl.rotation = atan2(-sx, sy)
+		dl.height = clampf(-z * 0.45, 0.12, 0.45) if z < 0.0 else clampf(0.3 * (1.0 - z), 0.03, 0.2)
+		if z > 0.0 and nom == "Contre":
+			energie *= GAIN_CONTRE_RASANT
+		l = dl
+	l.name = nom
+	l.color = couleur
+	l.energy = energie
+	var vac := float(d.get("vacillement", 0.0))
+	var m := RegEx.create_from_string("vacillement (\\d+[,.]\\d+)").search(String(d.get("note", "")))
+	if vac == 0.0 and m:
+		vac = m.get_string(1).replace(",", ".").to_float()
+	if vac > 0.0:
+		l.ready.connect(func() -> void:
+			var t := l.create_tween().set_loops()
+			for k in [1.0 - vac, 1.0, 1.0 - vac * 0.5, 1.0]:
+				t.tween_property(l, "energy", energie * k, randf_range(0.08, 0.25)))
+	return l
+
+
+static var _tex_lumiere_buste: Texture2D
+static var _materiau_premult: ShaderMaterial
+
+
+## Rendu d'un SubViewport transparent : couleurs déjà prémultipliées par l'alpha. Un mélange
+## normal les remultiplie et noircit les contours (DA : liserés sombres) ; le fondu passe par
+## l'alpha de modulate.
+static func materiau_premultiplie() -> ShaderMaterial:
+	if _materiau_premult == null:
+		var sh := Shader.new()
+		sh.code = """
+shader_type canvas_item;
+render_mode blend_premul_alpha;
+varying vec4 modulation;
+void vertex() {
+	modulation = COLOR;
+}
+void fragment() {
+	vec4 t = texture(TEXTURE, UV);
+	COLOR = vec4(t.rgb * modulation.rgb, t.a) * modulation.a;
+}
+"""
+		_materiau_premult = ShaderMaterial.new()
+		_materiau_premult.shader = sh
+	return _materiau_premult
+
+
+static func _texture_lumiere_buste() -> Texture2D:
+	if _tex_lumiere_buste == null:
+		var g := Gradient.new()
+		g.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
+		g.colors = PackedColorArray([Color.WHITE, Color(0.45, 0.45, 0.45), Color.BLACK])
+		var t := GradientTexture2D.new()
+		t.gradient = g
+		t.fill = GradientTexture2D.FILL_RADIAL
+		t.fill_from = Vector2(0.5, 0.5)
+		t.fill_to = Vector2(1.0, 0.5)
+		t.width = 256
+		t.height = 256
+		_tex_lumiere_buste = t
+	return _tex_lumiere_buste
+
+
+## Fond de gros plan de CA2 (assets/decors/<id>) : calques déjà éclairés, posés tels quels ;
+## « additif » en addition, avec un vacillement léger. Les gabarits de CA1 ne vont pas en jeu.
+## La scène peut choisir un « etat » (calques marqués « etat » d'un autre état écartés) et des
+## « opacites » {calque: a} (poussière à 0,4 la nuit, galerie).
+static func construire_fond_gros_plan(id: String, scene: Dictionary = {}) -> Node2D:
+	var racine := Node2D.new()
+	racine.name = "Fond_" + id
+	var dossier := DOSSIER_DECORS.path_join(id)
+	var g = JSON.parse_string(FileAccess.get_file_as_string(dossier.path_join(id + ".json"))) \
+		if FileAccess.file_exists(dossier.path_join(id + ".json")) else null
+	if typeof(g) != TYPE_DICTIONARY:
+		push_warning("Fond de gros plan introuvable : %s" % id)
+		return racine
+	racine.set_meta("zones", g.get("zones_calmes", {}))
+	# État inconnu du fond (ou absent) : son premier état, jamais deux fonds superposés.
+	var etats_fond: Array = []
+	for k in g.get("calques", []):
+		if typeof(k) == TYPE_DICTIONARY and k.has("etat") and not etats_fond.has(String(k.etat)):
+			etats_fond.append(String(k.etat))
+	var voulu := String(scene.get("etat", ""))
+	if not etats_fond.is_empty() and not etats_fond.has(voulu):
+		scene = scene.duplicate()
+		scene.etat = etats_fond[0]
+		# « aube_naissante » du décor → fond « aube ».
+		for e in etats_fond:
+			if not voulu.is_empty() and voulu.begins_with(e):
+				scene.etat = e
+	for k in g.get("calques", []):
+		if typeof(k) != TYPE_DICTIONARY or not k.has("fichier") or k.has("pour"):
+			continue
+		if k.has("etat") and String(k.etat) != String(scene.get("etat", k.etat)):
+			continue
+		var chemin := dossier.path_join(k.fichier)
+		if not ResourceLoader.exists(chemin):
+			continue
+		var sp := Sprite2D.new()
+		sp.name = String(k.fichier).get_file().get_basename()
+		sp.texture = load(chemin)
+		sp.centered = false
+		sp.light_mask = 0
+		var mode := String(k.get("mode", ""))
+		var additif := mode == "additif" or (mode.is_empty() and sp.name.begins_with("9"))
+		sp.modulate.a = float(scene.get("opacites", {}).get(sp.name, 1.0))
+		var m := CanvasItemMaterial.new()
+		m.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+		if additif:
+			m.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		sp.material = m
+		racine.add_child(sp)
+		if additif and not sp.name.begins_with("9"):
+			sp.ready.connect(func() -> void:
+				var t := sp.create_tween().set_loops()
+				for a in [0.88, 1.0, 0.93, 1.0]:
+					t.tween_property(sp, "modulate:a", a, randf_range(0.15, 0.35)))
+	return racine
 
 
 # --------------------------------------------------------------------------- mise en scène
@@ -228,7 +713,8 @@ func _preparer_plan(p: Dictionary) -> void:
 	for nom in p.get("props", {}):
 		if not is_instance_valid(props.get(nom)):
 			var pos: Array = p.props[nom]
-			var s := _prop(d, nom, Vector2(pos[0], pos[1]))
+			# Dans le « Monde » du décor (z 10) : posé à la racine, il passait sous tous les calques.
+			var s := _prop(monde_de(d), nom, Vector2(pos[0], pos[1]))
 			s.add_to_group("props_de_plan")
 	for nom in p.get("textures", {}):
 		var image: Sprite2D = null
@@ -649,6 +1135,7 @@ func _commencer_jeu(nom: String) -> void:
 			_prop(monde_de(d), config.figurants[k], pois[k] + Vector2(0, -10))
 	_declenches = {}
 	_vus_depuis = {}
+	_tout_vu_depuis = -1.0
 	temps_jeu = 0.0
 	inactif = 0.0
 	relance_faite = false
@@ -722,10 +1209,53 @@ func obligatoires_vus(liste: Array = config.get("obligatoires", [])) -> bool:
 	return liste.all(func(p): return pois_vus.has(p))
 
 
-func _suivre_declencheurs() -> bool:
-	if boite.visible:
+## Règle générale (spec v1.4 §9) : quand tous les points d'intérêt disponibles de la zone sont
+## vus (un point masqué par une condition n'est pas dans « pois »), la suite part TOUT_VU_S
+## secondes après la fin de la dernière réplique ; le max_s des déclencheurs reste un filet.
+const TOUT_VU_S := 3.0
+## Temps de jeu où le dernier point a fini d'être lu (-1 : pas encore tout vu).
+var _tout_vu_depuis := -1.0
+
+
+func tous_pois_vus() -> bool:
+	if pois.is_empty():
 		return false
+	for k in pois:
+		if not pois_vus.has(k) and poi_disponible(k):
+			return false
+	return true
+
+
+func _suivre_declencheurs() -> bool:
+	var i := declencheur_pret()
+	if i < 0:
+		return false
+	_declenches[i] = true
+	_quitter_jeu()
+	jouer_noeud(config.declencheurs[i].noeud)
+	return true
+
+
+## Index du déclencheur qui part maintenant (-1 : aucun) : x franchi, max_s écoulé, ou tout vu.
+func declencheur_pret() -> int:
+	if boite.visible:
+		_tout_vu_depuis = -1.0
+		return -1
+	if _tout_vu_depuis < 0.0 and tous_pois_vus():
+		_tout_vu_depuis = temps_jeu
+	var tout_vu := _tout_vu_depuis >= 0.0 and temps_jeu - _tout_vu_depuis >= TOUT_VU_S
 	var liste: Array = config.get("declencheurs", [])
+	# Tout vu : la suite est celle du filet (premier déclencheur à max_s prêt), sinon le premier
+	# déclencheur prêt.
+	var suite := -1
+	if tout_vu:
+		for i in liste.size():
+			if not _declenches.has(i) and obligatoires_vus(liste[i].get("apres", [])):
+				if liste[i].has("max_s"):
+					suite = i
+					break
+				if suite < 0:
+					suite = i
 	for i in liste.size():
 		var d: Dictionary = liste[i]
 		if _declenches.has(i) or not obligatoires_vus(d.get("apres", [])):
@@ -733,12 +1263,9 @@ func _suivre_declencheurs() -> bool:
 		if not _vus_depuis.has(i):
 			_vus_depuis[i] = temps_jeu
 		var par_temps: bool = d.has("max_s") and temps_jeu - _vus_depuis[i] >= float(d.max_s)
-		if joueur.position.x >= float(d.get("x", INF)) or par_temps:
-			_declenches[i] = true
-			_quitter_jeu()
-			jouer_noeud(d.noeud)
-			return true
-	return false
+		if joueur.position.x >= float(d.get("x", INF)) or par_temps or i == suite:
+			return i
+	return -1
 
 
 func _interagir_pois() -> void:

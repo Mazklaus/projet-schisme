@@ -74,6 +74,7 @@ DREMM: Tu parles comme un vieux de Terra.
 === nom_silence
 ~ choix_ep01_nom = 3
 ~ trait_vaskar_doute += 1
+@plan serre:vaskar
 > Vaskar regarde la place vide au-dessus des noms.
 DREMM: Toujours ailleurs, toi.
 -> codicier
@@ -139,7 +140,7 @@ VASKAR: Je l'ai juré.
 -> galerie_fin_haute_suite
 
 === galerie_fin_haute_suite
-DREMM: Où il ira, on ira. Lui devant, nous derrière.
+DREMM (assurance): Où il ira, on ira. Lui devant, nous derrière.
 > Dremm pose la main sur l'épaule de Vaskar. Comme dans le tunnel.
 -> archive_fin
 
@@ -147,7 +148,7 @@ DREMM: Où il ira, on ira. Lui devant, nous derrière.
 > Ils regardent les étoiles, à deux pas l'un de l'autre. Un pas de trop.
 DREMM: Tu as changé depuis Ullanor.
 VASKAR: Toi aussi.
-DREMM: Moi, j'ai monté. Toi, tu regardes en bas.
+DREMM (assurance): Moi, j'ai monté. Toi, tu regardes en bas.
 > Dremm s'en va le premier.
 -> archive_fin
 

@@ -141,7 +141,7 @@ DREMM: Le voilà. Tu as vu ? Tu as VU ?
 VASKAR: J'ai vu.
 // Le motif d'Horus, sous le nom qu'on vient de lui donner.
 @musique ep01_horus 2
-DREMM: Maître de Guerre. Notre père. Au-dessus de tous les autres.
+DREMM (assurance): Maître de Guerre. Notre père. Au-dessus de tous les autres.
 DREMM: On y était, Hol. Les deux rats de galerie.
 VASKAR: Et l'Empereur s'en va.
 DREMM: Oui.
@@ -167,13 +167,14 @@ DREMM: Mais oui. Sûrement.
 ~ trait_vaskar_doute += 0
 VASKAR: Il nous laisse le meilleur. Il le sait.
 DREMM: Voilà. VOILÀ.
-DREMM: Toi et moi, on va lui montrer qu'il a eu raison.
+DREMM (assurance): Toi et moi, on va lui montrer qu'il a eu raison.
 -> dremm_fin
 
 === depart_silence
 ~ choix_ep01_depart = 3
 ~ trait_vaskar_orgueil += 0
 ~ trait_vaskar_doute += 1
+@plan serre:vaskar
 > Vaskar regarde la citadelle vide.
 DREMM: Toujours à regarder ailleurs.
 DREMM: Un jour, tu me diras ce que tu y vois.
@@ -296,6 +297,7 @@ DREMM: Alors je suis revenu. C'est tout.
 // ---------------------------------------------------------------- 7c. Branche « obéir » (cas par défaut, sans condition)
 === nuit_obeir
 DREMM: Tu étais là, à côté de moi. Comme toujours.
+@plan serre:vaskar
 > Vaskar regarde vers la voie. Vers la poutre.
 -> nuit_confidence_obeir [si choix_ep01_depart == 2]
 -> nuit_obeir_coeur

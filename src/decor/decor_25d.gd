@@ -57,13 +57,20 @@ uniform float force : hint_range(0.0, 1.0) = 0.0;
 // Zone masquée (UV : x, y, largeur, hauteur) : une partie détachée du calque pour être animée
 // à part (la tête pour un hochement). Largeur nulle : rien n'est masqué.
 uniform vec4 masque = vec4(0.0);
+// En Godot 4, le COLOR d'entrée du fragment contient déjà la texture : on garde la modulation
+// seule (couleur de sommet × modulate) depuis vertex(), sinon la texture compte deux fois et
+// tout calque voilé sort assombri (Titans d'Ullanor, retour DA).
+varying vec4 modulation;
+void vertex() {
+	modulation = COLOR;
+}
 void fragment() {
 	if (masque.z > 0.0 && UV.x >= masque.x && UV.x < masque.x + masque.z
 			&& UV.y >= masque.y && UV.y < masque.y + masque.w) {
 		discard;
 	}
 	vec4 c = texture(TEXTURE, UV);
-	COLOR = vec4(mix(c.rgb, voile.rgb, force), c.a) * COLOR;
+	COLOR = vec4(mix(c.rgb, voile.rgb, force), c.a) * modulation;
 }
 """
 static var _shader_voile: Shader
@@ -294,7 +301,9 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 		var amb: Dictionary = g.ambiance if typeof(g.get("ambiance")) == TYPE_DICTIONARY else {}
 		# {couleur, niveau} (plans éclairés en Light2D) est l'ambiant de la scène, pas une teinte
 		# des calques : voir « ambiant » plus bas.
-		if amb.has("couleur") and not amb.has("niveau") and k.get("ambiance", true):
+		# Les particules (90_, braises) sont posées après l'image dans assembler.py : pas de teinte.
+		if amb.has("couleur") and not amb.has("niveau") and k.get("ambiance", true) \
+				and not f.get_file().begins_with("90_"):
 			var t := Color(amb.couleur) * float(amb.get("gain", 1.0))
 			t.a = 1.0
 			c.teinte = t.to_html()
@@ -380,6 +389,27 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			if m:
 				var n := float(m.get_string(1))
 				ambiant = Color(n, n, n).to_html(false)
+	# Intérieur dont le seul ambiant est « ambiant ailleurs » d'une veille (vs_quartiers_27) : même
+	# loi des aperçus pour la clé (retour DA : la lumière se concentre autour du brasero).
+	if not loi_apercu and not ambiant.is_empty() and Color(ambiant).get_luminance() < 0.35 \
+			and String(cle.get("type", "")).contains("Light2D") and not cle.has("bougies_px") \
+			and not String(cle.get("type", "")).contains("mobile"):
+		loi_apercu = true
+	# Feux d'un état teinté (ullanor_nuit), comme assembler.py : chaque feu éclaire l'ALBÉDO
+	# (avant la teinte d'ambiance) d'une tache aplatie au sol, exp(−d²/r²) avec y × 1,6, plus un
+	# petit halo additif (0,12 × exp(−6 d²/r²)). La couleur de la Light2D est divisée par la
+	# teinte des calques pour annuler celle-ci ; vacillement ±10 %, désynchronisé par feu.
+	var amb_feux: Dictionary = g.ambiance if typeof(g.get("ambiance")) == TYPE_DICTIONARY else {}
+	if amb_feux.has("couleur") and not amb_feux.has("niveau"):
+		var t := Color(amb_feux.couleur) * float(amb_feux.get("gain", 1.0))
+		for i in lum.size():
+			if typeof(lum[i]) == TYPE_DICTIONARY and lum[i].get("type", "") == "feu":
+				var e: Dictionary = lum[i].duplicate()
+				e.profil = "feu"
+				e.compense = [t.r, t.g, t.b]
+				e.scintillement = 0.1
+				e.halo = 0.12
+				lum[i] = e
 	if loi_apercu:
 		# Même loi pour les appoints (hublot, couloir, traîne de la lampe).
 		for e in lum:
@@ -387,6 +417,23 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				e.profil = "apercu"
 				e.rayon_px = 3.0 * float(e.get("rayon_px", 120))
 				e.hauteur_px = 1500.0
+	# « reglage_moteur » (Lead, calé sur l'aperçu validé) : {portee, energie, veille} multiplient
+	# la portée et l'énergie des lumières ponctuelles et le niveau de la veille.
+	var rm: Dictionary = g.reglage_moteur if typeof(g.get("reglage_moteur")) == TYPE_DICTIONARY else {}
+	if not rm.is_empty():
+		for e in lum:
+			if typeof(e) == TYPE_DICTIONARY and e.has("position_px"):
+				e.rayon_px = float(e.get("rayon_px", 120)) * float(rm.get("portee", 1.0))
+				e.intensite = float(e.get("intensite", 1.0)) * float(rm.get("energie", 1.0))
+		if not veille.is_empty():
+			veille.niveau = float(veille.niveau) * float(rm.get("veille", 1.0))
+			# « veille_teinte » : teinte seule (luminance de la couleur d'origine gardée, donc
+			# l'énergie ne change pas).
+			if rm.has("veille_teinte"):
+				var avant := Color(veille.couleur)
+				var t := Color(rm.veille_teinte)
+				var k := avant.get_luminance() / maxf(t.get_luminance(), 0.001)
+				veille.couleur = Color(t.r * k, t.g * k, t.b * k).to_html(false)
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
 		"source": "guide", "cle": cle, "lumieres": lum, "rais_force": float(g.get("rais_force", 1.0)),
 		"rebond": g.get("rebond", {}),
@@ -683,6 +730,9 @@ func _poser_lumieres(liste: Array) -> void:
 		l.position = Vector2(L.position_px[0], L.position_px[1])
 		l.rotation = float(L.get("orientation", 0.0))
 		l.texture_scale = float(L.get("rayon_px", 120)) * 2.5 / 128.0
+		if profil == "feu":
+			# La texture couvre ±3 r (exp(−9) ≈ 0 au bord).
+			l.texture_scale = float(L.get("rayon_px", 120)) * 6.0 / 256.0
 		var coul = L.get("couleur", "#FFB060")
 		if typeof(coul) == TYPE_DICTIONARY and not coul.is_empty():
 			var par_etat := {}
@@ -698,16 +748,51 @@ func _poser_lumieres(liste: Array) -> void:
 		l.range_item_cull_mask = MASQUE_LUMIERE | 1
 		if typeof(L.get("energie_par_etat")) == TYPE_DICTIONARY:
 			l.set_meta("energie_par_etat", L.energie_par_etat)
+		if typeof(L.get("compense")) == TYPE_ARRAY:
+			var k: Array = L.compense
+			l.color = Color(l.color.r / maxf(k[0], 0.02), l.color.g / maxf(k[1], 0.02), l.color.b / maxf(k[2], 0.02))
 		var sc := float(L.get("scintillement", 0.0))
 		if sc > 0.0:
 			l.set_meta("energie", l.energy)
 			l.set_meta("scintillement", sc)
+			l.set_meta("phase", randf() * TAU)
 		add_child(l)
+		if float(L.get("halo", 0.0)) > 0.0:
+			if not textures.has("feu_halo"):
+				textures["feu_halo"] = _texture_lumiere("feu_halo")
+			var h := Sprite2D.new()
+			h.name = "Halo_%02d" % i
+			h.texture = textures["feu_halo"]
+			h.position = l.position
+			h.scale = Vector2.ONE * l.texture_scale
+			var add := CanvasItemMaterial.new()
+			add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+			add.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+			h.material = add
+			h.light_mask = 0
+			h.z_index = 90
+			var c := couleur_guide(L.get("couleur", "#FFB060")) * float(L.get("intensite", 1.0)) * float(L.halo)
+			h.modulate = Color(c.r, c.g, c.b, 1.0)
+			h.set_meta("modulate_base", h.modulate)
+			l.set_meta("halo", h)
+			add_child(h)
 
 
 ## Texture radiale d'une lumière (256 px, rayon 128) : « lineaire » (feux) ou « traine »
 ## (décroissance exponentielle à longue traîne de l'aperçu de la DA, sur un rayon de 1100 px).
 static func _texture_lumiere(profil: String) -> Texture2D:
+	if profil == "feu" or profil == "feu_halo":
+		# Tache de feu aplatie au sol (assembler.py) : exp(−(x² + (1,6 y)²)) sur ±3 r ; le halo est
+		# 6 fois plus serré.
+		var serre := 6.0 if profil == "feu_halo" else 1.0
+		var img_f := Image.create(256, 256, false, Image.FORMAT_L8)
+		for y in 256:
+			for x in 256:
+				var ux := (x - 127.5) / 128.0 * 3.0
+				var uy := (y - 127.5) / 128.0 * 3.0 * 1.6
+				var val := exp(-(ux * ux + uy * uy) * serre)
+				img_f.set_pixel(x, y, Color(val, val, val))
+		return ImageTexture.create_from_image(img_f)
 	if profil.begins_with("cone_"):
 		# Cône doux vers +x (la lumière est tournée par « orientation ») : décroissance radiale
 		# et bords angulaires adoucis.
@@ -767,7 +852,13 @@ func _process(_delta: float) -> void:
 		if l is PointLight2D and l.has_meta("scintillement"):
 			var e: float = l.get_meta("energie")
 			var sc: float = l.get_meta("scintillement")
-			l.energy = e * (1.0 + sc * (sin(t * 7.3 + l.position.x) * 0.6 + sin(t * 13.1 + l.position.y) * 0.4))
+			var ph: float = l.get_meta("phase", 0.0)
+			var f := 1.0 + sc * (sin(t * 7.3 + l.position.x + ph) * 0.6 + sin(t * 13.1 + l.position.y + ph * 1.7) * 0.4)
+			l.energy = e * f
+			if l.has_meta("halo") and is_instance_valid(l.get_meta("halo")):
+				var h: Sprite2D = l.get_meta("halo")
+				var b: Color = h.get_meta("modulate_base")
+				h.modulate = Color(b.r * f, b.g * f, b.b * f, 1.0)
 
 
 func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
@@ -819,9 +910,7 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		ombre.texture = load(dossier.path_join(k.ombre))
 		ombre.centered = false
 		ombre.position = sprite.position
-		var mul := CanvasItemMaterial.new()
-		mul.blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
-		ombre.material = mul
+		ombre.material = materiau_ombre()
 		couche.add_child(ombre)
 	add_child(couche)
 	return couche
@@ -862,6 +951,33 @@ func _poser_tete(couche: Node, corps: Sprite2D, dossier: String, t: Dictionary) 
 		else:
 			s.position = corps.position
 		couche.add_child(s)
+
+
+## Ombre portée en multiplication, dosée par son alpha comme dans assembler.py :
+## img × (1 − a·(1 − rvb)). Le mélange MUL de Godot ignore l'alpha : une ombre livrée en RVB noir
+## sous un alpha partiel (Astartes des quartiers) noircissait tout le décor.
+const SHADER_OMBRE := """
+shader_type canvas_item;
+render_mode blend_mul;
+varying vec4 modulation;
+void vertex() {
+	modulation = COLOR;
+}
+void fragment() {
+	vec4 t = texture(TEXTURE, UV);
+	COLOR = vec4(mix(vec3(1.0), t.rgb, t.a) * modulation.rgb, 1.0);
+}
+"""
+static var _shader_ombre: Shader
+
+
+static func materiau_ombre() -> ShaderMaterial:
+	if _shader_ombre == null:
+		_shader_ombre = Shader.new()
+		_shader_ombre.code = SHADER_OMBRE
+	var m := ShaderMaterial.new()
+	m.shader = _shader_ombre
+	return m
 
 
 static func materiau_voile() -> ShaderMaterial:

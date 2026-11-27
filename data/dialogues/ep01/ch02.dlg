@@ -21,7 +21,7 @@
 DREMM: Regarde. Là. Le vaisseau d'or.
 DREMM: Il part de l'autre côté.
 VASKAR: Vers Terra.
-DREMM: Vers ses tours et ses conseils. Nous, on part vers tout le reste.
+DREMM (assurance): Vers ses tours et ses conseils. Nous, on part vers tout le reste.
 -> quartiers
 
 // ================================================================ 2. Les quartiers de la 27e (4 points, Krenn obligatoire)
@@ -139,6 +139,7 @@ KRENN: Alors tu as compris plus vite que ton capitaine.
 -> message_ilse
 
 === retour_horus
+@plan serre:krenn
 > Krenn regarde Vaskar longtemps, sans rien dire.
 KRENN: Le fils est grand, Hol. Le père est plus grand.
 KRENN: N'oublie jamais lequel nous a faits.
@@ -188,6 +189,7 @@ FRÈRE DE LA LOGE: Asaro dit que tu es le meilleur de sa compagnie.
 VASKAR: Asaro exagère.
 FRÈRE DE LA LOGE: Asaro n'exagère jamais quand il parle de toi.
 DREMM: On se jure une chose, Hol. Une seule.
+@plan large
 DREMM: Que quoi qu'il arrive, aucun de nous ne restera seul.
 DREMM: Comme dans le tunnel.
 // C5 : pas de minuteur (choix moral lent). Quitter la salle sans un mot vaut 3.
@@ -245,7 +247,7 @@ DREMM: Tu sais ce qu'on va devenir ? Les premiers. Partout.
 @musique ep01_horus 3
 DREMM: Lui devant. Nous juste derrière. Personne entre nous.
 VASKAR: Et l'Empereur ?
-DREMM: L'Empereur est parti, Hol. C'est nous qui restons.
+DREMM (assurance): L'Empereur est parti, Hol. C'est nous qui restons.
 -> annonce
 
 // ================================================================ 8. Accroche
