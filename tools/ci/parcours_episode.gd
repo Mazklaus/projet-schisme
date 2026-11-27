@@ -8,6 +8,7 @@ extends SceneTree
 ##   --politique=premier|dernier|silence   option prise à chaque menu : la première, la dernière,
 ##                     ou rien (les menus minutés expirent, les autres prennent la dernière option)
 ##   --attendu=cle1,cle2…   clés qui doivent être dans la sauvegarde finale
+##   --valeurs=cle=v,…  valeurs exactes attendues dans la sauvegarde finale (true/false ou nombre)
 ##   --vitesse=N       accélère le temps (4 par défaut)
 ##   --captures=DIR    une image à chaque changement de chapitre ou de phase (avec xvfb-run)
 ##   --chapitre=ID     commencer à ce chapitre (les chapitres d'avant ne sont pas exigés)
@@ -16,6 +17,7 @@ extends SceneTree
 var episode := "ep01"
 var politique := "premier"
 var attendu: PackedStringArray = []
+var valeurs := {}
 var vitesse := 4.0
 var captures := ""
 var chapitre := ""
@@ -36,6 +38,10 @@ func _initialize() -> void:
 			politique = a.get_slice("=", 1)
 		elif a.begins_with("--attendu="):
 			attendu = a.get_slice("=", 1).split(",", false)
+		elif a.begins_with("--valeurs="):
+			for kv in a.trim_prefix("--valeurs=").split(",", false):
+				var v := kv.get_slice("=", 1)
+				valeurs[kv.get_slice("=", 0)] = (v == "true") if v in ["true", "false"] else float(v)
 		elif a.begins_with("--vitesse="):
 			vitesse = float(a.get_slice("=", 1))
 		elif a.begins_with("--captures="):

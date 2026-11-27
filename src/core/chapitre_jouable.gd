@@ -125,31 +125,55 @@ func _construire_ui() -> void:
 	add_child(_invite)
 
 
-## Icône discrète des touches de déplacement, en bas de l'écran. Les lettres sont celles du
+## Invite des touches de déplacement (jamais de touche en dur : règle GD), en bas de l'écran. Les lettres sont celles du
 ## clavier du joueur (ZQSD en AZERTY, WASD en QWERTY).
 func _construire_aide_deplacement() -> Control:
-	var touches := ""
-	for code in [KEY_W, KEY_A, KEY_S, KEY_D]:
-		var k := KEY_NONE
-		if DisplayServer.get_name() != "headless":
-			k = DisplayServer.keyboard_get_label_from_physical(code)
-		touches += OS.get_keycode_string(k if k != KEY_NONE else code)
+	var touches: PackedStringArray = []
+	for a in ["haut", "gauche", "bas", "droite"]:
+		touches.append(touche(a))
 	var l := Label.new()
 	l.name = "AideDeplacement"
-	l.text = "%s  ·  ← ↑ → ↓  ·  stick gauche" % touches
+	l.text = "Se déplacer :  %s   ·   ← ↑ → ↓   ·   stick gauche" % "  ".join(touches)
 	l.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	l.offset_left = -300
-	l.offset_right = 300
-	l.offset_top = -90
-	l.offset_bottom = -50
+	l.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	l.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	l.offset_top = -150
+	l.offset_bottom = -70
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", 24)
-	l.add_theme_color_override("font_color", Color(0.95, 0.9, 0.8))
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.add_theme_font_size_override("font_size", 34)
+	l.add_theme_color_override("font_color", Color("#F2EAD3"))
 	l.add_theme_color_override("font_outline_color", Color.BLACK)
-	l.add_theme_constant_override("outline_size", 6)
+	l.add_theme_constant_override("outline_size", 8)
+	var plaque := StyleBoxFlat.new()
+	plaque.bg_color = Color(0.04, 0.03, 0.02, 0.82)
+	plaque.border_color = Color("#C9A44C")
+	plaque.set_border_width_all(2)
+	plaque.set_corner_radius_all(6)
+	plaque.content_margin_left = 28
+	plaque.content_margin_right = 28
+	plaque.content_margin_top = 12
+	plaque.content_margin_bottom = 12
+	l.add_theme_stylebox_override("normal", plaque)
 	l.modulate.a = 0.0
 	l.hide()
 	return l
+
+
+## Libellé de la première touche clavier d'une action, selon la disposition du clavier du
+## joueur (touche physique traduite par le système : Z en AZERTY pour le W physique).
+## Aucun texte du jeu ne doit écrire une touche en dur.
+static func touche(action: String) -> String:
+	for e in InputMap.action_get_events(action) if InputMap.has_action(action) else []:
+		if e is InputEventKey:
+			var code: Key = e.physical_keycode
+			if code == KEY_NONE:
+				return OS.get_keycode_string(e.keycode)
+			var k := KEY_NONE
+			if DisplayServer.get_name() != "headless":
+				k = DisplayServer.keyboard_get_label_from_physical(code)
+			return OS.get_keycode_string(k if k != KEY_NONE else code)
+	return ""
 
 
 func _inviter(pos: Vector2, texte: String) -> void:
@@ -471,7 +495,7 @@ func _interagir_pois() -> void:
 	if poi.is_empty() or boite.visible:
 		_invite.hide()
 		return
-	_inviter(pois[poi], "E : regarder")
+	_inviter(pois[poi], "%s : regarder" % touche("interagir"))
 	if Input.is_action_just_pressed("interagir"):
 		_invite.hide()
 		joueur.actif = false
@@ -512,7 +536,7 @@ func _suivre_aide_deplacement() -> void:
 	elif not aide_vue and temps_jeu >= AIDE_DEPLACEMENT_S and not boite.visible:
 		aide_vue = true
 		_aide.show()
-		create_tween().tween_property(_aide, "modulate:a", 0.85, 0.6)
+		create_tween().tween_property(_aide, "modulate:a", 1.0, 0.6)
 
 
 # --------------------------------------------------------------------------- écran de fin
@@ -531,12 +555,42 @@ func _finir() -> void:
 	joueur.actif = false
 	Son.musique("stop", 1.5)
 	Son.couper("ambiance", 2.5)
+	# Le dernier carton est resté noir : on passe sous le voile sans revoir la scène.
+	if is_instance_valid(carton_final):
+		_voile_noir.modulate.a = 1.0
 	await _fondu_noir(1.0, 0.6)
+	liberer_carton_final()
 	ecran_fin = _construire_ecran_fin(titre_fin(), rappel_fin())
 	_ui.add_child(ecran_fin)
 	ecran_fin.modulate.a = 0.0
 	create_tween().tween_property(ecran_fin, "modulate:a", 1.0, 0.8)
-	(ecran_fin.find_child("Rejouer", true, false) as Button).grab_focus.call_deferred()
+	# Aucun bouton en focus, et rien n'est pris pendant ECRAN_FIN_VERROU_S : un Espace donné
+	# par réflexe à la fin du dialogue ne relance pas la partie (décision GD, QA v2).
+	get_viewport().gui_release_focus()
+	_ecran_fin_ouvert_a = Time.get_ticks_msec()
+	for b in ecran_fin.find_children("*", "Button", true, false):
+		b.disabled = true
+	get_tree().create_timer(ECRAN_FIN_VERROU_S, true, false, true).timeout.connect(func():
+		if is_instance_valid(ecran_fin):
+			for b in ecran_fin.find_children("*", "Button", true, false):
+				b.disabled = false)
+
+
+const ECRAN_FIN_VERROU_S := 1.0
+var _ecran_fin_ouvert_a := 0
+
+
+## Écran de fin sans focus : la première direction (clavier ou manette) sélectionne Rejouer.
+func _unhandled_input(e: InputEvent) -> void:
+	if phase != "ecran_fin" or ecran_fin == null or get_viewport().gui_get_focus_owner() != null:
+		return
+	if Time.get_ticks_msec() - _ecran_fin_ouvert_a < ECRAN_FIN_VERROU_S * 1000.0:
+		return
+	for a in ["ui_up", "ui_down", "ui_left", "ui_right", "haut", "bas", "gauche", "droite"]:
+		if InputMap.has_action(a) and e.is_action_pressed(a):
+			(ecran_fin.find_child("Rejouer", true, false) as Button).grab_focus()
+			get_viewport().set_input_as_handled()
+			return
 
 
 ## Titre et ligne de rappel de l'écran de fin (surchargeables par épisode).

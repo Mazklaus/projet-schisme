@@ -91,7 +91,11 @@ func executer_commande(nom: String, args: Array) -> void:
 				await _animer(l, "energy", float(args[1]), args, 2)
 		"carton", "titre":
 			if args.size() >= 2:
-				await afficher_carton(" ".join(args.slice(1)), float(args[0]), nom == "carton")
+				# Dernier carton noir du dialogue : il reste noir jusqu'à la suite (écran de fin,
+				# chapitre suivant), sans laisser revoir la scène derrière lui.
+				var final := nom == "carton" and lecteur != null and lecteur.finit_ensuite()
+				await afficher_carton(" ".join(args.slice(1)), float(args[0]), nom == "carton",
+					Color.WHITE, Color.BLACK, final)
 		"montrer", "cacher":
 			# CanvasItem ou CanvasLayer (gros plans en surimpression) : tous deux ont « visible ».
 			var n := _noeud(args, 0)
@@ -217,7 +221,7 @@ static func materiau_fumee(n: CanvasItem) -> ShaderMaterial:
 
 ## Texte plein écran (sur fond noir, ou sur l'image), avec fondu. Placeholder visuel.
 func afficher_carton(texte: String, duree: float, fond_noir := true, couleur := Color.WHITE,
-		contour := Color.BLACK) -> void:
+		contour := Color.BLACK, garder_noir := false) -> void:
 	var couche := CanvasLayer.new()
 	couche.layer = 50
 	var fond := ColorRect.new()
@@ -240,9 +244,26 @@ func afficher_carton(texte: String, duree: float, fond_noir := true, couleur := 
 	var t := create_tween()
 	t.tween_property(fond, "modulate:a", 1.0, 0.4)
 	t.tween_interval(maxf(duree - 0.8, 0.0))
+	if garder_noir:
+		# Seul le texte s'efface ; le noir reste jusqu'à liberer_carton_final().
+		t.tween_property(l, "modulate:a", 0.0, 0.4)
+		await t.finished
+		liberer_carton_final()
+		carton_final = couche
+		return
 	t.tween_property(fond, "modulate:a", 0.0, 0.4)
 	await t.finished
 	couche.queue_free()
+
+
+## Noir laissé par le dernier carton d'un dialogue (voir afficher_carton).
+var carton_final: CanvasLayer
+
+
+func liberer_carton_final() -> void:
+	if is_instance_valid(carton_final):
+		carton_final.queue_free()
+	carton_final = null
 
 
 ## À surcharger dans un chapitre pour ses propres commandes.

@@ -26,6 +26,7 @@ const ATTENDU := {
 }
 const OPTION := {"sortir": 0, "auxiliaires": 1, "obeir": 2}
 
+var _scene_revue := false
 var choix := "sortir"
 var poi := true
 var flaner := false
@@ -105,6 +106,8 @@ func _process(delta: float) -> bool:
 		print("[%5.1f s] phase %s" % [_temps_jeu, _phase])
 		if _phase == "jeu":
 			_pois_restants = scene.pois.keys() if poi else []
+		if _phase == "ecran_fin" and not is_instance_valid(scene.carton_final) and scene._voile_noir.modulate.a < 0.99:
+			_scene_revue = true
 		if not captures.is_empty():
 			root.get_texture().get_image().save_png("%s/%02d_%s.png" % [captures, _phases.size(), _phase])
 	if rafale > 0.0 and not captures.is_empty() and _temps_jeu >= _prochaine_rafale:
@@ -206,6 +209,10 @@ func _verifier(jeu, scene) -> bool:
 		erreurs.append("invite de déplacement jamais affichée")
 	if not immobile and not flaner and scene.glissement_fait:
 		erreurs.append("filet de sécurité déclenché alors que le joueur avançait")
+	if _scene_revue:
+		erreurs.append("la scène réapparaît entre le dernier carton et l'écran de fin")
+	if root.gui_get_focus_owner() != null:
+		erreurs.append("écran de fin : un bouton a le focus à l'ouverture")
 	var rappel: Label = scene.ecran_fin.find_child("Rappel", true, false)
 	var attendu_rappel: String = scene.RAPPEL_CHOIX[int(attendu.choix_ep01_ullanor)]
 	if rappel == null or rappel.text != attendu_rappel:
