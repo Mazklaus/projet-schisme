@@ -17,7 +17,7 @@ godot --headless --import
 
 | Fichier | Fonction du générateur | Graine | Où il sonne | Ce que c'est |
 |---|---|---|---|---|
-| `mus_ullanor_triomphe` | `mus_triomphe` | 1001 | 1c (clameur) | Boucle de 38 s : hymne lumineux en ré majeur (I–IV–I–V–vi–IV–V4-3–I), plein jeu d'orgue, chœur, cuivres larges, ligne de chant qui monte à la tonique, 50 à la noire |
+| `mus_ullanor_triomphe` | `mus_triomphe` | 1001 | 1b–1c (entre sur 1b, tient à plein jusqu'à 1d) | Boucle de 25 s : hymne lumineux en ré majeur, 48 à la noire, deux temps par accord ; la première phrase (I–IV–V4-3–I) se pose sur la tonique à 7,5 s, juste au début de 1c, puis vi–IV–V4-3–I ; plein jeu d'orgue, chœur, cuivres larges, ligne au chœur et à la trompette douce |
 | `mus_ullanor_attente` | `mus_attente` | 1002 | 1d à 1f | Boucle de 30 s : bourdon d'orgue ré–la, chœur voilé, couleur napolitaine non résolue |
 | `mus_ullanor_horus` | `mus_horus` | 1003 | 5b–5c | Boucle de 20 s : la note tenue (ré à l'unisson et à l'octave : orgue, chœur, cuivre grave) |
 | `amb_ullanor_triomphe` | `amb_triomphe` | 2001 | 1a, 1c | Boucle de 40 s : tambours de défilé lointains, des millions de pas, armures, vent |

@@ -211,47 +211,50 @@ def note(demi, base=D2):
 # ============================================================================ musique
 
 def mus_triomphe():
-    """Le Triomphe : l'apogée de l'Imperium, grandeur sincère et lumineuse (retour du GD, 18/11).
-    Hymne lent en ré majeur (50 à la noire) : I – IV – I – V – vi – IV – V4-3 – I. Plein jeu d'orgue
-    avec mixtures, chœur bouche ouverte, cuivres larges, une ligne de chant qui monte jusqu'à la
-    tonique. Ni batterie, ni montée pop : la grandeur vient de l'ampleur, pas de l'accélération."""
+    """Le Triomphe : l'apogée de l'Imperium, grandeur sincère et lumineuse (retours du GD, 18 et 27/11).
+    Il entre sur 1b et doit tenir à plein jusqu'à 1d (environ 10,5 s). La première phrase monte
+    jusqu'à la tonique en 7,5 s, exactement la durée de 1b : l'accord de ré se pose avec « Maître de
+    Guerre ! » (1c) et tient jusqu'à 1d. Ré majeur, 48 à la noire, deux temps par accord :
+    I – IV – V4-3 – I, puis vi – IV – V4-3 – I. Plein jeu d'orgue, chœur, cuivres larges, la ligne
+    au chœur et à la trompette douce. Ni batterie ni montée pop."""
     r = nouveau_hasard(1001)
-    noire = 60 / 50
-    mesure = 4 * noire
-    grille = ["D", "G", "D", "A", "Bm", "G", "Asus4", "D"]
-    chant = [[4], [5], [7], [7], [9], [9], [12, 11], [12]]                            # depuis ré 4 : fa# sol la la si si ré-do# ré
-    L = mk(mesure * len(grille))
+    noire = 60 / 48
+    pas = 2 * noire                                                                   # 2,5 s par accord
+    # (accord, durée en accords, ligne de chant : (demi-tons depuis ré 4, durée en accords))
+    phrase = [("D", 1, [(4, 1)]), ("G", 1, [(9, 1)]), ("Asus4", 0.5, [(12, 0.5)]), ("A", 0.5, [(11, 0.5)]),
+              ("D", 2, [(12, 2)]),
+              ("Bm", 1, [(4, 1)]), ("G", 1, [(5, 1)]), ("Asus4", 0.5, [(7, 0.5)]), ("A", 0.5, [(11, 0.5)]),
+              ("D", 2, [(12, 2)])]
+    L = mk(pas * sum(d for _, d, _ in phrase))
     m = np.zeros(L + mk(8))
-    for i, a in enumerate(grille):
-        t0 = i * mesure
-        accords = [(a, t0, mesure)]
-        if a == "Asus4":                                                              # la quarte se résout sur la tierce
-            accords = [("Asus4", t0, mesure / 2), ("A", t0 + mesure / 2, mesure / 2)]
-        place(m, orgue(r, note(BASSES[a], D2), mesure + 0.2, 0.45), t0)                # pédale
-        for b, ta, da in accords:
-            for d in ACCORDS[b]:
-                place(m, orgue(r, note(d, D2 * 2), da + 0.2, 0.32, ORGUE_PLEIN), ta)
-                place(m, choeur(r, note(d, D2 * 2), da + 0.6, "a" if i % 2 == 0 else "o", force=0.75,
-                                attaque=0.5), ta)
-        d_chant = mesure / len(chant[i])
-        for k, d in enumerate(chant[i]):                                             # la ligne, au chœur et à la trompette douce
-            tc = t0 + k * d_chant
-            place(m, choeur(r, note(d, D2 * 4), d_chant + 0.5, "a", voix=8, force=0.55, attaque=0.35), tc)
-            if i >= 4:
-                place(m, cuivre(r, note(d, D2 * 4), d_chant * 0.97, 0.22, attaque=0.3), tc)
-        larges = (1, 3, 4, 5, 6, 7)                                                    # cuivres larges, à l'octave
-        if i in larges:
-            for b, ta, da in accords:
-                for d in ACCORDS[b]:
-                    place(m, cuivre(r, note(d, D2 * 2), da * 0.97, 0.45, attaque=min(0.8, da * 0.3)), ta)
-                place(m, cuivre(r, note(BASSES[b], D2), da * 0.97, 0.5, attaque=min(0.8, da * 0.3)), ta)
-        if i in (0, 4, 7):
-            place(m, timbale(r, D2 if a == "D" else note(-3, D2), 0.8), t0)
-        if i == 6:
-            for k in range(8):                                                         # roulement court sur la dominante
-                place(m, timbale(r, note(-5, D2), 0.2 + 0.05 * k), t0 + mesure / 2 + k * noire / 4)
+    t0 = 0.0
+    for k, (a, d, chant) in enumerate(phrase):
+        da = d * pas
+        # Le dernier accord déborde sur la queue : le fondu de boucle enchaîne ré plein sur ré plein, et la
+        # toute première lecture (entrée sur 1b) commence à plein au lieu de sortir d'une réverbération.
+        tenue = da + (4.5 if k == len(phrase) - 1 else 0.0)
+        att = 0.12 if k == 0 else min(0.6, da * 0.3)
+        place(m, orgue(r, note(BASSES[a], D2), tenue + 0.2, 0.5), t0)                  # pédale
+        for x in ACCORDS[a]:
+            place(m, orgue(r, note(x, D2 * 2), tenue + 0.2, 0.34, ORGUE_PLEIN), t0)
+            place(m, choeur(r, note(x, D2 * 2), tenue + 0.6, "a" if a == "D" else "o", force=0.75,
+                            attaque=0.15 if k == 0 else 0.4), t0)
+            place(m, cuivre(r, note(x, D2 * 2), tenue * 0.97, 0.45, attaque=att), t0)
+        place(m, cuivre(r, note(BASSES[a], D2), tenue * 0.97, 0.5, attaque=att), t0)
+        tc = t0
+        for x, dc in chant:
+            dur = dc * pas
+            place(m, choeur(r, note(x, D2 * 4), dur + 0.5, "a", voix=8, force=0.6, attaque=0.3), tc)
+            place(m, cuivre(r, note(x, D2 * 4), dur * 0.97, 0.28, attaque=0.25), tc)
+            tc += dur
+        if a == "D":
+            place(m, timbale(r, D2, 0.9 if d > 1 else 0.7), t0)
+        if a == "Asus4":
+            for q in range(8):                                                          # roulement vers la résolution
+                place(m, timbale(r, note(-5, D2), 0.2 + 0.06 * q), t0 + q * da / 8)
+        t0 += da
     st = reverb_st(m, 4.5, 0.42, 1101, sombre=9000)
-    return boucler(st, L, 4.0)
+    return boucler(st, L, 1.0)
 
 
 def mus_attente():
