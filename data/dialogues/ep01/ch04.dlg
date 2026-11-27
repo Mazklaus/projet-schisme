@@ -7,6 +7,7 @@
 // ================================================================ 0. L'archive
 === archive_ch4
 @decor archive
+@ambiance archive 1.5
 @plan archive_drapeau
 > Un drapeau, à moitié brûlé, plié avec soin.
 @carton 3 Orvane. Un monde qui avait dit non.
@@ -15,7 +16,10 @@
 // ================================================================ 1. Le briefing d'Horus (scène dirigée)
 === briefing
 @decor barge_salle_briefing
+@ambiance ep03_barge 2
 // CANON (scène dirigée) : Horus en hololithe devant les capitaines. Répliques originales.
+// Le motif d'Horus tant que l'hololithe est allumé : noble, et sa note qui doute.
+@musique ep01_horus 2
 > L'hololithe s'allume. Horus, plus grand que nature, même en lumière bleue.
 HORUS: Capitaines. Asaro. Approche.
 > Dremm s'avance, surpris.
@@ -28,12 +32,14 @@ HORUS: Orvane est un monde humain. Des nôtres, qui ont oublié qu'ils l'étaien
 HORUS: Je veux leur citadelle avant l'aube.
 HORUS: Ils apprendront ce que vaut un refus. Ensuite, ils apprendront ce que vaut un oui.
 > L'hololithe s'éteint. Dremm reste un moment à regarder l'endroit où il était.
+@musique stop 3
 DREMM: Il savait mon nom, Hol.
 -> approche
 
 // ================================================================ 2. L'approche (ciné)
 === approche
 @decor orvane_nuit
+@ambiance ep04_orvane_nuit 2
 @plan stormbirds
 > Les Stormbirds descendent dans la nuit.
 > En bas, des fenêtres allumées. Du linge tendu entre les tours. Des drapeaux.
@@ -44,6 +50,8 @@ FRÈRE: Tout le monde a des enfants.
 // ================================================================ 3. L'émissaire
 === emissaire
 @decor orvane_barricade
+// Avant l'assaut : la ville tient encore son souffle.
+@ambiance ep04_orvane_nuit 2
 > Un homme en manteau de cérémonie, seul, les mains vides, devant la barricade.
 ÉMISSAIRE: Le gouverneur demande des conditions. Garder nos lois. Nos fêtes. Nos noms.
 DREMM: La conformité ne se négocie pas.
@@ -71,6 +79,7 @@ DREMM: On s'en souviendra. Après.
 // ================================================================ 4. L'assaut (séquence légère)
 === assaut
 @decor orvane_rues
+@ambiance ep04_orvane_rues 1.5
 @jeu
 // Avancer, se couvrir, franchir des barricades. Pas de système de combat.
 DREMM (vox): La 27e avance. Personne ne traîne.
@@ -100,6 +109,7 @@ ILSE: Pas pour ce soir, j'espère.
 // ================================================================ 5. Le bloc d'habitation : C7
 === bloc
 @decor orvane_bloc
+@ambiance ep04_orvane_bloc 2
 > Un immeuble d'habitation. Des tirs depuis les étages. Aux fenêtres, des visages qui ne tirent pas.
 > À l'est, le ciel pâlit.
 DREMM (vox): On perce. Maintenant. Il veut la citadelle avant l'aube.
@@ -162,10 +172,13 @@ ILSE (vox de l'Armée): On y va.
 // ================================================================ 6. La citadelle tombe à l'aube
 === citadelle
 @decor orvane_aube
+// Les combats retombent : la ville après, la même pour toutes les branches.
+@ambiance ep04_orvane_matin 3
 @plan citadelle_tombe
 > La citadelle tombe.
 -> citadelle_a_l_heure [si choix_ep01_orvane == 1]
 // Défaut (2 ou 3) : en retard.
+@musique ep01_horus 1.5
 > Le soleil est déjà levé.
 @plan hololithe_horus
 HORUS: En retard, capitaine.
@@ -174,6 +187,7 @@ DREMM: Il ne l'oubliera pas, Hol.
 -> retombee_rues
 
 === citadelle_a_l_heure
+@musique ep01_horus 1.5
 > Le soleil se lève sur la citadelle prise.
 @plan hololithe_horus
 HORUS: Avant l'aube. Asaro, la 27e boira dans ma propre coupe ce soir.
@@ -183,6 +197,8 @@ DREMM: Tu l'as entendu ? SA coupe.
 // ================================================================ 7. Retombée
 === retombee_rues
 @decor orvane_matin
+@musique stop 3
+@ambiance ep04_orvane_matin 2
 @jeu
 -> retombee_percer [si choix_ep01_orvane == 1]
 // Défaut (2 ou 3) : les civils vivants, la 27e humiliée.
