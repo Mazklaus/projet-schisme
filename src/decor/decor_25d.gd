@@ -389,6 +389,12 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			if m:
 				var n := float(m.get_string(1))
 				ambiant = Color(n, n, n).to_html(false)
+	# Intérieur dont le seul ambiant est « ambiant ailleurs » d'une veille (vs_quartiers_27) : même
+	# loi des aperçus pour la clé (retour DA : la lumière se concentre autour du brasero).
+	if not loi_apercu and not ambiant.is_empty() and Color(ambiant).get_luminance() < 0.35 \
+			and String(cle.get("type", "")).contains("Light2D") and not cle.has("bougies_px") \
+			and not String(cle.get("type", "")).contains("mobile"):
+		loi_apercu = true
 	# Feux d'un état teinté (ullanor_nuit), comme assembler.py : chaque feu éclaire l'ALBÉDO
 	# (avant la teinte d'ambiance) d'une tache aplatie au sol, exp(−d²/r²) avec y × 1,6, plus un
 	# petit halo additif (0,12 × exp(−6 d²/r²)). La couleur de la Light2D est divisée par la
@@ -411,6 +417,16 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				e.profil = "apercu"
 				e.rayon_px = 3.0 * float(e.get("rayon_px", 120))
 				e.hauteur_px = 1500.0
+	# « reglage_moteur » (Lead, calé sur l'aperçu validé) : {portee, energie, veille} multiplient
+	# la portée et l'énergie des lumières ponctuelles et le niveau de la veille.
+	var rm: Dictionary = g.reglage_moteur if typeof(g.get("reglage_moteur")) == TYPE_DICTIONARY else {}
+	if not rm.is_empty():
+		for e in lum:
+			if typeof(e) == TYPE_DICTIONARY and e.has("position_px"):
+				e.rayon_px = float(e.get("rayon_px", 120)) * float(rm.get("portee", 1.0))
+				e.intensite = float(e.get("intensite", 1.0)) * float(rm.get("energie", 1.0))
+		if not veille.is_empty():
+			veille.niveau = float(veille.niveau) * float(rm.get("veille", 1.0))
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
 		"source": "guide", "cle": cle, "lumieres": lum, "rais_force": float(g.get("rais_force", 1.0)),
 		"rebond": g.get("rebond", {}),

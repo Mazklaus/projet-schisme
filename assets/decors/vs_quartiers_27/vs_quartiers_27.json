@@ -1,122 +1,128 @@
 {
-  "plan": "vs_quartiers_27",
-  "episode": 1,
-  "chapitres": [
-    2
+ "plan": "vs_quartiers_27",
+ "episode": 1,
+ "chapitres": [
+  2
+ ],
+ "etat": "pur",
+ "description": "Vengeful Spirit, quartiers de la 27e compagnie : haute nef gothique à l'échelle des Astartes, un foyer intime au centre. Générateur : cA2/vs_quartiers_27_calques.py [--4k], kit partagé cA2/kit_voute.py (même kit que vs_cales_loge).",
+ "cadre_px": [
+  1920,
+  1080
+ ],
+ "camera": {
+  "hauteur_m": 1.7,
+  "focale_px": 1050,
+  "point_de_fuite_px": [
+   960,
+   600
+  ]
+ },
+ "regle_palette": "marbre crème et or dominants ; vert d'eau dans les ombres seulement (<= 20 %), il gagne avec la corruption",
+ "echelle": {
+  "nef_m": "14 de large, naissance des arcs à 11, clé à 21, travées de 6",
+  "statues_m": 5,
+  "astartes_m": 2.3,
+  "px_par_m_au_brasero": 75
+ },
+ "eclairage": "calques en ALBÉDO (matière + occlusion), aucune lumière cuite ; éclairage en Light2D",
+ "cle": {
+  "type": "brasero (Light2D point)",
+  "position_px": [
+   960,
+   671
   ],
-  "etat": "pur",
-  "description": "Vengeful Spirit, quartiers de la 27e compagnie : haute nef gothique à l'échelle des Astartes, un foyer intime au centre. Générateur : cA2/vs_quartiers_27_calques.py [--4k], kit partagé cA2/kit_voute.py (même kit que vs_cales_loge).",
-  "cadre_px": [
-    1920,
-    1080
+  "position_m": [
+   0,
+   0.9,
+   14
   ],
-  "camera": {
-    "hauteur_m": 1.7,
-    "focale_px": 1050,
-    "point_de_fuite_px": [
-      960,
-      600
-    ]
+  "couleur": "#FFB868",
+  "energie": 1.3,
+  "portee_px": 560,
+  "scintillement": {
+   "amplitude": 0.1,
+   "frequence_hz": [
+    2,
+    5
+   ]
   },
-  "regle_palette": "marbre crème et or dominants ; vert d'eau dans les ombres seulement (<= 20 %), il gagne avec la corruption",
-  "echelle": {
-    "nef_m": "14 de large, naissance des arcs à 11, clé à 21, travées de 6",
-    "statues_m": 5,
-    "astartes_m": 2.3,
-    "px_par_m_au_brasero": 75
+  "note": "flaque chaude d'environ 6 m (frères, couchettes proches) ; la voûte se perd vers le haut ; premier plan presque au noir, 15 à 25 % de l'image sous #1A1612 (aperçu : 26 %)"
+ },
+ "appoints": [
+  {
+   "type": "veille de bord (DirectionalLight2D ou CanvasModulate)",
+   "couleur": "#C8D2DC",
+   "niveau": 0.36,
+   "direction": "d'en haut (fenêtres hautes)",
+   "note": "froide et faible : le foyer doit rester l'îlot chaud",
+   "zone": "fond et ogive seulement (masque ou Light2D texturée), ambiant ailleurs 0.08"
+  }
+ ],
+ "calques": [
+  {
+   "fichier": "calques/00_fond.png",
+   "auteur": "CA2",
+   "distance_m": 46,
+   "contenu": "mur du fond : haute ogive d'étoiles avec meneau, deux étendards de la Croisade (motif Luna Wolves à poser, cA1/bannieres option B), mur bas de trophées (casques, lames) sur entablement d'or"
   },
-  "eclairage": "calques en ALBÉDO (matière + occlusion), aucune lumière cuite ; éclairage en Light2D",
-  "cle": {
-    "type": "brasero (Light2D point)",
-    "position_px": [
-      960,
-      671
-    ],
-    "position_m": [
-      0,
-      0.9,
-      14
-    ],
-    "couleur": "#FFB868",
-    "energie": 1.3,
-    "portee_px": 560,
-    "scintillement": {
-      "amplitude": 0.1,
-      "frequence_hz": [
-        2,
-        5
-      ]
-    },
-    "note": "flaque chaude d'environ 6 m (frères, couchettes proches) ; la voûte se perd vers le haut ; premier plan presque au noir, 15 à 25 % de l'image sous #1A1612 (aperçu : 26 %)"
+  {
+   "fichier": "calques/10_voute.png",
+   "normal": "calques/10_voute_normal.png",
+   "auteur": "CA2",
+   "distance_m": "4 à 46 (hauteur 11 à 21)",
+   "contenu": "voûtains en arcs brisés, doubleaux et ogives d'or, clés en rosace, fenêtres hautes en ogive"
   },
-  "appoints": [
-    {
-      "type": "veille de bord (DirectionalLight2D ou CanvasModulate)",
-      "couleur": "#C8D2DC",
-      "niveau": 0.36,
-      "direction": "d'en haut (fenêtres hautes)",
-      "note": "froide et faible : le foyer doit rester l'îlot chaud",
-      "zone": "fond et ogive seulement (masque ou Light2D texturée), ambiant ailleurs 0.08"
-    }
-  ],
-  "calques": [
-    {
-      "fichier": "calques/00_fond.png",
-      "auteur": "CA2",
-      "distance_m": 46,
-      "contenu": "mur du fond : haute ogive d'étoiles avec meneau, deux étendards de la Croisade (motif Luna Wolves à poser, cA1/bannieres option B), mur bas de trophées (casques, lames) sur entablement d'or"
-    },
-    {
-      "fichier": "calques/10_voute.png",
-      "normal": "calques/10_voute_normal.png",
-      "auteur": "CA2",
-      "distance_m": "4 à 46 (hauteur 11 à 21)",
-      "contenu": "voûtains en arcs brisés, doubleaux et ogives d'or, clés en rosace, fenêtres hautes en ogive"
-    },
-    {
-      "fichier": "calques/20_nef.png",
-      "normal": "calques/20_nef_normal.png",
-      "ombre": "calques/20_nef_ombre.png",
-      "auteur": "CA2",
-      "distance_m": "2 à 46",
-      "contenu": "sol de marbre (joints dorés, chemin d'or étroit au centre), murs, colonnes engagées cannelées à bagues d'or, statues de 5 m sur socles dans les travées ; ombres des colonnes projetées depuis le brasero"
-    },
-    {
-      "fichier": "calques/30_mobilier.png",
-      "normal": "calques/30_mobilier_normal.png",
-      "auteur": "CA2",
-      "distance_m": "6 à 40",
-      "contenu": "rangs de couchettes perpendiculaires aux murs, coffres à liseré d'or, râteliers d'armure contre les murs, bancs de pierre autour du brasero, brasero de bronze sur trépied"
-    },
-    {
-      "fichier": "calques/40_personnages.png",
-      "auteur": "CA1 / kit Blender",
-      "distance_m": "11 à 16",
-      "contenu": "autour du brasero, PAS alignés : Krenn assis penché vers le feu (profil), un frère assis de face adossé, un frère assis de profil, Dremm debout ; Vaskar debout en retrait. Gabarit : calques/gabarit_40_personnages.png (pas un asset)"
-    },
-    {
-      "fichier": "calques/45_braises.png",
-      "auteur": "CA2",
-      "distance_m": 14,
-      "contenu": "braises et flammes (émissif) ; la lumière est la Light2D"
-    },
-    {
-      "fichier": "calques/50_avant_plan.png",
-      "normal": "calques/50_avant_plan_normal.png",
-      "auteur": "CA2",
-      "distance_m": 2.2,
-      "contenu": "colonne presque noire coupée à droite (liseré côté brasero), coin de bannière en contre-jour en haut à gauche"
-    },
-    {
-      "fichier": "calques/90_particules.png",
-      "auteur": "CA2",
-      "distance_m": 14,
-      "contenu": "étincelles et fumée du brasero ; à animer"
-    }
-  ],
-  "normales": "convention OpenGL (Y+), alpha = alpha du calque",
-  "apercus": [
-    "apercu.png (état éclairé simulé du JSON)"
-  ],
-  "statut": "essai v2"
+  {
+   "fichier": "calques/20_nef.png",
+   "normal": "calques/20_nef_normal.png",
+   "ombre": "calques/20_nef_ombre.png",
+   "auteur": "CA2",
+   "distance_m": "2 à 46",
+   "contenu": "sol de marbre (joints dorés, chemin d'or étroit au centre), murs, colonnes engagées cannelées à bagues d'or, statues de 5 m sur socles dans les travées ; ombres des colonnes projetées depuis le brasero"
+  },
+  {
+   "fichier": "calques/30_mobilier.png",
+   "normal": "calques/30_mobilier_normal.png",
+   "auteur": "CA2",
+   "distance_m": "6 à 40",
+   "contenu": "rangs de couchettes perpendiculaires aux murs, coffres à liseré d'or, râteliers d'armure contre les murs, bancs de pierre autour du brasero, brasero de bronze sur trépied"
+  },
+  {
+   "fichier": "calques/40_personnages.png",
+   "auteur": "CA1 / kit Blender",
+   "distance_m": "11 à 16",
+   "contenu": "autour du brasero, PAS alignés : Krenn assis penché vers le feu (profil), un frère assis de face adossé, un frère assis de profil, Dremm debout ; Vaskar debout en retrait. Gabarit : calques/gabarit_40_personnages.png (pas un asset)"
+  },
+  {
+   "fichier": "calques/45_braises.png",
+   "auteur": "CA2",
+   "distance_m": 14,
+   "contenu": "braises et flammes (émissif) ; la lumière est la Light2D"
+  },
+  {
+   "fichier": "calques/50_avant_plan.png",
+   "normal": "calques/50_avant_plan_normal.png",
+   "auteur": "CA2",
+   "distance_m": 2.2,
+   "contenu": "colonne presque noire coupée à droite (liseré côté brasero), coin de bannière en contre-jour en haut à gauche"
+  },
+  {
+   "fichier": "calques/90_particules.png",
+   "auteur": "CA2",
+   "distance_m": 14,
+   "contenu": "étincelles et fumée du brasero ; à animer"
+  }
+ ],
+ "normales": "convention OpenGL (Y+), alpha = alpha du calque",
+ "apercus": [
+  "apercu.png (état éclairé simulé du JSON)"
+ ],
+ "statut": "essai v2",
+ "reglage_moteur": {
+  "portee": 0.36,
+  "energie": 2.0,
+  "veille": 0.25,
+  "note": "Lead 27/11 : calé sur apercu.png (écart moyen 10,6 ; 28 % sous #1A1612 contre 32 % à l'aperçu)"
+ }
 }
