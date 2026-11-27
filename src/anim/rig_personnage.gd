@@ -16,7 +16,7 @@ const GESTES := "res://data/anim/gestes.json"
 ## Ordre z du contrat, du fond vers l'avant (les variantes suivent leur pièce de base).
 const ORDRE := [
 	"bras_tendu_arriere", "bras_arriere", "avant_bras_arriere", "main_arriere", "epauliere_arriere", "cuisse_arriere",
-	"jambe_arriere", "pied_arriere", "cape", "bassin", "arme_fourreau", "torse", "tete", "tete_face", "tete_casque",
+	"jambe_arriere", "pied_arriere", "cape", "arme_dos", "bassin", "arme_fourreau", "torse", "tete", "tete_face", "tete_casque",
 	"yeux_fermes", "yeux_fermes_face", "cuisse_avant", "jambe_avant", "pied_avant", "bras_avant",
 	"avant_bras_avant", "main_avant", "main_avant_pointe", "main_avant_poing", "main_avant_pommeau", "casque_main", "bras_croises", "bras_tendu", "arme_levee", "arme_main",
 	"epauliere_avant",
