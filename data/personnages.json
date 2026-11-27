@@ -90,6 +90,12 @@
       "statut": "original",
       "affiliation": "Iron Hands",
       "premier_episode": "ep07"
+    },
+    "oren": {
+      "nom": "Oren Thal",
+      "statut": "original",
+      "affiliation": "Imperial Fists",
+      "premier_episode": "ep08"
     }
   }
 }
