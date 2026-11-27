@@ -363,6 +363,52 @@ def amb_bivouac():
     return boucler(st, L, 4.0)
 
 
+def amb_nef():
+    """La nef impériale (décor test du Tools Programmer, pour les épisodes suivants) : une pierre immense
+    et froide. L'air qui bouge à peine, le grondement des machines du palais sous le dallage, un courant
+    d'air dans les bannières, de lourds pas lointains qui roulent sous les voûtes, une porte de bronze
+    très loin, et un chant grave à peine audible, des salles plus loin. 60 s, réverbération de 8 s."""
+    r = nouveau_hasard(2004)
+    L = mk(60.0)
+    n = L + mk(9)
+    t = np.arange(n) / SR
+    air = bruit(r, n, lo=25, hi=180) * 0.5 + bruit(r, n, lo=200, hi=1200) * 0.06
+    machines = (np.sin(2 * np.pi * 41 * t) + 0.5 * np.sin(2 * np.pi * 82.3 * t) + 0.2 * np.sin(2 * np.pi * 123 * t))
+    machines *= 0.12 * (0.85 + 0.15 * np.sin(2 * np.pi * t / 15.0))                    # période 15 s : boucle juste
+    courant = (0.5 + 0.5 * np.sin(2 * np.pi * t / 20.0 + 0.7)) ** 3                     # période 20 s
+    bannieres = filtre(bruit(r, n), lo=700, hi=3000) * courant * 0.03
+    for _ in range(14):                                                                # le tissu qui claque doucement
+        k = mk(0.5)
+        tt = np.arange(k) / SR
+        c = filtre(bruit(r, k), lo=500, hi=3000) * np.hanning(k) * np.exp(-tt * 4)
+        place(bannieres, c * 0.15, r.uniform(0, 60.0))
+    lointain = np.zeros(n)                                                             # ce qui ne sonne que par la voûte
+    tp = 2.0
+    while tp < 56.0:                                                                   # pas lourds, par marches de 8 à 14
+        for _ in range(int(r.integers(8, 15))):
+            k = mk(0.25)
+            tt = np.arange(k) / SR
+            pas = np.sin(2 * np.pi * r.uniform(60, 80) * tt) * np.exp(-tt * 25)
+            pas += filtre(bruit(r, k), lo=300, hi=2500) * np.exp(-tt * 70) * 0.5         # la céramite sur la pierre
+            place(lointain, pas * r.uniform(0.5, 0.8), tp)
+            tp += r.uniform(0.62, 0.72)
+        tp += r.uniform(6, 14)
+    for t0 in (23.0, 47.5):                                                            # une porte de bronze, très loin
+        k = mk(2.5)
+        tt = np.arange(k) / SR
+        porte = np.sin(2 * np.pi * 38 * tt) * np.exp(-tt * 3) + filtre(bruit(r, k), lo=60, hi=600) * np.exp(-tt * 8) * 0.6
+        place(lointain, porte * 0.8, t0)
+    lointain = filtre(lointain, hi=1800)
+    chant = np.zeros(n)                                                                # chant grave des salles voisines
+    for t0, d in ((0.0, 0), (15.0, 5), (30.0, -2), (45.0, 0)):
+        for f in (note(d, D2), note(d + 7, D2)):
+            place(chant, choeur(r, f, 17.0, "u", voix=5, force=1.0, attaque=4.0), t0)
+    chant = filtre(chant, hi=700) * 0.05
+    m = air + machines + bannieres + chant
+    st = reverb_st(m, 3.0, 0.5, 2141, sombre=2500)[:n] + reverb_st(lointain, 8.0, 0.9, 2143, sombre=2200)[:n]
+    return boucler(st, L, 8.0)
+
+
 # ============================================================================ bruitages
 
 def foule(r, dur, voix_hz=(95, 240), groupes=28, voyelle="a"):
@@ -549,3 +595,4 @@ if __name__ == "__main__":
     sauver("sfx_choix_tic", sfx_choix_tic(), crete=0.5)
     for i in range(2):
         sauver(f"sfx_choix_battement_{i + 1:02d}", sfx_choix_battement(i), crete=0.6)
+    sauver("amb_nef_imperiale", amb_nef(), crete=0.6, rms_db=-27, finir=False)
