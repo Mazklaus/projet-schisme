@@ -1,6 +1,31 @@
 {
-  "_doc": "Noms de décor des .dlg qui désignent un dossier livré sous un autre nom, ou un état d'un lieu (Lead, 27/11). decor = dossier assets/decors/<decor> ; etat = état à appliquer (Decor25D.appliquer_etat).",
-  "barge_salle_briefing": {"decor": "barge_briefing"},
-  "barge_quartiers_sefa": {"decor": "barge_quartiers_civils"},
-  "orvane_matin": {"decor": "orvane_rues", "etat": "matin"}
+  "_doc": "Noms de décor des .dlg qui désignent un dossier livré sous un autre nom, ou un état d'un lieu (Lead, 27/11). decor = dossier assets/decors/<decor> ; etat = état à appliquer (Decor25D.appliquer_etat). etat_selon = état choisi par un drapeau, même forme que dans les zones (archive_fin : liste longue si Orvane percée à l'heure (1)).",
+  "barge_salle_briefing": {
+    "decor": "barge_briefing"
+  },
+  "barge_quartiers_sefa": {
+    "decor": "barge_quartiers_civils"
+  },
+  "orvane_matin": {
+    "decor": "orvane_rues",
+    "etat": "matin"
+  },
+  "archive_ch2_fin": {
+    "decor": "archive",
+    "etat": "ch2_fin"
+  },
+  "archive_fin": {
+    "decor": "archive",
+    "etat_selon": {
+      "drapeau": "choix_ep01_orvane",
+      "valeurs": {
+        "1": "fin_longue"
+      },
+      "defaut": "fin_courte"
+    }
+  },
+  "vs_cales_loge_vaskar": {
+    "decor": "vs_cales_loge",
+    "etat": "vaskar"
+  }
 }

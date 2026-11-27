@@ -208,7 +208,8 @@
       "auteur": "CA1 / kit Blender",
       "distance_m": 6.3,
       "contenu": "côté lointain de la table, PAS alignés : un frère penché coudes sur la table (profil), un renversé en arrière qui rit, un de profil tourné vers son voisin, Dremm debout gobelet levé ; un frère accoudé en bout de table à droite. Coupés à la taille par le calque 30. Gabarit : calques/gabarit_25_personnages_fond.png",
-      "note": "distance : 5,6 à 7 m (valeur représentative ci-dessus)"
+      "note": "distance : 5,6 à 7 m (valeur représentative ci-dessus)",
+      "normal": "calques/25_personnages_fond_normal.png"
     },
     {
       "fichier": "calques/30_table.png",
@@ -223,7 +224,18 @@
       "auteur": "CA1 / kit Blender",
       "distance_m": 6.4,
       "contenu": "deux frères de dos qui encadrent la table aux bords du cadre (presque noirs, règle 5) ; Vaskar debout à la porte, en silhouette contre le couloir froid. Gabarit : calques/gabarit_40_personnages.png",
-      "note": "distance : 3,8 à 9 m (valeur représentative ci-dessus)"
+      "note": "distance : 3,8 à 9 m (valeur représentative ci-dessus)",
+      "normal": "calques/40_personnages_normal.png",
+      "ombre": "calques/40_personnages_ombre.png"
+    },
+    {
+      "fichier": "calques/40_personnages_vaskar.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": 6.4,
+      "contenu": "deux frères de dos qui encadrent la table aux bords du cadre (presque noirs, règle 5) ; Vaskar debout à la porte, en silhouette contre le couloir froid. Gabarit : calques/gabarit_40_personnages.png",
+      "note": "distance : 3,8 à 9 m (valeur représentative ci-dessus) ; variante : Vaskar dans la porte (choix_ep01_loge == 1)",
+      "normal": "calques/40_personnages_vaskar_normal.png",
+      "ombre": "calques/40_personnages_vaskar_ombre.png"
     },
     {
       "fichier": "calques/45_bougies.png",
@@ -250,5 +262,9 @@
   "apercus": [
     "apercu.png"
   ],
-  "statut": "essai"
+  "statut": "essai",
+  "etats": {
+    "sans_vaskar": "40_personnages : les deux frères de dos (défaut, choix_ep01_loge != 1)",
+    "vaskar": "40_personnages_vaskar : idem + Vaskar dans la porte (choix_ep01_loge == 1)"
+  }
 }

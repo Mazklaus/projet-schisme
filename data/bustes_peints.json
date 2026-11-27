@@ -16,5 +16,9 @@
     "gauche",
     "droite"
   ],
+  "ilse": [
+    "gauche",
+    "droite"
+  ],
   "miroir_tolere": []
 }

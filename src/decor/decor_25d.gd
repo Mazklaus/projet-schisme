@@ -475,6 +475,9 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			var t := Color(amb.couleur) * float(amb.get("gain", 1.0))
 			t.a = 1.0
 			c.teinte = t.to_html()
+		# « exposition » : gain du calque (un mur peint trop sombre qu'on doit lire dans la pénombre).
+		if float(k.get("exposition", 1.0)) != 1.0:
+			c.exposition = float(k.exposition)
 		# Vie du décor (« vie », « foule ») : passée telle quelle au moteur.
 		for cle_vie in ["vie", "foule"]:
 			if k.has(cle_vie):
@@ -491,6 +494,10 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 		# Le guide écrit « additif » ou « addition ».
 		if String(c.get("melange", "")) in ["additif", "add", "ADD"]:
 			c.melange = "addition"
+		# Réglages par état (comme les planches) : le ciel qui pâlit d'un état à l'autre.
+		for cle_etat in ["intensite_par_etat", "couleur_intensite_par_etat", "modulate_par_etat"]:
+			if typeof(k.get(cle_etat)) == TYPE_DICTIONARY:
+				c[cle_etat] = k[cle_etat]
 		calques.append(c)
 	# « etats » du guide : {nom: "00_exterieur_nuit : …"} ; le calque nommé n'est visible que
 	# dans son état.
@@ -1183,6 +1190,8 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	var couche := Parallax2D.new()
 	# Nom de nœud sans « / » (les fichiers du guide sont dans calques/) : Calque_45_vaskar.
 	couche.name = "Calque_%s" % k.get("nom", String(k.fichier).get_file().get_basename())
+	# Gabarit de la DA tenant la place d'un calque pas encore livré : pas des personnages peints.
+	couche.set_meta("gabarit", String(k.fichier).get_file().begins_with("gabarit_"))
 	couche.scroll_scale = Vector2(p, p)
 	# Parallax2D décale le calque de (1 - p) × (coin haut-gauche de la caméra). On compense
 	# pour que la composition peinte soit exacte quand la caméra est centrée sur le décor :
@@ -1237,6 +1246,10 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		sprite.material = add
 	if k.has("teinte"):
 		sprite.self_modulate = Color(k.teinte)
+	if k.has("exposition"):
+		# Au-delà de 1 : le modulate multiplie dans le shader (pas d'écrêtage à 8 bits ici).
+		var e := float(k.exposition)
+		sprite.self_modulate = Color(sprite.self_modulate.r * e, sprite.self_modulate.g * e, sprite.self_modulate.b * e, sprite.self_modulate.a)
 	couche.add_child(sprite)
 	if k.has("tete"):
 		_poser_tete(couche, sprite, dossier, k.tete)
