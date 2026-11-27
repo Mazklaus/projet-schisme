@@ -205,24 +205,24 @@
   "yeux_fermes": {
    "fichier": "yeux_fermes.png",
    "pose": [
-    20,
-    22
+    46,
+    28
    ],
    "pivot": [
-    29,
-    10
+    12,
+    8
    ],
    "parent": "tete"
   },
   "yeux_fermes_face": {
    "fichier": "yeux_fermes_face.png",
    "pose": [
-    28,
-    22
+    29,
+    26
    ],
    "pivot": [
-    25,
-    10
+    24,
+    9
    ],
    "parent": "tete_face"
   },

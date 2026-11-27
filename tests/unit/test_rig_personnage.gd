@@ -125,3 +125,30 @@ func test_gestes_json() -> void:
 			assert_true(g.main in ["pointe", "poing"], nom)
 	for nom in ["montrer", "croiser_bras", "main_epaule", "saluer", "degainer", "agenouiller"]:
 		assert_true(d.gestes.has(nom), "geste demandé par le GD : " + nom)
+
+
+func test_courbe_anticipation_et_depassement() -> void:
+	assert_almost_eq(RigPersonnage.courbe_geste(0.0), 0.0, 0.0001)
+	assert_almost_eq(RigPersonnage.courbe_geste(1.0), 1.0, 0.0001)
+	var bas := INF
+	var haut := -INF
+	for i in 101:
+		var v := RigPersonnage.courbe_geste(i / 100.0)
+		bas = minf(bas, v)
+		haut = maxf(haut, v)
+	assert_between(bas, -0.08, -0.02, "léger contre-mouvement au départ")
+	assert_between(haut, 1.02, 1.08, "petit dépassement à l'arrivée")
+
+
+func test_poids_de_la_marche() -> void:
+	assert_gt(RigPersonnage.poids_marche(PI / 2.0), RigPersonnage.poids_marche(0.0) + 6.0, "bassin plus bas au contact")
+	var m := RigPersonnage.angles_marche(PI / 2.0)
+	assert_lt(signf(m.bassin) * signf(m.torse), 0.0, "épaules en opposition du bassin")
+
+
+func test_main_epaule_distincte_de_montrer() -> void:
+	var d = JSON.parse_string(FileAccess.get_file_as_string(RigPersonnage.GESTES))
+	var montrer: float = d.gestes.montrer.os.bras_avant
+	var epaule: float = d.gestes.main_epaule.os.bras_avant
+	assert_gt(epaule - montrer, 30.0, "main sur l'épaule : bras nettement plus bas")
+	assert_eq(d.gestes.croiser_bras.montre, ["bras_croises"], "pièce dédiée demandée à CA1")

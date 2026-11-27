@@ -18,7 +18,7 @@ const ORDRE := [
 	"bras_arriere", "avant_bras_arriere", "main_arriere", "epauliere_arriere", "cuisse_arriere",
 	"jambe_arriere", "pied_arriere", "cape", "bassin", "arme_fourreau", "torse", "tete", "tete_face",
 	"yeux_fermes", "yeux_fermes_face", "cuisse_avant", "jambe_avant", "pied_avant", "bras_avant",
-	"avant_bras_avant", "main_avant", "main_avant_pointe", "main_avant_poing", "arme_main",
+	"avant_bras_avant", "main_avant", "main_avant_pointe", "main_avant_poing", "bras_croises", "arme_main",
 	"epauliere_avant",
 ]
 ## Variantes : même os que leur pièce de base pour les angles, une seule visible à la fois.
@@ -45,6 +45,16 @@ var _poids := 0.0
 var _temps_geste := 0.0
 var _pose_geste: Dictionary = {}
 var _bassin_y := 0.0
+var _depart_geste: Dictionary = {}
+var _cible_geste: Dictionary = {}
+var _depart_bassin := 0.0
+var _cible_bassin := 0.0
+var _depart_poids := 0.0
+var _t_transition := 1.0
+var _transition_vers_geste := false
+var _relancer := false
+## Pièces dédiées à un geste (« montre » dans gestes.json) : cachées hors de leur geste.
+var _pieces_de_geste: Array = []
 var _hauteur := 0.0
 var _phase_marche := 0.0
 var _poids_marche := 0.0
@@ -131,11 +141,16 @@ func construire(d: Dictionary, dossier: String) -> void:
 		s.set_meta("suivi", rt)
 		pieces[n] = s
 	_gestes = _lire_gestes()
+	for g in _gestes.get("gestes", {}).values():
+		for n in g.get("montre", []):
+			if not n in _pieces_de_geste:
+				_pieces_de_geste.append(n)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(String(perso))
 	_souffle_phase = rng.randf() * TAU
 	_prochain_clignement = rng.randf_range(1.5, 4.0)
 	_variantes("", "")
+	_pieces_geste({})
 	_clignement(false)
 
 
@@ -184,6 +199,8 @@ func jouer_geste(nom: String) -> bool:
 	_sortie = float(_gestes.get("sortie_s", 0.45))
 	_geste = nom
 	_temps_geste = 0.0
+	# Un nouveau geste (ou « repos ») repart de la pose courante, même si un autre était posé.
+	_relancer = true
 	evenement_anim.emit(StringName("geste_" + nom), perso)
 	_son_geste(String(g.get("son", "")))
 	return true
@@ -234,24 +251,25 @@ func avancer(delta: float) -> void:
 		var m := angles_marche(_phase_marche)
 		for k in m:
 			angles[k] = float(m[k]) * _poids_marche
-		bob = -3.0 * (1.0 - absf(sin(_phase_marche))) * _poids_marche
-	# Geste : la pose courante glisse vers celle du geste (entrée), y reste (durée, ou tant
-	# qu'un geste « tenir » n'est pas relâché), puis revient au repos (sortie). Un geste lancé
-	# pendant un autre part de la pose courante : jamais de saut.
+		bob = poids_marche(_phase_marche) * _poids_marche
+	# Geste : la pose part de la pose courante vers celle du geste (entrée), y reste (durée, ou
+	# tant qu'un geste « tenir » n'est pas relâché), puis revient au repos (sortie). Chaque
+	# transition suit une courbe avec anticipation (léger contre-mouvement), dépassement à
+	# l'arrivée et ease-in-out : jamais de saut, même d'un geste à l'autre.
 	var g: Dictionary = _gestes.get("gestes", {}).get(_geste, {})
 	_temps_geste += delta
 	var actif := not g.is_empty() and _geste != "repos" \
 		and (g.get("tenir", false) or _temps_geste < _entree + float(g.get("duree", 1.0)))
-	var cible: Dictionary = g.get("os", {}) if actif else {}
-	var lissage := 1.0 - exp(-delta * 4.0 / (_entree if actif else _sortie))
-	for n in cible:
-		if not _pose_geste.has(n):
-			_pose_geste[n] = 0.0
-	for n in _pose_geste:
-		_pose_geste[n] = lerpf(_pose_geste[n], float(cible.get(n, 0.0)), lissage)
-	_bassin_y = lerpf(_bassin_y, float(g.get("bassin_y", 0.0)) if actif else 0.0, lissage)
-	_poids = move_toward(_poids, 1.0 if actif else 0.0, delta / (_entree if actif else _sortie))
-	if not actif and _geste != "" and _poids == 0.0:
+	if actif != _transition_vers_geste or _relancer:
+		_relancer = false
+		_lancer_transition(g.get("os", {}) if actif else {}, float(g.get("bassin_y", 0.0)) if actif else 0.0, actif)
+	_t_transition = minf(1.0, _t_transition + delta / (_entree if actif else _sortie))
+	var f := courbe_geste(_t_transition)
+	for n in _cible_geste:
+		_pose_geste[n] = lerpf(float(_depart_geste.get(n, 0.0)), float(_cible_geste[n]), f)
+	_bassin_y = lerpf(_depart_bassin, _cible_bassin, f)
+	_poids = clampf(lerpf(_depart_poids, 1.0 if actif else 0.0, f), 0.0, 1.0)
+	if not actif and _geste != "" and _t_transition >= 1.0:
 		var fini := _geste
 		_geste = ""
 		_pose_geste.clear()
@@ -267,6 +285,7 @@ func avancer(delta: float) -> void:
 		racine.position = repos[String(racine.name)] + Vector2(0, bob + _bassin_y)
 	var montre := actif and _poids > 0.5
 	_variantes(String(g.get("main", "")) if montre else "", String(g.get("tete", "")) if montre else "")
+	_pieces_geste(g if montre else {})
 	# Clignement : 0,12 s toutes les 2 à 6 s.
 	if _temps >= _prochain_clignement and _fin_clignement < 0.0:
 		_fin_clignement = _temps + 0.12
@@ -275,6 +294,34 @@ func avancer(delta: float) -> void:
 		_fin_clignement = -1.0
 		_prochain_clignement = _temps + randf_range(2.0, 6.0)
 		_clignement(false)
+
+
+## Fige la pose courante comme départ d'une transition vers « cible » (os -> degrés).
+func _lancer_transition(cible: Dictionary, bassin_y: float, vers_geste: bool) -> void:
+	_depart_geste = _pose_geste.duplicate()
+	_cible_geste = {}
+	for n in _pose_geste:
+		_cible_geste[n] = 0.0
+	for n in cible:
+		_cible_geste[n] = float(cible[n])
+		if not _pose_geste.has(n):
+			_pose_geste[n] = 0.0
+	_depart_bassin = _bassin_y
+	_cible_bassin = bassin_y
+	_depart_poids = _poids
+	_t_transition = 0.0
+	_transition_vers_geste = vers_geste
+
+
+## Courbe des gestes (« back » ease-in-out adouci) : part en arrière d'environ 4 %, dépasse
+## d'environ 4 % avant de se poser. u et le résultat vont de 0 à 1.
+static func courbe_geste(u: float) -> float:
+	const C2 := 1.0 * 1.525
+	var x := clampf(u, 0.0, 1.0) * 2.0
+	if x < 1.0:
+		return x * x * ((C2 + 1.0) * x - C2) / 2.0
+	x -= 2.0
+	return (x * x * ((C2 + 1.0) * x + C2) + 2.0) / 2.0
 
 
 ## Angles de la marche à la phase phi (degrés, négatif = vers l'avant).
@@ -286,11 +333,19 @@ static func angles_marche(phi: float) -> Dictionary:
 		"jambe_avant": 32.0 * maxf(0.0, c), "jambe_arriere": 32.0 * maxf(0.0, -c),
 		"bras_avant": 15.0 * s, "bras_arriere": -15.0 * s,
 		"avant_bras_avant": -8.0 - 6.0 * maxf(0.0, -s), "avant_bras_arriere": -8.0 - 6.0 * maxf(0.0, s),
-		"torse": -2.0,
+		# Épaules en opposition du bassin : le bassin suit la jambe avant, le torse contre.
+		"bassin": 2.5 * s, "torse": -2.0 - 4.5 * s, "tete": 2.0 * s,
 	}
 	a["pied_avant"] = -0.6 * (a.cuisse_avant + a.jambe_avant)
 	a["pied_arriere"] = -0.6 * (a.cuisse_arriere + a.jambe_arriere)
 	return a
+
+
+## Poids de la marche : le bassin descend au contact du pied (px source, + = vers le bas),
+## remonte au passage de la jambe.
+static func poids_marche(phi: float) -> float:
+	var s := absf(sin(phi))
+	return 8.0 * s * s * s - 3.0
 
 
 func _appui() -> void:
@@ -311,6 +366,19 @@ func _variantes(main: String, tete: String) -> void:
 	if pieces.has("tete_face"):
 		pieces.tete_face.visible = face
 	_clignement(_fin_clignement >= 0.0)
+
+
+## Pièces dédiées (bras croisés…) : montrées pendant leur geste, à la place des pièces
+## « cache ». Sans la pièce livrée, le geste garde le rig ordinaire.
+func _pieces_geste(g: Dictionary) -> void:
+	var montre: Array = g.get("montre", []).filter(func(n): return pieces.has(n))
+	for n in _pieces_de_geste:
+		if pieces.has(n):
+			pieces[n].visible = n in montre
+	if not montre.is_empty():
+		for n in g.get("cache", []):
+			if pieces.has(n):
+				pieces[n].visible = false
 
 
 func _clignement(ferme: bool) -> void:
