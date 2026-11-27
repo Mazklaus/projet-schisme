@@ -121,6 +121,11 @@ func jouer_noeud(nom: String) -> void:
 	super.jouer_noeud(nom)
 
 
+func noircir_sous_carton() -> void:
+	if _voile_noir:
+		_voile_noir.modulate.a = 1.0
+
+
 ## Si le début du chapitre ne change pas de décor, on lève le noir sur le décor de la scène.
 func _lever_noir_initial() -> void:
 	await get_tree().process_frame
