@@ -1,4 +1,7 @@
 {
-  "_doc": "Côtés réellement peints des bustes de gros plan quand l'un des deux est l'autre retourné (règle GD 27/11 : pas de miroir sur un personnage asymétrique). tools/ci/verifier_bustes.py refuse qu'une scène place le personnage du côté non peint.",
-  "dremm": ["gauche"]
+  "_doc": "Côtés réellement peints des bustes de gros plan (règle GD 27/11 : pas de miroir sur un personnage asymétrique). Les bustes de l'autre côté livrés par CA1 sont des miroirs rééclairés (relevé QA v2). tools/ci/verifier_bustes.py refuse qu'une scène place un personnage d'un côté non peint, et exige une entrée ici pour tout personnage qui a des bustes.",
+  "dremm": ["gauche"],
+  "sefa": ["gauche"],
+  "krenn": ["gauche"],
+  "vaskar": ["droite"]
 }
