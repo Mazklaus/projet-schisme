@@ -38,6 +38,7 @@
       0.98,
       2.95
     ],
+    "calque": "45_lampe",
     "couleur": "#FFC27A",
     "energie": {
       "veille": 1.8,
@@ -45,7 +46,7 @@
     },
     "portee_px": {
       "veille": 620,
-      "nuit_lampe": 360
+      "nuit_lampe": 200
     },
     "scintillement": {
       "amplitude": 0.03,
@@ -65,7 +66,8 @@
         "nuit_lampe": 0.12
       },
       "portee_px": 140,
-      "note": "hublot à 2,2 m, hauteur d'œil d'Astartes"
+      "note": "hublot à 2,2 m, hauteur d'œil d'Astartes",
+      "calque": "00_coque"
     },
     {
       "type": "CanvasModulate",
@@ -144,7 +146,7 @@
     },
     "nuit_lampe": {
       "canvas_modulate": "#0B0C11",
-      "note": "DA 27/11 19:42, Sefa écrit seule : la lampe de bureau est la seule clé chaude ; tout le reste tombe presque au noir ; voile froid très bas venu du hublot"
+      "note": "DA 27/11 19:42, Sefa écrit seule : la lampe de bureau est la seule clé chaude ; tout le reste tombe presque au noir ; voile froid très bas venu du hublot ; DA 27/11 20:50 : chute vers le noir à ~1,5 largeur de bureau (portée 200)"
     }
   },
   "etat_initial": "veille"

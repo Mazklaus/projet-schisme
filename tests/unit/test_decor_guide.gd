@@ -66,3 +66,18 @@ func test_version_plate_seulement_sous_lumieres_du_moteur() -> void:
 	var u := Decor25D.lire("ullanor")
 	for c in u.calques:
 		assert_false(String(c.fichier).ends_with("_plat.png"), "Ullanor : %s" % c.fichier)
+
+
+func test_lumiere_suit_la_parallaxe_de_son_calque() -> void:
+	var e: Array = Decor25D.lumieres_du_plan({"position_px": [10, 20], "portee_px": 50, "energie": 1.0,
+		"calque": "10_fond"})
+	assert_eq(e[0].calque, "10_fond", "« calque » de la clé repris par la lumière")
+	var dec := Decor25D.new()
+	dec.dossier_decors = FIXTURES
+	dec.id_decor = "guide_mini"
+	add_child_autofree(dec)
+	dec._poser_lumieres(e + [{"position_px": [5, 5], "rayon_px": 10}])
+	var dans_calque := dec.calques[1].get_children().filter(func(n): return n is PointLight2D)
+	assert_eq(dans_calque.size(), 1, "la lampe est posée dans le Parallax2D de son calque")
+	assert_eq((dans_calque[0] as PointLight2D).position, Vector2(10, 20), "en px du décor")
+	assert_eq(dec.lumieres().size(), 2, "lumieres() voit aussi celle du calque")
