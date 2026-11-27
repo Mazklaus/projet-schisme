@@ -46,5 +46,15 @@
         "noeud": "poi_sefa"
       }
     ]
+  },
+  "mises_en_scene": {
+    "sefa_seule": {
+      "_note": "Sefa seule dans le noir (audit texte-image, écart 6) : les figurants de l'exploration quittent le plan. Fiche 17.",
+      "masquer": [
+        "poete",
+        "peintre",
+        "frere_1"
+      ]
+    }
   }
 }

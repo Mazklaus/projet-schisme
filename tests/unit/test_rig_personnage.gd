@@ -303,3 +303,8 @@ func test_ombre_compense_l_ambiance() -> void:
 	cm.visible = false
 	r.compenser_ambiance()
 	assert_eq(r.ombre.self_modulate, Color.WHITE)
+
+
+func test_arme_dos_derriere_le_corps() -> void:
+	assert_lt(RigPersonnage.ORDRE.find("arme_dos"), RigPersonnage.ORDRE.find("bassin"), "fusil sur le dos : derrière le corps")
+	assert_gt(RigPersonnage.ORDRE.find("arme_dos"), RigPersonnage.ORDRE.find("cape"))
