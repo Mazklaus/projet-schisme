@@ -102,3 +102,12 @@ func test_melange_garde_sur_un_calque_a_distance() -> void:
 	g.calques[2]["melange"] = "addition"
 	var d := Decor25D.depuis_guide(g, FIXTURES.path_join("guide_mini"))
 	assert_eq(d.calques[2].get("melange"), "addition")
+
+
+func test_cle_en_contre_jour_coupe_presque_la_copie_basse() -> void:
+	var g := _guide_interieur()
+	g.cle["note"] = "lumière de la baie, vers la caméra"
+	var d := Decor25D.depuis_guide(g, FIXTURES.path_join("guide_mini"))
+	var basses: Array = d.lumieres.filter(func(e): return e.get("masque", 0) == Decor25D.MASQUE_PERSONNAGES)
+	var cles: Array = d.lumieres.filter(func(e): return e.get("masque", 0) != Decor25D.MASQUE_PERSONNAGES and e.get("profil", "") == "apercu")
+	assert_almost_eq(float(basses[0].intensite), float(cles[0].intensite) * Decor25D.ENERGIE_MODELE_CONTRE_JOUR, 0.001)

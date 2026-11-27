@@ -129,7 +129,10 @@
       "lumiere": false,
       "ambiance": false,
       "melange": "addition",
-      "contenu": "liseré froid #DCE6F0 des personnages en contre-jour, en ADDITIF juste au-dessus de 40"
+      "contenu": "liseré froid #DCE6F0 des personnages en contre-jour, en ADDITIF juste au-dessus de 40",
+      "force": 0.85,
+      "durete": 4.0,
+      "note": "force et durete : dosage moteur du liseré (alpha^durete × force), retour DA du 27/11"
     },
     {
       "fichier": "calques/50_avant_plan.png",

@@ -47,6 +47,14 @@ const MASQUE_PERSONNAGES := 8
 ## Hauteur (px) et énergie relative de cette copie, calées sur apercu_40_pe / apercu_40_b27.
 const HAUTEUR_MODELE_PX := 120.0
 const ENERGIE_MODELE := 0.65
+## Même copie quand la clé est en contre-jour (silhouettes à 0,1–0,15 de valeur).
+const ENERGIE_MODELE_CONTRE_JOUR := 0.15
+
+
+## Clé qui fait face à la caméra, d'après le guide de la DA (type ou note).
+static func est_contre_jour(cle: Dictionary) -> bool:
+	var t := (String(cle.get("type", "")) + " " + String(cle.get("note", ""))).to_lower()
+	return t.contains("vers la caméra") or t.contains("contre-jour") or bool(cle.get("contre_jour", false))
 
 @export var id_decor := "":
 	set(v):
@@ -339,6 +347,9 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			# Liseré additif posé à la distance de son calque (41_lisere_froid de vs_galerie).
 			if k.has("melange"):
 				c.melange = k.melange
+				for cle_l in ["force", "durete"]:
+					if k.has(cle_l):
+						c[cle_l] = float(k[cle_l])
 		else:
 			var ciel := f.get_file().begins_with("00_")
 			c.profondeur = 0.0 if ciel else 1.0
@@ -379,6 +390,9 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			else:
 				c.tete = t.duplicate()
 				c.tete["plat"] = eclaire
+		# Le guide écrit « additif » ou « addition ».
+		if String(c.get("melange", "")) in ["additif", "add", "ADD"]:
+			c.melange = "addition"
 		calques.append(c)
 	# « etats » du guide : {nom: "00_exterieur_nuit : …"} ; le calque nommé n'est visible que
 	# dans son état.
@@ -488,15 +502,18 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			for c in personnages:
 				c.masque_lumiere = MASQUE_PERSONNAGES
 			var modeles := []
+			# Clé derrière les personnages (« vers la caméra », « contre-jour ») : la copie basse
+			# est presque coupée, ils restent en silhouette (retour DA, galeries).
+			var dose := ENERGIE_MODELE_CONTRE_JOUR if est_contre_jour(cle) else ENERGIE_MODELE
 			for e in lum:
 				if typeof(e) == TYPE_DICTIONARY and e.get("profil", "") == "apercu":
 					var m: Dictionary = e.duplicate()
 					m.hauteur_px = HAUTEUR_MODELE_PX
-					m.intensite = float(e.get("intensite", 1.0)) * ENERGIE_MODELE
+					m.intensite = float(e.get("intensite", 1.0)) * dose
 					if typeof(e.get("energie_par_etat")) == TYPE_DICTIONARY:
 						var pe := {}
 						for nom in e.energie_par_etat:
-							pe[nom] = float(e.energie_par_etat[nom]) * ENERGIE_MODELE
+							pe[nom] = float(e.energie_par_etat[nom]) * dose
 						m.energie_par_etat = pe
 					m.masque = MASQUE_PERSONNAGES
 					m.erase("halo")
@@ -985,6 +1002,14 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		m.set_shader_parameter("voile", Color(k.voile[0]))
 		m.set_shader_parameter("force", float(k.voile[1]))
 		sprite.material = m
+	elif k.get("melange", "") == "addition" and (k.has("force") or k.has("durete")):
+		# Liseré additif dosé : alpha^durete resserre un halo peint en arête fine (retour DA,
+		# 41_lisere_froid de vs_galerie), force le dose.
+		var ml := ShaderMaterial.new()
+		ml.shader = _shader_lisere()
+		ml.set_shader_parameter("force", float(k.get("force", 1.0)))
+		ml.set_shader_parameter("durete", float(k.get("durete", 1.0)))
+		sprite.material = ml
 	elif k.get("melange", "") == "addition":
 		var add := CanvasItemMaterial.new()
 		add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
@@ -1069,6 +1094,21 @@ static func materiau_ombre() -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = _shader_ombre
 	return m
+
+
+static var _lisere: Shader
+static func _shader_lisere() -> Shader:
+	if _lisere == null:
+		_lisere = Shader.new()
+		_lisere.code = """shader_type canvas_item;
+render_mode blend_add;
+uniform float force = 1.0;
+uniform float durete = 1.0;
+void fragment() {
+	COLOR = vec4(COLOR.rgb, pow(COLOR.a, durete) * force);
+}
+"""
+	return _lisere
 
 
 static func materiau_voile() -> ShaderMaterial:
