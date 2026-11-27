@@ -50,11 +50,6 @@
       "distance_m": 1050,
       "contenu": "deux Warlords dorés (titan_or_ullanor) centrés en x 470 et x 1450, tête ~y 340, juste derrière le dais (plan 1b du script) ; pieds SOUS l'horizon (~y 700) noyés dans la poussière et la foule",
       "vie": {
-        "souffle": [
-          5,
-          7.0,
-          700
-        ],
         "drapeau_px": 2.5,
         "drapeaux": [
           [
@@ -93,6 +88,25 @@
             10,
             25
           ]
+        ],
+        "tetes": [
+          [
+            478,
+            458,
+            74,
+            46
+          ],
+          [
+            1368,
+            458,
+            74,
+            46
+          ]
+        ],
+        "tete_px": 3.0,
+        "tressaillement": [
+          1.2,
+          700
         ]
       }
     },
@@ -316,11 +330,13 @@
         140,
         16
       ],
-      "nombre": 9,
+      "nombre": 7,
       "vent": [
         5,
         -1.5
-      ]
+      ],
+      "bouffees": true,
+      "cadence_s": 7.0
     },
     {
       "type": "fumee",
@@ -331,11 +347,13 @@
         140,
         16
       ],
-      "nombre": 9,
+      "nombre": 7,
       "vent": [
         5,
         -1.5
-      ]
+      ],
+      "bouffees": true,
+      "cadence_s": 7.0
     },
     {
       "type": "braises",
@@ -368,5 +386,5 @@
       ]
     }
   ],
-  "_vie": "Vie du décor (Gameplay, 27/11) : « vie » des calques (dérive des fumées, drapeaux, souffle des Titans) et « particules » (fumée des Titans, braises, poussière dans la lumière). La composition peinte est inchangée."
+  "_vie": "Vie du décor (Gameplay, 27/11) : « vie » des calques (dérive des fumées, drapeaux, têtes des Titans qui balaient par à-coups, tressaillements de servo, fumée des évents par bouffées) et « particules » (fumée des Titans, braises, poussière dans la lumière). La composition peinte est inchangée."
 }

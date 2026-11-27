@@ -43,8 +43,13 @@ func test_ullanor_vit_sans_changer_la_composition() -> void:
 	dec.id_decor = "ullanor"
 	add_child_autofree(dec)
 	var titans := dec.get_node("Calque_20_titans")
-	assert_string_contains(((titans.get_node("Image") as Sprite2D).material as ShaderMaterial).shader.code, "souffle_px")
-	assert_not_null(titans.get_node_or_null("Particules_fumee"), "fumée des Titans")
+	var mt := (titans.get_node("Image") as Sprite2D).material as ShaderMaterial
+	assert_eq(mt.get_shader_parameter("tetes_n"), 2, "têtes des deux Titans")
+	var souffle = mt.get_shader_parameter("souffle_px")
+	assert_true(souffle == null or float(souffle) == 0.0, "des machines : pas de respiration organique")
+	assert_gt(float(mt.get_shader_parameter("tressaillement_px")), 0.0)
+	var fumee := titans.get_node("Particules_fumee") as CPUParticles2D
+	assert_gt(fumee.explosiveness, 0.5, "fumée des évents par bouffées")
 	assert_not_null(dec.get_node("Calque_30_voie").get_node_or_null("Particules_braises"))
 	assert_not_null(dec.get_node("Calque_45_vaskar").get_node_or_null("Particules_poussiere"))
 	# Même images, mêmes places : seules la matière et les particules bougent.

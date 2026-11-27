@@ -128,7 +128,10 @@ const FOULE_COLONNE_PX := 8
 ## - « drapeaux » : des rectangles de tissu suspendus (x, y du haut, largeur, hauteur en px),
 ##   qui ondulent de plus en plus vers le bas, chacun à sa phase ;
 ## - « souffle » : une respiration lente au-dessus d'une ligne de sol (Titans : cheminées et
-##   servos qui se soulèvent de 2 ou 3 px), déphasée le long de x.
+##   servos qui se soulèvent de 2 ou 3 px), déphasée le long de x ;
+## - « tetes » : des têtes de machine (Titans) qui balaient de quelques px par à-coups, toutes
+##   les 10 à 15 s, avec un arrêt sec ; « tressaillement » : un sursaut de servo rare.
+##   Des machines immobiles et vivantes à la fois, pas une respiration organique.
 const SHADER_VIVANT := """
 shader_type canvas_item;
 uniform vec4 voile : source_color = vec4(0.79, 0.6, 0.36, 1.0);
@@ -142,7 +145,23 @@ uniform float drapeau_px = 0.0;
 uniform float souffle_px = 0.0;
 uniform float souffle_periode = 6.0;
 uniform float souffle_sol_px = 1080.0;
+uniform vec4 tetes[4];
+uniform int tetes_n = 0;
+uniform float tete_px = 0.0;
+uniform float tressaillement_px = 0.0;
 varying vec4 modulation;
+float hasard(float n) {
+	return fract(sin(n * 91.345 + 12.9898) * 43758.5453);
+}
+// Position (-1 à 1) d'un balayage par à-coups : une cible nouvelle toutes les 10 à 15 s,
+// atteinte en 1,4 s en accélérant, puis arrêt sec.
+float balayage(float t, float i) {
+	float periode = 10.0 + 5.0 * hasard(i * 7.0 + 1.0);
+	float x = t / periode + hasard(i * 3.0);
+	float n = floor(x);
+	float k = clamp(fract(x) * periode / 1.4, 0.0, 1.0);
+	return mix(hasard(n + i * 101.0) * 2.0 - 1.0, hasard(n + 1.0 + i * 101.0) * 2.0 - 1.0, k * k);
+}
 float bruit(vec2 p) {
 	vec2 i = floor(p);
 	vec2 f = fract(p);
@@ -170,6 +189,23 @@ void fragment() {
 	if (souffle_px > 0.0 && px.y < souffle_sol_px) {
 		float s = 0.5 + 0.5 * sin(TIME * 6.2832 / souffle_periode + UV.x * 4.0);
 		d.y += souffle_px * s * (souffle_sol_px - px.y) / souffle_sol_px;
+	}
+	for (int i = 0; i < tetes_n; i++) {
+		vec4 r = tetes[i];
+		vec2 e = min(px - r.xy, r.xy + r.zw - px);
+		if (e.x > 0.0 && e.y > 0.0) {
+			float w = clamp(min(e.x, e.y) / 5.0, 0.0, 1.0);
+			d.x -= tete_px * w * balayage(TIME, float(i));
+		}
+	}
+	if (tressaillement_px > 0.0 && px.y < souffle_sol_px) {
+		// Un sursaut de 0,2 s, une fois sur deux toutes les 17 s, propre à chaque moitié du cadre.
+		float moitie = step(0.5, UV.x);
+		float x = TIME / 17.0 + moitie * 0.43;
+		float t = fract(x) * 17.0;
+		if (t < 0.2 && hasard(floor(x) + moitie * 33.0) > 0.5) {
+			d.y += tressaillement_px * sin(t * 95.0) * (1.0 - t / 0.2);
+		}
 	}
 	vec2 uv = UV + d / taille_px;
 	vec4 c = texture(TEXTURE, uv);
@@ -1005,6 +1041,12 @@ static func particules(p: Dictionary) -> CPUParticles2D:
 			e.texture = _tache(64, 0.0)
 			e.angular_velocity_min = -6.0
 			e.angular_velocity_max = 6.0
+			if p.get("bouffees", false):
+				# Évents de machine : la fumée sort par bouffées (une par « cadence_s »), pas en filet.
+				e.lifetime = float(p.get("cadence_s", 7.0))
+				e.explosiveness = 0.75
+				e.randomness = 0.3
+				e.lifetime_randomness = 0.25
 		"braises":
 			e.amount = int(p.get("nombre", 30))
 			e.lifetime = 5.0
@@ -1257,6 +1299,8 @@ static func materiau_foule(image: Texture2D, graine := "", reglages: Dictionary 
 ##   "derive": [amplitude_px, echelle_px, vitesse_x, vitesse_y]   fumées, poussière
 ##   "drapeaux": [[x, y_haut, largeur, hauteur], …], "drapeau_px": amplitude au bas du tissu
 ##   "souffle": [amplitude_px au sommet, période_s, ligne_de_sol_y_px]
+##   "tetes": [[x, y, largeur, hauteur], …] (4 au plus), "tete_px": balayage maximal
+##   "tressaillement": [amplitude_px, ligne_de_sol_y_px]
 static func materiau_vivant(vie: Dictionary, image: Texture2D) -> ShaderMaterial:
 	if _shader_vivant == null:
 		_shader_vivant = Shader.new()
@@ -1276,6 +1320,20 @@ static func materiau_vivant(vie: Dictionary, image: Texture2D) -> ShaderMaterial
 		m.set_shader_parameter("souffle_px", float(so[0]))
 		m.set_shader_parameter("souffle_periode", float(so[1]))
 		m.set_shader_parameter("souffle_sol_px", float(so[2]))
+	var tetes: Array = vie.get("tetes", [])
+	if not tetes.is_empty():
+		var rects: Array[Vector4] = []
+		for r in tetes.slice(0, 4):
+			rects.append(Vector4(float(r[0]), float(r[1]), float(r[2]), float(r[3])))
+		while rects.size() < 4:
+			rects.append(Vector4.ZERO)
+		m.set_shader_parameter("tetes", rects)
+		m.set_shader_parameter("tetes_n", mini(tetes.size(), 4))
+		m.set_shader_parameter("tete_px", float(vie.get("tete_px", 3.0)))
+	var tr: Array = vie.get("tressaillement", [])
+	if tr.size() >= 2:
+		m.set_shader_parameter("tressaillement_px", float(tr[0]))
+		m.set_shader_parameter("souffle_sol_px", float(tr[1]))
 	var dr: Array = vie.get("drapeaux", [])
 	if not dr.is_empty():
 		m.set_shader_parameter("drapeau_px", float(vie.get("drapeau_px", 2.0)))
