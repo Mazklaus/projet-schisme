@@ -28,7 +28,15 @@
     {
       "fichier": "calques/00_ciel.png",
       "auteur": "CA2",
-      "contenu": "ciel #6F7FA0 vers horizon #F2C877, soleil #FFE8B0 en (1150, 560), fumées hautes de la bataille finie"
+      "contenu": "ciel #6F7FA0 vers horizon #F2C877, soleil #FFE8B0 en (1150, 560), fumées hautes de la bataille finie",
+      "vie": {
+        "derive": [
+          2.5,
+          260,
+          0.012,
+          0.0
+        ]
+      }
     },
     {
       "fichier": "calques/10_fond.png",
@@ -40,19 +48,206 @@
       "fichier": "calques/20_titans.png",
       "auteur": "CA2",
       "distance_m": 1050,
-      "contenu": "deux Warlords dorés (titan_or_ullanor) centrés en x 470 et x 1450, tête ~y 340, juste derrière le dais (plan 1b du script) ; pieds SOUS l'horizon (~y 700) noyés dans la poussière et la foule"
+      "contenu": "deux Warlords dorés (titan_or_ullanor) centrés en x 470 et x 1450, tête ~y 340, juste derrière le dais (plan 1b du script) ; pieds SOUS l'horizon (~y 700) noyés dans la poussière et la foule",
+      "vie": {
+        "drapeau_px": 2.5,
+        "drapeaux": [
+          [
+            467,
+            540,
+            36,
+            110
+          ],
+          [
+            383,
+            363,
+            32,
+            30
+          ],
+          [
+            590,
+            367,
+            10,
+            25
+          ],
+          [
+            1417,
+            540,
+            36,
+            110
+          ],
+          [
+            1505,
+            363,
+            32,
+            30
+          ],
+          [
+            1320,
+            367,
+            10,
+            25
+          ]
+        ],
+        "tetes": [
+          [
+            478,
+            458,
+            74,
+            46
+          ],
+          [
+            1368,
+            458,
+            74,
+            46
+          ]
+        ],
+        "tete_px": 3.0,
+        "tressaillement": [
+          1.2,
+          700
+        ]
+      }
     },
     {
       "fichier": "calques/25_poussiere.png",
       "auteur": "DA",
       "distance_m": 1000,
-      "contenu": "nappe de poussière et de fumée qui noie les jambes des Titans et l'horizon (retour du GD : Titans dans le voile, pieds pas sur l'horizon)"
+      "contenu": "nappe de poussière et de fumée qui noie les jambes des Titans et l'horizon (retour du GD : Titans dans le voile, pieds pas sur l'horizon)",
+      "vie": {
+        "derive": [
+          6,
+          160,
+          0.03,
+          -0.01
+        ]
+      }
     },
     {
       "fichier": "calques/30_voie.png",
       "auteur": "CA2",
       "distance_m": 300,
-      "contenu": "voie de granit en perspective vers le dais (fuite x 970, y 650), bordée de crânes orks en texture, foule de la Légion en blanc de part et d'autre, totems orks brûlés de travers, bannières ; la chaussée visible (~60 m) est l'allée processionnelle centrale, les bords réels des 5 km sont hors champ"
+      "contenu": "voie de granit en perspective vers le dais (fuite x 970, y 650), bordée de crânes orks en texture, foule de la Légion en blanc de part et d'autre, totems orks brûlés de travers, bannières ; la chaussée visible (~60 m) est l'allée processionnelle centrale, les bords réels des 5 km sont hors champ",
+      "vie": {
+        "drapeau_px": 2.0,
+        "drapeaux": [
+          [
+            382,
+            620,
+            12,
+            18
+          ],
+          [
+            1239,
+            620,
+            12,
+            18
+          ],
+          [
+            1373,
+            620,
+            12,
+            18
+          ],
+          [
+            1522,
+            620,
+            12,
+            18
+          ],
+          [
+            630,
+            622,
+            20,
+            30
+          ],
+          [
+            1319,
+            622,
+            22,
+            35
+          ],
+          [
+            584,
+            625,
+            14,
+            23
+          ],
+          [
+            1122,
+            625,
+            14,
+            24
+          ],
+          [
+            1293,
+            625,
+            14,
+            23
+          ],
+          [
+            1786,
+            625,
+            14,
+            23
+          ],
+          [
+            1806,
+            625,
+            14,
+            23
+          ],
+          [
+            784,
+            629,
+            12,
+            17
+          ],
+          [
+            1144,
+            629,
+            12,
+            17
+          ],
+          [
+            1110,
+            630,
+            17,
+            28
+          ],
+          [
+            1822,
+            630,
+            17,
+            27
+          ],
+          [
+            284,
+            618,
+            32,
+            45
+          ],
+          [
+            1643,
+            623,
+            34,
+            58
+          ],
+          [
+            271,
+            662,
+            35,
+            58
+          ],
+          [
+            310,
+            661,
+            33,
+            58
+          ]
+        ]
+      }
     },
     {
       "fichier": "calques/35_dais.png",
@@ -124,5 +319,72 @@
     "hauteur_m": 1.6,
     "horizon_y": 620,
     "note": "caméra Blender commune à Vaskar et Dremm (px/m = 2987 / distance). Hauteur 1,6 m (regard d'un mortel) : les têtes des Astartes passent au-dessus des Titans, contre le ciel clair. Retour GD 18/11."
-  }
+  },
+  "particules": [
+    {
+      "type": "fumee",
+      "calque": "20_titans",
+      "zone": [
+        410,
+        322,
+        140,
+        16
+      ],
+      "nombre": 7,
+      "vent": [
+        5,
+        -1.5
+      ],
+      "bouffees": true,
+      "cadence_s": 7.0
+    },
+    {
+      "type": "fumee",
+      "calque": "20_titans",
+      "zone": [
+        1370,
+        322,
+        140,
+        16
+      ],
+      "nombre": 7,
+      "vent": [
+        5,
+        -1.5
+      ],
+      "bouffees": true,
+      "cadence_s": 7.0
+    },
+    {
+      "type": "braises",
+      "calque": "30_voie",
+      "zone": [
+        0,
+        720,
+        1920,
+        160
+      ],
+      "nombre": 36,
+      "vent": [
+        6,
+        -4
+      ]
+    },
+    {
+      "type": "poussiere",
+      "calque": "45_vaskar",
+      "zone": [
+        520,
+        260,
+        980,
+        640
+      ],
+      "nombre": 60,
+      "vent": [
+        3,
+        -0.5
+      ]
+    }
+  ],
+  "_vie": "Vie du décor (Gameplay, 27/11) : « vie » des calques (dérive des fumées, drapeaux, têtes des Titans qui balaient par à-coups, tressaillements de servo, fumée des évents par bouffées) et « particules » (fumée des Titans, braises, poussière dans la lumière). La composition peinte est inchangée."
 }
