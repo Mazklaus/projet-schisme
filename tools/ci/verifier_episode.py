@@ -549,7 +549,7 @@ def historique(chemin, r, racine):
         lignes.append({k: str(v) for k, v in ligne.items()})
     os.makedirs(os.path.dirname(os.path.abspath(chemin)), exist_ok=True)
     with open(chemin, "w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(ligne))
+        w = csv.DictWriter(f, fieldnames=list(ligne), lineterminator="\n")
         w.writeheader()
         w.writerows(lignes)
     return lignes
