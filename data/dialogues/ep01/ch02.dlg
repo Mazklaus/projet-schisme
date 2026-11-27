@@ -258,7 +258,7 @@ DREMM (assurance): L'Empereur est parti, Hol. C'est nous qui restons.
 DREMM: Des remembrancers. Les premiers. Des gens qui vont écrire sur nous.
 VASKAR: Écrire quoi ?
 DREMM: Ce qu'on voudra bien leur dire.
-@decor archive
+@decor archive_ch2_fin
 @ambiance archive 2
 @plan archive_table
 > Sur la table, une plaque de données vierge.
