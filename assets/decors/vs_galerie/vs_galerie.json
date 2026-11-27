@@ -88,8 +88,9 @@
     {
       "fichier": "calques/00_exterieur_croisade.png",
       "auteur": "CA2",
-      "distance_m": "infini",
-      "contenu": "voir exterieurs"
+      "distance_m": 10000.0,
+      "contenu": "voir exterieurs",
+      "note": "distance : infini m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/10_flotte.png",
@@ -141,5 +142,17 @@
   ],
   "chaine": "base procédurale CA2 -> (option) retouche img2img figée -> peindre_plan.py en dernier ; les trois états du vaisseau se font sur ces calques",
   "statut": "essai v2 (corrections DA du 27/11)",
-  "bannieres": "motif Luna Wolves : cA1/bannieres/ (option B : croissant noir cerné d'or, cornes en haut, XVI en or, fond ivoire, queue d'aronde) ; à intégrer au coin de bannière de 50_avant_plan à la retouche"
+  "bannieres": "motif Luna Wolves : cA1/bannieres/ (option B : croissant noir cerné d'or, cornes en haut, XVI en or, fond ivoire, queue d'aronde) ; à intégrer au coin de bannière de 50_avant_plan à la retouche",
+  "etats_supplementaires": {
+    "detour": {
+      "episode": 2,
+      "chapitre": 6,
+      "plan": "flotte_change_cap",
+      "exterieur": "calques/00_exterieur_croisade.png",
+      "flotte": "calques/10_flotte_detour.png (remplace 10_flotte)",
+      "apercu": "apercu_detour.png",
+      "generateur": "cA2/vs_galerie_detour_calques.py [--4k]",
+      "note": "la flotte change de cap, toute ensemble, comme un seul animal : même inclinaison de 13° pour tous, traînées de réacteurs qui courbent de l'ancien cap vers le nouveau ; animer en tournant lentement 10_flotte_detour (pivot au centre du cadre)"
+    }
+  }
 }

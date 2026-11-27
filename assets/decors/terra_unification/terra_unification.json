@@ -46,8 +46,9 @@
     {
       "fichier": "calques/00_ciel.png",
       "auteur": "CA1",
-      "distance_m": "infini",
-      "contenu": "ciel de cendre, blanchi autour de la source"
+      "distance_m": 10000.0,
+      "contenu": "ciel de cendre, blanchi autour de la source",
+      "note": "distance : infini m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/10_ruines.png",

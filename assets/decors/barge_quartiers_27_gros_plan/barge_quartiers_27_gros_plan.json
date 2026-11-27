@@ -1,69 +1,69 @@
 {
- "plan": "barge_quartiers_27_gros_plan",
- "episode": 1,
- "decor_source": "barge_quartiers_27",
- "cadre_px": [
-  1920,
-  1080
- ],
- "usage": "ch03 accroche_orvane",
- "type": "longue traîne : recadrage flou du décor (liste validée par le DA le 27/11)",
- "source": "aperçu(s) du décor, fenêtre [540, 240, 1500, 780] agrandie x2.00, préflou 2 px, flou 14 px ; les silhouettes éventuelles du décor sont fondues dans le flou",
- "zones_calmes": {
-  "gauche": {
-   "x_px": [
-    190,
-    850
-   ]
+  "plan": "barge_quartiers_27_gros_plan",
+  "episode": 1,
+  "decor_source": "barge_quartiers_27",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "usage": "ch03 accroche_orvane",
+  "type": "longue traîne : recadrage flou du décor (liste validée par le DA le 27/11)",
+  "source": "aperçu(s) du décor, fenêtre [540, 240, 1500, 780] agrandie x2.00, préflou 2 px, flou 14 px ; les silhouettes éventuelles du décor sont fondues dans le flou",
+  "zones_calmes": {
+    "gauche": {
+      "x_px": [
+        190,
+        850
+      ]
+    },
+    "droite": {
+      "x_px": [
+        1070,
+        1730
+      ]
+    }
   },
-  "droite": {
-   "x_px": [
-    1070,
-    1730
-   ]
-  }
- },
- "lumieres": "reprendre la clé et les appoints du décor source (voir lumieres_source) : mêmes directions et couleurs",
- "lumieres_source": {
-  "cle": {
-   "type": "servo-lampe industrielle d'armurier (bras articulé, tête à cage, globe lumen ; PointLight2D)",
-   "position_px": [
-    1083,
-    613
-   ],
-   "position_m": [
-    -4.1,
-    1.55,
-    10.6
-   ],
-   "couleur": "#FFB868",
-   "energie": 1.6,
-   "portee_px": 380,
-   "scintillement": {
-    "amplitude": 0.02,
-    "note": "quasi fixe"
-   },
-   "note": "prend l'établi, Dremm, l'étendard (tissu mat) et les râteliers proches ; la voûte se perd vers le haut"
+  "lumieres": "reprendre la clé et les appoints du décor source (voir lumieres_source) : mêmes directions et couleurs",
+  "lumieres_source": {
+    "cle": {
+      "type": "servo-lampe industrielle d'armurier (bras articulé, tête à cage, globe lumen ; PointLight2D)",
+      "position_px": [
+        1083,
+        613
+      ],
+      "position_m": [
+        -4.1,
+        1.55,
+        10.6
+      ],
+      "couleur": "#FFB868",
+      "energie": 1.6,
+      "portee_px": 380,
+      "scintillement": {
+        "amplitude": 0.02,
+        "note": "quasi fixe"
+      },
+      "note": "prend l'établi, Dremm, l'étendard (tissu mat) et les râteliers proches ; la voûte se perd vers le haut"
+    },
+    "appoints": [
+      {
+        "type": "veille de bord froide (masque ou Light2D texturée)",
+        "couleur": "#C8D2DC",
+        "niveau": 0.3,
+        "zone": "fond et porte blindée seulement ; ambiant 0,17 ailleurs"
+      }
+    ]
   },
-  "appoints": [
-   {
-    "type": "veille de bord froide (masque ou Light2D texturée)",
-    "couleur": "#C8D2DC",
-    "niveau": 0.3,
-    "zone": "fond et porte blindée seulement ; ambiant 0,17 ailleurs"
-   }
-  ]
- },
- "calques": [
-  {
-   "fichier": "calques/00_fond_flou_pur.png",
-   "etat": "pur",
-   "auteur": "CA2",
-   "distance_m": 8,
-   "note": "déjà éclairé et flou"
-  }
- ],
- "generateur": "cA2/gros_plans_ep01.py barge_quartiers_27 [--4k]",
- "4k": "calques/4k/ (mêmes noms)",
- "statut": "longue traîne, validée en principe par le DA (27/11)"
+  "calques": [
+    {
+      "fichier": "calques/00_fond_flou_pur.png",
+      "etat": "pur",
+      "auteur": "CA2",
+      "distance_m": 8,
+      "note": "déjà éclairé et flou"
+    }
+  ],
+  "generateur": "cA2/gros_plans_ep01.py barge_quartiers_27 [--4k]",
+  "4k": "calques/4k/ (mêmes noms)",
+  "statut": "longue traîne, validée en principe par le DA (27/11)"
 }

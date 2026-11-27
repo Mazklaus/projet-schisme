@@ -62,29 +62,57 @@
       "fichier": "calques/10_voute.png",
       "normal": "calques/10_voute_normal.png",
       "auteur": "CA2",
-      "distance_m": "2 à 22",
-      "contenu": "voûte d'acier, doubleaux d'or terni assourdi, sans rosaces"
+      "distance_m": 12.0,
+      "contenu": "voûte d'acier, doubleaux d'or terni assourdi, sans rosaces",
+      "note": "distance : 2 à 22 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/20_salle.png",
       "normal": "calques/20_salle_normal.png",
       "ombre": "calques/20_salle_ombre.png",
       "auteur": "CA2",
-      "distance_m": "2 à 22",
-      "contenu": "sol, murs rivetés, écrans de données éteints (aucun texte), porte blindée au fond, deux étendards repliés, gradins bas en arc derrière la table ; ombres radiales des officiers"
+      "distance_m": 12.0,
+      "contenu": "sol, murs rivetés, écrans de données éteints (aucun texte), porte blindée au fond, deux étendards repliés, gradins bas en arc derrière la table ; ombres radiales des officiers",
+      "note": "distance : 2 à 22 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/30_table.png",
       "normal": "calques/30_table_normal.png",
       "auteur": "CA2",
-      "distance_m": "9 à 15",
-      "contenu": "table-projecteur octogonale d'acier, liseré d'or terni, lentille du projecteur, plaques de données (illisibles)"
+      "distance_m": 12.0,
+      "contenu": "table-projecteur octogonale d'acier, liseré d'or terni, lentille du projecteur, plaques de données (illisibles)",
+      "note": "distance : 9 à 15 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/40_personnages.png",
       "auteur": "CA1 / kit Blender",
-      "distance_m": "6 à 16",
-      "contenu": "5 officiers en arc IRRÉGULIER autour de la table (hauteurs, profils, penchés) + 2 plus proches de nous à droite (l'un penché, l'autre assis sur le gradin) pour la profondeur ; Vaskar de dos et de trois-quarts au premier plan (PASSE DEVANT la lumière de l'hololith : au-dessus de 45 ou sur un calque 47). Gabarit : calques/gabarit_40_personnages.png"
+      "distance_m": 11.0,
+      "contenu": "7 officiers Mk II (2,45 m) en arc irrégulier autour de la table, tournés vers l'hololith : l'un désigne la figure, un penché vers la table, un en léger recul, deux casques à la main ; deux plus proches à droite (l'un penché, l'autre assis sur un banc bas). Jambes masquées par la table (holdout de la géométrie de CA2). Vaskar est sur 47_vaskar.",
+      "note": "distance : 6 à 16 m (valeur représentative ci-dessus)",
+      "normal": "calques/40_personnages_normal.png",
+      "ombre": "calques/40_personnages_ombre.png (multiply, noir + alpha, sous 40 ; ombres radiales de l'hololith pour TOUTES les figures, Vaskar compris)",
+      "generateur": "cA1/barge_briefing/rendu_bb.py + post_bb.py (-- 1920|3840)",
+      "statut": "v1b CA1, validé DA, retouche TP2"
+    },
+    {
+      "fichier": "calques/41_lisere_holo.png",
+      "auteur": "CA1",
+      "melange": "additif",
+      "contenu": "liseré bleu #9FD0E0 de l'hololith sur les arêtes des deux figures proches de dos (épaulières, sac, casque) ; leur albédo est assombri (silhouette)"
+    },
+    {
+      "fichier": "calques/47_vaskar.png",
+      "normal": "calques/47_vaskar_normal.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": 6.2,
+      "contenu": "Vaskar de dos et de trois-quarts au premier plan, casque à la main gauche, poids sur une jambe ; AU-DESSUS de 45_hololith (passe devant sa lumière)",
+      "statut": "v1b CA1, validé DA, retouche TP2"
+    },
+    {
+      "fichier": "calques/48_vaskar_lisere.png",
+      "auteur": "CA1",
+      "melange": "additif",
+      "contenu": "liseré bleu #9FD0E0 de l'hololith sur les arêtes de Vaskar (de dos, albédo assombri en silhouette)"
     },
     {
       "fichier": "calques/45_hololith.png",

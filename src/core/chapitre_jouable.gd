@@ -1131,8 +1131,11 @@ func _commencer_jeu(nom: String) -> void:
 			continue
 		var p: Array = config.pois[k]
 		pois[k] = Vector2(p[0], p[1])
+	# Décor avec ses personnages peints (calque 40_personnages de CA1) : les figurants
+	# provisoires les doubleraient.
+	var peints := d != null and d.get_node_or_null(^"Calque_40_personnages") != null
 	for k in config.get("figurants", {}):
-		if pois.has(k) and not props.has(config.figurants[k]):
+		if not peints and pois.has(k) and not props.has(config.figurants[k]):
 			_prop(monde_de(d), config.figurants[k], pois[k] + Vector2(0, -10))
 	_declenches = {}
 	_vus_depuis = {}

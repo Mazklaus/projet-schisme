@@ -1,83 +1,83 @@
 {
- "plan": "orvane_soir_gros_plan",
- "episode": 1,
- "chapitres": [
-  5
- ],
- "decor_source": "orvane_soir",
- "cadre_px": [
-  1920,
-  1080
- ],
- "usage": "ch05 graver, poi_mur, poi_ilse_grave_scene, rumeur_nom, nom_* (Dremm, Vaskar, Sefa)",
- "description": "Orvane au soir, mise au point sur le personnage : le mur de la citadelle et ses noms gravés (illisibles, fondus) à gauche, un brasero au centre, le ciel du couchant à droite.",
- "source": "aperçu éclairé de orvane_soir rendu par cA2/or_soir_calques.py sans personnages (gabarits et calques 40 vidés), fenêtre [520, 300, 1480, 840] agrandie x2.00, préflou 2 px, flou 12 px",
- "zones_calmes": {
-  "gauche": {
-   "x_px": [
-    190,
-    850
-   ]
+  "plan": "orvane_soir_gros_plan",
+  "episode": 1,
+  "chapitres": [
+    5
+  ],
+  "decor_source": "orvane_soir",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "usage": "ch05 graver, poi_mur, poi_ilse_grave_scene, rumeur_nom, nom_* (Dremm, Vaskar, Sefa)",
+  "description": "Orvane au soir, mise au point sur le personnage : le mur de la citadelle et ses noms gravés (illisibles, fondus) à gauche, un brasero au centre, le ciel du couchant à droite.",
+  "source": "aperçu éclairé de orvane_soir rendu par cA2/or_soir_calques.py sans personnages (gabarits et calques 40 vidés), fenêtre [520, 300, 1480, 840] agrandie x2.00, préflou 2 px, flou 12 px",
+  "zones_calmes": {
+    "gauche": {
+      "x_px": [
+        190,
+        850
+      ]
+    },
+    "droite": {
+      "x_px": [
+        1070,
+        1730
+      ]
+    },
+    "regle": "personnage à gauche ou à droite, tête au tiers haut"
   },
-  "droite": {
-   "x_px": [
-    1070,
-    1730
-   ]
+  "lumieres": {
+    "cle": {
+      "source": "le couchant, rasant de la droite",
+      "couleur": "#E8905A",
+      "direction_camera": [
+        -0.85,
+        -0.05,
+        0.5
+      ],
+      "note": "liseré chaud côté droit, long et doux"
+    },
+    "contre": {
+      "source": "le brasero le plus proche",
+      "couleur": "#E07A3A",
+      "force": 0.35,
+      "note": "chaud, bas, côté du brasero ; la face vers la caméra prend la teinte du modulate #463E54"
+    }
   },
-  "regle": "personnage à gauche ou à droite, tête au tiers haut"
- },
- "lumieres": {
-  "cle": {
-   "source": "le couchant, rasant de la droite",
-   "couleur": "#E8905A",
-   "direction_camera": [
-    -0.85,
-    -0.05,
-    0.5
-   ],
-   "note": "liseré chaud côté droit, long et doux"
-  },
-  "contre": {
-   "source": "le brasero le plus proche",
-   "couleur": "#E07A3A",
-   "force": 0.35,
-   "note": "chaud, bas, côté du brasero ; la face vers la caméra prend la teinte du modulate #463E54"
-  }
- },
- "calques": [
-  {
-   "fichier": "calques/00_fond_flou.png",
-   "auteur": "CA2",
-   "distance_m": 6,
-   "note": "déjà éclairé et flou : ne pas rééclairer"
-  },
-  {
-   "fichier": "calques/gabarit_40_gauche.png",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/gabarit_40_droite.png",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/gabarit_41_lisere_gauche.png",
-   "mode": "additif",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/gabarit_41_lisere_droite.png",
-   "mode": "additif",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/90_particules.png",
-   "auteur": "CA2",
-   "contenu": "braises floues, à animer"
-  }
- ],
- "valeurs_sous_1A1612_pct": 0.0,
- "generateur": "cA2/gros_plans_ep01.py orvane_soir [--4k]",
- "4k": "calques/4k/ (mêmes noms)",
- "statut": "VALIDÉ par le DA (27/11), 1080 et 4k"
+  "calques": [
+    {
+      "fichier": "calques/00_fond_flou.png",
+      "auteur": "CA2",
+      "distance_m": 6,
+      "note": "déjà éclairé et flou : ne pas rééclairer"
+    },
+    {
+      "fichier": "calques/gabarit_40_gauche.png",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/gabarit_40_droite.png",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_gauche.png",
+      "mode": "additif",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_droite.png",
+      "mode": "additif",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA2",
+      "contenu": "braises floues, à animer"
+    }
+  ],
+  "valeurs_sous_1A1612_pct": 0.0,
+  "generateur": "cA2/gros_plans_ep01.py orvane_soir [--4k]",
+  "4k": "calques/4k/ (mêmes noms)",
+  "statut": "VALIDÉ par le DA (27/11), 1080 et 4k"
 }

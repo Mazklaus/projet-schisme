@@ -32,6 +32,7 @@ jobs:
       - run: pip install --quiet pillow
       - run: python3 tools/ci/verifier_decors.py .
       - run: python3 tools/ci/verifier_cles.py .
+      - run: python3 tools/ci/verifier_sync_decors.py .
       # Spec du système de choix (Game Designer) : nommage, canon, défauts minutés, règle 3.1.
       - run: python3 tools/ci/verif_choix.py data/dialogues/ep01 --registre data/personnages.json
 
