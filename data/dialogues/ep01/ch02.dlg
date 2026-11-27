@@ -217,6 +217,7 @@ DREMM: Personne n'en a besoin. C'est justement pour ça qu'on jure.
 -> loge_echo
 
 === loge_partir
+@decor vs_cales_loge_vaskar
 ~ choix_ep01_loge = 3
 ~ relation_dremm += 0
 ~ trait_vaskar_fraternite += 0
