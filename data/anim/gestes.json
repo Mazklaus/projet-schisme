@@ -1,7 +1,5 @@
 {
-  "_doc": "Gestes des rigs de personnages (RigPersonnage). Angles en degrés, ajoutés à la pose de repos ; négatif = vers l'avant (le personnage regarde à droite). « main » : variante de main_avant (pointe, poing). « tete » : « face » montre la tête de face. « bassin_y » : descente du bassin en px source. « tenir » : le geste reste posé jusqu'au suivant (ou @geste <perso> repos). « son » : ample ou fin (bruitage choisi selon le type du rig). Transitions avec anticipation et dépassement (RigPersonnage.courbe_geste). « montre » / « cache » : pièces dédiées affichées ou masquées pendant le geste (bras_croises).",
-  "entree_s": 0.6,
-  "sortie_s": 0.65,
+  "_doc": "Gestes des rigs de personnages (RigPersonnage). Angles en degrés, ajoutés à la pose de repos ; négatif = vers l'avant (le personnage regarde à droite). « main » : variante de main_avant (pointe, poing). « tete » : « face » montre la tête de face. « bassin_y » : descente du bassin en px source. « tenir » : le geste reste posé jusqu'au suivant (ou @geste <perso> repos). « son » : ample ou fin (bruitage choisi selon le type du rig). Transitions avec anticipation et dépassement (RigPersonnage.courbe_geste). « montre » / « cache » : pièces dédiées affichées ou masquées pendant le geste (bras_croises). « profils » : mouvement par type de rig (pas_rad_s, marche = amplitude, poids_px = descente du bassin au contact, entree_s / sortie_s, gestes = ampleur, souffle_s / souffle). Un geste peut porter un bloc propre à un type (« astartes »: {\"os\": …}). « casque »: \"main\" : casque tenu (tete_casque cachée, casque_main montrée).",
   "gestes": {
     "montrer": {
       "duree": 1.6,
@@ -120,9 +118,59 @@
       "tete": "face",
       "os": {}
     },
+    "casque_sous_bras": {
+      "duree": 3.0,
+      "son": "ample",
+      "tenir": true,
+      "casque": "main",
+      "montre": [
+        "casque_main"
+      ],
+      "os": {
+        "bras_avant": -8,
+        "avant_bras_avant": -75,
+        "main_avant": 10,
+        "torse": 2,
+        "tete": -2
+      }
+    },
+    "main_pommeau": {
+      "duree": 3.0,
+      "son": "fin",
+      "tenir": true,
+      "main": "pommeau",
+      "os": {
+        "bras_avant": 12,
+        "avant_bras_avant": -48,
+        "main_avant": -10,
+        "torse": 1
+      }
+    },
     "repos": {
       "duree": 0.1,
       "os": {}
+    }
+  },
+  "profils": {
+    "humain": {
+      "pas_rad_s": 9.0,
+      "marche": 1.0,
+      "poids_px": 8.0,
+      "entree_s": 0.6,
+      "sortie_s": 0.65,
+      "gestes": 1.0,
+      "souffle_s": 4.2,
+      "souffle": 0.012
+    },
+    "astartes": {
+      "pas_rad_s": 6.0,
+      "marche": 0.65,
+      "poids_px": 14.0,
+      "entree_s": 0.85,
+      "sortie_s": 0.95,
+      "gestes": 0.85,
+      "souffle_s": 5.6,
+      "souffle": 0.008
     }
   }
 }

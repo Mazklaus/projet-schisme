@@ -122,8 +122,9 @@ func test_gestes_json() -> void:
 		for o in g.get("os", {}):
 			assert_true(o in RigPersonnage.ORDRE, "%s : pièce %s hors contrat" % [nom, o])
 		if g.has("main"):
-			assert_true(g.main in ["pointe", "poing"], nom)
-	for nom in ["montrer", "croiser_bras", "main_epaule", "saluer", "degainer", "agenouiller"]:
+			assert_true(g.main in ["pointe", "poing", "pommeau"], nom)
+	for nom in ["montrer", "croiser_bras", "main_epaule", "saluer", "degainer", "agenouiller",
+			"casque_sous_bras", "main_pommeau"]:
 		assert_true(d.gestes.has(nom), "geste demandé par le GD : " + nom)
 
 
@@ -152,3 +153,52 @@ func test_main_epaule_distincte_de_montrer() -> void:
 	var epaule: float = d.gestes.main_epaule.os.bras_avant
 	assert_gt(epaule - montrer, 30.0, "main sur l'épaule : bras nettement plus bas")
 	assert_eq(d.gestes.croiser_bras.montre, ["bras_croises"], "pièce dédiée demandée à CA1")
+
+
+
+## Ilse v0 montée comme un Astartes : seul le profil de mouvement change.
+func _rig_astartes() -> RigPersonnage:
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d.type = "astartes"
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	return r
+
+
+func test_astartes_plus_lourd_et_plus_lent() -> void:
+	var h := _rig()
+	var a := _rig_astartes()
+	assert_eq(a.type_rig, "astartes")
+	assert_lt(float(a.profil.pas_rad_s), float(h.profil.pas_rad_s), "pas plus lent")
+	assert_gt(float(a.profil.poids_px), float(h.profil.poids_px), "plus de poids")
+	watch_signals(h)
+	watch_signals(a)
+	h.marche = 1.0
+	a.marche = 1.0
+	_avancer(h, 1.4)
+	_avancer(a, 1.4)
+	assert_lt(get_signal_emit_count(a, "evenement_anim"), get_signal_emit_count(h, "evenement_anim"), "moins d'appuis")
+	# Gestes économes : même geste, moins d'amplitude, entrée plus longue.
+	a.jouer_geste("montrer")
+	_avancer(a, 1.5)
+	assert_almost_eq(rad_to_deg(a.os.bras_avant.rotation), -80.0 * float(a.profil.gestes), 3.0)
+	assert_gt(a.duree_visible("montrer"), h.duree_visible("montrer"))
+
+
+func test_geste_propre_au_type() -> void:
+	var a := _rig_astartes()
+	var g := {"os": {"bras_avant": -80}, "astartes": {"os": {"bras_avant": -50}}}
+	assert_eq(a.os_du_geste(g), {"bras_avant": -50})
+	assert_eq(_rig().os_du_geste(g), {"bras_avant": -80.0})
+
+
+func test_casque_sans_piece() -> void:
+	# Sans tete_casque ni casque_main (Ilse), le geste se joue sans erreur et la tête reste visible.
+	var r := _rig()
+	assert_true(r.jouer_geste("casque_sous_bras"))
+	_avancer(r, 1.5)
+	assert_true(r.pieces.tete.visible)
+	assert_true(r.jouer_geste("main_pommeau"))
+	_avancer(r, 1.5)
+	assert_true(r.pieces.main_avant.visible, "pas de main_avant_pommeau livrée : main ordinaire")
