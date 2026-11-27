@@ -205,8 +205,27 @@ def finir(a):
         synchroniser(dossier, ident, Path(a.depot).resolve(), a)
 
 
+def retirer_fini(dossier_decor, essai=False):
+    """Garde-fou (GD) : seule la DA, sur une capture en jeu, marque un décor « fini ».
+    Un décor qui vient d'être repeint repasse donc au statut « peint »."""
+    rabattus = []
+    for f in sorted(Path(dossier_decor).glob("*.json")):
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(d, dict) and "fini" in str(d.get("statut", "")).lower():
+            journal(f"statut « {d['statut']} » de {f.name} ramené à « peint » : la DA valide sur capture en jeu")
+            d["statut"] = "peint"
+            rabattus.append(f.name)
+            if not essai:
+                f.write_text(json.dumps(d, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return rabattus
+
+
 def synchroniser(dossier, ident, depot, a):
     lancer([sys.executable, depot / "tools" / "importer_decor.py", dossier, ident], cwd=depot)  # calques/ sans 4k
+    retirer_fini(depot / "assets" / "decors" / ident, essai=a.essai)
     cible = depot / "assets" / "decors" / ident / "calques"
     for f in (dossier / "calques").glob("*.json"):                                 # fiches .retouche/.peint
         shutil.copy2(f, cible / f.name)
@@ -222,7 +241,7 @@ def synchroniser(dossier, ident, depot, a):
             lancer(["git", "-C", depot, "-c", "push.negotiate=true", "push", "-u", "origin", b])
             lancer(["gh", "api", "repos/{owner}/{repo}/pulls", "-f", f"title=Décor {ident} : finition",
                     "-f", f"head={b}", "-f", "base=main",
-                    "-f", f"body=Retouche, peindre_plan et 4k par tools/finir_decor.py. Planche avant/après : "
+                    "-f", f"body=Retouche, peindre_plan et 4k par tools/finir_decor.py. Statut « peint » : seule la DA, sur capture en jeu, passe le décor à « fini ». Planche avant/après : "
                           f"finition/{ident}_avant_apres.jpg (dossier source du décor)."])
 
 

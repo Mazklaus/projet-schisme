@@ -64,3 +64,19 @@ class TestFinirDecor(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestGardeFouFini(unittest.TestCase):
+    def test_statut_fini_ramene_a_peint(self):
+        import importlib.util
+        from pathlib import Path
+        spec = importlib.util.spec_from_file_location("finir_decor", OUTIL)
+        finir_decor = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(finir_decor)
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d)
+            (p / "decor.json").write_text('{"statut": "fini (DA)", "calques": []}', encoding="utf-8")
+            (p / "autre.json").write_text('{"statut": "peint"}', encoding="utf-8")
+            self.assertEqual(finir_decor.retirer_fini(p), ["decor.json"])
+            self.assertEqual(json.loads((p / "decor.json").read_text())["statut"], "peint")
+            self.assertEqual(json.loads((p / "autre.json").read_text())["statut"], "peint")
