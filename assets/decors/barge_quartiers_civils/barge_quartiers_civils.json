@@ -39,12 +39,21 @@
       2.95
     ],
     "couleur": "#FFC27A",
-    "energie": 1.8,
-    "portee_px": 620,
+    "energie": {
+      "veille": 1.8,
+      "nuit_lampe": 2.0,
+      "nuit_lampe_serre": 2.4
+    },
+    "portee_px": {
+      "veille": 620,
+      "nuit_lampe": 200,
+      "nuit_lampe_serre": 135
+    },
     "scintillement": {
       "amplitude": 0.03,
       "note": "quasi fixe : lampe électrique civile, pas une flamme"
-    }
+    },
+    "calque": "45_lampe"
   },
   "appoints": [
     {
@@ -54,7 +63,12 @@
         485
       ],
       "couleur": "#B8C4D0",
-      "energie": 0.6,
+      "calque": "00_coque",
+      "energie": {
+        "veille": 0.6,
+        "nuit_lampe": 0.12,
+        "nuit_lampe_serre": 0.12
+      },
       "portee_px": 140,
       "note": "hublot à 2,2 m, hauteur d'œil d'Astartes"
     },
@@ -133,5 +147,21 @@
   "apercus": [
     "apercu.png"
   ],
-  "statut": "essai v2"
+  "statut": "essai v2",
+  "_note": "Tools 27/11, retours DA : nuit « lampe seule » (Sefa écrit), plans serrés resserrés, lumières qui suivent la parallaxe de leur calque",
+  "etats": {
+    "veille": {
+      "canvas_modulate": "#17161A",
+      "note": "état de base : lampe-lumen, hublot et ambiance de la cabine"
+    },
+    "nuit_lampe": {
+      "canvas_modulate": "#0B0C11",
+      "note": "DA 27/11 : la lampe de bureau est la seule clé chaude ; chute au noir à ~1,5 largeur de bureau ; hublot seul contre-poids froid"
+    },
+    "nuit_lampe_serre": {
+      "canvas_modulate": "#0B0C11",
+      "note": "DA 27/11 20:07 : plans serrés sefa_ecrit et sefa_trait ; flaque resserrée autour de la lampe (bords et haut du mur −40 %)"
+    }
+  },
+  "etat_initial": "veille"
 }

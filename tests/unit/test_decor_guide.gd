@@ -111,3 +111,18 @@ func test_cle_en_contre_jour_coupe_presque_la_copie_basse() -> void:
 	var basses: Array = d.lumieres.filter(func(e): return e.get("masque", 0) == Decor25D.MASQUE_PERSONNAGES)
 	var cles: Array = d.lumieres.filter(func(e): return e.get("masque", 0) != Decor25D.MASQUE_PERSONNAGES and e.get("profil", "") == "apercu")
 	assert_almost_eq(float(basses[0].intensite), float(cles[0].intensite) * Decor25D.ENERGIE_MODELE_CONTRE_JOUR, 0.001)
+
+
+func test_lumiere_suit_la_parallaxe_de_son_calque() -> void:
+	var e: Array = Decor25D.lumieres_du_plan({"position_px": [10, 20], "portee_px": 50, "energie": 1.0,
+		"calque": "10_fond"})
+	assert_eq(e[0].calque, "10_fond", "« calque » de la clé repris par la lumière")
+	var dec := Decor25D.new()
+	dec.dossier_decors = FIXTURES
+	dec.id_decor = "guide_mini"
+	add_child_autofree(dec)
+	dec._poser_lumieres(e + [{"position_px": [5, 5], "rayon_px": 10}])
+	var dans_calque := dec.calques[1].get_children().filter(func(n): return n is PointLight2D)
+	assert_eq(dans_calque.size(), 1, "la lampe est posée dans le Parallax2D de son calque")
+	assert_eq((dans_calque[0] as PointLight2D).position, Vector2(10, 20), "en px du décor")
+	assert_eq(dec.lumieres().size(), 2, "lumieres() voit aussi celle du calque")

@@ -152,6 +152,10 @@ def inventaire(ep, racine=RACINE):
                 p = plans[val]
                 seq = p.get("sequence", []) if isinstance(p, dict) else p
                 decor, etat = resoudre(p["decor"]) if isinstance(p, dict) and p.get("decor") else (courant, etat_courant)
+                if decor == courant and not etat:  # le jeu garde l'état du décor courant (alias)
+                    etat = etat_courant
+                if isinstance(p, dict) and p.get("etat"):  # état propre au plan (plan serré de nuit)
+                    etat = p["etat"]
                 if not decor:
                     manques.append(f"plan « {val} » sans décor connu ({os.path.basename(chemin)})")
                     continue
@@ -223,8 +227,12 @@ def rendre(travaux, dossier_png, godot, racine=RACINE):
     liste = Path(dossier_png) / "travaux.json"
     liste.write_text(json.dumps({"sortie": str(Path(dossier_png).resolve()), "travaux": travaux},
                                 ensure_ascii=False, indent=1), encoding="utf-8")
-    if not (Path(racine) / ".godot" / "imported").is_dir():
-        journal("import du projet (première fois)")
+    # import incrémental à chaque fois : sinon une classe ajoutée depuis le dernier import (class_name)
+    # reste inconnue et le banc échoue à la compilation
+    # Deux passes : sur un clone dont le cache est ancien, la première enregistre les nouvelles classes
+    # mais compile encore des scripts qui les citent (StyleSchisme, MiseEnScene : 124 erreurs le 27/11).
+    journal("import du projet")
+    for _ in range(2):
         subprocess.run([godot, "--headless", "--path", str(racine), "--import"], check=False,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     cmd = [godot, "--rendering-driver", "opengl3", "--path", str(racine), "-s", BANC, "--", str(liste)]

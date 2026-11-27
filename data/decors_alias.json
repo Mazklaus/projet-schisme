@@ -4,7 +4,8 @@
     "decor": "barge_briefing"
   },
   "barge_quartiers_sefa": {
-    "decor": "barge_quartiers_civils"
+    "decor": "barge_quartiers_civils",
+    "etat": "nuit_lampe"
   },
   "orvane_matin": {
     "decor": "orvane_rues",

@@ -688,12 +688,26 @@ static func lumieres_du_plan(L: Dictionary) -> Array:
 			sortie.append({"position_px": pt, "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
 				"rayon_px": float(L.get("portee_bougie_px", 120.0)) / 2.5, "scintillement": amplitude})
 		return sortie
+	# « portee_px » peut aussi varier par état ({veille: 620, nuit_lampe: 380}) : une lampe seule,
+	# la nuit, porte moins loin.
+	var portee = L.get("portee_px", L.get("rayon_px", 300))
+	var portee_par_etat: Dictionary = portee if typeof(portee) == TYPE_DICTIONARY else {}
+	if not portee_par_etat.is_empty():
+		portee = portee_par_etat.values()[0]
 	for pt in points:
 		var e := {"position_px": pt, "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
-			"rayon_px": float(L.get("portee_px", L.get("rayon_px", 300))) / 2.5, "scintillement": amplitude,
+			"rayon_px": float(portee) / 2.5, "scintillement": amplitude,
 			"hauteur_px": 200.0}
 		if not par_etat.is_empty():
 			e.energie_par_etat = par_etat
+		if L.has("calque"):
+			e.calque = String(L.calque)
+		if not portee_par_etat.is_empty():
+			# en rapport à la portée du premier état : la loi des aperçus peut encore changer rayon_px
+			var r := {}
+			for nom in portee_par_etat:
+				r[nom] = float(portee_par_etat[nom]) / maxf(float(portee), 1.0)
+			e.portee_relative_par_etat = r
 		sortie.append(e)
 	# Cône (lampe à main de Cthonia) : une seconde lumière orientée vers « vers_px ».
 	var cone = L.get("cone")
@@ -738,6 +752,7 @@ func construire() -> void:
 	for c in calques:
 		c.queue_free()
 	calques.clear()
+	_lumieres_en_calque.clear()
 	if id_decor.is_empty():
 		return
 	var d := lire(id_decor, dossier_decors)
@@ -811,13 +826,19 @@ func appliquer_etat(nom: String, duree := 0.0) -> void:
 		else:
 			image.modulate = cible
 			image.self_modulate = teinte
-	for l in get_children():
+	for l in lumieres():
 		if l is PointLight2D and l.has_meta("couleur_par_etat") and l.get_meta("couleur_par_etat").has(nom):
 			var c: Color = l.get_meta("couleur_par_etat")[nom]
 			if t:
 				t.tween_property(l, "color", c, duree)
 			else:
 				l.color = c
+		if l is PointLight2D and l.has_meta("echelle_par_etat") and l.get_meta("echelle_par_etat").has(nom):
+			var ech := float(l.get_meta("echelle_par_etat")[nom])
+			if t:
+				t.tween_property(l, "texture_scale", ech, duree)
+			else:
+				l.texture_scale = ech
 		if l is Light2D and l.has_meta("energie_par_etat"):
 			var e: Dictionary = l.get_meta("energie_par_etat")
 			if e.has(nom):
@@ -910,6 +931,19 @@ func _poser_veille(v: Dictionary) -> void:
 	add_child(l)
 
 
+## Lumières posées dans un calque (« calque » de la clé ou d'un appoint), en plus des enfants.
+var _lumieres_en_calque: Array[Light2D] = []
+
+
+## Toutes les lumières du décor : enfants directs et lumières posées dans un calque.
+func lumieres() -> Array:
+	var liste: Array = get_children().filter(func(n): return n is Light2D)
+	for l in _lumieres_en_calque:
+		if is_instance_valid(l):
+			liste.append(l)
+	return liste
+
+
 ## Lumières ponctuelles d'un état (feux du bivouac, lampes) : une PointLight2D chacune, avec
 ## un scintillement léger. Elles éclairent les calques « lumiere » et les personnages posés.
 func _poser_lumieres(liste: Array) -> void:
@@ -957,6 +991,11 @@ func _poser_lumieres(liste: Array) -> void:
 		l.range_item_cull_mask = int(L.get("masque", MASQUE_LUMIERE))
 		if typeof(L.get("energie_par_etat")) == TYPE_DICTIONARY:
 			l.set_meta("energie_par_etat", L.energie_par_etat)
+		if typeof(L.get("portee_relative_par_etat")) == TYPE_DICTIONARY:
+			var echelles := {}
+			for nom in L.portee_relative_par_etat:
+				echelles[nom] = l.texture_scale * float(L.portee_relative_par_etat[nom])
+			l.set_meta("echelle_par_etat", echelles)
 		if typeof(L.get("compense")) == TYPE_ARRAY:
 			var k: Array = L.compense
 			l.color = Color(l.color.r / maxf(k[0], 0.02), l.color.g / maxf(k[1], 0.02), l.color.b / maxf(k[2], 0.02))
@@ -965,7 +1004,17 @@ func _poser_lumieres(liste: Array) -> void:
 			l.set_meta("energie", l.energy)
 			l.set_meta("scintillement", sc)
 			l.set_meta("phase", randf() * TAU)
-		add_child(l)
+		# « calque » : la lumière suit la parallaxe du calque qui la peint (la lampe de bureau
+		# dans 45_lampe), sinon elle glisse hors de sa source dès que la caméra quitte le centre.
+		var parent: Node = self
+		if L.has("calque"):
+			var couche := get_node_or_null(NodePath("Calque_" + String(L.calque)))
+			if couche is Parallax2D:
+				parent = couche
+				_lumieres_en_calque.append(l)
+			else:
+				push_warning("Décor %s : lumière sur un calque absent (%s)" % [id_decor, L.calque])
+		parent.add_child(l)
 		if float(L.get("halo", 0.0)) > 0.0:
 			if not textures.has("feu_halo"):
 				textures["feu_halo"] = _texture_lumiere("feu_halo")
@@ -984,7 +1033,7 @@ func _poser_lumieres(liste: Array) -> void:
 			h.modulate = Color(c.r, c.g, c.b, 1.0)
 			h.set_meta("modulate_base", h.modulate)
 			l.set_meta("halo", h)
-			add_child(h)
+			parent.add_child(h)
 
 
 ## Texture radiale d'une lumière (256 px, rayon 128) : « lineaire » (feux) ou « traine »
@@ -1171,7 +1220,7 @@ static func _tache(taille: int, coeur: float) -> GradientTexture2D:
 func _process(_delta: float) -> void:
 	# Scintillement des feux : bruit lent et propre à chaque lumière.
 	var t := Time.get_ticks_msec() / 1000.0
-	for l in get_children():
+	for l in lumieres():
 		if l is PointLight2D and l.has_meta("scintillement"):
 			var e: float = l.get_meta("energie")
 			var sc: float = l.get_meta("scintillement")
