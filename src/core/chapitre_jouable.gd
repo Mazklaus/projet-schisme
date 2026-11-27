@@ -1025,12 +1025,21 @@ func _sprite_provisoire(nom: String) -> Sprite2D:
 	s.name = nom
 	s.texture = ImageTexture.create_from_image(img)
 	s.offset = Vector2(0, -130)
-	var l := Label.new()
-	l.text = nom
-	l.position = Vector2(-60, -300)
-	l.add_theme_font_size_override("font_size", 20)
-	s.add_child(l)
+	if etiquettes_de_debogage():
+		var l := Label.new()
+		l.name = "EtiquetteDebogage"
+		l.text = nom
+		l.position = Vector2(-60, -300)
+		l.add_theme_font_size_override("font_size", 20)
+		s.add_child(l)
 	return s
+
+
+## Étiquettes de débogage (noms des silhouettes et décors provisoires) : dans l'éditeur
+## seulement, jamais dans une build exportée (règle GD 27/11, contrôlée en CI).
+## SCHISME_SANS_DEBUG=1 les coupe aussi dans l'éditeur (bots de capture, tests).
+static func etiquettes_de_debogage() -> bool:
+	return OS.has_feature("editor") and OS.get_environment("SCHISME_SANS_DEBUG") != "1"
 
 
 func _prop(parent: Node, nom: String, pos: Vector2) -> Sprite2D:
@@ -1118,8 +1127,9 @@ func _decor_provisoire(id: String) -> Node2D:
 	sol.color = Color.from_hsv(teinte, 0.3, 0.2)
 	sol.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	n.add_child(sol)
-	for x in range(0, int(TAILLE_PROVISOIRE.x), 1920):
+	for x in range(0, int(TAILLE_PROVISOIRE.x), 1920 if etiquettes_de_debogage() else 1 << 30):
 		var l := Label.new()
+		l.name = "EtiquetteDebogage"
 		l.text = "décor provisoire : %s" % id
 		l.position = Vector2(x + 520, 160)
 		l.add_theme_font_size_override("font_size", 56)
