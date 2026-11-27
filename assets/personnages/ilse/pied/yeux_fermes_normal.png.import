@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsseprs1f3m7e"
-path="res://.godot/imported/ilse_normal.png-c22050de44e3d4a7e87f15076f2b3a48.ctex"
+uid="uid://dycmxys4et8a"
+path="res://.godot/imported/yeux_fermes_normal.png-f47fbe23b0b667056a18ba599cf1ffb9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/tranche_ullanor/props/ilse_normal.png"
-dest_files=["res://.godot/imported/ilse_normal.png-c22050de44e3d4a7e87f15076f2b3a48.ctex"]
+source_file="res://assets/personnages/ilse/pied/yeux_fermes_normal.png"
+dest_files=["res://.godot/imported/yeux_fermes_normal.png-f47fbe23b0b667056a18ba599cf1ffb9.ctex"]
 
 [params]
 

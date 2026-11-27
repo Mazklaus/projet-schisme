@@ -1012,7 +1012,18 @@ func _sprite(nom: String, normales := true) -> Sprite2D:
 	s.texture = tex
 	# Origine aux pieds : le tri en profondeur (y_sort) se fait sur la ligne du sol.
 	s.offset = Vector2(0, -tex.diffuse_texture.get_height() / 2.0)
+	s.scale = Vector2.ONE * echelle_prop(nom)
 	return s
+
+
+## Échelle d'un accessoire peint au double (props/echelles.json) ; 1 sinon.
+static var _echelles_props: Dictionary = {}
+static func echelle_prop(nom: String) -> float:
+	if _echelles_props.is_empty():
+		var d = JSON.parse_string(FileAccess.get_file_as_string(PROPS + "echelles.json")) \
+			if FileAccess.file_exists(PROPS + "echelles.json") else null
+		_echelles_props = d if typeof(d) == TYPE_DICTIONARY else {"_": 1}
+	return float(_echelles_props.get(nom, 1.0))
 
 
 ## Silhouette grise étiquetée, pour un figurant que la chaîne d'images n'a pas encore livré.
