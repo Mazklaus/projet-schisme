@@ -82,6 +82,64 @@
       "opacites": {
         "90_poussiere": 0.4
       }
+    },
+    {
+      "chapitre": "c02",
+      "decor": "vs_cales_loge_gros_plan",
+      "noeuds": [
+        "loge",
+        "loge_entrer",
+        "loge_refuser"
+      ],
+      "cotes": {
+        "DREMM": "gauche",
+        "FRÈRE DE LA LOGE": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c02",
+      "decor": "vs_quartiers_27_gros_plan",
+      "noeuds": [
+        "poi_krenn",
+        "poi_trophees",
+        "retour_empereur",
+        "rumeur_*"
+      ],
+      "cotes": {
+        "KRENN": "gauche",
+        "FRÈRE 3": "gauche",
+        "FRÈRE 4": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c05",
+      "decor": "barge_galerie_gros_plan",
+      "noeuds": [
+        "galerie_fin"
+      ],
+      "cotes": {
+        "DREMM": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c05",
+      "decor": "orvane_soir_gros_plan",
+      "noeuds": [
+        "graver",
+        "poi_mur",
+        "poi_ilse_grave_scene",
+        "rumeur_nom",
+        "nom_*"
+      ],
+      "cotes": {
+        "DREMM": "gauche",
+        "ILSE": "gauche",
+        "FRÈRE": "gauche",
+        "VASKAR": "droite"
+      }
     }
   ]
 }

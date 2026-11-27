@@ -1,0 +1,83 @@
+{
+ "plan": "barge_galerie_gros_plan",
+ "episode": 1,
+ "chapitres": [
+  5
+ ],
+ "decor_source": "barge_galerie",
+ "cadre_px": [
+  1920,
+  1080
+ ],
+ "usage": "ch05 galerie_fin (@plan galerie_etoiles) : galerie_fin_haute/basse, la dernière scène de l'épisode (Dremm, Vaskar)",
+ "description": "La galerie de la barge, état nuit : la baie en ogive et ses meneaux, Orvane et son limbe bleu derrière le verre, floues ; la pénombre d'acier autour.",
+ "source": "aperçu éclairé de barge_galerie rendu par cA2/barge_galerie_calques.py sans personnages (gabarits et calques 40 vidés), fenêtre [712, 225, 1367, 593.4] agrandie x2.93, préflou 2 px, flou 12 px",
+ "zones_calmes": {
+  "gauche": {
+   "x_px": [
+    190,
+    850
+   ]
+  },
+  "droite": {
+   "x_px": [
+    1070,
+    1730
+   ]
+  },
+  "regle": "personnage à gauche ou à droite, tête au tiers haut"
+ },
+ "lumieres": {
+  "cle": {
+   "source": "Orvane par la baie, derrière les personnages",
+   "couleur": "#B8C8E0",
+   "direction_camera": [
+    -0.2,
+    -0.1,
+    0.97
+   ],
+   "note": "contre-jour froid : liseré bleuté sur le contour des têtes et des épaules, côté baie"
+  },
+  "contre": {
+   "source": "lampe de bord, intérieur",
+   "couleur": "#E8B060",
+   "force": 0.12,
+   "note": "presque rien : une touche chaude sur la joue tournée vers la caméra, pour que le visage ne soit pas noir"
+  }
+ },
+ "calques": [
+  {
+   "fichier": "calques/00_fond_flou.png",
+   "auteur": "CA2",
+   "distance_m": 6,
+   "note": "déjà éclairé et flou : ne pas rééclairer"
+  },
+  {
+   "fichier": "calques/gabarit_40_gauche.png",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/gabarit_40_droite.png",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/gabarit_41_lisere_gauche.png",
+   "mode": "additif",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/gabarit_41_lisere_droite.png",
+   "mode": "additif",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/90_particules.png",
+   "auteur": "CA2",
+   "contenu": "poussière froide, à animer"
+  }
+ ],
+ "valeurs_sous_1A1612_pct": 9.4,
+ "generateur": "cA2/gros_plans_ep01.py barge_galerie [--4k]",
+ "4k": "calques/4k/ (mêmes noms)",
+ "statut": "VALIDÉ par le DA (27/11), 1080 et 4k"
+}

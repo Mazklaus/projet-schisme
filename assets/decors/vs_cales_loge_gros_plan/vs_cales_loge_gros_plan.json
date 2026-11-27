@@ -1,0 +1,83 @@
+{
+ "plan": "vs_cales_loge_gros_plan",
+ "episode": 1,
+ "chapitres": [
+  2
+ ],
+ "decor_source": "vs_cales_loge",
+ "cadre_px": [
+  1920,
+  1080
+ ],
+ "usage": "ch02 loge, loge_entrer, loge_refuser (Dremm, Vaskar)",
+ "description": "La loge dans les cales : la table et ses bougies en bokeh, les piliers et la voûte perdus dans le noir, la porte du couloir froide à droite.",
+ "source": "aperçu éclairé de vs_cales_loge rendu par cA2/vs_cales_loge_calques.py sans personnages (gabarits et calques 40 vidés), fenêtre [560, 300, 1520, 840] agrandie x2.00, préflou 2 px, flou 12 px",
+ "zones_calmes": {
+  "gauche": {
+   "x_px": [
+    190,
+    850
+   ]
+  },
+  "droite": {
+   "x_px": [
+    1070,
+    1730
+   ]
+  },
+  "regle": "personnage à gauche ou à droite, tête au tiers haut"
+ },
+ "lumieres": {
+  "cle": {
+   "source": "les bougies de la table, devant et en dessous",
+   "couleur": "#FFB060",
+   "direction_camera": [
+    0.0,
+    0.55,
+    0.83
+   ],
+   "note": "lumière de bougie par en dessous : menton, arcades, dessous des épaulières ; vacillement 0,1"
+  },
+  "contre": {
+   "source": "la porte du couloir (froide), à droite",
+   "couleur": "#8FB0D0",
+   "force": 0.3,
+   "note": "liseré froid côté droit, le passage qu'on peut encore reprendre"
+  }
+ },
+ "calques": [
+  {
+   "fichier": "calques/00_fond_flou.png",
+   "auteur": "CA2",
+   "distance_m": 6,
+   "note": "déjà éclairé et flou : ne pas rééclairer"
+  },
+  {
+   "fichier": "calques/gabarit_40_gauche.png",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/gabarit_40_droite.png",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/gabarit_41_lisere_gauche.png",
+   "mode": "additif",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/gabarit_41_lisere_droite.png",
+   "mode": "additif",
+   "pour": "CA1"
+  },
+  {
+   "fichier": "calques/90_particules.png",
+   "auteur": "CA2",
+   "contenu": "poussière chaude dans les bougies, à animer"
+  }
+ ],
+ "valeurs_sous_1A1612_pct": 0.1,
+ "generateur": "cA2/gros_plans_ep01.py vs_cales_loge [--4k]",
+ "4k": "calques/4k/ (mêmes noms)",
+ "statut": "VALIDÉ par le DA (27/11), 1080 et 4k"
+}
