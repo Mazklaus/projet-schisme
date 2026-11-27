@@ -15,14 +15,15 @@
 @titre 4 Ullanor. 000.M31.
 @attendre 2.5
 // 1b : la citadelle et les deux Warlords ; l'Empereur se lève, Horus met un genou à terre.
+// Le Triomphe entre ici et tient à plein sur 1b et 1c : sa phrase se pose sur la tonique au début de 1c.
+@musique ullanor_triomphe 0.5
 @plan 1b
 // La foule se tait d'un coup : il ne reste que le vent.
 @ambiance ullanor_vent 0.1
 @echelle Ullanor/Calque_10_fond/Empereur 1 1 1.5
 @attendre 1
-// 1c : Horus se relève, la plaine explose (clameur, puis le Triomphe à l'orgue, aux chœurs et aux cuivres).
+// 1c : Horus se relève, la plaine explose sur l'accord final de la phrase du Triomphe.
 @bruitage clameur_maitre
-@musique ullanor_triomphe 1.5
 @ambiance ullanor_triomphe 3
 @echelle Ullanor/Calque_10_fond/HorusSilhouette 1 1 0.6
 @plan 1c &
