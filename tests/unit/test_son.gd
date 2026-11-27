@@ -4,7 +4,8 @@ extends GutTest
 ## constat QA du 27/11), et l'autoload Son reste silencieux (sans erreur) quand un fichier manque.
 
 const DLGS := ["res://data/dialogues/ep01/ullanor.dlg", "res://data/dialogues/ep01/ch01.dlg",
-		"res://data/dialogues/ep01/ch02.dlg"]
+		"res://data/dialogues/ep01/ch02.dlg", "res://data/dialogues/ep01/ch03.dlg",
+		"res://data/dialogues/ep01/ch04.dlg", "res://data/dialogues/ep01/ch05.dlg"]
 ## Sons appelés depuis scenes/ullanor/tranche_ullanor.gd (préfixe compris).
 const SONS_SCENE := ["amb_ullanor_bivouac", "sfx_eboulement", "sfx_poutre_grince", "sfx_choix_tic", "sfx_choix_battement_01", "sfx_vox_crepite_01"]
 const PREFIXES := {"ambiance": "amb_", "musique": "mus_", "bruitage": "sfx_"}

@@ -6,6 +6,7 @@
 // ================================================================ 0. L'archive
 === archive_ch5
 @decor archive
+@ambiance archive 1.5
 @plan archive_liste
 > Une liste de noms, écrite à la main. Des noms d'Orvane.
 -> archive_ch5_percer [si choix_ep01_orvane == 1]
@@ -19,6 +20,7 @@
 // ================================================================ 1. Graver les morts
 === graver
 @decor orvane_soir
+@ambiance ep05_orvane_soir 2
 @jeu
 > Le soir. La 27e grave ses morts sur un mur de la citadelle.
 FRÈRE: Trois. Pour une ville entière.
@@ -79,6 +81,7 @@ DREMM: Toujours ailleurs, toi.
 // ================================================================ 3. Le codicier
 === codicier
 @decor barge_quartiers_codicier
+@ambiance ep03_cabine 2
 > Des livres. Une lumière tamisée. Aun Varo ne lève pas les yeux de sa page.
 VARO: Les frères ne viennent pas ici. Ils ont peur de ce que je sais.
 VASKAR: Et qu'est-ce que vous savez ?
@@ -102,6 +105,7 @@ VARO: Merci. Les autres insistent toujours.
 // ================================================================ 4. L'ordre de départ
 === ordre_depart
 @decor barge_quartiers_27
+@ambiance ep03_barge 2
 > Une annonce de bord.
 > Le détachement rejoint la flotte de la 63e expédition. Cap sur le système 63-19.
 KRENN: La flotte du Maître de Guerre. On rentre à la maison.
@@ -110,6 +114,7 @@ KRENN: La flotte du Maître de Guerre. On rentre à la maison.
 // ================================================================ 5. La galerie : dernière scène de l'épisode
 === galerie_fin
 @decor barge_galerie
+@ambiance ep03_barge 2
 @plan galerie_etoiles
 -> galerie_fin_haute [si relation_dremm >= 2]
 -> galerie_fin_basse [si relation_dremm <= -2]
@@ -122,6 +127,8 @@ VASKAR: Pas ce soir.
 -> archive_fin
 
 === galerie_fin_haute
+// Le serment repris : le thème des Luna Wolves, une dernière fois dans l'épisode.
+@musique ep01_luna_wolves 3
 DREMM: Tu te souviens du serment ? Aucun de nous ne restera seul.
 -> galerie_fin_haute_loge [si choix_ep01_loge == 1]
 DREMM: Même sans l'avoir juré. Je le jure pour deux.
@@ -147,6 +154,8 @@ DREMM: Moi, j'ai monté. Toi, tu regardes en bas.
 // ================================================================ 6. L'archive : fin de l'épisode 1
 === archive_fin
 @decor archive
+@musique stop 4
+@ambiance archive 2
 @plan archive_table_fin
 // Sur la table, à côté de la plaque d'Ilse : la plaque de données de Sefa (celle du chapitre 3).
 > À côté de la plaque gravée, une plaque de données usée.

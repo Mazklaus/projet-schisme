@@ -6,6 +6,7 @@
 // ================================================================ 0. L'archive
 === archive_ch3
 @decor archive
+@ambiance archive 1.5
 @plan archive_ecriture
 // Gros plan : la ligne écrite sur la plaque de données, avec le trait barré particulier.
 @carton 3 Nous étions trois. Les autres viendraient plus tard.
@@ -14,6 +15,7 @@
 // ================================================================ 1. Le pont d'embarquement
 === embarquement
 @decor barge_pont_embarquement
+@ambiance ep03_barge_pont 2
 > Une lumière trop vive. Une navette s'ouvre. Trois civils descendent, minuscules.
 > La 27e forme la haie. Vaskar est dans le rang.
 > Une femme trébuche. Sa sacoche s'ouvre. Des plaques glissent sur le pont.
@@ -45,6 +47,7 @@ DREMM (vox): Hol. Le rang.
 // ================================================================ 2. Les quartiers des remembrancers (4 points, Sefa obligatoire)
 === quartiers_civils
 @decor barge_quartiers_civils
+@ambiance ep03_quartiers_civils 2
 @jeu
 -> FIN
 
@@ -206,6 +209,7 @@ SEFA: Un jour, peut-être.
 // ================================================================ 6. Sefa seule (ciné, non jouable)
 === sefa_seule
 @decor barge_quartiers_sefa
+@ambiance ep03_cabine 2
 @plan sefa_ecrit
 > La nuit de bord. Une lampe. Elle écrit.
 // Gros plan : le même trait barré que sur la plaque de l'archive (scène 0).
@@ -215,6 +219,7 @@ SEFA: Un jour, peut-être.
 // ================================================================ 7. Accroche
 === accroche_orvane
 @decor barge_quartiers_27
+@ambiance ep03_barge 2
 > Briefing général. Un monde humain, au bord de la carte, a dit non.
 DREMM: Orvane. Ils refusent la conformité.
 DREMM: La 27e part avec le détachement. Et le Maître de Guerre nous regarde.
