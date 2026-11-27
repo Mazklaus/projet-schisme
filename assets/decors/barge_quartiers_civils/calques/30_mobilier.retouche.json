@@ -1,0 +1,40 @@
+{
+  "entree": "/mnt/project-files/etude-heresie/episode-01/barge_quartiers_civils/calques/30_mobilier.png",
+  "sortie": "calques/30_mobilier.png",
+  "date": "2026-11-27T20:05:22",
+  "modeles": [
+    "Lykon/dreamshaper-xl-lightning",
+    "diffusers/controlnet-depth-sdxl-1.0-small",
+    "madebyollin/sdxl-vae-fp16-fix"
+  ],
+  "invite": ", iron bunk bed with thin mattress, wooden writing desk with papers, easel, worn utilitarian furniture, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+  "invite_negative": "people, figures, text, letters, wires, thin lines, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
+  "reglages": {
+    "modele": "xl",
+    "preset": "iron bunk bed with thin mattress, wooden writing desk with papers, easel, worn utilitarian furniture",
+    "invite": "",
+    "force": 0.7,
+    "pas": 8,
+    "cfg": 2.0,
+    "controle": 0.6,
+    "largeur": 1536,
+    "profondeur": "",
+    "fond": "3F4347",
+    "marge": 0.08,
+    "alpha_nouveau": false,
+    "lumiere": 10.0,
+    "couleur": 0.7,
+    "composantes": true,
+    "masque": "",
+    "proteger": "",
+    "negatif": "people, figures, text, letters, wires, thin lines",
+    "identite": "",
+    "identite_force": 0.6,
+    "graines": "62"
+  },
+  "statut": "fige",
+  "note": "passer statut a 'fige' quand la DA a choisi et le GD valide",
+  "choix": "DA 27/11 19:47",
+  "finir_decor": true,
+  "reprise_de": "/mnt/project-files/etude-heresie/chaine-images/retouche/barge_quartiers_civils/fond/30_mobilier_g62.png"
+}

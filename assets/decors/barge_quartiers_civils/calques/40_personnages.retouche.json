@@ -1,0 +1,79 @@
+{
+  "statut": "fige",
+  "choix": "DA 27/11 05:37 (g74) ; bassin : CA1 05:43",
+  "passe": {
+    "entree": "/mnt/project-files/etude-heresie/episode-01/barge_quartiers_civils/calques/4k/40_personnages.png",
+    "sortie": "essais/qc/qc_g74.png",
+    "date": "2026-11-27T05:35:11",
+    "modeles": [
+      "Lykon/dreamshaper-xl-lightning",
+      "diffusers/controlnet-depth-sdxl-1.0-small",
+      "madebyollin/sdxl-vae-fp16-fix"
+    ],
+    "invite": ", oil painting, flat even diffuse lighting, slender young woman seen from three-quarter back, tight dark hair bun with loose strands, thin neck, narrow shoulders, long wine red wool coat falling in soft folds over her thighs, writing with a stylus; a man lying on a bunk in a green coat, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+    "invite_negative": "rim light, dramatic lighting, strong shadows, glow, text, letters, armour, helmet, beard on the woman, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
+    "reglages": {
+      "modele": "xl",
+      "preset": "oil painting, flat even diffuse lighting, slender young woman seen from three-quarter back, tight dark hair bun with loose strands, thin neck, narrow shoulders, long wine red wool coat falling in soft folds over her thighs, writing with a stylus; a man lying on a bunk in a green coat",
+      "invite": "",
+      "force": 0.6,
+      "pas": 8,
+      "cfg": 2.0,
+      "controle": 0.5,
+      "largeur": 1024,
+      "profondeur": "",
+      "fond": "6A625A",
+      "marge": 0.08,
+      "alpha_nouveau": false,
+      "lumiere": 10.0,
+      "couleur": 0.7,
+      "composantes": true,
+      "masque": "",
+      "proteger": "",
+      "negatif": "rim light, dramatic lighting, strong shadows, glow, text, letters, armour, helmet, beard on the woman",
+      "identite": "",
+      "identite_force": 0.6,
+      "graines": "74"
+    },
+    "statut": "essai",
+    "note": "passer statut a 'fige' quand la DA a choisi et le GD valide"
+  },
+  "bassin": {
+    "entree": "essais/qc/qc_pre.png",
+    "sortie": "essais/qc/qc_bassin_g75.png",
+    "date": "2026-11-27T05:46:15",
+    "modeles": [
+      "Lykon/dreamshaper-xl-lightning",
+      "diffusers/controlnet-depth-sdxl-1.0-small",
+      "madebyollin/sdxl-vae-fp16-fix"
+    ],
+    "invite": ", oil painting, flat even diffuse lighting, wine red wool coat fabric gathered in folds at the hip and lower back of a seated slender woman, thin leather belt strap following the waist, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+    "invite_negative": "wood, plank, box, armrest, rim light, glow, text, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
+    "reglages": {
+      "modele": "xl",
+      "preset": "oil painting, flat even diffuse lighting, wine red wool coat fabric gathered in folds at the hip and lower back of a seated slender woman, thin leather belt strap following the waist",
+      "invite": "",
+      "force": 0.7,
+      "pas": 8,
+      "cfg": 2.0,
+      "controle": 0.4,
+      "largeur": 1024,
+      "profondeur": "",
+      "fond": "6A625A",
+      "marge": 0.08,
+      "alpha_nouveau": false,
+      "lumiere": 10.0,
+      "couleur": 0.7,
+      "composantes": true,
+      "masque": "essais/qc/masque_bassin.png",
+      "proteger": "",
+      "negatif": "wood, plank, box, armrest, rim light, glow, text",
+      "identite": "",
+      "identite_force": 0.6,
+      "graines": "75"
+    },
+    "statut": "essai",
+    "note": "passer statut a 'fige' quand la DA a choisi et le GD valide"
+  },
+  "post": "coin extérieur du bassin rogné (alpha), bloc prérempli en drap + sangle puis img2img masqué g75"
+}
