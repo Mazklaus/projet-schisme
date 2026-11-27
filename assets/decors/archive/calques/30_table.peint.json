@@ -1,0 +1,15 @@
+{
+ "outil": "peindre_plan.py",
+ "source": "/home/user/tp3/install_tmp/archive/30_table.png",
+ "sortie": "calques/30_table.png",
+ "date": "2026-11-27T15:58:48",
+ "reglages": {
+  "paliers": 12,
+  "sp": 4,
+  "sr": 10,
+  "grosse": 7,
+  "fine": 3,
+  "ouverture": 0,
+  "fondu_y": 720
+ }
+}

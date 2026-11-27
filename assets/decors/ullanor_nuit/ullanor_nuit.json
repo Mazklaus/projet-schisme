@@ -190,7 +190,8 @@
     },
     {
       "fichier": "calques/10_fond.png",
-      "distance_m": 7000
+      "distance_m": 7000,
+      "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée"
     },
     {
       "fichier": "calques/20_titans.png",
@@ -203,11 +204,13 @@
     {
       "fichier": "calques/30_voie.png",
       "distance_m": 300,
-      "ombre": false
+      "ombre": false,
+      "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée"
     },
     {
       "fichier": "calques/35_dais.png",
-      "distance_m": 900
+      "distance_m": 900,
+      "note_tp3": "copie propre retouchée (DA 27/11) ; tranche-verticale inchangée"
     },
     {
       "fichier": "calques/50_avant_plan.png",

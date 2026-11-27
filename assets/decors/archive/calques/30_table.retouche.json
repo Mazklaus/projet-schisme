@@ -1,0 +1,41 @@
+{
+  "entree": "episode-01/archive/calques/30_table.png",
+  "sortie": "calques/30_table.png",
+  "date": "2026-11-27T15:55:09",
+  "modeles": [
+    "Lykon/dreamshaper-xl-lightning",
+    "diffusers/controlnet-depth-sdxl-1.0-small",
+    "madebyollin/sdxl-vae-fp16-fix"
+  ],
+  "invite": ", heavy old worn wooden table with scratches and ink stains, brass caged lumen lamp on clawed iron base, parchment scrolls, riveted brass vox box with cables, broken armour fragment, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+  "invite_negative": "people, figures, faces, text, letters, glyphs, aquila, skull, glowing, lamp, candle, window, neon, smooth, flat, plain, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
+  "reglages": {
+    "modele": "xl",
+    "preset": "heavy old worn wooden table with scratches and ink stains, brass caged lumen lamp on clawed iron base, parchment scrolls, riveted brass vox box with cables, broken armour fragment",
+    "invite": "",
+    "force": 0.65,
+    "pas": 8,
+    "cfg": 2.0,
+    "controle": 0.5,
+    "largeur": 1536,
+    "profondeur": "",
+    "fond": "0A0805",
+    "marge": 0.08,
+    "alpha_nouveau": false,
+    "lumiere": 10.0,
+    "couleur": 0.7,
+    "composantes": false,
+    "masque": "",
+    "proteger": "prot_globe.png",
+    "negatif": "people, figures, faces, text, letters, glyphs, aquila, skull, glowing, lamp, candle, window, neon, smooth, flat, plain",
+    "identite": "",
+    "identite_force": 0.6,
+    "graines": "62"
+  },
+  "statut": "fige",
+  "note": "passer statut a 'fige' quand la DA a choisi et le GD valide",
+  "pretraitement": "gain.py x3 (calque très sombre), retouche, puis gain.py x0.3333",
+  "choix": "DA 27/11 15:56 (30_table_g62)",
+  "installe": "2026-11-27T15:58:48",
+  "note_4k": "4k = agrandissement provisoire du 1080 peint, à refaire au lot 4k de fin"
+}
