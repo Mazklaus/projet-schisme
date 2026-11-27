@@ -1,0 +1,257 @@
+{
+ "perso": "ilse",
+ "type": "humain",
+ "planche": [
+  93,
+  357
+ ],
+ "pieds": [
+  51,
+  347
+ ],
+ "pieces": {
+  "avant_bras_avant": {
+   "fichier": "avant_bras_avant.png",
+   "pose": [
+    12,
+    113
+   ],
+   "pivot": [
+    14,
+    14
+   ],
+   "parent": "bras_avant"
+  },
+  "avant_bras_arriere": {
+   "fichier": "avant_bras_arriere.png",
+   "pose": [
+    45,
+    113
+   ],
+   "pivot": [
+    16,
+    14
+   ],
+   "parent": "bras_arriere"
+  },
+  "bassin": {
+   "fichier": "bassin.png",
+   "pose": [
+    4,
+    148
+   ],
+   "pivot": [
+    42,
+    28
+   ],
+   "parent": null
+  },
+  "bras_avant": {
+   "fichier": "bras_avant.png",
+   "pose": [
+    6,
+    61
+   ],
+   "pivot": [
+    17,
+    18
+   ],
+   "parent": "torse"
+  },
+  "bras_arriere": {
+   "fichier": "bras_arriere.png",
+   "pose": [
+    46,
+    61
+   ],
+   "pivot": [
+    23,
+    18
+   ],
+   "parent": "torse"
+  },
+  "cuisse_avant": {
+   "fichier": "cuisse_avant.png",
+   "pose": [
+    11,
+    169
+   ],
+   "pivot": [
+    25,
+    13
+   ],
+   "parent": "bassin"
+  },
+  "cuisse_arriere": {
+   "fichier": "cuisse_arriere.png",
+   "pose": [
+    36,
+    169
+   ],
+   "pivot": [
+    21,
+    13
+   ],
+   "parent": "bassin"
+  },
+  "main_avant": {
+   "fichier": "main_avant.png",
+   "pose": [
+    25,
+    178
+   ],
+   "pivot": [
+    10,
+    4
+   ],
+   "parent": "avant_bras_avant"
+  },
+  "main_arriere": {
+   "fichier": "main_arriere.png",
+   "pose": [
+    46,
+    178
+   ],
+   "pivot": [
+    12,
+    4
+   ],
+   "parent": "avant_bras_arriere"
+  },
+  "pied_avant": {
+   "fichier": "pied_avant.png",
+   "pose": [
+    15,
+    326
+   ],
+   "pivot": [
+    21,
+    6
+   ],
+   "parent": "jambe_avant"
+  },
+  "pied_arriere": {
+   "fichier": "pied_arriere.png",
+   "pose": [
+    35,
+    326
+   ],
+   "pivot": [
+    22,
+    6
+   ],
+   "parent": "jambe_arriere"
+  },
+  "tete": {
+   "fichier": "tete.png",
+   "pose": [
+    20,
+    4
+   ],
+   "pivot": [
+    26,
+    62
+   ],
+   "parent": "torse"
+  },
+  "jambe_avant": {
+   "fichier": "jambe_avant.png",
+   "pose": [
+    19,
+    237
+   ],
+   "pivot": [
+    17,
+    18
+   ],
+   "parent": "cuisse_avant"
+  },
+  "jambe_arriere": {
+   "fichier": "jambe_arriere.png",
+   "pose": [
+    40,
+    237
+   ],
+   "pivot": [
+    17,
+    18
+   ],
+   "parent": "cuisse_arriere"
+  },
+  "torse": {
+   "fichier": "torse.png",
+   "pose": [
+    4,
+    59
+   ],
+   "pivot": [
+    42,
+    98
+   ],
+   "parent": "bassin"
+  },
+  "tete_face": {
+   "fichier": "tete_face.png",
+   "pose": [
+    28,
+    4
+   ],
+   "pivot": [
+    18,
+    62
+   ],
+   "parent": "torse"
+  },
+  "yeux_fermes": {
+   "fichier": "yeux_fermes.png",
+   "pose": [
+    46,
+    28
+   ],
+   "pivot": [
+    12,
+    8
+   ],
+   "parent": "tete"
+  },
+  "yeux_fermes_face": {
+   "fichier": "yeux_fermes_face.png",
+   "pose": [
+    29,
+    26
+   ],
+   "pivot": [
+    24,
+    9
+   ],
+   "parent": "tete_face"
+  },
+  "main_avant_pointe": {
+   "fichier": "main_avant_pointe.png",
+   "pose": [
+    25,
+    178
+   ],
+   "pivot": [
+    10,
+    4
+   ],
+   "parent": "avant_bras_avant",
+   "provisoire": true
+  },
+  "main_avant_poing": {
+   "fichier": "main_avant_poing.png",
+   "pose": [
+    25,
+    178
+   ],
+   "pivot": [
+    10,
+    4
+   ],
+   "parent": "avant_bras_avant",
+   "provisoire": true
+  }
+ },
+ "_doc": "Généré par cA1/pied/decouper_pied.py (contrat v1). Coordonnées en px source (x2). Pièces marquées provisoire à remplacer."
+}
