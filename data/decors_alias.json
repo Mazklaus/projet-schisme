@@ -23,5 +23,9 @@
       },
       "defaut": "fin_longue"
     }
+  },
+  "vs_cales_loge_vaskar": {
+    "decor": "vs_cales_loge",
+    "etat": "vaskar"
   }
 }

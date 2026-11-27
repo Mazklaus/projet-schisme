@@ -118,14 +118,15 @@
    "calques/20_nef_ombre.png": "46becc00e4bc18487927a48ed6e30022",
    "calques/30_mobilier.png": "4b82604d6b74d2104a6baffd1301d0af",
    "calques/30_mobilier_normal.png": "647ddea54618ae7e8da22d3d18f4f26d",
-   "calques/40_personnages.png": "d8a0fd6222dbd3fe62b7051ef512de6a",
+   "calques/40_personnages.png": "e5f6b927c39ad353af59c4c7e651bfc3",
    "calques/40_personnages_normal.png": "58e4f340a5a0cc35b9738d571eba9d90",
    "calques/40_personnages_ombre.png": "ef3524ecc9d62be88c39fba29dacfc69",
    "calques/45_lampe.png": "89570614fffa649e44e711c1c2692b62",
    "calques/50_avant_plan.png": "0ff41fc00cb55c14c1fe385ef5b7226b",
    "calques/50_avant_plan_normal.png": "c15e5fee723a5ea137361dddab47e299",
    "calques/90_particules.png": "8ea72d5c81ac46a5536e000e78c3bf8b",
-   "calques/gabarit_40_personnages.png": "d7eb8dff4c9de8f677d035a22bc60a82"
+   "calques/gabarit_40_personnages.png": "d7eb8dff4c9de8f677d035a22bc60a82",
+   "calques/masque_visages_40.png": "ed7c270543d4b96ac7d9afd2f71440e4"
   },
   "source": "episode-01/barge_quartiers_27"
  },
@@ -499,15 +500,23 @@
    "calques/20_cale.png": "75b834417c1a5289c3da64622bad49a3",
    "calques/20_cale_normal.png": "ad3cbb6c6afdd0f5e2a568b44f88bf3c",
    "calques/20_cale_ombre.png": "134f12fd2bc6c9be4ac880595f5a7034",
+   "calques/25_personnages_fond.png": "a54d144da4f5600bce70499a8aa1407e",
+   "calques/25_personnages_fond_normal.png": "4dddaa7e2c6add8eb84f7fbe5944763e",
    "calques/30_table.png": "d0db835a4c71ab43b7b1fafb23b44cf1",
    "calques/30_table_normal.png": "143f75256f8815ce330e594193456515",
+   "calques/40_personnages.png": "d5b8f9018ef1874d585e3ff21e6c19ba",
+   "calques/40_personnages_normal.png": "14425218315f8f984229476679a97d8f",
+   "calques/40_personnages_ombre.png": "a16bd7bb520a10012f3b87eac5e99ca7",
+   "calques/40_personnages_vaskar.png": "4bca20b88afc14cf8b98ec621fbaec64",
+   "calques/40_personnages_vaskar_normal.png": "dbef616c7b9282c5e024c45d757ed342",
+   "calques/40_personnages_vaskar_ombre.png": "3e96b213321a7b4d42623a23394d289a",
    "calques/45_bougies.png": "70f9156f516cd1c718fa0bee9f29c0a0",
    "calques/50_avant_plan.png": "8c1a5a06823e67aff3158ffd1e28b842",
    "calques/50_avant_plan_normal.png": "ef0432a27dca92ad10a73704995f3370",
    "calques/90_particules.png": "96efbaa220d160f8cc2d65d9d1595388",
    "calques/gabarit_25_personnages_fond.png": "7cee6ed9312dcadd76a5f137488754a4",
    "calques/gabarit_40_personnages.png": "c102b78237d3cd5a8ba2000930950b6c",
-   "vs_cales_loge.json": "114eaf119b0cdcae229c74d6da0e0d7e"
+   "vs_cales_loge.json": "c9b2e9f6fba777343c870c008349d9da"
   },
   "source": "episode-01/vs_cales_loge"
  },
