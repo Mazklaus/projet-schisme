@@ -1,5 +1,5 @@
 {
-  "_doc": "Zones du chapitre 4. L'assaut : avancer de gauche à droite (pas de combat), Ilse croisée si elle vit ; le bord droit mène au bloc (C7). La retombée : marcher, puis fin du chapitre.",
+  "_doc": "Zones du chapitre 4. L'assaut : avancer de gauche à droite (pas de combat), Ilse croisée si elle vit ; le bord droit mène au bloc (C7). La retombée : marcher, puis fin du chapitre. Filet de l'assaut à 210 s (Game Designer, 27/11). Mises en scène : fiches etude-heresie/episode-01/mise-en-scene/ (Level Designer).",
   "decors": {
     "orvane_rues": {
       "etat": "nuit"
@@ -48,10 +48,30 @@
       },
       {
         "apres": [],
-        "max_s": 180,
+        "max_s": 210,
         "noeud": "bloc"
       }
-    ]
+    ],
+    "props": {
+      "abri_sacs": [
+        520,
+        1000
+      ],
+      "abri_charrette": [
+        1120,
+        1000
+      ]
+    },
+    "abris": {
+      "abri_sacs": {
+        "x": 520,
+        "rayon_px": 80
+      },
+      "abri_charrette": {
+        "x": 1120,
+        "rayon_px": 80
+      }
+    }
   },
   "retombee_rues": {
     "decor": "orvane_matin",
@@ -88,6 +108,1329 @@
           "aube",
           4.0
         ]
+      ],
+      "tirs_cadence": 2.0
+    },
+    "briefing": {
+      "plan": [
+        {
+          "plan": "briefing_large"
+        },
+        {
+          "plan": "briefing_horus",
+          "apres_ligne": 2
+        },
+        {
+          "plan": "briefing_dremm_avance",
+          "apres_ligne": 3
+        },
+        {
+          "plan": "briefing_rire",
+          "apres_ligne": 8
+        },
+        {
+          "plan": "briefing_carte",
+          "apres_ligne": 9
+        },
+        {
+          "plan": "briefing_dur",
+          "apres_ligne": 11
+        }
+      ],
+      "figures": [
+        {
+          "id": "capitaine_0",
+          "perso": "frere_capitaine",
+          "de": [
+            540,
+            860
+          ],
+          "echelle": 0.85,
+          "regard": "haut"
+        },
+        {
+          "id": "capitaine_1",
+          "perso": "frere_capitaine",
+          "de": [
+            700,
+            800
+          ],
+          "echelle": 0.85,
+          "regard": "haut"
+        },
+        {
+          "id": "capitaine_3",
+          "perso": "frere_capitaine",
+          "de": [
+            1220,
+            800
+          ],
+          "echelle": 0.85,
+          "regard": "haut"
+        },
+        {
+          "id": "capitaine_4",
+          "perso": "frere_capitaine",
+          "de": [
+            1380,
+            860
+          ],
+          "echelle": 0.85,
+          "regard": "haut"
+        },
+        {
+          "id": "dremm",
+          "perso": "dremm",
+          "de": [
+            820,
+            880
+          ],
+          "regard": "haut"
+        },
+        {
+          "id": "dremm",
+          "vers": [
+            880,
+            790
+          ],
+          "duree": 1.6,
+          "geste": "marche",
+          "apres_ligne": 2
+        },
+        {
+          "id": "vaskar",
+          "perso": "vaskar",
+          "de": [
+            660,
+            1010
+          ],
+          "echelle": 1.15,
+          "de_dos": true,
+          "regard": "d"
+        },
+        {
+          "id": "capitaine_*",
+          "geste": "rire",
+          "apres_ligne": 8
+        },
+        {
+          "id": "capitaine_1",
+          "geste": "main_epaule",
+          "cible": "dremm",
+          "apres_ligne": 8
+        },
+        {
+          "id": "capitaine_*",
+          "geste": "se_redresser",
+          "apres_ligne": 11
+        },
+        {
+          "id": "dremm",
+          "regard": "haut",
+          "apres_ligne": 12
+        }
+      ],
+      "hologramme": [
+        {
+          "image": "horus_holo",
+          "position_px": [
+            960,
+            470
+          ],
+          "echelle": 2.1,
+          "teinte": "#8CC8E0",
+          "opacite": 0.65,
+          "lignes": true,
+          "vacillement": 0.08,
+          "allume_s": 0.9,
+          "apres_ligne": 1
+        },
+        {
+          "vacillement": 0.3,
+          "duree": 0.2,
+          "apres_ligne": 5
+        },
+        {
+          "image": "orvane_holo",
+          "transition_s": 0.6,
+          "apres_ligne": 9
+        },
+        {
+          "image": "horus_holo",
+          "echelle": 2.3,
+          "transition_s": 0.4,
+          "apres_ligne": 11
+        },
+        {
+          "eteint_s": 0.6,
+          "remanence_s": 1.0,
+          "apres_ligne": 12
+        }
+      ],
+      "particules": [
+        {
+          "type": "etincelles",
+          "couleur": "#8CC8E0",
+          "zone_px": [
+            880,
+            300,
+            160,
+            340
+          ],
+          "densite": 0.4,
+          "apres_ligne": 1,
+          "jusqu_a_ligne": 12
+        }
+      ],
+      "tirs": [
+        {
+          "type": "trace",
+          "de": [
+            620,
+            620
+          ],
+          "vers": [
+            960,
+            500
+          ],
+          "couleur": "#8CC8E0",
+          "duree": 2.0,
+          "apres_ligne": 10
+        }
+      ],
+      "eclairs": [
+        {
+          "position_px": [
+            960,
+            520
+          ],
+          "couleur": "#8CC8E0",
+          "energie": 1.2,
+          "rayon_px": 700,
+          "apres_ligne": 1,
+          "jusqu_a_ligne": 12
+        }
+      ]
+    },
+    "approche": {
+      "calques": [
+        {
+          "calque": "Calque_55_vaisseau",
+          "anim": "flotter",
+          "amplitude_px": 10,
+          "periode_s": 3
+        },
+        {
+          "calque": "Calque_56_phares",
+          "anim": "flotter",
+          "amplitude_px": 10,
+          "periode_s": 3
+        },
+        {
+          "calque": "Calque_45_fenetres_allumees",
+          "anim": "clignoter",
+          "densite": 0.1
+        }
+      ],
+      "particules": [
+        {
+          "type": "cendres",
+          "zone_px": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "direction": "haut",
+          "densite": 0.2
+        }
+      ],
+      "eclairs": [
+        {
+          "nom": "soute_combat",
+          "energie": [
+            0.6,
+            1.0
+          ],
+          "periode_s": 2.0
+        }
+      ]
+    },
+    "emissaire": {
+      "figures": [
+        {
+          "id": "emissaire",
+          "perso": "emissaire",
+          "de": [
+            960,
+            760
+          ],
+          "vers": [
+            960,
+            860
+          ],
+          "duree": 3.0,
+          "echelle": [
+            0.7,
+            0.85
+          ],
+          "geste": "marche"
+        },
+        {
+          "id": "dremm",
+          "perso": "dremm",
+          "de": [
+            520,
+            960
+          ],
+          "regard": "d"
+        },
+        {
+          "id": "vaskar",
+          "perso": "vaskar",
+          "de": [
+            240,
+            1000
+          ],
+          "de_dos": true,
+          "echelle": 1.15
+        },
+        {
+          "id": "dremm",
+          "geste": "tourner_tete",
+          "regard": "g",
+          "apres_ligne": 5
+        }
+      ],
+      "foule": {
+        "perso": "civil",
+        "zone_px": [
+          480,
+          640,
+          960,
+          60
+        ],
+        "balancement": 0.15
+      },
+      "particules": [
+        {
+          "type": "braises",
+          "calque": "Calque_33_feux",
+          "densite": 0.3
+        }
+      ],
+      "eclairs": [
+        {
+          "nom": "projecteur_stormbird",
+          "trajet": [
+            [
+              500,
+              700
+            ],
+            [
+              1400,
+              700
+            ]
+          ],
+          "periode_s": 12
+        }
+      ]
+    },
+    "emissaire_dremm": {
+      "figures": [
+        {
+          "id": "emissaire",
+          "geste": "baisser_tete"
+        },
+        {
+          "id": "emissaire",
+          "vers": [
+            960,
+            740
+          ],
+          "duree": 4.0,
+          "debut_s": 1.0,
+          "de_dos": true
+        }
+      ]
+    },
+    "emissaire_demander": {
+      "figures": [
+        {
+          "id": "emissaire",
+          "regard": "g"
+        }
+      ]
+    },
+    "assaut": {
+      "tirs": [
+        {
+          "de": [
+            [
+              600,
+              760
+            ],
+            [
+              620,
+              680
+            ]
+          ],
+          "vers": "joueur",
+          "type": "laser",
+          "couleur": "#FF7A3A",
+          "cadence_s": 0.5,
+          "dispersion_px": 260,
+          "cible_abri": true
+        },
+        {
+          "de": [
+            250,
+            [
+              300,
+              500
+            ]
+          ],
+          "vers": "joueur",
+          "type": "laser",
+          "couleur": "#FF7A3A",
+          "cadence_s": 1.4,
+          "dispersion_px": 260,
+          "cible_abri": true
+        },
+        {
+          "de": [
+            1300,
+            [
+              250,
+              500
+            ]
+          ],
+          "vers": "joueur",
+          "type": "laser",
+          "couleur": "#FF7A3A",
+          "cadence_s": 1.4,
+          "dispersion_px": 260,
+          "cible_abri": true
+        }
+      ],
+      "impacts": {
+        "type": "etincelles",
+        "duree": 0.3
+      },
+      "figures": [
+        {
+          "id": "frere_0",
+          "perso": "frere",
+          "de": [
+            100,
+            880
+          ],
+          "echelle": 0.8,
+          "geste": "courir",
+          "suit_joueur": {
+            "avance_px": 200,
+            "max_x": 1500
+          }
+        },
+        {
+          "id": "frere_1",
+          "perso": "frere",
+          "de": [
+            180,
+            880
+          ],
+          "echelle": 0.8,
+          "geste": "courir",
+          "suit_joueur": {
+            "avance_px": 200,
+            "max_x": 1500
+          }
+        },
+        {
+          "id": "frere_2",
+          "perso": "frere",
+          "de": [
+            260,
+            880
+          ],
+          "echelle": 0.8,
+          "geste": "courir",
+          "suit_joueur": {
+            "avance_px": 200,
+            "max_x": 1500
+          }
+        }
+      ],
+      "tirs_allies": {
+        "type": "bolter",
+        "couleur": "#FFE6B0",
+        "depuis": [
+          "frere_0",
+          "frere_1",
+          "frere_2"
+        ],
+        "vers": [
+          [
+            600,
+            760
+          ],
+          640
+        ],
+        "cadence_s": 0.9,
+        "eclair_bouche": true,
+        "trainee_fumee": true
+      },
+      "particules": [
+        {
+          "type": "fumee",
+          "zone_px": [
+            0,
+            860,
+            1920,
+            120
+          ],
+          "direction": "droite",
+          "densite": 0.3
+        },
+        {
+          "type": "braises",
+          "zone_px": [
+            600,
+            600,
+            160,
+            80
+          ],
+          "densite": 0.3
+        }
+      ],
+      "grenades": [
+        {
+          "debut_s": 20,
+          "position_px": [
+            680,
+            660
+          ],
+          "couleur": "#FFC870",
+          "energie": 2.5,
+          "tremblement_px": 6
+        },
+        {
+          "debut_s": 70,
+          "position_px": [
+            680,
+            660
+          ],
+          "couleur": "#FFC870",
+          "energie": 2.5,
+          "tremblement_px": 6
+        },
+        {
+          "debut_s": 120,
+          "position_px": [
+            680,
+            660
+          ],
+          "couleur": "#FFC870",
+          "energie": 2.5,
+          "tremblement_px": 6
+        }
+      ]
+    },
+    "assaut_ilse": {
+      "tirs_cadence": 1.2
+    },
+    "bloc": {
+      "tirs": [
+        {
+          "de": "fenetres_tireuses",
+          "vers": [
+            [
+              700,
+              800
+            ],
+            [
+              920,
+              960
+            ]
+          ],
+          "type": "laser",
+          "couleur": "#FF7A3A",
+          "cadence_s": 0.6,
+          "eclair_bouche": true,
+          "_note": "5 fenêtres à relever sur la façade peinte (gabarit 36)"
+        }
+      ],
+      "calques": [
+        {
+          "calque": "Calque_45_fenetres_allumees",
+          "anim": "clignoter",
+          "densite": 0.1
+        }
+      ],
+      "figures": [
+        {
+          "id": "vaskar",
+          "perso": "vaskar",
+          "de": [
+            740,
+            960
+          ],
+          "geste": "couvrir"
+        },
+        {
+          "id": "dremm",
+          "perso": "dremm",
+          "de": [
+            1000,
+            930
+          ],
+          "geste": "vox"
+        }
+      ]
+    },
+    "percer_suite": {
+      "tirs": [
+        {
+          "type": "bolter",
+          "couleur": "#FFE6B0",
+          "de": [
+            [
+              600,
+              1300
+            ],
+            980
+          ],
+          "vers": [
+            [
+              400,
+              1400
+            ],
+            [
+              700,
+              800
+            ]
+          ],
+          "nombre": 20,
+          "duree": 1.5,
+          "trainee_fumee": true
+        }
+      ],
+      "particules": [
+        {
+          "type": "vitres",
+          "zone_px": [
+            300,
+            250,
+            1200,
+            400
+          ],
+          "debut_s": 1.2,
+          "duree": 0.8,
+          "densite": 1.0
+        },
+        {
+          "type": "poussiere",
+          "zone_px": [
+            0,
+            700,
+            1920,
+            380
+          ],
+          "debut_s": 1.8,
+          "duree": 3.2,
+          "densite": 1.2,
+          "persiste": true
+        }
+      ],
+      "eclairs": [
+        {
+          "position_px": [
+            900,
+            820
+          ],
+          "couleur": "#FFFFFF",
+          "energie": 3.0,
+          "rayon_px": 1200,
+          "debut_s": 1.8
+        }
+      ],
+      "tremblement": [
+        {
+          "debut_s": 1.8,
+          "amplitude_px": 10,
+          "duree": 1.0
+        }
+      ]
+    },
+    "attendre": {
+      "arret_tirs": {
+        "duree": 6.0
+      },
+      "props": {
+        "drapeau_blanc": {
+          "position_px": [
+            900,
+            420
+          ],
+          "anim": "osciller",
+          "amplitude_px": 3,
+          "apres_ligne": 3
+        }
+      }
+    },
+    "evacuer": {
+      "figures": [
+        {
+          "id": "vaskar",
+          "perso": "vaskar",
+          "de": [
+            740,
+            960
+          ],
+          "vers": [
+            900,
+            930
+          ],
+          "duree": 1.0,
+          "geste": "debout"
+        },
+        {
+          "id": "civil_0",
+          "perso": "civil",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 1.5,
+          "echelle": 0.6
+        },
+        {
+          "id": "civil_1",
+          "perso": "civil",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 2.4,
+          "echelle": 0.6
+        },
+        {
+          "id": "civil_2",
+          "perso": "civil",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 3.3,
+          "echelle": 0.6
+        },
+        {
+          "id": "civil_3",
+          "perso": "enfant",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 4.2,
+          "echelle": 0.45
+        },
+        {
+          "id": "civil_4",
+          "perso": "civil",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 5.1,
+          "echelle": 0.6
+        },
+        {
+          "id": "civil_5",
+          "perso": "civil",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 6.0,
+          "echelle": 0.6
+        },
+        {
+          "id": "civil_6",
+          "perso": "enfant",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 6.9,
+          "echelle": 0.45
+        },
+        {
+          "id": "civil_7",
+          "perso": "civil",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 7.8,
+          "echelle": 0.6
+        },
+        {
+          "id": "soldat_0",
+          "perso": "soldat_armee",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 9.0,
+          "echelle": 0.62
+        },
+        {
+          "id": "soldat_1",
+          "perso": "soldat_armee",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 9.9,
+          "echelle": 0.62
+        },
+        {
+          "id": "ilse",
+          "perso": "ilse",
+          "chemin": [
+            [
+              560,
+              940
+            ],
+            [
+              200,
+              1000
+            ],
+            [
+              -60,
+              1000
+            ]
+          ],
+          "duree": 4.0,
+          "debut_s": 11.0,
+          "echelle": 0.62
+        }
+      ],
+      "tirs_cible": "vaskar"
+    },
+    "citadelle": {
+      "calques": [
+        {
+          "calque": "Calque_70_fumees",
+          "anim": "defiler",
+          "amplitude_px": 5,
+          "periode_s": 1
+        },
+        {
+          "calque": "Calque_35_drapeau_gouverneur",
+          "anim": "descendre",
+          "amplitude_px": 80,
+          "debut_s": 1.5,
+          "duree": 3.0,
+          "puis": "disparaitre",
+          "si": "choix_ep01_orvane == 1"
+        },
+        {
+          "calque": "Calque_36_etendard_croissant",
+          "anim": "monter",
+          "amplitude_px": 80,
+          "debut_s": 4.5,
+          "duree": 2.5,
+          "puis": "osciller",
+          "si": "choix_ep01_orvane == 1"
+        },
+        {
+          "calque": "Calque_35_drapeau_gouverneur",
+          "anim": "disparaitre",
+          "duree": 0,
+          "si": "choix_ep01_orvane != 1"
+        },
+        {
+          "calque": "Calque_36_etendard_croissant",
+          "anim": "osciller",
+          "amplitude_px": 3,
+          "si": "choix_ep01_orvane != 1"
+        },
+        {
+          "calque": "Calque_52_linge",
+          "anim": "osciller",
+          "amplitude_px": 3,
+          "periode_s": 1.4
+        }
+      ],
+      "particules": [
+        {
+          "type": "fumee",
+          "zone_px": [
+            770,
+            230,
+            60,
+            40
+          ],
+          "densite": 0.3
+        },
+        {
+          "type": "fumee",
+          "zone_px": [
+            940,
+            210,
+            60,
+            40
+          ],
+          "densite": 0.3
+        },
+        {
+          "type": "fumee",
+          "zone_px": [
+            1040,
+            230,
+            60,
+            40
+          ],
+          "densite": 0.3
+        },
+        {
+          "type": "braises",
+          "calque": "Calque_46_feux",
+          "densite": 0.3
+        }
+      ],
+      "figures": [
+        {
+          "id": "stormbird_1",
+          "perso": "stormbird_1",
+          "trajet": [
+            [
+              540,
+              295
+            ],
+            [
+              1300,
+              260
+            ]
+          ],
+          "duree": 20,
+          "boucle": true
+        },
+        {
+          "id": "stormbird_2",
+          "perso": "stormbird_2",
+          "trajet": [
+            [
+              980,
+              205
+            ],
+            [
+              300,
+              240
+            ]
+          ],
+          "duree": 20,
+          "boucle": true
+        },
+        {
+          "id": "stormbird_3",
+          "perso": "stormbird_3",
+          "trajet": [
+            [
+              1520,
+              355
+            ],
+            [
+              700,
+              320
+            ]
+          ],
+          "duree": 20,
+          "boucle": true
+        }
+      ],
+      "eclairs": [
+        {
+          "position_px": [
+            1120,
+            260
+          ],
+          "couleur": "#FFD8A0",
+          "energie": 1.0,
+          "debut_s": 5.0
+        }
+      ],
+      "hologramme": [
+        {
+          "image": "horus_holo",
+          "position_px": [
+            1560,
+            760
+          ],
+          "echelle": 0.6,
+          "teinte": "#8CC8E0",
+          "opacite": 0.65,
+          "lignes": true,
+          "allume_s": 0.5,
+          "sur_plan": "hololithe_horus"
+        },
+        {
+          "eteint_s": 0.2,
+          "apres_ligne": 4
+        }
+      ]
+    },
+    "citadelle_a_l_heure": {
+      "hologramme": [
+        {
+          "image": "horus_holo",
+          "position_px": [
+            1560,
+            760
+          ],
+          "echelle": 0.6,
+          "teinte": "#8CC8E0",
+          "opacite": 0.65,
+          "lignes": true,
+          "allume_s": 0.5,
+          "sur_plan": "hololithe_horus"
+        },
+        {
+          "eteint_s": 0.6,
+          "remanence_s": 1.0,
+          "apres_ligne": 3
+        }
+      ]
+    },
+    "retombee_rues": {
+      "particules": [
+        {
+          "type": "poussiere",
+          "zone_px": [
+            0,
+            300,
+            1920,
+            700
+          ],
+          "densite": 0.35,
+          "vitesse": "lente"
+        },
+        {
+          "type": "fumee",
+          "zone_px": [
+            600,
+            560,
+            160,
+            120
+          ],
+          "couleur": "#8A8A88",
+          "densite": 0.25
+        }
+      ],
+      "props": [
+        {
+          "nom": "drap",
+          "position_px": [
+            840,
+            1010
+          ],
+          "si": "choix_ep01_orvane == 1"
+        },
+        {
+          "nom": "drap_petit",
+          "position_px": [
+            920,
+            1015
+          ],
+          "si": "choix_ep01_orvane == 1"
+        },
+        {
+          "nom": "drap",
+          "position_px": [
+            990,
+            1005
+          ],
+          "si": "choix_ep01_orvane == 1"
+        },
+        {
+          "nom": "drap_petit",
+          "position_px": [
+            1060,
+            1015
+          ],
+          "si": "choix_ep01_orvane == 1"
+        },
+        {
+          "nom": "drap",
+          "position_px": [
+            1130,
+            1010
+          ],
+          "si": "choix_ep01_orvane == 1"
+        }
+      ],
+      "figures": [
+        {
+          "id": "civil_0",
+          "perso": "civil",
+          "de": [
+            820,
+            995
+          ],
+          "echelle": 0.6,
+          "geste": "assis_couverture",
+          "si": "choix_ep01_orvane != 1"
+        },
+        {
+          "id": "civil_1",
+          "perso": "civil",
+          "de": [
+            890,
+            995
+          ],
+          "echelle": 0.6,
+          "geste": "assis_couverture",
+          "si": "choix_ep01_orvane != 1"
+        },
+        {
+          "id": "civil_2",
+          "perso": "enfant",
+          "de": [
+            960,
+            995
+          ],
+          "echelle": 0.45,
+          "geste": "assis_couverture",
+          "si": "choix_ep01_orvane != 1"
+        },
+        {
+          "id": "civil_3",
+          "perso": "enfant",
+          "de": [
+            1030,
+            995
+          ],
+          "echelle": 0.45,
+          "geste": "assis_couverture",
+          "si": "choix_ep01_orvane != 1"
+        },
+        {
+          "id": "civil_4",
+          "perso": "civil",
+          "de": [
+            1100,
+            995
+          ],
+          "echelle": 0.6,
+          "geste": "assis_couverture",
+          "si": "choix_ep01_orvane != 1"
+        },
+        {
+          "id": "civil_5",
+          "perso": "civil",
+          "de": [
+            1170,
+            995
+          ],
+          "echelle": 0.6,
+          "geste": "assis_couverture",
+          "si": "choix_ep01_orvane != 1"
+        },
+        {
+          "id": "ilse",
+          "perso": "ilse",
+          "de": [
+            980,
+            990
+          ],
+          "geste": "s_agenouiller",
+          "si": "vivant_ilse == true and choix_ep01_orvane == 1"
+        },
+        {
+          "id": "ilse",
+          "perso": "ilse",
+          "de": [
+            1200,
+            980
+          ],
+          "geste": "donner",
+          "regard": "g",
+          "si": "vivant_ilse == true and choix_ep01_orvane != 1"
+        },
+        {
+          "id": "frere_g",
+          "perso": "frere",
+          "de": [
+            400,
+            880
+          ],
+          "geste": "debout_casque_bras",
+          "regard": "d",
+          "si": "choix_ep01_orvane == 1"
+        },
+        {
+          "id": "frere_d",
+          "perso": "frere",
+          "de": [
+            1450,
+            880
+          ],
+          "geste": "debout_casque_bras",
+          "regard": "d",
+          "si": "choix_ep01_orvane == 1"
+        },
+        {
+          "id": "frere_g",
+          "perso": "frere",
+          "de": [
+            400,
+            900
+          ],
+          "geste": "assis",
+          "si": "choix_ep01_orvane != 1"
+        },
+        {
+          "id": "frere_d",
+          "perso": "frere",
+          "de": [
+            1450,
+            900
+          ],
+          "geste": "assis",
+          "si": "choix_ep01_orvane != 1"
+        }
+      ],
+      "calques": [
+        {
+          "calque": "Calque_45_fenetres_allumees",
+          "anim": "clignoter",
+          "pres_du_joueur_px": 300
+        }
+      ],
+      "plan_a_position": {
+        "x": 760,
+        "plan": "retombee_arret",
+        "garde_la_main": true
+      }
+    },
+    "retombee_ilse_morts": {
+      "figures": [
+        {
+          "id": "ilse",
+          "geste": "graver",
+          "duree": 2.0
+        }
       ]
     }
   }

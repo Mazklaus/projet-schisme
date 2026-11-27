@@ -1136,7 +1136,9 @@ func _commencer_jeu(nom: String) -> void:
 	var peints := d != null and d.get_node_or_null(^"Calque_40_personnages") != null
 	for k in config.get("figurants", {}):
 		if not peints and pois.has(k) and not props.has(config.figurants[k]):
-			_prop(monde_de(d), config.figurants[k], pois[k] + Vector2(0, -10))
+			var f := _prop(monde_de(d), config.figurants[k], pois[k] + Vector2(0, -10))
+			# Figurants : respiration et balancement, désynchronisés (phase tirée du nom).
+			VieFigure.animer(f)
 	_declenches = {}
 	_vus_depuis = {}
 	_tout_vu_depuis = -1.0
@@ -1168,6 +1170,8 @@ func _placer_joueur(d: Node2D) -> void:
 		joueur.sprite = _sprite(perso)
 		joueur.add_child(joueur.sprite)
 	joueur.sprite.scale = Vector2.ONE * float(config.get("echelle", 1.0))
+	# Respiration au repos : l'échelle du chapitre devient l'échelle de repos.
+	VieFigure.animer(joueur.sprite).reprendre()
 	joueur.visible = true
 
 

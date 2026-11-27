@@ -27,6 +27,10 @@ func _process(delta: float) -> void:
 		_temps = 0.0
 	if sprite:
 		sprite.position.y = -absf(sin(_temps * 9.0)) * 5.0
+		# En marche, le pas prend le relais de la respiration (fondu court, pas de saut).
+		var vie := VieFigure.de(sprite)
+		if vie:
+			vie.intensite = move_toward(vie.intensite, 0.25 if en_mouvement else 1.0, delta * 3.0)
 	var k := inverse_lerp(limites.position.y, limites.end.y, position.y)
 	scale = Vector2.ONE * lerpf(0.9, 1.05, clampf(k, 0.0, 1.0))
 

@@ -82,6 +82,52 @@ void fragment() {
 """
 static var _shader_voile: Shader
 
+## Foule peinte (calques « personnages ») : la même chose que le voile, plus une respiration et
+## un balancement des figures. Chaque colonne de l'image s'étire vers le haut depuis sa ligne de
+## pieds (texture « pieds », relevée une fois au chargement) ; la phase varie lentement le long
+## de x : les figures voisines ne bougent jamais ensemble, sans déchirure au milieu d'une figure.
+## Les normales suivent le même déplacement que la couleur (sinon la lumière « glisse »).
+const SHADER_FOULE := """
+shader_type canvas_item;
+uniform vec4 voile : source_color = vec4(0.79, 0.6, 0.36, 1.0);
+uniform float force : hint_range(0.0, 1.0) = 0.0;
+uniform vec4 masque = vec4(0.0);
+uniform sampler2D pieds : filter_linear, repeat_disable;
+uniform float respiration = 0.0;
+uniform float balancement = 0.0;
+uniform vec2 taille_px = vec2(1.0);
+uniform float graine = 0.0;
+varying vec4 modulation;
+void vertex() {
+	modulation = COLOR;
+}
+void fragment() {
+	if (masque.z > 0.0 && UV.x >= masque.x && UV.x < masque.x + masque.z
+			&& UV.y >= masque.y && UV.y < masque.y + masque.w) {
+		discard;
+	}
+	vec2 uv = UV;
+	float pied = texture(pieds, vec2(UV.x, 0.5)).r;
+	float h = pied - UV.y;
+	if (h > 0.0) {
+		float x = UV.x * taille_px.x;
+		float ph = x * 0.011 + 1.7 * sin(x * 0.0037 + graine) + graine;
+		float s = 0.5 + 0.5 * sin(TIME * 1.55 + ph);
+		uv.y = pied - h / (1.0 + respiration * s * s * (3.0 - 2.0 * s));
+		uv.x -= balancement * sin(TIME * 1.03 + ph * 0.8) * h * taille_px.y / taille_px.x;
+	}
+	vec4 c = texture(TEXTURE, uv);
+	NORMAL_MAP = texture(NORMAL_TEXTURE, uv).rgb;
+	COLOR = vec4(mix(c.rgb, voile.rgb, force), c.a) * modulation;
+}
+"""
+static var _shader_foule: Shader
+## Réglages de la foule peinte (en fraction de la hauteur de chaque figure).
+const FOULE_RESPIRATION := 0.010
+const FOULE_BALANCEMENT := 0.006
+## Largeur d'une colonne de la texture des pieds, en pixels de l'image.
+const FOULE_COLONNE_PX := 8
+
 var taille := Vector2.ZERO
 var calques: Array[Parallax2D] = []
 
@@ -925,7 +971,13 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	if k.has("position"):
 		sprite.position = Vector2(k.position[0], k.position[1])
 	sprite.light_mask = int(k.get("masque_lumiere", MASQUE_LUMIERE)) if k.get("lumiere", true) else MASQUE_HALO
-	if k.has("voile") and float(k.voile[1]) > 0.0:
+	if est_foule(k):
+		var m := materiau_foule(tex.diffuse_texture, String(couche.name))
+		if k.has("voile"):
+			m.set_shader_parameter("voile", Color(k.voile[0]))
+			m.set_shader_parameter("force", float(k.voile[1]))
+		sprite.material = m
+	elif k.has("voile") and float(k.voile[1]) > 0.0:
 		var m := materiau_voile()
 		m.set_shader_parameter("voile", Color(k.voile[0]))
 		m.set_shader_parameter("force", float(k.voile[1]))
@@ -1023,6 +1075,88 @@ static func materiau_voile() -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = _shader_voile
 	return m
+
+
+## Calque de foule peinte : « foule »: true/false dans le JSON, sinon tout calque dont le
+## fichier parle de « personnages » (40_personnages, 25_personnages_fond et leurs gabarits).
+## Pas de foule sur un calque à tête livrée à part (la tête a son propre mouvement) ni sur
+## les particules en addition.
+static func est_foule(k: Dictionary) -> bool:
+	if k.has("tete") or k.get("melange", "") == "addition":
+		return false
+	if k.has("foule"):
+		return bool(k.foule)
+	var nom := String(k.get("nom", String(k.get("fichier", "")).get_file().get_basename()))
+	return nom.contains("personnages")
+
+
+static func materiau_foule(image: Texture2D, graine := "") -> ShaderMaterial:
+	if _shader_foule == null:
+		_shader_foule = Shader.new()
+		_shader_foule.code = SHADER_FOULE
+	var m := ShaderMaterial.new()
+	m.shader = _shader_foule
+	m.set_shader_parameter("respiration", FOULE_RESPIRATION)
+	m.set_shader_parameter("balancement", FOULE_BALANCEMENT)
+	m.set_shader_parameter("graine", float(absi(hash(graine)) % 1000) / 100.0)
+	if image:
+		m.set_shader_parameter("taille_px", Vector2(image.get_size()))
+		m.set_shader_parameter("pieds", ImageTexture.create_from_image(lignes_de_pieds(image.get_image())))
+	return m
+
+
+## Ligne des pieds de chaque colonne (FOULE_COLONNE_PX de large) : le bas de la silhouette,
+## en fraction de la hauteur (canal rouge, 1 × colonnes). Une colonne vide prend la valeur de
+## sa voisine non vide la plus proche : le balancement peut y pousser une figure sans saut.
+## Image entièrement vide : 0 partout (rien ne bouge).
+static func lignes_de_pieds(img: Image) -> Image:
+	var colonnes := maxi(1, ceili(img.get_width() / float(FOULE_COLONNE_PX)))
+	var sortie := Image.create(colonnes, 1, false, Image.FORMAT_RF)
+	if img.is_empty():
+		return sortie
+	var petite := img.duplicate() as Image
+	if petite.is_compressed():
+		petite.decompress()
+	petite.convert(Image.FORMAT_RGBA8)
+	# Réduite en moyenne de surface (mipmaps, pas de rebond) et en hauteur aussi (pas de 4 px).
+	var hauteur := maxi(1, img.get_height() / 4)
+	petite.resize(colonnes, hauteur, Image.INTERPOLATE_TRILINEAR)
+	var octets := petite.get_data()
+	var pieds := PackedFloat32Array()
+	pieds.resize(colonnes)
+	for x in colonnes:
+		pieds[x] = -1.0
+		for y in range(hauteur - 1, -1, -1):
+			if octets[(y * colonnes + x) * 4 + 3] > 24:
+				pieds[x] = (y + 1.0) / hauteur
+				break
+	# Colonnes vides : valeur de la plus proche colonne pleine (passe aller puis retour).
+	var derniere := -1.0
+	var distance := PackedInt32Array()
+	distance.resize(colonnes)
+	var rempli := pieds.duplicate()
+	var n := 1 << 30
+	for x in colonnes:
+		if pieds[x] >= 0.0:
+			derniere = pieds[x]
+			n = 0
+		else:
+			n += 1
+		rempli[x] = derniere
+		distance[x] = n
+	derniere = -1.0
+	n = 1 << 30
+	for x in range(colonnes - 1, -1, -1):
+		if pieds[x] >= 0.0:
+			derniere = pieds[x]
+			n = 0
+		else:
+			n += 1
+		if n < distance[x]:
+			rempli[x] = derniere
+	for x in colonnes:
+		sortie.set_pixel(x, 0, Color(maxf(rempli[x], 0.0), 0, 0))
+	return sortie
 
 
 ## Détache la tête d'une figure peinte sur un calque plein cadre pour l'animer à part.
