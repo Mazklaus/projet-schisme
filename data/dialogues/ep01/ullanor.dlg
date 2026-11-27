@@ -139,6 +139,8 @@ DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
 // 5c : Horus parle.
 HORUS: Ce titre, vous l'avez gagné avec moi.
 HORUS: Il vous appartient autant qu'à moi.
+// Lead : orgueil (menton levé, 5b validé GD) sur la dernière phrase.
+@expression orgueil 0.6
 HORUS: Gardez-le, et rien ne nous arrêtera.
 @cacher GrosPlanHorus
 // 5d : toute la Légion répond. Puis l'ambiance seule (5e).

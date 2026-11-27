@@ -27,9 +27,19 @@ void fragment() {
 	}
 	vec2 d = (uv - soleil) * vec2(aspect, 1.0);
 	float r = length(d);
-	float h = exp(-r * r / 0.003) * 0.7 + exp(-r / 0.3) * 0.4;
-	vec3 ajout = couleur.rgb * (acc / 24.0 * rais * 0.45 + h * halo);
-	COLOR = vec4(base + ajout, 1.0);
+	// Point vif, halo moyen, et voile large (~500 px) qui baigne la citadelle.
+	float h = exp(-r * r / 0.003) * 0.7 + exp(-r / 0.3) * 0.3 + exp(-r / 0.46) * 0.22;
+	vec3 img = base + couleur.rgb * (acc / 24.0 * rais * 0.45 + h * halo);
+	// Bloom (assembler.py : seuil 0,85 sur le max RVB, flou ~W/160, ajouté à 0,8) : approché par
+	// les mipmaps de l'écran.
+	vec3 flou = textureLod(ecran, uv, 3.5).rgb;
+	float mx = max(flou.r, max(flou.g, flou.b));
+	img += clamp((mx - 0.85) / 0.15, 0.0, 1.0) * flou * 0.8;
+	// Étalonnage : ombres vers #3A3550, puis gain RVB (1,03 ; 1,0 ; 0,94).
+	float lum = clamp((img.r + img.g + img.b) / 3.0, 0.0, 1.0);
+	img = img * (1.0 - 0.2 * (1.0 - lum)) + vec3(0.227, 0.208, 0.314) * 0.2 * (1.0 - lum) * lum * 2.0;
+	img *= vec3(1.03, 1.0, 0.94);
+	COLOR = vec4(img, 1.0);
 }
 """
 

@@ -43,7 +43,7 @@
   "appoints": [
     {
       "type": "CanvasModulate",
-      "couleur": "#1C2026",
+      "couleur": "#474C55",
       "note": "ambiant froid ; aucune autre source"
     }
   ],
