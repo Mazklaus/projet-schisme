@@ -53,17 +53,26 @@ func aller_au_chapitre(id_episode: String, id_chapitre: String, noeud := "") -> 
 
 ## Appelé par la scène de chapitre quand elle est finie.
 func terminer_chapitre() -> void:
+	var s := clore_chapitre()
+	if s.is_empty():
+		if changer_de_scene:
+			get_tree().change_scene_to_file.call_deferred(MENU)
+		return
+	aller_au_chapitre(s.episode, s.chapitre)
+	sauver()
+
+
+## Marque l'épisode terminé s'il s'achève avec ce chapitre et renvoie le chapitre suivant
+## ({} en fin de jeu, partie alors sauvegardée), sans changer de scène : une scène qui
+## affiche son propre écran de fin l'appelle à la place de terminer_chapitre().
+func clore_chapitre() -> Dictionary:
 	var s := Catalogue.suivant(etat.episode, etat.chapitre)
 	if s.is_empty() or s.episode != etat.episode:
 		if not etat.episodes_termines.has(etat.episode):
 			etat.episodes_termines.append(etat.episode)
 	if s.is_empty():
 		sauver()
-		if changer_de_scene:
-			get_tree().change_scene_to_file.call_deferred(MENU)
-		return
-	aller_au_chapitre(s.episode, s.chapitre)
-	sauver()
+	return s
 
 
 func drapeau(nom: String, defaut: Variant = false) -> Variant:

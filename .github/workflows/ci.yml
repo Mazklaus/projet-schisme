@@ -70,7 +70,8 @@ jobs:
             if grep -E "SCRIPT ERROR|^ERROR" parcours.log; then exit 1; fi
           done
       - name: Parcours de la tranche Ullanor (toutes les façons de finir, sauvegarde vérifiée)
-        # Temps accéléré ×4. « flaner » vérifie la relance vox de Dremm à 30 s.
+        # Temps accéléré ×4. « flaner » vérifie la relance vox de Dremm à 30 s ; « immobile », l'invite
+        # de déplacement et l'éboulement montré par la caméra au joueur qui ne bouge pas.
         run: |
           set -o pipefail
           for c in sortir auxiliaires obeir silence rassemblement inaction; do
@@ -78,6 +79,8 @@ jobs:
             if grep -E "SCRIPT ERROR|^ERROR" ullanor.log; then exit 1; fi
           done
           ~/godot/godot --headless -s res://tools/ci/parcours_ullanor.gd -- --choix=obeir --flaner --sans-poi 2>&1 | tee ullanor.log
+          if grep -E "SCRIPT ERROR|^ERROR" ullanor.log; then exit 1; fi
+          ~/godot/godot --headless -s res://tools/ci/parcours_ullanor.gd -- --choix=silence --immobile --sans-poi 2>&1 | tee ullanor.log
           if grep -E "SCRIPT ERROR|^ERROR" ullanor.log; then exit 1; fi
 
   export:

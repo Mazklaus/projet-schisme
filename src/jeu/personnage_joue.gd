@@ -9,12 +9,15 @@ var actif := false
 ## Zone de marche, en pixels du décor (x, y du sol).
 var limites := Rect2(100, 800, 3640, 200)
 var sprite: Sprite2D
+## Vrai pendant une image où le joueur a bougé (invite de déplacement, inactivité).
+var en_mouvement := false
 var _temps := 0.0
 
 
 func _process(delta: float) -> void:
 	var v := Input.get_vector("gauche", "droite", "haut", "bas") if actif else Vector2.ZERO
-	if v != Vector2.ZERO:
+	en_mouvement = v != Vector2.ZERO
+	if en_mouvement:
 		position += Vector2(v.x, v.y * 0.6) * vitesse * delta
 		position = position.clamp(limites.position, limites.end)
 		if v.x != 0.0 and sprite:
