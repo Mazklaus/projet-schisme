@@ -148,7 +148,76 @@ def amb_cthonia():
     return boucler(st, L, 4.0)
 
 
+def amb_archive():
+    """L'archive de l'Archiviste (le cadre, 017.M31) : une petite salle fermée, la nuit. Une lampe à huile
+    qui vacille, le bâtiment qui respire à peine, une page qu'on tourne, un meuble qui craque. Très
+    calme : on doit entendre le silence de quelqu'un qui écrit seul. 40 s."""
+    r = nouveau_hasard(4004)
+    L = mk(40.0)
+    n = L + mk(3)
+    t = np.arange(n) / SR
+    piece = bruit(r, n, lo=40, hi=250) * 0.25 + filtre(bruit(r, n), lo=300, hi=2000) * 0.01
+    lampe = filtre(bruit(r, n), lo=120, hi=700) * np.abs(filtre(r.standard_normal(n), hi=5)) * 5 * 0.012
+    gestes = np.zeros(n)
+    for t0 in (6.0, 21.5, 33.0):                                                       # une page qu'on tourne
+        kk = mk(0.7)
+        tt = np.arange(kk) / SR
+        c = filtre(bruit(r, kk), lo=1200, hi=7000) * np.sin(np.pi * tt / 0.7) ** 2 * (0.6 + 0.4 * np.sin(2 * np.pi * 9 * tt))
+        place(gestes, c * 0.05, t0)
+    for t0 in (14.0, 28.0):                                                            # le bois qui craque
+        kk = mk(0.5)
+        tt = np.arange(kk) / SR
+        f = 260 * (1 + 0.2 * np.sin(2 * np.pi * 7 * tt))
+        c = filtre(np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)), lo=200, hi=1800) * np.hanning(kk) * 0.03
+        place(gestes, c, t0)
+    m = piece + lampe + gestes
+    st = reverb_st(m, 0.9, 0.3, 4104, sombre=3500)[:n]
+    return boucler(st, L, 2.0)
+
+
+def amb_unification():
+    """Terra, avant la Croisade (flash-back de Krenn) : la boue, les ruines, le feu partout. Rafales
+    lointaines, tirs isolés qui claquent et reviennent en écho, explosions qui roulent, flammes,
+    vent chargé de cendres. Une guerre sans visage, vue d'en bas. 45 s."""
+    r = nouveau_hasard(4005)
+    L = mk(45.0)
+    n = L + mk(5)
+    t = np.arange(n) / SR
+    vent = filtre(bruit(r, n), lo=100, hi=1200) * (0.6 + 0.4 * np.sin(2 * np.pi * t / 15.0)) * 0.12
+    feu = np.zeros(n)
+    for _ in range(500):
+        kk = mk(0.02)
+        place(feu, filtre(bruit(r, kk), lo=800, hi=6000) * np.hanning(kk) * r.uniform(0.02, 0.08), r.uniform(0, 45.0))
+    feu = feu * 1.6 + filtre(bruit(r, n), lo=60, hi=400) * 0.1
+    tirs = np.zeros(n)
+
+    def coup(force):
+        kk = mk(0.25)
+        tt = np.arange(kk) / SR
+        return (filtre(bruit(r, kk), lo=300, hi=5000) * np.exp(-tt * 60) + np.sin(2 * np.pi * 90 * tt) * np.exp(-tt * 30) * 0.5) * force
+
+    tc = 1.0
+    while tc < 44.0:                                                                   # rafales et coups isolés
+        if r.random() < 0.45:
+            for k in range(int(r.integers(4, 10))):
+                place(tirs, coup(r.uniform(0.3, 0.6)), tc + k * 0.09)
+        else:
+            place(tirs, coup(r.uniform(0.5, 1.0)), tc)
+        tc += r.uniform(0.6, 3.0)
+    boum = np.zeros(n)
+    for t0 in (7.0, 19.5, 31.0, 40.5):                                                 # explosions qui roulent
+        kk = mk(3.5)
+        tt = np.arange(kk) / SR
+        c = filtre(bruit(r, kk), lo=25, hi=500) * np.exp(-tt * 1.6) + np.sin(2 * np.pi * 38 * tt) * np.exp(-tt * 2.5) * 0.8
+        place(boum, c * r.uniform(0.6, 1.0), t0)
+    loin = filtre(tirs, hi=2500) * 1.8 + filtre(boum, hi=600) * 0.45
+    st = reverb_st(vent + feu, 1.2, 0.3, 4106, sombre=4000)[:n] + reverb_st(loin, 3.5, 0.75, 4108, sombre=2500)[:n] * 0.6
+    return boucler(st, L, 4.0)
+
+
 if __name__ == "__main__":
     sauver("mus_ep01_luna_wolves", mus_luna_wolves(), crete=0.7, rms_db=-19, finir=False)
     sauver("mus_ep01_horus", mus_horus_motif(), crete=0.7, rms_db=-20, finir=False)
     sauver("amb_ep01_cthonia", amb_cthonia(), crete=0.6, rms_db=-25, finir=False)
+    sauver("amb_archive", amb_archive(), crete=0.4, rms_db=-33, finir=False)
+    sauver("amb_ep02_unification", amb_unification(), crete=0.8, rms_db=-23, finir=False)

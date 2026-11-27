@@ -9,6 +9,7 @@
 
 // ================================================================ 0. L'archive (017.M31)
 === archive_ouverture
+@ambiance archive 1.5
 // CANON (cadre) : l'Archiviste reste sans visage.
 @plan archive_table
 > Une lampe. Une main pose une plaque de blindage gravée sur la table.
@@ -19,6 +20,7 @@
 // ================================================================ 1. Cthonia : les tunnels (flash-back)
 === cthonia
 @decor cthonia_tunnel
+@ambiance ep01_cthonia 1.5
 @titre 3 Cthonia. Bien avant.
 > Le noir. La poussière. Quelque part, une lampe.
 @jeu
@@ -34,6 +36,8 @@ DREMM (enfant): Attrape. Je te tiens.
 *! 15 -> cthonia_main
 
 === cthonia_main
+// Le thème des Luna Wolves entre quand Dremm tire l'enfant hors du noir.
+@musique ep01_luna_wolves 1.5
 ~ trait_vaskar_fraternite += 1
 ~ trait_vaskar_orgueil += 0
 DREMM (enfant): Tu te perds toujours, toi.
@@ -49,6 +53,8 @@ VASKAR (enfant): Mais je suis sorti.
 -> cthonia_fin
 
 === cthonia_fin
+// Sorti seul, l'enfant entend le thème sur la promesse de Dremm (sans effet s'il joue déjà).
+@musique ep01_luna_wolves 2
 DREMM (enfant): Un jour, ils viendront nous prendre. Les géants.
 DREMM (enfant): Et on montera ensemble.
 // Raccord par le regard : l'œil de l'enfant, puis celui de l'adulte.
@@ -58,6 +64,7 @@ DREMM (enfant): Et on montera ensemble.
 === triomphe
 // CANON : la nomination. L'Empereur et Horus en silhouette lointaine seulement.
 // Reprendre « ouverture » de ullanor.dlg (plans 1a à 1f) tel quel.
+@musique stop 2
 @reprendre ullanor:ouverture
 -> FIN
 
@@ -132,6 +139,8 @@ ILSE: Pas pour eux.
 > Dremm, casque sous le bras, au milieu de la 27e qui se défait.
 DREMM: Le voilà. Tu as vu ? Tu as VU ?
 VASKAR: J'ai vu.
+// Le motif d'Horus, sous le nom qu'on vient de lui donner.
+@musique ep01_horus 2
 DREMM: Maître de Guerre. Notre père. Au-dessus de tous les autres.
 DREMM: On y était, Hol. Les deux rats de galerie.
 VASKAR: Et l'Empereur s'en va.
@@ -171,6 +180,7 @@ DREMM: Un jour, tu me diras ce que tu y vois.
 -> dremm_fin
 
 === dremm_fin
+@musique stop 3
 DREMM: Je rassemble la compagnie. Ne traîne pas.
 DREMM: Et ne te perds pas.
 ~ ep01_poi_dremm = true
@@ -189,6 +199,8 @@ DREMM (vox): Hol. Tu te perds encore dans les tunnels ?
 // ================================================================ 7. La nuit, au bord de la voie
 === nuit
 @decor ullanor_nuit
+@musique stop 2
+@ambiance ullanor_bivouac 2
 > Les feux du bivouac. Les Titans sont des ombres.
 -> nuit_sortir [si choix_ep01_ullanor == 1]
 -> nuit_auxiliaires [si choix_ep01_ullanor == 2]
@@ -330,6 +342,7 @@ DREMM: Dors. Demain, on monte à bord de son vaisseau.
 // ================================================================ 8. L'aube, puis l'archive
 === aube
 @decor ullanor_aube
+@ambiance ullanor_vent 3
 -> aube_plaque_offerte [si connait_ilse_sauveur == true]
 -> aube_plaque_lointaine [si vivant_ilse == true]
 -> aube_plaque_ramassee
@@ -359,6 +372,7 @@ DREMM: Dors. Demain, on monte à bord de son vaisseau.
 @plan depart_flottes
 > Un vaisseau d'or part vers Terra. La flotte blanche part de l'autre côté.
 @decor archive
+@ambiance archive 2
 @plan archive_table
 // La plaque de la scène 0, sous la lampe.
 @carton 4 Ils ne se reverraient qu'une fois.
