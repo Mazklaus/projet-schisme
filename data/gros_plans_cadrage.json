@@ -129,15 +129,15 @@
   },
   "SEFA": {
    "gauche": {
-    "x": 509.7,
+    "x": 509.5,
     "crane": 193,
-    "largeur": 243,
+    "largeur": 241,
     "menton": 455
    },
    "droite": {
-    "x": 510.0,
+    "x": 510.5,
     "crane": 212,
-    "largeur": 212
+    "largeur": 211
    }
   },
   "VASKAR": {
