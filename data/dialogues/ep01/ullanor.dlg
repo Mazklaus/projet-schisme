@@ -74,9 +74,9 @@ DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
 
 // Mémoire du choix (script-tv.md) : relations de -3 à +3, invisibles pour le joueur.
 === sortir
-~ choix_ullanor = 1
-~ soldate_vivante = true
-~ soldate_connait_sauveur = true
+~ choix_ep01_ullanor = 1
+~ vivant_ilse = true
+~ connait_ilse_sauveur = true
 ~ relation_dremm -= 1
 ~ relation_ilse += 2
 ~ trait_compassion += 1
@@ -84,17 +84,17 @@ DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
 -> fin
 
 === auxiliaires
-~ choix_ullanor = 2
-~ soldate_vivante = true
-~ soldate_connait_sauveur = false
+~ choix_ep01_ullanor = 2
+~ vivant_ilse = true
+~ connait_ilse_sauveur = false
 ~ relation_dremm += 0
 ~ relation_ilse += 0
 @action auxiliaires
 -> fin
 
 === obeir
-~ choix_ullanor = 3
-~ soldate_vivante = false
+~ choix_ep01_ullanor = 3
+~ vivant_ilse = false
 ~ relation_dremm += 1
 // Relation Ilse : sans objet (elle meurt) ; la clé reste présente pour la sauvegarde.
 ~ relation_ilse += 0
@@ -110,7 +110,7 @@ DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
 @musique stop 2
 @ambiance ullanor_vent 2
 @montrer Ullanor/Calque_40_horus
--> fin_5a_sauvee [si choix_ullanor == 1]
+-> fin_5a_sauvee [si choix_ep01_ullanor == 1]
 // 5a (auxiliaires, obéi) : Vaskar est à sa place ; Dremm hoche la tête une fois.
 @plan 5a_rang
 @hochement
@@ -143,8 +143,8 @@ HORUS: Gardez-le, et rien ne nous arrêtera.
 @musique stop 0.4
 @bruitage clameur_lupercal
 @clameur 2.5 LUPERCAL !
--> fin_5e_sauvee [si choix_ullanor == 1]
--> fin_5e_auxiliaires [si choix_ullanor == 2]
+-> fin_5e_sauvee [si choix_ep01_ullanor == 1]
+-> fin_5e_auxiliaires [si choix_ep01_ullanor == 2]
 // 5e (obéi) : derrière le rang, au loin, la poutre tordue, de la poussière, et personne.
 @montrer Ullanor/Calque_30_voie/PoutreSeule
 @plan 5e

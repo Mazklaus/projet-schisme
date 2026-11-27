@@ -12,7 +12,13 @@ extends Node
 
 signal sauvegardee(emplacement: int)
 
-const VERSION := 1
+const VERSION := 2
+## v2 : clés de la tranche renommées selon systeme-de-choix.md §6.
+const RENOMMAGES_V2 := {
+	"choix_ullanor": "choix_ep01_ullanor",
+	"soldate_vivante": "vivant_ilse",
+	"soldate_connait_sauveur": "connait_ilse_sauveur",
+}
 const NB_EMPLACEMENTS := 6
 const DOSSIER_DEFAUT := "user://sauvegardes"
 
@@ -105,6 +111,16 @@ func migrer(donnees: Dictionary) -> Dictionary:
 	for cle in vierge:
 		if not d.has(cle):
 			d[cle] = vierge[cle]
+	return d
+
+
+func _migrer_vers_2(d: Dictionary) -> Dictionary:
+	var dr: Dictionary = d.get("drapeaux", {})
+	for ancien in RENOMMAGES_V2:
+		if dr.has(ancien):
+			dr[RENOMMAGES_V2[ancien]] = dr[ancien]
+			dr.erase(ancien)
+	d["drapeaux"] = dr
 	return d
 
 

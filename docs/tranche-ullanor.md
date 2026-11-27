@@ -22,10 +22,10 @@ Dans le menu, choisir **Nouvelle partie** (ou « Épisode 1 »). Pour aller plus
 5. **Ciné de fin**, avec les variantes de 5a, 5e et 5f selon le choix. La partie est sauvegardée au début de la ciné de fin. Sur le gros plan, une ombre de fumée passe sur le visage d'Horus et laisse le reflet doré allumé (`@fumee`). « LUPERCAL ! » s'incruste sur l'image en ivoire et or, avec un tremblement de caméra (`@clameur`).
 6. **Écran de fin** « Ullanor », après un noir franc : une ligne à la 3e personne rappelle le choix de Vaskar (textes du GD dans `RAPPEL_CHOIX`), avec les boutons Rejouer et Quitter. Le jeu ne reboucle plus sur l'ouverture.
 
-| Choix | `choix_ullanor` | `soldate_vivante` | `relation_dremm` | `relation_ilse` | Trait | Écho |
+| Choix | `choix_ep01_ullanor` | `vivant_ilse` | `relation_dremm` | `relation_ilse` | Trait | Écho |
 |---|---|---|---|---|---|---|
 | La sortir | 1 | vrai | −1 | +2 | `trait_compassion` +1 | Elle s'en souviendra. |
-| Appeler des auxiliaires | 2 | vrai (`soldate_connait_sauveur` faux) | 0 | 0 | | Personne ne saura qui l'a sauvée. |
+| Appeler des auxiliaires | 2 | vrai (`connait_ilse_sauveur` faux) | 0 | 0 | | Personne ne saura qui l'a sauvée. |
 | Obéir, ou silence | 3 | faux | +1 | 0 (sans objet) | `trait_obeissance` +1 | Le capitaine s'en souviendra. |
 
 Les relations sont bornées de −3 à +3. Elles sont sauvegardées dans `user://sauvegardes/emplacement_0.json`, sous `drapeaux`.

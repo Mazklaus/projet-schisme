@@ -49,8 +49,8 @@ func test_choix_minute_8_s_et_silence_vaut_obeir() -> void:
 	assert_eq(menu.cible_delai, "obeir")
 	var dr := {}
 	_jouer("choix", dr, true)
-	assert_eq(dr.choix_ullanor, 3, "le silence mène à « obéir »")
-	assert_false(dr.soldate_vivante)
+	assert_eq(dr.choix_ep01_ullanor, 3, "le silence mène à « obéir »")
+	assert_false(dr.vivant_ilse)
 
 
 func _verifier_branche(noeud: String, attendu: Dictionary, echo: String, variante: String) -> void:
@@ -66,24 +66,24 @@ func _verifier_branche(noeud: String, attendu: Dictionary, echo: String, variant
 	etat.drapeaux = dr
 	assert_eq(Sauvegarde.ecrire(5, etat), OK)
 	var lu: Dictionary = Sauvegarde.lire(5).drapeaux
-	for cle in ["soldate_vivante", "relation_dremm", "relation_ilse"]:
+	for cle in ["vivant_ilse", "relation_dremm", "relation_ilse"]:
 		assert_true(lu.has(cle), "%s sauvegardé (%s)" % [cle, noeud])
 
 
 func test_branche_sortir() -> void:
-	_verifier_branche("sortir", {"soldate_vivante": true, "relation_dremm": -1, "relation_ilse": 2,
-		"trait_compassion": 1, "soldate_connait_sauveur": true}, "Elle s'en souviendra.", "IlsePlaque")
+	_verifier_branche("sortir", {"vivant_ilse": true, "relation_dremm": -1, "relation_ilse": 2,
+		"trait_compassion": 1, "connait_ilse_sauveur": true}, "Elle s'en souviendra.", "IlsePlaque")
 	assert_has(_jouer("sortir", {}).commandes, "plan 5a_retard", "5a : il arrive en retard")
 
 
 func test_branche_auxiliaires() -> void:
-	_verifier_branche("auxiliaires", {"soldate_vivante": true, "relation_dremm": 0, "relation_ilse": 0,
-		"soldate_connait_sauveur": false}, "Personne ne saura qui l'a sauvée.", "Civiere")
+	_verifier_branche("auxiliaires", {"vivant_ilse": true, "relation_dremm": 0, "relation_ilse": 0,
+		"connait_ilse_sauveur": false}, "Personne ne saura qui l'a sauvée.", "Civiere")
 	assert_has(_jouer("auxiliaires", {}).commandes, "plan 5a_rang", "5a : il est à sa place")
 
 
 func test_branche_obeir() -> void:
-	_verifier_branche("obeir", {"soldate_vivante": false, "relation_dremm": 1, "trait_obeissance": 1},
+	_verifier_branche("obeir", {"vivant_ilse": false, "relation_dremm": 1, "trait_obeissance": 1},
 		"Le capitaine s'en souviendra.", "PoutreSeule")
 
 
@@ -94,7 +94,7 @@ func test_relations_bornees() -> void:
 
 
 func test_texte_fidele_au_script() -> void:
-	var fin: Array = _jouer("fin_5b", {"choix_ullanor": 3}).textes
+	var fin: Array = _jouer("fin_5b", {"choix_ep01_ullanor": 3}).textes
 	assert_eq(fin, ["Ce titre, vous l'avez gagné avec moi.", "Il vous appartient autant qu'à moi.",
 		"Gardez-le, et rien ne nous arrêtera."])
 	assert_eq(_jouer("vox_relance", {}).textes, ["Hol. Tu te perds encore dans les tunnels ?"])

@@ -1,0 +1,10 @@
+{
+  "_doc": "Registre des personnages (systeme-de-choix.md §4). Clé = identifiant <perso> des drapeaux (vivant_<perso>, connait_<perso>_<fait>, relation_<perso>). statut : original ou canon ; le code refuse vivant_<perso> pour un personnage canon.",
+  "personnages": {
+    "vaskar": {"nom": "Vaskar Hol", "statut": "original", "affiliation": "Luna Wolves", "premier_episode": "ep01"},
+    "dremm": {"nom": "Dremm Asaro", "statut": "original", "affiliation": "Luna Wolves", "premier_episode": "ep01"},
+    "ilse": {"nom": "Ilse Varga", "statut": "original", "affiliation": "Armée impériale", "premier_episode": "ep01"},
+    "horus": {"nom": "Horus Lupercal", "statut": "canon", "affiliation": "Luna Wolves", "premier_episode": "ep01"},
+    "empereur": {"nom": "l'Empereur", "statut": "canon", "affiliation": "Imperium", "premier_episode": "ep01"}
+  }
+}

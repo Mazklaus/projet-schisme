@@ -48,7 +48,7 @@ const RELANCE_VOX_S := 30.0
 const GLISSEMENT_S := 30.0
 ## Sans mouvement après la prise en main, l'icône des touches apparaît (une seule fois).
 const AIDE_DEPLACEMENT_S := 4.0
-## Ce que l'écran de fin rappelle, selon choix_ullanor (textes du GD, 27/11).
+## Ce que l'écran de fin rappelle, selon choix_ep01_ullanor (textes du GD, 27/11).
 const RAPPEL_CHOIX := {
 	1: "Vaskar Hol a tiré Ilse Varga des décombres.",
 	2: "Vaskar Hol a appelé des auxiliaires et rejoint les rangs.",
@@ -596,7 +596,7 @@ func _finir() -> void:
 	Son.musique("stop", 1.5)
 	Son.couper("ambiance", 2.5)
 	await _fondu_noir(1.0, 0.6)
-	ecran_fin = _construire_ecran_fin(RAPPEL_CHOIX.get(int(Jeu.drapeau("choix_ullanor", 3)), ""))
+	ecran_fin = _construire_ecran_fin(RAPPEL_CHOIX.get(int(Jeu.drapeau("choix_ep01_ullanor", 3)), ""))
 	$UIJeu.add_child(ecran_fin)
 	ecran_fin.modulate.a = 0.0
 	create_tween().tween_property(ecran_fin, "modulate:a", 1.0, 0.8)
