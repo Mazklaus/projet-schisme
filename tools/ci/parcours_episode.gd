@@ -11,6 +11,7 @@ extends SceneTree
 ##   --valeurs=cle=v,…  valeurs exactes attendues dans la sauvegarde finale (true/false ou nombre)
 ##   --vitesse=N       accélère le temps (4 par défaut)
 ##   --captures=DIR    une image à chaque changement de chapitre ou de phase (avec xvfb-run)
+##   --rafale=S        avec --captures : une image de plus toutes les S secondes de jeu simulé
 ##   --chapitre=ID     commencer à ce chapitre (les chapitres d'avant ne sont pas exigés)
 ##   --importer=N      reprendre les drapeaux de l'emplacement N (ex. sauvegarde de la tranche)
 
@@ -21,6 +22,8 @@ var valeurs := {}
 var vitesse := 4.0
 var captures := ""
 var chapitre := ""
+var rafale := 0.0
+var _prochaine_rafale := 0.0
 var importer := -1
 var _images := 0
 var _temps := 0.0
@@ -46,6 +49,8 @@ func _initialize() -> void:
 			vitesse = float(a.get_slice("=", 1))
 		elif a.begins_with("--captures="):
 			captures = a.get_slice("=", 1)
+		elif a.begins_with("--rafale="):
+			rafale = float(a.get_slice("=", 1))
 		elif a.begins_with("--chapitre="):
 			chapitre = a.get_slice("=", 1)
 		elif a.begins_with("--importer="):
@@ -94,6 +99,9 @@ func _process(delta: float) -> bool:
 		print("[%6.1f s] %s" % [_temps, etape])
 		if not captures.is_empty():
 			root.get_texture().get_image().save_png("%s/%03d_%s.png" % [captures, _etapes.size(), etape.replace("/", "_").replace(":", "_")])
+	if rafale > 0.0 and not captures.is_empty() and _temps >= _prochaine_rafale:
+		_prochaine_rafale = _temps + rafale
+		root.get_texture().get_image().save_png("%s/r%06.1f_%s.png" % [captures, _temps, etape.replace("/", "_").replace(":", "_")])
 	if scene.phase == "ecran_fin":
 		if scene.ecran_fin != null and scene.ecran_fin.modulate.a >= 1.0:
 			return _verifier(jeu, scene)

@@ -131,6 +131,11 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			calques.append(k)
 			continue
 		var f: String = k.fichier
+		var gabarit := f.get_base_dir().path_join("gabarit_" + f.get_file())
+		if not ResourceLoader.exists(dossier.path_join(f)) and ResourceLoader.exists(dossier.path_join(gabarit)):
+			# Personnages pas encore livrés : le gabarit de la DA (silhouettes) tient leur place.
+			push_warning("Décor %s : %s remplacé par son gabarit" % [g.get("plan", "?"), f])
+			f = gabarit
 		if not ResourceLoader.exists(dossier.path_join(f)):
 			# Calque pas encore livré (la DA génère certains calques à l'assemblage) : on le saute.
 			push_warning("Décor %s : calque absent, ignoré : %s" % [g.get("plan", "?"), f])
@@ -179,9 +184,72 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			else:
 				c.tete = t
 		calques.append(c)
+	var lum: Array = g.lumieres.duplicate() if typeof(g.get("lumieres")) == TYPE_ARRAY else []
+	var cle: Dictionary = g.cle if typeof(g.get("cle")) == TYPE_DICTIONARY else {}
+	var ambiant := ""
+	var veille := {}
+	# Seules les sources prévues en Light2D par la DA deviennent des lumières du moteur (un
+	# « soleil » de clé, comme à Ullanor, est déjà peint dans les calques).
+	if String(cle.get("type", "")).contains("Light2D"):
+		lum.append_array(lumieres_du_plan(cle))
+	for a in g.get("appoints", []) if typeof(g.get("appoints")) == TYPE_ARRAY else []:
+		if typeof(a) != TYPE_DICTIONARY:
+			continue
+		var type := String(a.get("type", ""))
+		if type.contains("CanvasModulate") and not type.contains("Directional") and a.has("couleur"):
+			ambiant = a.couleur
+		elif a.has("position_px") and type.contains("Light2D"):
+			lum.append_array(lumieres_du_plan(a))
+		elif a.has("niveau") and a.has("couleur"):
+			# Veille froide sur le fond seulement (« zone : fond et ogive ») ; ambiant ailleurs.
+			veille = {"couleur": a.couleur, "niveau": float(a.niveau)}
+			var m := RegEx.create_from_string("ambiant ailleurs ([0-9.]+)").search(String(a.get("zone", "")))
+			if m:
+				var n := float(m.get_string(1))
+				ambiant = Color(n, n, n).to_html(false)
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
-		"source": "guide", "cle": g.cle if typeof(g.get("cle")) == TYPE_DICTIONARY else {},
-		"lumieres": g.lumieres if typeof(g.get("lumieres")) == TYPE_ARRAY else []}
+		"source": "guide", "cle": cle, "lumieres": lum, "ambiant": ambiant, "veille": veille}
+
+
+## Lumières ponctuelles décrites par la clé ou un appoint du guide de la DA : une seule
+## (position_px, portee_px, energie) ou un groupe (bougies_px, energie_totale répartie).
+## Le scintillement {amplitude} est désynchronisé d'une lumière à l'autre (_process).
+static func lumieres_du_plan(L: Dictionary) -> Array:
+	var points: Array = []
+	if typeof(L.get("bougies_px")) == TYPE_ARRAY:
+		points = L.bougies_px
+	elif typeof(L.get("position_px")) == TYPE_ARRAY:
+		points = [L.position_px]
+	if points.is_empty():
+		return []
+	var sc = L.get("scintillement", 0.0)
+	var amplitude := float(sc.get("amplitude", 0.0)) if typeof(sc) == TYPE_DICTIONARY else float(sc)
+	var sortie: Array = []
+	var energie := float(L.get("energie", 1.0))
+	if points.size() > 1:
+		# Groupe (bougies) : une lumière de groupe au barycentre, à traîne longue (profil de
+		# l'aperçu de la DA : 1,4·exp(−r/380) + 0,4·exp(−r/110)), qui porte les piliers et la
+		# voûte ; puis une petite lumière par bougie pour le scintillement local.
+		var b = L.get("barycentre_px")
+		if typeof(b) != TYPE_ARRAY:
+			var somme := Vector2.ZERO
+			for pt in points:
+				somme += Vector2(pt[0], pt[1])
+			somme /= points.size()
+			b = [somme.x, somme.y]
+		var total := float(L.get("energie_totale", 1.4))
+		sortie.append({"position_px": b, "couleur": L.get("couleur_groupe", L.get("couleur", "#FFB060")),
+			"intensite": total * 1.8 / 1.4, "rayon_px": 1100.0 / 2.5, "profil": "traine", "hauteur_px": 500.0,
+			"scintillement": amplitude * 0.3})
+		energie = 0.05
+		for pt in points:
+			sortie.append({"position_px": pt, "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
+				"rayon_px": float(L.get("portee_bougie_px", 120.0)) / 2.5, "scintillement": amplitude})
+		return sortie
+	for pt in points:
+		sortie.append({"position_px": pt, "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
+			"rayon_px": float(L.get("portee_px", 300)) / 2.5, "scintillement": amplitude})
+	return sortie
 
 
 static func valider(d) -> PackedStringArray:
@@ -228,40 +296,87 @@ func construire() -> void:
 		var k: Dictionary = d.calques[i]
 		calques.append(_creer_calque(dossier, k, i))
 	_poser_lumieres(d.get("lumieres", []))
+	ambiant = Color(d.ambiant) if not String(d.get("ambiant", "")).is_empty() else Color(0, 0, 0, 0)
+	if not d.get("veille", {}).is_empty():
+		_poser_veille(d.veille)
+
+
+## Teinte de CanvasModulate voulue par le plan (« appoints » de la DA) ; alpha 0 : aucune.
+var ambiant := Color(0, 0, 0, 0)
+const MASQUE_VEILLE := 2
+
+
+## Veille froide qui ne touche que le fond et la voûte (calques 00_ et 10_).
+func _poser_veille(v: Dictionary) -> void:
+	for c in calques:
+		if String(c.name).begins_with("Calque_00_") or String(c.name).begins_with("Calque_10_"):
+			for s in c.find_children("*", "Sprite2D", true, false):
+				s.light_mask |= MASQUE_VEILLE
+	var l := DirectionalLight2D.new()
+	l.name = "Veille"
+	l.color = Color(v.couleur)
+	l.energy = v.niveau
+	l.height = 1.0
+	l.range_item_cull_mask = MASQUE_VEILLE
+	add_child(l)
 
 
 ## Lumières ponctuelles d'un état (feux du bivouac, lampes) : une PointLight2D chacune, avec
 ## un scintillement léger. Elles éclairent les calques « lumiere » et les personnages posés.
 func _poser_lumieres(liste: Array) -> void:
-	var tex: GradientTexture2D = null
+	var textures := {}
 	for i in liste.size():
 		var L: Dictionary = liste[i]
 		if not L.has("position_px"):
 			continue
-		if tex == null:
-			var g := Gradient.new()
-			g.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0)])
-			tex = GradientTexture2D.new()
-			tex.gradient = g
-			tex.fill = GradientTexture2D.FILL_RADIAL
-			tex.fill_from = Vector2(0.5, 0.5)
-			tex.fill_to = Vector2(1, 0.5)
-			tex.width = 256
-			tex.height = 256
+		var profil: String = L.get("profil", "lineaire")
+		if not textures.has(profil):
+			textures[profil] = _texture_lumiere(profil)
 		var l := PointLight2D.new()
 		l.name = "Lumiere_%02d" % i
-		l.texture = tex
+		l.texture = textures[profil]
 		l.position = Vector2(L.position_px[0], L.position_px[1])
 		l.texture_scale = float(L.get("rayon_px", 120)) * 2.5 / 128.0
 		l.color = Color(L.get("couleur", "#FFB060"))
 		l.energy = float(L.get("intensite", 1.0))
-		l.height = 40.0
+		# Hauteur (normal maps) : une lumière de groupe éclaire de face, sinon les murs tournés
+		# vers la caméra ne reçoivent presque rien.
+		l.height = float(L.get("hauteur_px", 40.0))
 		l.range_item_cull_mask = MASQUE_LUMIERE | 1
 		var sc := float(L.get("scintillement", 0.0))
 		if sc > 0.0:
 			l.set_meta("energie", l.energy)
 			l.set_meta("scintillement", sc)
 		add_child(l)
+
+
+## Texture radiale d'une lumière (256 px, rayon 128) : « lineaire » (feux) ou « traine »
+## (décroissance exponentielle à longue traîne de l'aperçu de la DA, sur un rayon de 1100 px).
+static func _texture_lumiere(profil: String) -> GradientTexture2D:
+	var g := Gradient.new()
+	if profil == "traine":
+		var offsets := PackedFloat32Array()
+		var couleurs := PackedColorArray()
+		for i in 17:
+			var t := i / 16.0
+			var r := t * 1100.0
+			var v := (1.4 * exp(-r / 380.0) + 0.4 * exp(-r / 110.0)) / 1.8
+			if i == 16:
+				v = 0.0
+			offsets.append(t)
+			couleurs.append(Color(v, v, v, 1.0))
+		g.offsets = offsets
+		g.colors = couleurs
+	else:
+		g.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0)])
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1, 0.5)
+	tex.width = 256
+	tex.height = 256
+	return tex
 
 
 func _process(_delta: float) -> void:

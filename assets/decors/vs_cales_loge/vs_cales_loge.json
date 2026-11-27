@@ -1,0 +1,247 @@
+{
+  "plan": "vs_cales_loge",
+  "episode": 1,
+  "chapitres": [
+    2
+  ],
+  "etat": "pur",
+  "description": "Vengeful Spirit, salle de la loge dans les cales basses : une VEILLÉE autour d'une caisse retournée, jamais un autel (aucun symbole, aucune capuche, bougies en désordre, frères pas alignés). Générateur : cA2/vs_cales_loge_calques.py [--4k], kit partagé cA2/kit_voute.py (même kit que vs_quartiers_27, version basse).",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "hauteur_m": 1.45,
+    "focale_px": 1000,
+    "point_de_fuite_px": [
+      900,
+      560
+    ],
+    "note": "caméra assise : on est À la table avec eux"
+  },
+  "regle_palette": "pierre plus sombre et brute que les quartiers, or terni sur les nervures ; chaud des bougies contre froid du couloir ; vert d'eau dans les ombres seulement",
+  "echelle": {
+    "nef_m": "10 de large, naissance des arcs à 3,6, clé à 7, travées de 4",
+    "table_m": "caisse 4,4 x 1,4, plateau à 0,75",
+    "astartes_m": 2.3
+  },
+  "eclairage": "calques en ALBÉDO (matière + occlusion), aucune lumière cuite ; éclairage en Light2D",
+  "cle": {
+    "type": "groupe de bougies (une Light2D point par bougie, ou une seule au barycentre)",
+    "barycentre_m": [
+      -0.27,
+      0.95,
+      5.48
+    ],
+    "barycentre_px": [
+      851,
+      651
+    ],
+    "bougies_px": [
+      [
+        688,
+        644
+      ],
+      [
+        769,
+        655
+      ],
+      [
+        717,
+        655
+      ],
+      [
+        947,
+        670
+      ],
+      [
+        620,
+        660
+      ],
+      [
+        654,
+        647
+      ],
+      [
+        850,
+        647
+      ],
+      [
+        878,
+        633
+      ],
+      [
+        1214,
+        641
+      ],
+      [
+        988,
+        666
+      ],
+      [
+        1061,
+        650
+      ]
+    ],
+    "bougies_m": [
+      [
+        -1.16,
+        0.99,
+        5.47
+      ],
+      [
+        -0.69,
+        0.95,
+        5.26
+      ],
+      [
+        -0.98,
+        0.94,
+        5.36
+      ],
+      [
+        0.25,
+        0.87,
+        5.27
+      ],
+      [
+        -1.54,
+        0.9,
+        5.5
+      ],
+      [
+        -1.44,
+        0.94,
+        5.85
+      ],
+      [
+        -0.29,
+        0.95,
+        5.77
+      ],
+      [
+        -0.13,
+        1.02,
+        5.88
+      ],
+      [
+        1.75,
+        1.0,
+        5.58
+      ],
+      [
+        0.45,
+        0.91,
+        5.11
+      ],
+      [
+        0.84,
+        0.98,
+        5.22
+      ]
+    ],
+    "couleur": "#FFB060",
+    "energie_totale": 1.4,
+    "portee_px": 420,
+    "scintillement": {
+      "amplitude": 0.12,
+      "frequence_hz": [
+        3,
+        7
+      ],
+      "note": "désynchronisé par bougie"
+    },
+    "couleur_groupe": "#E89A50",
+    "portee_bougie_px": 120
+  },
+  "appoints": [
+    {
+      "type": "couloir froid (Light2D point, ou PointLight2D texturée en rai)",
+      "position_px": [
+        1450,
+        543
+      ],
+      "position_m": [
+        4.95,
+        1.6,
+        9.0
+      ],
+      "couleur": "#8FB0D0",
+      "energie": 0.9,
+      "portee_px": 260,
+      "note": "découpe Vaskar en silhouette sur la porte ; aucun autre appoint"
+    },
+    {
+      "type": "CanvasModulate",
+      "couleur": "#121010",
+      "note": "la salle reste sombre hors des bougies"
+    }
+  ],
+  "calques": [
+    {
+      "fichier": "calques/00_fond.png",
+      "auteur": "CA2",
+      "distance_m": 22,
+      "contenu": "mur du fond de la cale, piles de caisses"
+    },
+    {
+      "fichier": "calques/10_voute.png",
+      "normal": "calques/10_voute_normal.png",
+      "auteur": "CA2",
+      "distance_m": "2,5 à 22 (hauteur 3,6 à 7)",
+      "contenu": "voûte basse du kit, nervures d'or terni, conduites techniques"
+    },
+    {
+      "fichier": "calques/20_cale.png",
+      "normal": "calques/20_cale_normal.png",
+      "ombre": "calques/20_cale_ombre.png",
+      "auteur": "CA2",
+      "distance_m": "2,5 à 22",
+      "contenu": "sol, murs, colonnes engagées, porte du couloir au mur droit (z 9), caisses"
+    },
+    {
+      "fichier": "calques/25_personnages_fond.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": "5,6 à 7",
+      "contenu": "côté lointain de la table, PAS alignés : un frère penché coudes sur la table (profil), un renversé en arrière qui rit, un de profil tourné vers son voisin, Dremm debout gobelet levé ; un frère accoudé en bout de table à droite. Coupés à la taille par le calque 30. Gabarit : calques/gabarit_25_personnages_fond.png"
+    },
+    {
+      "fichier": "calques/30_table.png",
+      "normal": "calques/30_table_normal.png",
+      "auteur": "CA2",
+      "distance_m": "4 à 7",
+      "contenu": "caisse retournée en table, bancs bas, gobelets (certains renversés), cruche, miche"
+    },
+    {
+      "fichier": "calques/40_personnages.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": "3,8 à 9",
+      "contenu": "deux frères de dos qui encadrent la table aux bords du cadre (presque noirs, règle 5) ; Vaskar debout à la porte, en silhouette contre le couloir froid. Gabarit : calques/gabarit_40_personnages.png"
+    },
+    {
+      "fichier": "calques/45_bougies.png",
+      "auteur": "CA2",
+      "distance_m": 5.4,
+      "contenu": "11 bougies de hauteurs différentes, en désordre (émissif) ; positions dans bougies.json"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": 1.3,
+      "contenu": "pilier presque noir à gauche, liseré côté bougies"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA2",
+      "distance_m": 5.4,
+      "contenu": "fumée de bougies et poussière ; à animer"
+    }
+  ],
+  "normales": "convention OpenGL (Y+), alpha = alpha du calque",
+  "4k": "calques/4k/ (mêmes noms, positions px x2, bougies_4k.json)",
+  "apercus": [
+    "apercu.png"
+  ],
+  "statut": "essai"
+}
