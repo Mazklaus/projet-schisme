@@ -283,3 +283,8 @@ func test_ombre_de_contact() -> void:
 	assert_eq(r.get_child(1), o, "sous toutes les pièces (juste après le squelette)")
 	assert_eq(o.position, Vector2(20 - 51, 340 - 347), "pose relative aux pieds")
 	assert_string_contains((o.material as ShaderMaterial).shader.code, "blend_mul")
+
+
+func test_arme_dos_derriere_le_corps() -> void:
+	assert_lt(RigPersonnage.ORDRE.find("arme_dos"), RigPersonnage.ORDRE.find("bassin"), "fusil sur le dos : derrière le corps")
+	assert_gt(RigPersonnage.ORDRE.find("arme_dos"), RigPersonnage.ORDRE.find("cape"))
