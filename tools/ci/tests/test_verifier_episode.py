@@ -134,6 +134,14 @@ class TestFinition(Base):
         png(f"{self.r}/qa/captures/salle_reelle_build.png")
         self.assertEqual(self.analyser()["erreurs"], [])
 
+    def test_historique(self):
+        h = f"{self.r}/qa/historique_ep09.csv"
+        ve.main(["ep09", "--racine", self.r, "--sortie", f"{self.r}/r.md", "--historique", h])
+        ve.main(["ep09", "--racine", self.r, "--sortie", f"{self.r}/r.md", "--historique", h])
+        lignes = open(h, encoding="utf-8").read().strip().splitlines()
+        self.assertEqual(len(lignes), 2)                         # en-tête + une ligne (même build, même jour)
+        self.assertIn("| Date | Commit | Peint |", open(f"{self.r}/r.md", encoding="utf-8").read())
+
     def test_rapport(self):
         md = ve.rapport_md(self.analyser())
         for titre in ("## 1. Décors", "## 2. Ambiances", "## 3. Bustes", "## 4. Finition", "Avancement par scène"):

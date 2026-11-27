@@ -28,8 +28,9 @@ Le séquencier sert à vérifier que chaque chapitre a ses répliques.
 
 Usage :
   python3 tools/ci/verifier_episode.py ep01 [--racine .] [--dlg DOSSIER] [--sequencier FICHIER.md]
-      [--decors DOSSIER ...] [--sortie rapport.md] [--strict]
+      [--decors DOSSIER ...] [--sortie rapport.md] [--historique qa/historique_<ep>.csv] [--strict]
 Par défaut, les .dlg sont lus dans data/dialogues/<ep>/ et les décors dans assets/decors/.
+--historique ajoute une ligne datée (% peint, % animé, % fini) au CSV et met la courbe dans le rapport.
 Code de sortie 0 (le rapport est une liste de travail), sauf avec --strict s'il reste un point ouvert.
 """
 import argparse
@@ -515,6 +516,45 @@ def analyser(ep, racine, dossier_dlg=None, sequencier=None, decors_ext=()):
     return resultat
 
 
+def indicateurs(r):
+    """% peint (moyenne des scènes), % de personnages en plan large animés, % de décors au statut « fini »."""
+    ns = len(r.get("scenes", []))
+    peint = round(sum((s["f"] or {}).get("pct", 0) for s in r["scenes"]) / ns) if ns else 0
+    sp = r.get("sprites", [])
+    anime = round(100 * sum(1 for x in sp if x["etat"] == "animé") / len(sp)) if sp else 0
+    fin = r.get("finition", [])
+    fini = round(100 * sum(1 for x in fin if "fini" in str(x["statut"]).lower()) / len(fin)) if fin else 0
+    return {"peint": peint, "anime": anime, "fini": fini, "scenes": ns, "points": points_ouverts(r)}
+
+
+def historique(chemin, r, racine):
+    """Ajoute la ligne du jour (une par commit et par jour) et rend toutes les lignes."""
+    import csv
+    import subprocess
+    try:
+        commit = subprocess.run(["git", "-C", racine, "rev-parse", "--short", "HEAD"], capture_output=True,
+                                text=True, timeout=20).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        commit = ""
+    i = indicateurs(r)
+    ligne = {"date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), "commit": commit, "peint": i["peint"],
+             "anime": i["anime"], "fini": i["fini"], "scenes": i["scenes"], "points_ouverts": i["points"]}
+    lignes = []
+    if os.path.isfile(chemin):
+        with open(chemin, encoding="utf-8") as f:
+            lignes = list(csv.DictReader(f))
+    if lignes and lignes[-1].get("commit") == commit and lignes[-1]["date"][:10] == ligne["date"][:10]:
+        lignes[-1] = {k: str(v) for k, v in ligne.items()}                       # même build : on remplace
+    else:
+        lignes.append({k: str(v) for k, v in ligne.items()})
+    os.makedirs(os.path.dirname(os.path.abspath(chemin)), exist_ok=True)
+    with open(chemin, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(ligne))
+        w.writeheader()
+        w.writerows(lignes)
+    return lignes
+
+
 def points_ouverts(r):
     return sum(len(r[k]) for k in ("absents", "incomplets", "a_importer", "sans_ambiance", "ambiances_absentes",
                                    "sans_buste", "un_seul_cote", "chapitres_sans_dlg"))
@@ -535,6 +575,14 @@ def rapport_md(r):
          f"{len(r['sans_ambiance'])} sans ambiance son, {len(r['ambiances_absentes'])} ambiance(s) sans fichier, "
          f"{len(r['sans_buste'])} personnage(s) en gros plan sans buste, "
          f"{len(r['un_seul_cote'])} buste(s) sans les deux côtés. {len(r['complets'])} décor(s) complet(s).", ""]
+    i = indicateurs(r)
+    L += [f"**Thermomètre** : {i['peint']} % peint, {i['anime']} % des personnages en plan large animés, "
+          f"{i['fini']} % des décors finis.", ""]
+    if r.get("historique"):
+        L += ["| Date | Commit | Peint | Animé | Fini | Points ouverts |", "|---|---|---|---|---|---|"]
+        for h in r["historique"][-15:]:
+            L.append(f"| {h['date']} | {h['commit']} | {h['peint']} % | {h['anime']} % | {h['fini']} % | {h['points_ouverts']} |")
+        L.append("")
     if r["chapitres_sans_dlg"]:
         L += ["## Chapitres du séquencier sans répliques (Narrative Designer)", "",
               "Chapitre(s) " + ", ".join(str(k) for k in r["chapitres_sans_dlg"]) + " : aucun .dlg trouvé.", ""]
@@ -641,11 +689,14 @@ def main(argv=None):
     ap.add_argument("--sequencier", help="séquencier Markdown de l'épisode")
     ap.add_argument("--decors", nargs="*", default=[], help="dossiers de décors livrés hors du dépôt")
     ap.add_argument("--sortie", help="écrire le rapport dans ce fichier (sinon sortie standard)")
+    ap.add_argument("--historique", help="CSV d'historique : ajoute la ligne du jour, courbe dans le rapport")
     ap.add_argument("--strict", action="store_true", help="code 1 s'il reste un point ouvert")
     a = ap.parse_args(argv)
     racine = os.path.abspath(a.racine)
     r = analyser(a.episode, racine, a.dlg and os.path.abspath(a.dlg), a.sequencier,
                  [os.path.abspath(d) for d in a.decors])
+    if a.historique:
+        r["historique"] = historique(a.historique, r, racine)
     md = rapport_md(r)
     if a.sortie:
         os.makedirs(os.path.dirname(os.path.abspath(a.sortie)), exist_ok=True)

@@ -44,7 +44,9 @@ jobs:
           code=0
           for d in data/dialogues/ep*/; do
             ep=$(basename "$d")
-            python3 tools/ci/verifier_episode.py "$ep" --sortie "suivi/suivi_$ep.md" || code=1
+            # historique du dépôt + ligne de ce build (non commitée : on la régénère en local avec --historique)
+            cp "qa/historique_$ep.csv" "suivi/" 2>/dev/null || true
+            python3 tools/ci/verifier_episode.py "$ep" --sortie "suivi/suivi_$ep.md" --historique "suivi/historique_$ep.csv" || code=1
             cat "suivi/suivi_$ep.md" >> "$GITHUB_STEP_SUMMARY"
           done
           exit $code

@@ -8,6 +8,8 @@ La CI les régénère pour chaque épisode de `data/dialogues/` (résumé de la 
   pas encore importés dans le dépôt) :
 
       E=/mnt/project-files/etude-heresie/episode-02
-      python3 tools/ci/verifier_episode.py ep02 --dlg $E --sequencier $E/ep02-sequenciers.md --decors $E --sortie qa/suivi_ep02.md
+      python3 tools/ci/verifier_episode.py ep02 --dlg $E --sequencier $E/ep02-sequenciers.md --decors $E --sortie qa/suivi_ep02.md --historique qa/historique_ep02.csv
 
+- `historique_<ep>.csv` : une ligne datée par exécution locale avec `--historique` (% peint, % animé, % fini,
+  points ouverts), pour suivre la courbe ; la CI y ajoute la ligne du build dans son artefact.
 - `captures/<décor>*.png` : captures en jeu. Un décor au statut « fini » sans capture fait échouer la CI.

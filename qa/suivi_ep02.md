@@ -4,6 +4,12 @@
 
 **50 point(s) ouvert(s)** : 1 décor(s) absent(s), 21 à importer, 0 incomplet(s), 27 sans ambiance son, 0 ambiance(s) sans fichier, 1 personnage(s) en gros plan sans buste, 0 buste(s) sans les deux côtés. 5 décor(s) complet(s).
 
+**Thermomètre** : 0 % peint, 0 % des personnages en plan large animés, 0 % des décors finis.
+
+| Date | Commit | Peint | Animé | Fini | Points ouverts |
+|---|---|---|---|---|---|
+| 2026-11-27 15:03 | 3c38ebf | 0 % | 0 % | 0 % | 50 |
+
 ## 1. Décors (CA2, import par le Lead)
 
 ### Absents : référencés mais introuvables
