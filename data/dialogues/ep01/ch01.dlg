@@ -141,7 +141,7 @@ DREMM: Le voilà. Tu as vu ? Tu as VU ?
 VASKAR: J'ai vu.
 // Le motif d'Horus, sous le nom qu'on vient de lui donner.
 @musique ep01_horus 2
-DREMM: Maître de Guerre. Notre père. Au-dessus de tous les autres.
+DREMM (assurance): Maître de Guerre. Notre père. Au-dessus de tous les autres.
 DREMM: On y était, Hol. Les deux rats de galerie.
 VASKAR: Et l'Empereur s'en va.
 DREMM: Oui.
@@ -167,7 +167,7 @@ DREMM: Mais oui. Sûrement.
 ~ trait_vaskar_doute += 0
 VASKAR: Il nous laisse le meilleur. Il le sait.
 DREMM: Voilà. VOILÀ.
-DREMM: Toi et moi, on va lui montrer qu'il a eu raison.
+DREMM (assurance): Toi et moi, on va lui montrer qu'il a eu raison.
 -> dremm_fin
 
 === depart_silence

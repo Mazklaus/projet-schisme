@@ -21,7 +21,7 @@
 DREMM: Regarde. Là. Le vaisseau d'or.
 DREMM: Il part de l'autre côté.
 VASKAR: Vers Terra.
-DREMM: Vers ses tours et ses conseils. Nous, on part vers tout le reste.
+DREMM (assurance): Vers ses tours et ses conseils. Nous, on part vers tout le reste.
 -> quartiers
 
 // ================================================================ 2. Les quartiers de la 27e (4 points, Krenn obligatoire)
@@ -247,7 +247,7 @@ DREMM: Tu sais ce qu'on va devenir ? Les premiers. Partout.
 @musique ep01_horus 3
 DREMM: Lui devant. Nous juste derrière. Personne entre nous.
 VASKAR: Et l'Empereur ?
-DREMM: L'Empereur est parti, Hol. C'est nous qui restons.
+DREMM (assurance): L'Empereur est parti, Hol. C'est nous qui restons.
 -> annonce
 
 // ================================================================ 8. Accroche

@@ -228,6 +228,7 @@ func _afficher_gros_plan(p: String) -> void:
 		_ecran_buste.name = "EcranBuste"
 		_ecran_buste.centered = false
 		_ecran_buste.texture = _vue_buste.get_texture()
+		_ecran_buste.material = materiau_premultiplie()
 		_couche_buste.add_child(_ecran_buste)
 		_racine_buste = Node2D.new()
 		_racine_buste.name = "Buste"
@@ -263,7 +264,8 @@ func _poser_buste(p: String, enchaine := true) -> void:
 			if n != _racine_buste:
 				n.queue_free()
 		var etat := String(_fond_gp.get_slice("|", 1))
-		for n in construire_eclairage_buste(RegieGrosPlans.eclairage_buste(p, cote), id_fond, cote, etat):
+		var tete_x := float(tete_du_fond(id_fond, cote, _racine_gp.get_meta("zones", {}) if _racine_gp else {}).x)
+		for n in construire_eclairage_buste(RegieGrosPlans.eclairage_buste(p, cote), id_fond, cote, etat, tete_x):
 			_vue_buste.add_child(n)
 		_cle_eclairage = cle_ecl
 	var chemin := RegieGrosPlans.chemin_buste(p, cote, _regie.expression)
@@ -274,7 +276,8 @@ func _poser_buste(p: String, enchaine := true) -> void:
 		if _racine_buste.get_child_count() > 0 else null
 	var meme_cadrage: bool = enchaine and ancien != null and ancien.get_meta("cadrage", "") == "%s|%s" % [p, cote]
 	_cle_buste = cle
-	var sp := construire_sprite_buste(chemin, _racine_gp.get_meta("zones", {}) if _racine_gp else {}, cote)
+	var tete := tete_du_fond(id_fond, cote, _racine_gp.get_meta("zones", {}) if _racine_gp else {})
+	var sp := construire_sprite_buste(chemin, tete, cote, p)
 	sp.set_meta("cadrage", "%s|%s" % [p, cote])
 	_racine_buste.add_child(sp)
 	if meme_cadrage:
@@ -287,24 +290,85 @@ func _poser_buste(p: String, enchaine := true) -> void:
 			n.queue_free()
 
 
-## Sprite du buste : albédo + normales (CanvasTexture), centré dans la zone calme de son côté,
-## pied du cadre en bas. Un buste générique buste.png (peint pour la gauche) est mis en miroir à
-## droite ; les bustes finaux de CA1 sont peints pour chaque côté.
-static func construire_sprite_buste(chemin: String, zones: Dictionary, cote: String) -> Sprite2D:
+## Cadrage des gros plans (tools/gros_plans/cadrage.py, calcul de CA1) : la tête du buste prend
+## la largeur et la place de la tête du gabarit 40 du fond. « serrage » > 1 resserre autour des yeux.
+const CADRAGE := "res://data/gros_plans_cadrage.json"
+static var serrage := 1.0
+static var _cadrage: Dictionary
+
+
+static func cadrage() -> Dictionary:
+	if _cadrage.is_empty():
+		var d = JSON.parse_string(FileAccess.get_file_as_string(CADRAGE)) if FileAccess.file_exists(CADRAGE) else null
+		_cadrage = d if typeof(d) == TYPE_DICTIONARY else {"fonds": {}, "bustes": {}}
+	return _cadrage
+
+
+## Tête du gabarit 40 d'un fond à l'écran {x, y (ligne des yeux), largeur} ; sans gabarit, celle
+## des fonds de CA2 (yeux à 497, tête de 211 px), centrée dans la zone calme du côté.
+static func tete_du_fond(id_fond: String, cote: String, zones: Dictionary = {}) -> Dictionary:
+	var t = cadrage().fonds.get(id_fond, {}).get(cote)
+	if typeof(t) == TYPE_DICTIONARY:
+		return t
+	var zone: Array = zones.get(cote, {}).get("x_px", [0, 960] if cote != "droite" else [960, 1920])
+	return {"x": (float(zone[0]) + float(zone[1])) / 2.0, "y": 497.0, "largeur": 211.0}
+
+
+## Sprite du buste : albédo et normales dosées (visage FORCE_NORMALES_TETE, armure et vêtements
+## FORCE_NORMALES_CORPS : la peinture porte déjà son modelé), tête calée sur celle du gabarit.
+## Un buste générique buste.png (peint pour la gauche) est mis en miroir à droite ; les bustes
+## finaux de CA1 sont peints pour chaque côté.
+const FORCE_NORMALES_TETE := 0.3
+const FORCE_NORMALES_CORPS := 0.5
+const SHADER_BUSTE := """
+shader_type canvas_item;
+uniform sampler2D normales : filter_linear;
+uniform bool a_normales = false;
+uniform float force_tete = 0.3;
+uniform float force_corps = 0.5;
+uniform float y_cou = 0.45;
+void fragment() {
+	if (a_normales) {
+		NORMAL_MAP = texture(normales, UV).rgb;
+		NORMAL_MAP_DEPTH = mix(force_tete, force_corps, smoothstep(y_cou - 0.03, y_cou + 0.03, UV.y));
+	}
+}
+"""
+static var _shader_buste: Shader
+
+
+static func construire_sprite_buste(chemin: String, tete_fond: Dictionary, cote: String, perso := "") -> Sprite2D:
 	var sp := Sprite2D.new()
 	sp.name = chemin.get_file().get_basename()
 	sp.centered = false
-	var tex := CanvasTexture.new()
-	tex.diffuse_texture = load(chemin)
-	var normale := chemin.get_basename() + "_normal.png"
-	if ResourceLoader.exists(normale):
-		tex.normal_texture = load(normale)
+	var tex := load(chemin) as Texture2D
 	sp.texture = tex
 	sp.flip_h = cote == "droite" and chemin.get_file() == "buste.png"
-	var zone: Array = zones.get(cote, {}).get("x_px", [0, 960] if cote != "droite" else [960, 1920])
-	var centre_x := (float(zone[0]) + float(zone[1])) / 2.0
-	var taille: Vector2 = tex.diffuse_texture.get_size() if tex.diffuse_texture else Vector2.ZERO
-	sp.position = Vector2(centre_x - taille.x / 2.0, 1080.0 - taille.y)
+	if _shader_buste == null:
+		_shader_buste = Shader.new()
+		_shader_buste.code = SHADER_BUSTE
+	var m := ShaderMaterial.new()
+	m.shader = _shader_buste
+	var normale := chemin.get_basename() + "_normal.png"
+	if ResourceLoader.exists(normale):
+		m.set_shader_parameter("normales", load(normale))
+		m.set_shader_parameter("a_normales", true)
+	m.set_shader_parameter("force_tete", FORCE_NORMALES_TETE)
+	m.set_shader_parameter("force_corps", FORCE_NORMALES_CORPS)
+	sp.material = m
+	if tex == null:
+		return sp
+	var taille := tex.get_size()
+	var b = cadrage().bustes.get(perso.to_upper(), {}).get(cote)
+	var tete_b: Dictionary = b if typeof(b) == TYPE_DICTIONARY else {"x": taille.x / 2.0, "y": taille.y / 3.0, "largeur": taille.x * 0.18}
+	if sp.flip_h:
+		tete_b = tete_b.duplicate()
+		tete_b.x = taille.x - float(tete_b.x)
+	# Cou : environ 0,9 largeur de tête sous la ligne des yeux.
+	m.set_shader_parameter("y_cou", (float(tete_b.y) + 0.9 * float(tete_b.largeur)) / taille.y)
+	var ech := float(tete_fond.largeur) / float(tete_b.largeur) * serrage
+	sp.scale = Vector2.ONE * ech
+	sp.position = Vector2(float(tete_fond.x) - float(tete_b.x) * ech, float(tete_fond.y) - float(tete_b.y) * ech)
 	return sp
 
 
@@ -312,7 +376,9 @@ static func construire_sprite_buste(chemin: String, zones: Dictionary, cote: Str
 ## côté), sinon les « lumieres » du fond de CA2 (écrites pour la gauche, x symétrisé à droite) ;
 ## sans rien, une clé neutre de face. direction_camera = sens de la lumière (x à droite, y vers le
 ## haut, z vers la caméra : z > 0 vient de derrière, rasante ; z < 0 vient de face).
-static func construire_eclairage_buste(ecl: Dictionary, id_fond: String, cote: String, etat := "") -> Array:
+static func construire_eclairage_buste(ecl: Dictionary, id_fond: String, cote: String, etat := "", tete_x := -1.0) -> Array:
+	if tete_x < 0.0:
+		tete_x = 1440.0 if cote == "droite" else 480.0
 	var L: Dictionary = ecl.get("fonds", {}).get(id_fond, {}).get("lumieres", {})
 	# Le .eclairage.json d'un côté droit est déjà symétrisé par CA1 ; le fond, lui, est écrit
 	# pour la gauche.
@@ -344,20 +410,32 @@ static func construire_eclairage_buste(ecl: Dictionary, id_fond: String, cote: S
 	cm.color = Color(couleur_amb.r * gain, couleur_amb.g * gain, couleur_amb.b * gain)
 	noeuds.append(cm)
 	var cle: Dictionary = L.get("cle", {"couleur": "#E0D8CC", "direction_camera": [0.3, -0.3, -0.9]})
-	noeuds.append(_lumiere_buste("Cle", cle, 1.0, miroir, null))
+	noeuds.append(_lumiere_buste("Cle", cle, 1.0, miroir, null, tete_x))
 	if L.has("contre"):
 		var contre: Dictionary = L.contre
 		# Contre sans direction : du haut, côté opposé à la clé.
 		var dc = cle.get("direction_camera", [0.3, -0.3, 0.5])
 		noeuds.append(_lumiere_buste("Contre", contre, float(contre.get("force", 0.3)), miroir,
-			[-float(dc[0]), -0.6, 0.6]))
+			[-float(dc[0]), -0.6, 0.6], tete_x))
 	return noeuds
 
 
-static func _lumiere_buste(nom: String, d: Dictionary, energie: float, miroir: bool, dir_defaut) -> Light2D:
+static func _lumiere_buste(nom: String, d: Dictionary, energie: float, miroir: bool, dir_defaut, tete_x := 480.0) -> Light2D:
 	var couleur := Color(String(d.get("couleur", "#FFFFFF")))
 	var l: Light2D
-	if typeof(d.get("position_px")) == TYPE_ARRAY:
+	var dir_b = d.get("direction_camera", dir_defaut)
+	if typeof(d.get("position_px")) != TYPE_ARRAY and typeof(dir_b) == TYPE_ARRAY and float(dir_b[1]) > 0.3:
+		# Lumière par en dessous (feu au sol, hors champ) : une source ponctuelle sous le cadre,
+		# qui s'éteint en montant (DA : rien au-dessus des épaulières, un liseré sous la mâchoire).
+		var sx := float(dir_b[0]) * (-1.0 if miroir else 1.0)
+		var pf := PointLight2D.new()
+		pf.position = Vector2(tete_x - sx * 700.0, 1080.0 + 300.0)
+		pf.texture = _texture_lumiere_buste()
+		pf.texture_scale = 1400.0 / 128.0
+		pf.height = 20.0
+		l = pf
+		energie *= 3.0
+	elif typeof(d.get("position_px")) == TYPE_ARRAY:
 		var pl := PointLight2D.new()
 		var pos := Vector2(d.position_px[0], d.position_px[1])
 		pl.position = Vector2(1920.0 - pos.x, pos.y) if miroir else pos
@@ -366,7 +444,7 @@ static func _lumiere_buste(nom: String, d: Dictionary, energie: float, miroir: b
 		pl.height = 80.0
 		l = pl
 	else:
-		var dir = d.get("direction_camera", dir_defaut if dir_defaut != null else [0.0, -0.3, -0.9])
+		var dir = dir_b if dir_b != null else [0.0, -0.3, -0.9]
 		var dl := DirectionalLight2D.new()
 		var sx := float(dir[0]) * (-1.0 if miroir else 1.0)
 		var sy := -float(dir[1])
@@ -391,6 +469,30 @@ static func _lumiere_buste(nom: String, d: Dictionary, energie: float, miroir: b
 
 
 static var _tex_lumiere_buste: Texture2D
+static var _materiau_premult: ShaderMaterial
+
+
+## Rendu d'un SubViewport transparent : couleurs déjà prémultipliées par l'alpha. Un mélange
+## normal les remultiplie et noircit les contours (DA : liserés sombres) ; le fondu passe par
+## l'alpha de modulate.
+static func materiau_premultiplie() -> ShaderMaterial:
+	if _materiau_premult == null:
+		var sh := Shader.new()
+		sh.code = """
+shader_type canvas_item;
+render_mode blend_premul_alpha;
+varying vec4 modulation;
+void vertex() {
+	modulation = COLOR;
+}
+void fragment() {
+	vec4 t = texture(TEXTURE, UV);
+	COLOR = vec4(t.rgb * modulation.rgb, t.a) * modulation.a;
+}
+"""
+		_materiau_premult = ShaderMaterial.new()
+		_materiau_premult.shader = sh
+	return _materiau_premult
 
 
 static func _texture_lumiere_buste() -> Texture2D:

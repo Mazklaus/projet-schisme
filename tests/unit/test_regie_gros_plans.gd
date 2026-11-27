@@ -113,13 +113,24 @@ func test_eclairage_du_buste() -> void:
 	assert_almost_eq((n[2] as Light2D).energy, 0.25, 0.001)
 	var nuit: Array = CJ.construire_eclairage_buste(RegieGrosPlans.eclairage_buste("DREMM", "gauche"),
 		"ullanor_nuit_gros_plan", "gauche")
-	assert_true(nuit[1] is DirectionalLight2D)
-	var sens := Vector2(0, 1).rotated((nuit[1] as Node2D).rotation)
-	assert_true(sens.x > 0.0 and sens.y < 0.0, "feu en bas à gauche : la lumière monte vers la droite")
+	assert_true(nuit[1] is PointLight2D, "feu par en dessous : source sous le cadre")
+	assert_true((nuit[1] as Node2D).position.y > 1080.0 and (nuit[1] as Node2D).position.x < 480.0,
+		"feu en bas à gauche")
+	assert_true(nuit[2] is DirectionalLight2D, "lune en contre")
 	var sans: Array = CJ.construire_eclairage_buste({}, "ullanor_nuit_gros_plan", "droite")
-	var sens_d := Vector2(0, 1).rotated((sans[1] as Node2D).rotation)
-	assert_true(sens_d.x < 0.0, "fond seul, à droite : symétrisé")
+	assert_true((sans[1] as Node2D).position.x > 1440.0, "fond seul, à droite : symétrisé")
 	nuit.append_array(sans)
 	assert_almost_eq((nuit[0] as CanvasModulate).color.b, 0.6039 * 0.34, 0.01, "ambiance × gain")
 	for x in n + nuit:
 		x.free()
+
+
+func test_cadrage_tete_du_gabarit() -> void:
+	var CJ = load("res://src/core/chapitre_jouable.gd")
+	var tete: Dictionary = CJ.tete_du_fond("barge_quartiers_civils_gros_plan", "gauche")
+	var sp: Sprite2D = CJ.construire_sprite_buste("res://assets/personnages/dremm/buste_gauche_neutre.png", tete, "gauche", "DREMM")
+	var b: Dictionary = CJ.cadrage().bustes.DREMM.gauche
+	assert_almost_eq(sp.scale.x, float(tete.largeur) / float(b.largeur), 0.001, "largeur de tête du gabarit")
+	assert_almost_eq(sp.position.y + float(b.y) * sp.scale.y, float(tete.y), 0.5, "yeux sur ceux du gabarit")
+	assert_true(sp.material is ShaderMaterial, "normales dosées")
+	sp.free()

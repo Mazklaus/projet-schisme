@@ -87,7 +87,7 @@ SEFA: Vous êtes celui qui a bougé.
 === entretien
 SEFA: Ullanor. Vous y étiez. Racontez-moi.
 VASKAR: Il a été nommé. Tout le monde l'a vu.
-SEFA: Je ne veux pas ce que tout le monde a vu. Je veux ce que vous avez vu.
+SEFA (ecoute): Je ne veux pas ce que tout le monde a vu. Je veux ce que vous avez vu.
 -> entretien_sortir [si choix_ep01_ullanor == 1]
 -> entretien_aux [si choix_ep01_ullanor == 2]
 -> entretien_obeir
@@ -111,21 +111,21 @@ SEFA: Je ne veux pas ce que tout le monde a vu. Je veux ce que vous avez vu.
 === recit_verite_sortir
 VASKAR: Je suis arrivé en retard au plus grand jour de la Légion.
 VASKAR: Une soldate était sous une poutre. Je l'ai sortie.
-SEFA: Personne ne m'a raconté ça.
+SEFA (ecoute): Personne ne m'a raconté ça.
 VASKAR: Personne ne l'a regardé.
 -> recit_verite
 
 === recit_verite_aux
 VASKAR: Une soldate était sous une poutre. J'ai appelé à l'aide.
 VASKAR: Je suis reparti avant de savoir. Je ne sais toujours pas.
-SEFA: Vous voulez que je le cherche ?
+SEFA (ecoute): Vous voulez que je le cherche ?
 VASKAR: Non. Je veux que ce soit écrit.
 -> recit_verite
 
 === recit_verite_obeir
 VASKAR: Une soldate était sous une poutre. On m'a rappelé.
 VASKAR: Je l'ai laissée. J'étais à ma place quand il a parlé.
-SEFA: Pourquoi me le dire ?
+SEFA (ecoute): Pourquoi me le dire ?
 VASKAR: Parce que quelqu'un devrait le savoir.
 -> recit_verite
 
@@ -199,7 +199,7 @@ SEFA: Ce n'est pas une pièce d'armure, ça.
 ~ connait_sefa_plaque = true
 ~ relation_sefa += 1
 > Elle lit les noms un par un, en remuant les lèvres.
-SEFA: Qui les a gravés ?
+SEFA (ecoute): Qui les a gravés ?
 VASKAR: Quelqu'un qui n'avait pas assez de plaque.
 -> sefa_seule
 
@@ -226,7 +226,7 @@ SEFA: Un jour, peut-être.
 @ambiance ep03_barge 2
 > Briefing général. Un monde humain, au bord de la carte, a dit non.
 DREMM: Orvane. Ils refusent la conformité.
-DREMM: La 27e part avec le détachement. Et le Maître de Guerre nous regarde.
+DREMM (assurance): La 27e part avec le détachement. Et le Maître de Guerre nous regarde.
 @plan serre:dremm
 > Dremm sourit.
 -> FIN

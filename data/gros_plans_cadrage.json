@@ -1,0 +1,127 @@
+{
+ "note": "généré par tools/gros_plans/cadrage.py (calcul de CA1) : ne pas éditer",
+ "fonds": {
+  "barge_galerie_gros_plan": {
+   "gauche": {
+    "x": 520.0,
+    "y": 497.0,
+    "largeur": 211
+   },
+   "droite": {
+    "x": 1400.0,
+    "y": 497.0,
+    "largeur": 211
+   }
+  },
+  "barge_quartiers_civils_gros_plan": {
+   "gauche": {
+    "x": 520.0,
+    "y": 497.0,
+    "largeur": 211
+   },
+   "droite": {
+    "x": 1400.0,
+    "y": 497.0,
+    "largeur": 211
+   }
+  },
+  "orvane_soir_gros_plan": {
+   "gauche": {
+    "x": 520.0,
+    "y": 497.0,
+    "largeur": 211
+   },
+   "droite": {
+    "x": 1400.0,
+    "y": 497.0,
+    "largeur": 211
+   }
+  },
+  "ullanor_nuit_gros_plan": {
+   "gauche": {
+    "x": 560.0,
+    "y": 497.0,
+    "largeur": 211
+   },
+   "droite": {
+    "x": 1360.0,
+    "y": 497.0,
+    "largeur": 211
+   }
+  },
+  "ullanor_ouverture_gros_plan": {
+   "gauche": {
+    "x": 520.0,
+    "y": 497.0,
+    "largeur": 211
+   },
+   "droite": {
+    "x": 1400.0,
+    "y": 497.0,
+    "largeur": 211
+   }
+  },
+  "vs_cales_loge_gros_plan": {
+   "gauche": {
+    "x": 520.0,
+    "y": 497.0,
+    "largeur": 211
+   },
+   "droite": {
+    "x": 1400.0,
+    "y": 497.0,
+    "largeur": 211
+   }
+  },
+  "vs_galerie_gros_plan": {
+   "gauche": {
+    "x": 520.0,
+    "y": 497.0,
+    "largeur": 211
+   },
+   "droite": {
+    "x": 1400.0,
+    "y": 497.0,
+    "largeur": 211
+   }
+  },
+  "vs_quartiers_27_gros_plan": {
+   "gauche": {
+    "x": 520.0,
+    "y": 497.0,
+    "largeur": 211
+   },
+   "droite": {
+    "x": 1400.0,
+    "y": 497.0,
+    "largeur": 211
+   }
+  }
+ },
+ "bustes": {
+  "DREMM": {
+   "gauche": {
+    "x": 511.0,
+    "y": 341,
+    "largeur": 178
+   },
+   "droite": {
+    "x": 512.0,
+    "y": 341,
+    "largeur": 178
+   }
+  },
+  "SEFA": {
+   "gauche": {
+    "x": 511.5,
+    "y": 341,
+    "largeur": 205
+   },
+   "droite": {
+    "x": 515.0,
+    "y": 341,
+    "largeur": 198
+   }
+  }
+ }
+}
