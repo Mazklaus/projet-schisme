@@ -1,13 +1,13 @@
 // Démo : un drapeau posé au chapitre précédent change le texte.
 === debut
--> sauvee [si soldate_vivante]
+-> sauvee [si ep00_soldate_vivante]
 > Le rang est complet. Personne ne parle d'elle.
 -> fin
 === sauvee
 SOLDATE: Je m'en souviendrai.
 -> fin
 === fin
--> loyal [si relation_capitaine >= 1]
+-> loyal [si ep00_relation_capitaine >= 1]
 @carton 2 Le capitaine s'en souviendra.
 -> FIN
 === loyal

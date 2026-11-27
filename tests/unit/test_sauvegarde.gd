@@ -9,7 +9,7 @@ func before_each() -> void:
 func test_ecrire_puis_lire() -> void:
 	var e := Sauvegarde.etat_vierge()
 	e.episode = "ep00_prologue"
-	e.drapeaux = {"soldate_vivante": true, "relation_capitaine": 2}
+	e.drapeaux = {"vivant_ilse": true, "relation_capitaine": 2}
 	assert_eq(Sauvegarde.ecrire(1, e), OK)
 	var l := Sauvegarde.lire(1)
 	assert_eq(l.episode, "ep00_prologue")
@@ -40,3 +40,12 @@ func test_fichier_corrompu() -> void:
 	f.store_string("{pas du json")
 	f.close()
 	assert_eq(Sauvegarde.lire(3), {})
+
+
+func test_migration_v1_vers_v2_renomme_les_cles_de_la_tranche() -> void:
+	var v1 := {"version": 1, "episode": "ep01_ullanor", "drapeaux": {"choix_ullanor": 1,
+		"soldate_vivante": true, "soldate_connait_sauveur": true, "relation_dremm": -1}}
+	var d := Sauvegarde.migrer(v1)
+	assert_eq(int(d.version), Sauvegarde.VERSION)
+	assert_eq(d.drapeaux, {"choix_ep01_ullanor": 1, "vivant_ilse": true, "connait_ilse_sauveur": true,
+		"relation_dremm": -1})

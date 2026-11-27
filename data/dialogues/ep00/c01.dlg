@@ -16,13 +16,13 @@ SOLDATE (blessée): À l'aide… sous la poutre…
 *! 8 -> obeir
 
 === aider
-~ soldate_vivante = true
-~ relation_capitaine -= 1
+~ ep00_soldate_vivante = true
+~ ep00_relation_capitaine -= 1
 CAPITAINE: Tu as quitté le rang.
 -> FIN
 
 === obeir
-~ soldate_vivante = false
-~ relation_capitaine += 1
+~ ep00_soldate_vivante = false
+~ ep00_relation_capitaine += 1
 > Il lâche la poutre et se retourne.
 -> FIN

@@ -1,0 +1,12 @@
+{
+  "_doc": "État de départ de l'épisode 2 sans sauvegarde importée (equilibrage-ep01.md, Game Designer) : l'option par défaut de chaque choix majeur de l'épisode 1. Relations et traits à 0, donc absents.",
+  "drapeaux": {
+    "choix_ep01_depart": 3,
+    "choix_ep01_ullanor": 3,
+    "choix_ep01_loge": 3,
+    "choix_ep01_recit": 3,
+    "choix_ep01_orvane": 1,
+    "choix_ep01_nom": 3,
+    "vivant_ilse": false
+  }
+}

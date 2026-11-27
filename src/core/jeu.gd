@@ -20,7 +20,25 @@ func nouvelle_partie(id_episode := "") -> void:
 	if ep.is_empty():
 		push_error("Épisode inconnu : " + id_episode)
 		return
+	# Sans sauvegarde importée, l'épisode part de son état par défaut : les choix les plus
+	# neutres des épisodes précédents (systeme-de-choix.md §6).
+	etat.drapeaux = etat_defaut(id_episode)
 	aller_au_chapitre(id_episode, ep.chapitres[0].id)
+
+
+## Drapeaux de data/episodes/<id>/etat_defaut.json, ou de data/episodes/epNN/ (préfixe de
+## l'id) tant que l'épisode n'a pas son dossier ; {} si absent.
+static func etat_defaut(id_episode: String) -> Dictionary:
+	var chemin := "%s/%s/etat_defaut.json" % [Catalogue.DOSSIER_EPISODES, id_episode]
+	if not FileAccess.file_exists(chemin):
+		chemin = "%s/%s/etat_defaut.json" % [Catalogue.DOSSIER_EPISODES, id_episode.get_slice("_", 0)]
+	if not FileAccess.file_exists(chemin):
+		return {}
+	var d = JSON.parse_string(FileAccess.get_file_as_string(chemin))
+	if typeof(d) != TYPE_DICTIONARY or typeof(d.get("drapeaux")) != TYPE_DICTIONARY:
+		push_error("État par défaut illisible : " + chemin)
+		return {}
+	return d.drapeaux.duplicate(true)
 
 
 func charger(emplacement: int) -> bool:

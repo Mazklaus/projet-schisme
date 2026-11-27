@@ -17,11 +17,11 @@ extends SceneTree
 ##   --rafale=S        avec --captures : une image de plus toutes les S secondes de jeu
 
 const ATTENDU := {
-	"sortir": {"choix_ullanor": 1, "soldate_vivante": true, "soldate_connait_sauveur": true,
+	"sortir": {"choix_ep01_ullanor": 1, "vivant_ilse": true, "connait_ilse_sauveur": true,
 		"relation_dremm": -1, "relation_ilse": 2, "trait_compassion": 1},
-	"auxiliaires": {"choix_ullanor": 2, "soldate_vivante": true, "soldate_connait_sauveur": false,
+	"auxiliaires": {"choix_ep01_ullanor": 2, "vivant_ilse": true, "connait_ilse_sauveur": false,
 		"relation_dremm": 0, "relation_ilse": 0},
-	"obeir": {"choix_ullanor": 3, "soldate_vivante": false, "relation_dremm": 1, "relation_ilse": 0,
+	"obeir": {"choix_ep01_ullanor": 3, "vivant_ilse": false, "relation_dremm": 1, "relation_ilse": 0,
 		"trait_obeissance": 1},
 }
 const OPTION := {"sortir": 0, "auxiliaires": 1, "obeir": 2}
@@ -207,7 +207,7 @@ func _verifier(jeu, scene) -> bool:
 	if not immobile and not flaner and scene.glissement_fait:
 		erreurs.append("filet de sécurité déclenché alors que le joueur avançait")
 	var rappel: Label = scene.ecran_fin.find_child("Rappel", true, false)
-	var attendu_rappel: String = scene.RAPPEL_CHOIX[int(attendu.choix_ullanor)]
+	var attendu_rappel: String = scene.RAPPEL_CHOIX[int(attendu.choix_ep01_ullanor)]
 	if rappel == null or rappel.text != attendu_rappel:
 		erreurs.append("écran de fin : rappel « %s » (attendu « %s »)" % [rappel.text if rappel else "", attendu_rappel])
 	print("Points d'intérêt vus : %d/3" % _pois_vus)

@@ -22,8 +22,6 @@ var _options: Array = []
 var _menu: Dictionary = {}
 ## Garde-fou contre une boucle de sauts sans réplique.
 const MAX_SAUTS := 1000
-const PREFIXE_RELATION := "relation_"
-const RELATION_MAX := 3
 
 
 func _init(dialogue_analyse: Dictionary, drapeaux_partie: Dictionary = {}) -> void:
@@ -60,13 +58,18 @@ func avancer() -> Dictionary:
 			"commande":
 				return {"type": "commande", "nom": instr.nom, "args": instr.args}
 			"affectation":
+				# Règle du canon : pas de vivant_<perso> pour un personnage canon.
+				if not Personnages.ecriture_permise(instr.nom):
+					push_error("Dialogue : %s refusé, %s est un personnage canon (nœud %s)" % [
+						instr.nom, String(instr.nom).trim_prefix("vivant_"), noeud])
+					continue
+				var v: Variant
 				match instr.get("op", "="):
-					"+=": drapeaux[instr.nom] = int(drapeaux.get(instr.nom, 0)) + instr.valeur
-					"-=": drapeaux[instr.nom] = int(drapeaux.get(instr.nom, 0)) - instr.valeur
-					_: drapeaux[instr.nom] = instr.valeur
-				# Relations : entier de -3 à +3 (game design de la tranche verticale).
-				if String(instr.nom).begins_with(PREFIXE_RELATION) and typeof(drapeaux[instr.nom]) == TYPE_INT:
-					drapeaux[instr.nom] = clampi(drapeaux[instr.nom], -RELATION_MAX, RELATION_MAX)
+					"+=": v = int(drapeaux.get(instr.nom, 0)) + instr.valeur
+					"-=": v = int(drapeaux.get(instr.nom, 0)) - instr.valeur
+					_: v = instr.valeur
+				# Relations de -3 à +3, traits de 0 à 10 (systeme-de-choix.md §2).
+				drapeaux[instr.nom] = Personnages.borner(instr.nom, v)
 			"saut":
 				if _condition(instr):
 					sauts += 1
