@@ -3,6 +3,15 @@
   "decors": {
     "orvane_soir": {
       "etat": "soir"
+    },
+    "archive": {
+      "etat_selon": {
+        "drapeau": "choix_ep01_orvane",
+        "valeurs": {
+          "1": "ch5_longue"
+        },
+        "defaut": "ch5_courte"
+      }
     }
   },
   "graver": {
