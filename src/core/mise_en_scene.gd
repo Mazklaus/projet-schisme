@@ -294,14 +294,14 @@ func _eclair(e: Dictionary) -> void:
 	var n := int(e.get("repetitions", 1))
 	var intervalle := float(e.get("intervalle_s", 0.3))
 	if e.has("jusqu_a_ligne"):
-		create_tween().tween_property(l, "energy", energie, 0.6)
+		l.create_tween().tween_property(l, "energy", energie, 0.6)
 		_en_attente.append([int(e.jusqu_a_ligne), func():
 			if is_instance_valid(l):
-				var tw := create_tween()
+				var tw := l.create_tween()
 				tw.tween_property(l, "energy", 0.0, 0.6)
 				tw.tween_callback(l.queue_free)])
 		return
-	var t := create_tween()
+	var t := l.create_tween()
 	for i in n:
 		t.tween_property(l, "energy", energie, 0.05)
 		t.tween_property(l, "energy", 0.0, 0.25)
@@ -363,14 +363,18 @@ func _tirer(e: Dictionary, bouche: PointLight2D) -> void:
 	trace.modulate.a = 1.0
 	var longueur := 70.0 if bolter else 140.0
 	var duree := maxf(de.distance_to(vers) / VITESSE_TIR_PX_S, 0.06)
-	var tw := create_tween()
+	var ancien: Tween = trace.get_meta("tween") if trace.has_meta("tween") else null
+	if ancien and ancien.is_valid():
+		ancien.kill()  # réserve pleine : le trait est repris en vol
+	var tw := trace.create_tween()
+	trace.set_meta("tween", tw)
 	tw.tween_method(_poser_trait.bind(trace, de, vers, longueur), 0.0, 1.0, duree)
 	tw.tween_callback(func():
 		trace.visible = false
 		_impact(vers, bolter))
 	if bouche and is_instance_valid(bouche) and e.get("eclair_bouche", bolter):
 		bouche.position = de
-		var tb := create_tween()
+		var tb := bouche.create_tween()
 		tb.tween_property(bouche, "energy", 1.4, 0.03)
 		tb.tween_property(bouche, "energy", 0.0, 0.12)
 
