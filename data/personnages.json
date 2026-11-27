@@ -72,6 +72,24 @@
       "statut": "original",
       "affiliation": "Space Wolves",
       "premier_episode": "ep02"
+    },
+    "cassien": {
+      "nom": "Cassien Vell",
+      "statut": "original",
+      "affiliation": "Emperor's Children",
+      "premier_episode": "ep07"
+    },
+    "mireille": {
+      "nom": "Mireille Ost",
+      "statut": "original",
+      "affiliation": "musicienne de la flotte",
+      "premier_episode": "ep07"
+    },
+    "kord": {
+      "nom": "Kord Hask",
+      "statut": "original",
+      "affiliation": "Iron Hands",
+      "premier_episode": "ep07"
     }
   }
 }
