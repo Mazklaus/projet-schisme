@@ -84,12 +84,83 @@ func _ready() -> void:
 	joueur.add_child(joueur.sprite)
 	joueur.visible = false
 	super._ready()
+
+
+func _avant_dialogue() -> void:
 	if infos.has("jeu"):
 		var z = JSON.parse_string(FileAccess.get_file_as_string(infos.jeu))
 		if typeof(z) == TYPE_DICTIONARY:
 			zones = z
 		else:
 			push_error("Fichier jeu illisible : %s" % infos.jeu)
+	lecteur.noeud_entre.connect(_mise_en_scene_du_noeud)
+
+
+# --------------------------------------------------------------------------- mise en scène
+
+## « mises_en_scene » du fichier jeu : ce que fait l'entrée dans un nœud, sans toucher au .dlg
+## de la narration (ambiance, musique, effets animés). « ambiances » : l'ambiance de chaque décor.
+func _mise_en_scene_du_noeud(noeud: String) -> void:
+	var m = zones.get("mises_en_scene", {}).get(noeud)
+	if typeof(m) != TYPE_DICTIONARY:
+		return
+	if m.has("musique"):
+		Son.musique(m.musique[0], float(m.musique[1]) if m.musique.size() > 1 else 2.0)
+	if m.has("ambiance"):
+		Son.ambiance(m.ambiance[0], float(m.ambiance[1]) if m.ambiance.size() > 1 else 2.0)
+	if m.has("lumiere_montante"):
+		_lumiere_montante(m.lumiere_montante)
+
+
+## Une lumière qui monte (l'Empereur à l'Unification, DA) : un calque de 0 à 1 avec une montée
+## d'échelle, une PointLight2D qui monte en même temps, l'ambiance qui blanchit un instant.
+func _lumiere_montante(e: Dictionary) -> void:
+	var d := decor_par_id(decor_courant)
+	var duree := float(e.get("duree", 2.5))
+	var t := create_tween().set_parallel()
+	var calque := d.get_node_or_null(String(e.get("calque", ""))) as Node2D
+	if calque:
+		var image := calque.get_node_or_null(^"Image") as Node2D
+		var cible: Node2D = image if image else calque
+		var ech: Array = e.get("echelle", [1.0, 1.0])
+		calque.visible = true
+		cible.modulate.a = 0.0
+		var centre := Vector2(e.get("centre_px", [960, 540])[0], e.get("centre_px", [960, 540])[1])
+		# Échelle autour du centre de la lumière, pas du coin du calque.
+		cible.scale = Vector2.ONE * float(ech[0])
+		cible.position = centre - centre * float(ech[0])
+		t.tween_property(cible, "modulate:a", 1.0, duree)
+		t.tween_property(cible, "scale", Vector2.ONE * float(ech[1]), duree)
+		t.tween_property(cible, "position", centre - centre * float(ech[1]), duree)
+	if e.has("lumiere"):
+		var L: Dictionary = e.lumiere
+		var l := _lumiere(Vector2(L.position_px[0], L.position_px[1]), Color(L.get("couleur", "#FFF1D0")),
+			float(L.get("rayon_px", 900)) / 128.0)
+		l.energy = 0.0
+		l.height = 300.0
+		d.add_child(l)
+		t.tween_property(l, "energy", float(L.get("energie", 2.5)), duree)
+	var amb := get_node_or_null(^"Ambiance") as CanvasModulate
+	if amb and e.has("ambiance"):
+		var avant := amb.color
+		var t2 := create_tween()
+		t2.tween_property(amb, "color", Color(e.ambiance), duree * 0.6)
+		t2.tween_property(amb, "color", avant, duree)
+
+
+## Plan objet : changer de décor si besoin, puis remplacer des textures de calques (extérieur de
+## la galerie : croisade, warp, Orvane).
+func _preparer_plan(p: Dictionary) -> void:
+	if p.has("decor") and p.decor != decor_courant:
+		await _changer_decor(p.decor)
+	var d := decor_par_id(p.get("decor", decor_courant))
+	for nom in p.get("textures", {}):
+		var image := d.get_node_or_null(NodePath(String(nom) + "/Image")) as Sprite2D
+		var chemin := "%s/%s/%s" % [DOSSIER_DECORS, p.get("decor", decor_courant), p.textures[nom]]
+		if image and ResourceLoader.exists(chemin) and image.texture is CanvasTexture:
+			(image.texture as CanvasTexture).diffuse_texture = load(chemin)
+		else:
+			push_warning("Plan : texture %s introuvable pour %s" % [chemin, nom])
 
 
 # --------------------------------------------------------------------------- interface
@@ -273,6 +344,11 @@ func decor_par_id(id: String) -> Node2D:
 	add_child(d)
 	move_child(d, 0)
 	decors[id] = d
+	# « decors » du fichier jeu : calques cachés au départ (ceux qu'une mise en scène révèle).
+	for nom in zones.get("decors", {}).get(id, {}).get("caches", []):
+		var c := d.get_node_or_null(String(nom)) as CanvasItem
+		if c:
+			c.visible = false
 	return d
 
 
@@ -332,6 +408,9 @@ func _changer_decor(id: String) -> void:
 	decor_courant = id
 	if cible is Decor25D:
 		decor = cible
+	var son_decor = zones.get("ambiances", {}).get(id)
+	if typeof(son_decor) == TYPE_STRING:
+		Son.ambiance(son_decor, 1.5)
 	# Plans éclairés en Light2D (DA) : leur CanvasModulate très sombre ; sinon celui de la scène.
 	var amb := get_node_or_null(^"Ambiance") as CanvasModulate
 	if amb:
@@ -448,6 +527,9 @@ func _placer_joueur(d: Node2D) -> void:
 
 func _quitter_jeu() -> void:
 	phase = "cine"
+	# Les limites ne bornent que l'affichage : on reprend le centre réellement montré, sinon la
+	# caméra saute hors du décor (bord visible) dès que les limites sont levées.
+	camera.position = camera.get_screen_center_position()
 	joueur.actif = false
 	_invite.hide()
 	camera.cible = null

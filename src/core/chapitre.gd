@@ -23,10 +23,14 @@ func _ready() -> void:
 		Jeu.etat.episode = episode_par_defaut
 		Jeu.etat.chapitre = chapitre_par_defaut
 	infos = Catalogue.chapitre(Jeu.etat.episode, Jeu.etat.chapitre)
-	if infos.has("plans"):
-		var p = JSON.parse_string(FileAccess.get_file_as_string(infos.plans))
+	# « plans » : un fichier ou une liste de fichiers (plans de l'épisode, puis du chapitre).
+	var fichiers_plans = infos.get("plans", [])
+	for f in [fichiers_plans] if typeof(fichiers_plans) == TYPE_STRING else fichiers_plans:
+		var p = JSON.parse_string(FileAccess.get_file_as_string(f))
 		if typeof(p) == TYPE_DICTIONARY:
-			plans = p
+			plans.merge(p, true)
+		else:
+			push_error("Plans illisibles : %s" % f)
 	boite.commande.connect(_executer)
 	boite.fini.connect(_dialogue_fini)
 	if infos.has("dialogue"):
@@ -38,7 +42,13 @@ func _ready() -> void:
 		var depart: String = Jeu.etat.noeud_dialogue
 		if depart.is_empty() or not d.noeuds.has(depart):
 			depart = d.ordre[0] if not d.ordre.is_empty() else FormatDialogue.FIN
+		_avant_dialogue()
 		boite.lancer(lecteur, depart)
+
+
+## Appelé juste avant le premier nœud du dialogue (lecteur prêt) : à surcharger.
+func _avant_dialogue() -> void:
+	pass
 
 
 func _executer(nom: String, args: Array) -> void:
@@ -77,9 +87,13 @@ func _executer(nom: String, args: Array) -> void:
 func executer_commande(nom: String, args: Array) -> void:
 	match nom:
 		"plan":
-			var p: Array = plans.get(args[0] if not args.is_empty() else "", [])
+			var brut = plans.get(args[0] if not args.is_empty() else "", [])
+			var p: Array = brut if typeof(brut) == TYPE_ARRAY else brut.get("sequence", [])
+			if typeof(brut) == TYPE_DICTIONARY:
+				await _preparer_plan(brut)
 			if p.is_empty():
-				push_warning("Plan caméra inconnu : %s" % [args])
+				if typeof(brut) != TYPE_DICTIONARY:
+					push_warning("Plan caméra inconnu : %s" % [args])
 			else:
 				camera.jouer(p)
 				await camera.sequence_terminee
@@ -264,6 +278,12 @@ func liberer_carton_final() -> void:
 	if is_instance_valid(carton_final):
 		carton_final.queue_free()
 	carton_final = null
+
+
+## Plan décrit par un objet : {"decor": id, "textures": {"Calque_x": "calques/y.png"}, "sequence": […]}.
+## Le décor et les textures sont gérés par les chapitres qui savent changer de décor.
+func _preparer_plan(_plan: Dictionary) -> void:
+	pass
 
 
 ## À surcharger dans un chapitre pour ses propres commandes.

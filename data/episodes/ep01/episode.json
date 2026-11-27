@@ -8,7 +8,10 @@
       "titre": "Le Triomphe",
       "scene": "res://scenes/ullanor/tranche_ullanor.tscn",
       "dialogue": "res://data/dialogues/ep01/ch01.dlg",
-      "plans": "res://data/episodes/ep01_ullanor/plans.json",
+      "plans": [
+        "res://data/episodes/ep01/plans.json",
+        "res://data/episodes/ep01_ullanor/plans.json"
+      ],
       "jeu": "res://data/episodes/ep01/c01_jeu.json",
       "suite": "nuit"
     },
@@ -17,7 +20,8 @@
       "titre": "Le Vengeful Spirit",
       "scene": "res://scenes/chapitres/chapitre_jouable.tscn",
       "dialogue": "res://data/dialogues/ep01/ch02.dlg",
-      "jeu": "res://data/episodes/ep01/c02_jeu.json"
+      "jeu": "res://data/episodes/ep01/c02_jeu.json",
+      "plans": "res://data/episodes/ep01/plans.json"
     }
   ]
 }

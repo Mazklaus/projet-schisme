@@ -7,8 +7,8 @@ func test_catalogue_du_jeu() -> void:
 	for id in Catalogue.ordre:
 		for c in Catalogue.episode(id).chapitres:
 			assert_true(ResourceLoader.exists(c.scene), c.scene)
-			if c.has("plans"):
-				assert_true(FileAccess.file_exists(c.plans), c.plans)
+			for f in ([c.plans] if typeof(c.get("plans")) == TYPE_STRING else c.get("plans", [])):
+				assert_true(FileAccess.file_exists(f), f)
 
 
 func test_validation() -> void:

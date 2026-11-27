@@ -1,0 +1,45 @@
+{
+  "_note": "Plans caméra de l'épisode 1 hors tranche (Lead, 27/11). Positions en pixels du décor (1920×1080) ; zoom ≥ 1 pour ne jamais sortir du cadre. Un plan objet peut changer de décor et remplacer des textures de calques (extérieurs de la galerie, DA).",
+  "archive_table": {
+    "decor": "archive",
+    "sequence": [
+      {"position": [948, 780], "zoom": 1.8, "duree": 0},
+      {"position": [948, 770], "zoom": 1.9, "duree": 6.0, "courbe": "lineaire"}
+    ]
+  },
+  "archive_etagere": {
+    "decor": "archive",
+    "sequence": [
+      {"position": [700, 420], "zoom": 1.6, "duree": 0},
+      {"position": [1220, 420], "zoom": 1.6, "duree": 8.0, "courbe": "lineaire"}
+    ]
+  },
+  "galerie_flotte": {
+    "decor": "vs_galerie",
+    "textures": {"Calque_00_exterieur_croisade": "calques/00_exterieur_croisade.png"},
+    "sequence": [
+      {"position": [960, 540], "zoom": 1.0, "duree": 0},
+      {"position": [960, 520], "zoom": 1.1, "duree": 8.0, "courbe": "lineaire"}
+    ]
+  },
+  "galerie_nuit": {
+    "decor": "vs_galerie",
+    "textures": {"Calque_00_exterieur_croisade": "calques/00_exterieur_warp.png"},
+    "sequence": [
+      {"position": [960, 540], "zoom": 1.05, "duree": 0},
+      {"position": [1000, 540], "zoom": 1.1, "duree": 6.0, "courbe": "lineaire"}
+    ]
+  },
+  "plaque_gros": [
+    {"position": [1180, 700], "zoom": 2.2, "duree": 0},
+    {"position": [1180, 690], "zoom": 2.4, "duree": 4.0, "courbe": "douce"}
+  ],
+  "plaque_lointaine": [
+    {"position": [700, 640], "zoom": 1.4, "duree": 0},
+    {"position": [720, 640], "zoom": 1.45, "duree": 4.0, "courbe": "lineaire"}
+  ],
+  "depart_flottes": [
+    {"position": [960, 540], "zoom": 1.0, "duree": 0},
+    {"position": [960, 500], "zoom": 1.1, "duree": 5.0, "courbe": "douce"}
+  ]
+}
