@@ -436,15 +436,21 @@
  "ullanor_aube": {
   "fichiers": {
    "calques/00_ciel.png": "bbd651ef971fea42b541e46b9eab5340",
+   "calques/10_fond.peint.json": "b5a300733d54092d0391416a056f5ef9",
    "calques/10_fond.png": "1efc5172a115d9d70ba7e714cb6f0618",
+   "calques/10_fond.retouche.json": "a931660561c1e06a2e68d6455605a657",
    "calques/20_titans.png": "f2327bd390c11e0c0eaec8d639aa04fd",
    "calques/25_poussiere.png": "3cc27c67d3b946aae0fdfc7d7cd8f8d0",
+   "calques/30_voie.peint.json": "b89c348a0a2366a4a567fed59a6fcd99",
    "calques/30_voie.png": "74bdbf9d9a46605b2a36c86354555cce",
+   "calques/30_voie.retouche.json": "48965ae52402b1a1de6ee4ab66ffc2f0",
    "calques/30_voie_ombre.png": "19313f9c3d2454be9724988ce5054efa",
+   "calques/35_dais.peint.json": "8c5640913b6e9efb39f7fcea70dabeab",
    "calques/35_dais.png": "b22b0a5eadf796309bf9e6a3d29e9bb8",
+   "calques/35_dais.retouche.json": "10439c824a5cd255cddcb189db823786",
    "calques/50_avant_plan.png": "953650d41a235f3220282d4a993116ca",
    "calques/90_particules.png": "cbc341ab9f9dab12c383a6a660d2fa1d",
-   "ullanor_aube.json": "1399b47ca218c2090d8bf78f0e024346"
+   "ullanor_aube.json": "d1911a944c2d8731026b743fbbc84504"
   },
   "source": "episode-01/ullanor_aube"
  },

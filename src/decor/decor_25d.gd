@@ -491,6 +491,10 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 		# Le guide écrit « additif » ou « addition ».
 		if String(c.get("melange", "")) in ["additif", "add", "ADD"]:
 			c.melange = "addition"
+		# Réglages par état (comme les planches) : le ciel qui pâlit d'un état à l'autre.
+		for cle_etat in ["intensite_par_etat", "couleur_intensite_par_etat", "modulate_par_etat"]:
+			if typeof(k.get(cle_etat)) == TYPE_DICTIONARY:
+				c[cle_etat] = k[cle_etat]
 		calques.append(c)
 	# « etats » du guide : {nom: "00_exterieur_nuit : …"} ; le calque nommé n'est visible que
 	# dans son état.

@@ -195,3 +195,8 @@ func test_hologramme_sur_plan_puis_extinction() -> void:
 	mes.ligne()
 	await wait_seconds(0.5)
 	assert_false(is_instance_valid(h), "éteint après la 2e ligne")
+
+
+func test_etat_decor_sans_decor_25d_ne_plante_pas() -> void:
+	mes.jouer({"etat_decor": [{"depuis": "avant_aube", "etat": "aube", "duree_s": 1}]}, decor)
+	assert_true(true, "décor sans états : ignoré")

@@ -137,6 +137,8 @@ func jouer(m: Dictionary, decor_courant: Node2D, parent_effets: Node2D = null) -
 		_programmer(m.reprise_tirs, _reprendre_tirs)
 	if m.has("tirs_cadence"):
 		_regler_cadence(float(m.tirs_cadence))
+	for e in _liste(m.get("etat_decor")):
+		_programmer(e, _etat_decor.bind(e))
 	for e in _liste(m.get("hologramme")):
 		if typeof(e) != TYPE_DICTIONARY:
 			continue
@@ -930,4 +932,17 @@ func _eteindre_hologramme(e: Dictionary) -> void:
 	t.parallel().tween_property(lum, "energy", 0.0, eteint)
 	t.tween_property(mat, "shader_parameter/allume", 0.0, maxf(reste, 0.08))
 	t.tween_callback(racine.queue_free)
+
+
+# ------------------------------------------------------------------------------- état du décor
+
+## Transition d'état du décor sur la durée d'une scène (le ciel qui pâlit) :
+## {"etat": "aube", "depuis": "avant_aube", "duree_s": 30}. « depuis » est posé net d'abord.
+func _etat_decor(e: Dictionary) -> void:
+	if not (decor is Decor25D) or not e.has("etat"):
+		return
+	var d := decor as Decor25D
+	if e.has("depuis"):
+		d.appliquer_etat(String(e.depuis), 0.0)
+	d.appliquer_etat(String(e.etat), float(e.get("duree_s", 0.0)))
 

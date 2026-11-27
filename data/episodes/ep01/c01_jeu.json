@@ -423,6 +423,15 @@
         "sortie_s": 0.6,
         "_note": "Raccord par le regard : l'œil de l'enfant (cthonia_regard), puis celui de Vaskar adulte (CA1, commande du GD 27/11), qui s'ouvre sur Ullanor 1a."
       }
+    },
+    "aube": {
+      "etat_decor": [
+        {
+          "depuis": "avant_aube",
+          "etat": "aube",
+          "duree_s": 25
+        }
+      ]
     }
   }
 }
