@@ -154,7 +154,7 @@ DREMM (assurance): Moi, je suis monté. Toi, tu regardes en bas.
 
 // ================================================================ 6. L'archive : fin de l'épisode 1
 === archive_fin
-@decor archive
+@decor archive_fin
 @musique stop 4
 @ambiance archive 2
 @plan archive_table_fin
