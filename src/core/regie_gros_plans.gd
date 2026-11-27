@@ -10,17 +10,23 @@ extends RefCounted
 ##   4. Surcharge : « @plan large », « @plan serre » ou « @plan serre:<perso> » priment, pour la
 ##      réplique suivante.
 ## Sans buste livré pour le locuteur (CA1), le plan reste large : la régie est inerte.
+## Expression : l'humeur de la réplique (« DREMM (assurance): ») si CA1 l'a peinte, sinon « neutre ».
 
 const DUREE_MIN_S := 2.0
 ## Vitesse de lecture estimée pour la durée d'une réplique (caractères par seconde).
 const LECTURE_CPS := 15.0
 const MAX_SERRES := 4
 const DOSSIER_PERSOS := "res://assets/personnages"
+const EXPRESSION_DEFAUT := "neutre"
+## Humeurs qui ne sont pas le personnage adulte des bustes (souvenir d'enfance) : plan large.
+const HUMEURS_SANS_BUSTE := ["enfant", "vox"]
 
 var scenes: Array = []
 var scene: Dictionary = {}
 ## Plan en cours : "large" ou le nom du personnage en gros plan.
 var plan := "large"
+## Expression du personnage en gros plan (variante du buste).
+var expression := EXPRESSION_DEFAUT
 var _serres_daffilee := 0
 var _ouverture := true
 var _surcharge := ""
@@ -90,10 +96,24 @@ func plan_nomme() -> void:
 	_serres_daffilee = 0
 
 
-static func chemin_buste(perso: String, cote_perso: String) -> String:
+## Buste final de CA1 : buste_<côté>_<expression>.png, sinon la variante neutre ; à défaut un
+## buste générique buste.png (peint pour la gauche). buste_<côté>.png sans expression est une
+## entrée de travail de CA1 : jamais en jeu.
+static func chemin_buste(perso: String, cote_perso: String, expr := EXPRESSION_DEFAUT) -> String:
 	var dossier := DOSSIER_PERSOS.path_join(perso.to_lower())
-	var propre := dossier.path_join("buste_%s.png" % cote_perso)
-	return propre if ResourceLoader.exists(propre) else dossier.path_join("buste.png")
+	for nom in ["buste_%s_%s.png" % [cote_perso, expr], "buste_%s_%s.png" % [cote_perso, EXPRESSION_DEFAUT]]:
+		if ResourceLoader.exists(dossier.path_join(nom)):
+			return dossier.path_join(nom)
+	return dossier.path_join("buste.png")
+
+
+## Éclairage livré avec le buste (clé, contre, ambiance par fond de gros plan) : {} sans fichier.
+static func eclairage_buste(perso: String, cote_perso: String) -> Dictionary:
+	var chemin := DOSSIER_PERSOS.path_join(perso.to_lower()).path_join("buste_%s.eclairage.json" % cote_perso)
+	if not FileAccess.file_exists(chemin):
+		return {}
+	var d = JSON.parse_string(FileAccess.get_file_as_string(chemin))
+	return d if typeof(d) == TYPE_DICTIONARY else {}
 
 
 func buste_existe(perso: String, cote_perso: String) -> bool:
@@ -120,7 +140,19 @@ func decider(e: Dictionary) -> String:
 		_ouverture = true
 		return plan
 	var perso := String(e.get("personnage", ""))
-	var narrateur: bool = perso.is_empty() or e.get("humeur", "") == "vox"
+	var humeur := String(e.get("humeur", ""))
+	var narrateur: bool = perso.is_empty() or humeur == "vox"
+	var avant := plan
+	var p := _decider_replique(e, perso, narrateur)
+	# L'expression suit la dernière réplique du personnage cadré ; un nouveau cadrage repart neutre.
+	if p != avant:
+		expression = EXPRESSION_DEFAUT
+	if p == perso and not humeur.is_empty():
+		expression = humeur
+	return p
+
+
+func _decider_replique(e: Dictionary, perso: String, narrateur: bool) -> String:
 	if not _surcharge.is_empty():
 		var s := _surcharge
 		_surcharge = ""
@@ -147,7 +179,8 @@ func decider(e: Dictionary) -> String:
 	# Réplique courte : on garde le plan en cours.
 	if duree_lecture(String(e.get("texte", ""))) < DUREE_MIN_S:
 		return plan
-	if not peut_serrer(perso) or _serres_daffilee >= MAX_SERRES:
+	if not peut_serrer(perso) or _serres_daffilee >= MAX_SERRES \
+			or HUMEURS_SANS_BUSTE.has(String(e.get("humeur", ""))):
 		plan = "large"
 		_serres_daffilee = 0
 		return plan

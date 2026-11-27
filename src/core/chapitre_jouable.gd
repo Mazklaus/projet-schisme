@@ -144,14 +144,25 @@ func _avant_dialogue() -> void:
 
 # --------------------------------------------------------------------------- gros plans
 
-## Gros plans de dialogue (fonds de CA2, bustes de CA1) : décidés par la régie, affichés dans un
-## CanvasLayer sous les gros plans d'Horus (5) et l'interface (10).
+## Gros plans de dialogue (fonds de CA2, bustes de CA1) : décidés par la régie, affichés sous les
+## gros plans d'Horus (5) et l'interface (10). Le fond, déjà éclairé, a sa couche (3) ; le buste
+## a la sienne (4), avec son ambiance (CanvasModulate) et ses Light2D clé et contre, qui ne
+## touchent pas le fond. Les Light2D n'éclairent rien dans un CanvasLayer (Godot 4.7,
+## Compatibilité) : le buste est rendu dans un SubViewport transparent, affiché dans la couche.
+const COUCHE_FOND_GROS_PLAN := 3
 const COUCHE_GROS_PLAN := 4
 const FONDU_GROS_PLAN_S := 0.25
+const FONDU_EXPRESSION_S := 0.3
 var _regie := RegieGrosPlans.new()
 var _couche_gp: CanvasLayer
 var _racine_gp: Node2D
 var _fond_gp := ""
+var _couche_buste: CanvasLayer
+var _vue_buste: SubViewport
+var _ecran_buste: Sprite2D
+var _racine_buste: Node2D
+var _cle_buste := ""
+var _cle_eclairage := ""
 
 
 ## « @plan large | serre | serre:<perso> » : surcharge de la régie (Narrative).
@@ -176,14 +187,20 @@ func _sur_evenement_dialogue(e: Dictionary) -> void:
 	var p := _regie.decider(e)
 	if p != avant or (p != "large" and _couche_gp and not _couche_gp.visible):
 		_afficher_gros_plan(p)
+	elif p != "large":
+		_poser_buste(p)
 
 
 func _afficher_gros_plan(p: String) -> void:
 	if p == "large":
 		if _couche_gp and _couche_gp.visible:
-			var t := create_tween()
+			var t := create_tween().set_parallel()
 			t.tween_property(_racine_gp, "modulate:a", 0.0, FONDU_GROS_PLAN_S)
-			t.tween_callback(_couche_gp.hide)
+			t.tween_property(_ecran_buste, "modulate:a", 0.0, FONDU_GROS_PLAN_S)
+			t.chain().tween_callback(func() -> void:
+				_couche_gp.hide()
+				_couche_buste.hide()
+				_vue_buste.render_target_update_mode = SubViewport.UPDATE_DISABLED)
 		return
 	var id_fond := String(_regie.scene.get("decor", ""))
 	# Sans « etat » dans la scène, le fond suit l'état du décor affiché (aube ou nuit au bloc).
@@ -193,35 +210,203 @@ func _afficher_gros_plan(p: String) -> void:
 	var cle_fond := "%s|%s" % [id_fond, scene_gp.get("etat", "")]
 	if _couche_gp == null:
 		_couche_gp = CanvasLayer.new()
-		_couche_gp.name = "GrosPlanDialogue"
-		_couche_gp.layer = COUCHE_GROS_PLAN
+		_couche_gp.name = "GrosPlanFond"
+		_couche_gp.layer = COUCHE_FOND_GROS_PLAN
 		_couche_gp.visible = false
 		add_child(_couche_gp)
+		_couche_buste = CanvasLayer.new()
+		_couche_buste.name = "GrosPlanDialogue"
+		_couche_buste.layer = COUCHE_GROS_PLAN
+		_couche_buste.visible = false
+		add_child(_couche_buste)
+		_vue_buste = SubViewport.new()
+		_vue_buste.name = "VueBuste"
+		_vue_buste.size = Vector2i(Decor25D.taille_ecran())
+		_vue_buste.transparent_bg = true
+		_couche_buste.add_child(_vue_buste)
+		_ecran_buste = Sprite2D.new()
+		_ecran_buste.name = "EcranBuste"
+		_ecran_buste.centered = false
+		_ecran_buste.texture = _vue_buste.get_texture()
+		_couche_buste.add_child(_ecran_buste)
+		_racine_buste = Node2D.new()
+		_racine_buste.name = "Buste"
+		_vue_buste.add_child(_racine_buste)
 	if cle_fond != _fond_gp:
 		if _racine_gp:
 			_racine_gp.queue_free()
 		_racine_gp = construire_fond_gros_plan(id_fond, scene_gp)
 		_couche_gp.add_child(_racine_gp)
 		_fond_gp = cle_fond
-	var cote := _regie.cote_du_plan()
-	var buste := _racine_gp.get_node_or_null(^"Buste") as Sprite2D
-	if buste == null:
-		buste = Sprite2D.new()
-		buste.name = "Buste"
-		buste.centered = false
-		_racine_gp.add_child(buste)
-	var chemin := RegieGrosPlans.chemin_buste(p, cote)
-	var tex := load(chemin) as Texture2D
-	buste.texture = tex
-	# Buste générique (peint pour la gauche, regard vers la droite) : miroir à droite.
-	buste.flip_h = cote == "droite" and chemin.get_file() == "buste.png"
-	var zone: Array = _racine_gp.get_meta("zones", {}).get(cote, {}).get("x_px", [0, 960])
-	var centre_x := (float(zone[0]) + float(zone[1])) / 2.0
-	buste.position = Vector2(centre_x - tex.get_width() / 2.0, 1080.0 - tex.get_height())
+	_poser_buste(p, false)
 	if not _couche_gp.visible:
 		_racine_gp.modulate.a = 0.0
+		_ecran_buste.modulate.a = 0.0
 		_couche_gp.show()
-	create_tween().tween_property(_racine_gp, "modulate:a", 1.0, FONDU_GROS_PLAN_S)
+		_couche_buste.show()
+	_vue_buste.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	var t := create_tween().set_parallel()
+	t.tween_property(_racine_gp, "modulate:a", 1.0, FONDU_GROS_PLAN_S)
+	t.tween_property(_ecran_buste, "modulate:a", 1.0, FONDU_GROS_PLAN_S)
+
+
+## Buste du personnage cadré, à l'expression de la régie, éclairé pour le fond. Un changement
+## d'expression sur le même cadrage se fait en fondu enchaîné (CA1).
+func _poser_buste(p: String, enchaine := true) -> void:
+	if _racine_buste == null:
+		return
+	var cote := _regie.cote_du_plan()
+	var id_fond := String(_regie.scene.get("decor", ""))
+	var cle_ecl := "%s|%s|%s|%s" % [p, cote, _fond_gp, id_fond]
+	if cle_ecl != _cle_eclairage:
+		for n in _vue_buste.get_children():
+			if n != _racine_buste:
+				n.queue_free()
+		var etat := String(_fond_gp.get_slice("|", 1))
+		for n in construire_eclairage_buste(RegieGrosPlans.eclairage_buste(p, cote), id_fond, cote, etat):
+			_vue_buste.add_child(n)
+		_cle_eclairage = cle_ecl
+	var chemin := RegieGrosPlans.chemin_buste(p, cote, _regie.expression)
+	var cle := "%s|%s" % [chemin, cote]
+	if cle == _cle_buste:
+		return
+	var ancien := _racine_buste.get_child(_racine_buste.get_child_count() - 1) as Sprite2D \
+		if _racine_buste.get_child_count() > 0 else null
+	var meme_cadrage: bool = enchaine and ancien != null and ancien.get_meta("cadrage", "") == "%s|%s" % [p, cote]
+	_cle_buste = cle
+	var sp := construire_sprite_buste(chemin, _racine_gp.get_meta("zones", {}) if _racine_gp else {}, cote)
+	sp.set_meta("cadrage", "%s|%s" % [p, cote])
+	_racine_buste.add_child(sp)
+	if meme_cadrage:
+		sp.modulate.a = 0.0
+		var t := create_tween()
+		t.tween_property(sp, "modulate:a", 1.0, FONDU_EXPRESSION_S)
+		t.tween_callback(ancien.queue_free)
+	for n in _racine_buste.get_children():
+		if n != sp and not (meme_cadrage and n == ancien):
+			n.queue_free()
+
+
+## Sprite du buste : albédo + normales (CanvasTexture), centré dans la zone calme de son côté,
+## pied du cadre en bas. Un buste générique buste.png (peint pour la gauche) est mis en miroir à
+## droite ; les bustes finaux de CA1 sont peints pour chaque côté.
+static func construire_sprite_buste(chemin: String, zones: Dictionary, cote: String) -> Sprite2D:
+	var sp := Sprite2D.new()
+	sp.name = chemin.get_file().get_basename()
+	sp.centered = false
+	var tex := CanvasTexture.new()
+	tex.diffuse_texture = load(chemin)
+	var normale := chemin.get_basename() + "_normal.png"
+	if ResourceLoader.exists(normale):
+		tex.normal_texture = load(normale)
+	sp.texture = tex
+	sp.flip_h = cote == "droite" and chemin.get_file() == "buste.png"
+	var zone: Array = zones.get(cote, {}).get("x_px", [0, 960] if cote != "droite" else [960, 1920])
+	var centre_x := (float(zone[0]) + float(zone[1])) / 2.0
+	var taille: Vector2 = tex.diffuse_texture.get_size() if tex.diffuse_texture else Vector2.ZERO
+	sp.position = Vector2(centre_x - taille.x / 2.0, 1080.0 - taille.y)
+	return sp
+
+
+## Ambiance et lumières du buste pour un fond : celles du .eclairage.json de CA1 (un fichier par
+## côté), sinon les « lumieres » du fond de CA2 (écrites pour la gauche, x symétrisé à droite) ;
+## sans rien, une clé neutre de face. direction_camera = sens de la lumière (x à droite, y vers le
+## haut, z vers la caméra : z > 0 vient de derrière, rasante ; z < 0 vient de face).
+static func construire_eclairage_buste(ecl: Dictionary, id_fond: String, cote: String, etat := "") -> Array:
+	var L: Dictionary = ecl.get("fonds", {}).get(id_fond, {}).get("lumieres", {})
+	# Le .eclairage.json d'un côté droit est déjà symétrisé par CA1 ; le fond, lui, est écrit
+	# pour la gauche.
+	var miroir := cote == "droite" and (L.is_empty() or String(ecl.get("cote_ecran", "gauche")) != "droite")
+	var g := {}
+	var chemin_fond := DOSSIER_DECORS.path_join(id_fond).path_join(id_fond + ".json")
+	if FileAccess.file_exists(chemin_fond):
+		var lu = JSON.parse_string(FileAccess.get_file_as_string(chemin_fond))
+		g = lu if typeof(lu) == TYPE_DICTIONARY else {}
+	if L.is_empty() and typeof(g.get("lumieres")) == TYPE_DICTIONARY:
+		L = g.lumieres
+	var noeuds: Array = []
+	var cm := CanvasModulate.new()
+	cm.name = "Ambiance"
+	var amb: Dictionary = L.get("ambiance", {})
+	var couleur_amb := Color("#2A2A32")
+	if amb.has("couleur"):
+		couleur_amb = Color(String(amb.couleur))
+	else:
+		# Fond de la longue traîne : l'ambiance du décor source pour l'état affiché.
+		var etats: Dictionary = g.get("lumieres_source", {}).get("etats", {}) \
+			if typeof(g.get("lumieres_source")) == TYPE_DICTIONARY else {}
+		for nom in etats:
+			if etats[nom].has("canvas_modulate") and (etat.is_empty() or etat.begins_with(nom) or nom == etat):
+				couleur_amb = Color(String(etats[nom].canvas_modulate))
+				if nom == etat:
+					break
+	var gain := float(amb.get("gain", 1.0))
+	cm.color = Color(couleur_amb.r * gain, couleur_amb.g * gain, couleur_amb.b * gain)
+	noeuds.append(cm)
+	var cle: Dictionary = L.get("cle", {"couleur": "#E0D8CC", "direction_camera": [0.3, -0.3, -0.9]})
+	noeuds.append(_lumiere_buste("Cle", cle, 1.0, miroir, null))
+	if L.has("contre"):
+		var contre: Dictionary = L.contre
+		# Contre sans direction : du haut, côté opposé à la clé.
+		var dc = cle.get("direction_camera", [0.3, -0.3, 0.5])
+		noeuds.append(_lumiere_buste("Contre", contre, float(contre.get("force", 0.3)), miroir,
+			[-float(dc[0]), -0.6, 0.6]))
+	return noeuds
+
+
+static func _lumiere_buste(nom: String, d: Dictionary, energie: float, miroir: bool, dir_defaut) -> Light2D:
+	var couleur := Color(String(d.get("couleur", "#FFFFFF")))
+	var l: Light2D
+	if typeof(d.get("position_px")) == TYPE_ARRAY:
+		var pl := PointLight2D.new()
+		var pos := Vector2(d.position_px[0], d.position_px[1])
+		pl.position = Vector2(1920.0 - pos.x, pos.y) if miroir else pos
+		pl.texture = _texture_lumiere_buste()
+		pl.texture_scale = 1400.0 / 128.0
+		pl.height = 80.0
+		l = pl
+	else:
+		var dir = d.get("direction_camera", dir_defaut if dir_defaut != null else [0.0, -0.3, -0.9])
+		var dl := DirectionalLight2D.new()
+		var sx := float(dir[0]) * (-1.0 if miroir else 1.0)
+		var sy := -float(dir[1])
+		var z := float(dir[2])
+		# DirectionalLight2D éclaire vers +y à rotation nulle.
+		dl.rotation = atan2(-sx, sy)
+		dl.height = clampf(-z * 0.45, 0.12, 0.45) if z < 0.0 else clampf(0.3 * (1.0 - z), 0.03, 0.2)
+		l = dl
+	l.name = nom
+	l.color = couleur
+	l.energy = energie
+	var vac := float(d.get("vacillement", 0.0))
+	var m := RegEx.create_from_string("vacillement (\\d+[,.]\\d+)").search(String(d.get("note", "")))
+	if vac == 0.0 and m:
+		vac = m.get_string(1).replace(",", ".").to_float()
+	if vac > 0.0:
+		l.ready.connect(func() -> void:
+			var t := l.create_tween().set_loops()
+			for k in [1.0 - vac, 1.0, 1.0 - vac * 0.5, 1.0]:
+				t.tween_property(l, "energy", energie * k, randf_range(0.08, 0.25)))
+	return l
+
+
+static var _tex_lumiere_buste: Texture2D
+
+
+static func _texture_lumiere_buste() -> Texture2D:
+	if _tex_lumiere_buste == null:
+		var g := Gradient.new()
+		g.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
+		g.colors = PackedColorArray([Color.WHITE, Color(0.45, 0.45, 0.45), Color.BLACK])
+		var t := GradientTexture2D.new()
+		t.gradient = g
+		t.fill = GradientTexture2D.FILL_RADIAL
+		t.fill_from = Vector2(0.5, 0.5)
+		t.fill_to = Vector2(1.0, 0.5)
+		t.width = 256
+		t.height = 256
+		_tex_lumiere_buste = t
+	return _tex_lumiere_buste
 
 
 ## Fond de gros plan de CA2 (assets/decors/<id>) : calques déjà éclairés, posés tels quels ;

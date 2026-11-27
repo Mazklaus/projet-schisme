@@ -1,0 +1,85 @@
+{
+ "buste": "buste_droite.png",
+ "normal": "buste_droite_normal.png",
+ "personnage": "sefa",
+ "cote_ecran": "droite",
+ "note": "albédo peint sans lumière cuite ; éclairer par Light2D avec la clé et le contre du fond visé. Les valeurs du fond sont pour le personnage à gauche ; côté droit = x symétrisé (position_px x -> 1920-x, direction_camera x -> -x).",
+ "fonds": {
+  "barge_quartiers_civils_gros_plan": {
+   "source": "episode-01/barge_quartiers_civils_gros_plan/barge_quartiers_civils_gros_plan.json",
+   "lumieres": {
+    "cle": {
+     "source": "lampe-lumen",
+     "position_px": [
+      1025,
+      720
+     ],
+     "couleur": "#FFC27A",
+     "direction_camera": [
+      -0.0,
+      -0.25,
+      0.97
+     ],
+     "note": "derrière le personnage et un peu en dessous (la lampe est sur la table, à 0,98 m) : liseré chaud sur le bord du visage tourné vers le centre de l'image, dessous du menton et des pommettes ; personnage à gauche = liseré côté droit, à droite = liseré côté gauche"
+    },
+    "contre": {
+     "source": "hublot du sas (froid, haut)",
+     "position_px": [
+      1291,
+      372
+     ],
+     "couleur": "#B8C4D0",
+     "force": 0.25,
+     "note": "petit, froid, venu d'en haut et de derrière : une touche bleutée sur le haut du crâne et des épaules, jamais sur le visage"
+    },
+    "ambiance": {
+     "type": "CanvasModulate",
+     "couleur": "#17161A",
+     "note": "la face du personnage tournée vers la caméra reste dans l'ombre : la cabine n'a pas d'autre source"
+    }
+   }
+  },
+  "ullanor_nuit_gros_plan": {
+   "source": "episode-01/ullanor_nuit_gros_plan/ullanor_nuit_gros_plan.json",
+   "lumieres": {
+    "cle": {
+     "source": "le feu de bivouac le plus proche, hors champ en bas (au sol, à ~2 m)",
+     "couleur": "#FF9A48",
+     "direction_camera": [
+      -0.35,
+      0.75,
+      -0.55
+     ],
+     "note": "chaude et BASSE : elle éclaire le dessous du menton, des arcades et des épaulières, et la face du personnage tournée vers le bas du cadre ; vacillement 0,15. Personnage à gauche : feu en bas à gauche ; à droite : feu en bas à droite (symétriser x)"
+    },
+    "contre": {
+     "source": "lune",
+     "couleur": "#8FA0C8",
+     "force": 0.3,
+     "direction_camera": [
+      0.4,
+      -0.7,
+      0.6
+     ],
+     "note": "froide, venue du haut et de derrière, côté opposé à la clé : liseré bleuté sur le haut du crâne et l'épaule, jamais plus fort que le feu"
+    },
+    "ambiance": {
+     "couleur": "#5A6A9A",
+     "gain": 0.34,
+     "note": "même ambiance que le décor large"
+    }
+   }
+  }
+ },
+ "variantes": {
+  "neutre": {
+   "buste": "buste_droite_neutre.png",
+   "normal": "buste_droite_neutre_normal.png"
+  },
+  "ecoute": {
+   "buste": "buste_droite_ecoute.png",
+   "normal": "buste_droite_ecoute_normal.png"
+  }
+ },
+ "variantes_note": "Bustes finaux CA1 (visage §5 posé, cou et col peints, retouche TP2 g93, céramite crème 5b), validés DA 27/11. buste_droite.png = corps Tools seul (entrée de poser_bustes.py), à ne pas utiliser en jeu."
+}

@@ -68,12 +68,58 @@ func test_surcharges() -> void:
 
 func test_hors_scene_et_sans_buste_reste_large() -> void:
 	var r := RegieGrosPlans.new({"scenes": [{"chapitre": "c01", "decor": "fond", "noeuds": ["nuit*"],
-		"cotes": {"DREMM": "gauche"}}]})
+		"cotes": {"KRENN": "gauche"}}]})
 	r.entrer("c01", "nuit")
-	r.decider(_rep("DREMM"))
-	assert_eq(r.decider(_rep("DREMM")), "large", "aucun buste de CA1 livré : inerte")
+	r.decider(_rep("KRENN"))
+	assert_eq(r.decider(_rep("KRENN")), "large", "aucun buste de CA1 livré : inerte")
 	r.entrer("c01", "aube")
-	r.surcharger("serre:dremm")
-	assert_eq(r.decider(_rep("DREMM")), "large", "hors scène")
+	r.surcharger("serre:krenn")
+	assert_eq(r.decider(_rep("KRENN")), "large", "hors scène")
 	assert_true(RegieGrosPlans.est_surcharge("serre:krenn"))
 	assert_false(RegieGrosPlans.est_surcharge("archive_table"))
+
+
+func test_expression_suit_l_humeur_du_personnage_cadre() -> void:
+	var r := _regie()
+	r.decider(_rep("DREMM"))
+	var e := _rep("DREMM")
+	e.humeur = "assurance"
+	assert_eq(r.decider(e), "DREMM")
+	assert_eq(r.expression, "assurance")
+	assert_eq(r.decider(_rep("VASKAR")), "VASKAR")
+	assert_eq(r.expression, "neutre", "nouveau cadrage : neutre")
+	var enfant := _rep("DREMM")
+	enfant.humeur = "enfant"
+	assert_eq(r.decider(enfant), "large", "Dremm enfant : pas le buste adulte")
+
+
+func test_bustes_finaux_de_ca1() -> void:
+	var d := "res://assets/personnages/"
+	assert_eq(RegieGrosPlans.chemin_buste("DREMM", "droite", "assurance"), d + "dremm/buste_droite_assurance.png")
+	assert_eq(RegieGrosPlans.chemin_buste("SEFA", "gauche", "colere"), d + "sefa/buste_gauche_neutre.png",
+		"expression non peinte : neutre")
+	assert_eq(RegieGrosPlans.chemin_buste("KRENN", "gauche"), d + "krenn/buste.png")
+	assert_false(RegieGrosPlans.new().buste_existe("KRENN", "gauche"))
+	assert_true(RegieGrosPlans.eclairage_buste("SEFA", "droite").has("fonds"))
+
+
+func test_eclairage_du_buste() -> void:
+	var CJ = load("res://src/core/chapitre_jouable.gd")
+	var ecl := RegieGrosPlans.eclairage_buste("DREMM", "droite")
+	var n: Array = CJ.construire_eclairage_buste(ecl, "barge_quartiers_civils_gros_plan", "droite")
+	assert_eq(n.size(), 3)
+	assert_eq((n[0] as CanvasModulate).color, Color("#17161A"))
+	assert_eq((n[1] as PointLight2D).position, Vector2(1920 - 895, 720), "x symétrisé à droite")
+	assert_almost_eq((n[2] as Light2D).energy, 0.25, 0.001)
+	var nuit: Array = CJ.construire_eclairage_buste(RegieGrosPlans.eclairage_buste("DREMM", "gauche"),
+		"ullanor_nuit_gros_plan", "gauche")
+	assert_true(nuit[1] is DirectionalLight2D)
+	var sens := Vector2(0, 1).rotated((nuit[1] as Node2D).rotation)
+	assert_true(sens.x > 0.0 and sens.y < 0.0, "feu en bas à gauche : la lumière monte vers la droite")
+	var sans: Array = CJ.construire_eclairage_buste({}, "ullanor_nuit_gros_plan", "droite")
+	var sens_d := Vector2(0, 1).rotated((sans[1] as Node2D).rotation)
+	assert_true(sens_d.x < 0.0, "fond seul, à droite : symétrisé")
+	nuit.append_array(sans)
+	assert_almost_eq((nuit[0] as CanvasModulate).color.b, 0.6039 * 0.34, 0.01, "ambiance × gain")
+	for x in n + nuit:
+		x.free()
