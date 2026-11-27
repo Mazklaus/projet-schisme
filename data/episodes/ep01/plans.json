@@ -3,43 +3,400 @@
   "archive_table": {
     "decor": "archive",
     "sequence": [
-      {"position": [948, 780], "zoom": 1.8, "duree": 0},
-      {"position": [948, 770], "zoom": 1.9, "duree": 6.0, "courbe": "lineaire"}
+      {
+        "position": [
+          948,
+          780
+        ],
+        "zoom": 1.8,
+        "duree": 0
+      },
+      {
+        "position": [
+          948,
+          770
+        ],
+        "zoom": 1.9,
+        "duree": 6.0,
+        "courbe": "lineaire"
+      }
     ]
   },
   "archive_etagere": {
     "decor": "archive",
     "sequence": [
-      {"position": [700, 420], "zoom": 1.6, "duree": 0},
-      {"position": [1220, 420], "zoom": 1.6, "duree": 8.0, "courbe": "lineaire"}
+      {
+        "position": [
+          700,
+          420
+        ],
+        "zoom": 1.6,
+        "duree": 0
+      },
+      {
+        "position": [
+          1220,
+          420
+        ],
+        "zoom": 1.6,
+        "duree": 8.0,
+        "courbe": "lineaire"
+      }
     ]
   },
   "galerie_flotte": {
     "decor": "vs_galerie",
-    "textures": {"Calque_00_exterieur_croisade": "calques/00_exterieur_croisade.png"},
+    "textures": {
+      "Calque_00_exterieur_croisade": "calques/00_exterieur_croisade.png"
+    },
     "sequence": [
-      {"position": [960, 540], "zoom": 1.0, "duree": 0},
-      {"position": [960, 520], "zoom": 1.1, "duree": 8.0, "courbe": "lineaire"}
+      {
+        "position": [
+          960,
+          540
+        ],
+        "zoom": 1.0,
+        "duree": 0
+      },
+      {
+        "position": [
+          960,
+          520
+        ],
+        "zoom": 1.1,
+        "duree": 8.0,
+        "courbe": "lineaire"
+      }
     ]
   },
   "galerie_nuit": {
     "decor": "vs_galerie",
-    "textures": {"Calque_00_exterieur_croisade": "calques/00_exterieur_warp.png"},
+    "textures": {
+      "Calque_00_exterieur_croisade": "calques/00_exterieur_warp.png"
+    },
     "sequence": [
-      {"position": [960, 540], "zoom": 1.05, "duree": 0},
-      {"position": [1000, 540], "zoom": 1.1, "duree": 6.0, "courbe": "lineaire"}
+      {
+        "position": [
+          960,
+          540
+        ],
+        "zoom": 1.05,
+        "duree": 0
+      },
+      {
+        "position": [
+          1000,
+          540
+        ],
+        "zoom": 1.1,
+        "duree": 6.0,
+        "courbe": "lineaire"
+      }
     ]
   },
-  "plaque_gros": [
-    {"position": [1180, 700], "zoom": 2.2, "duree": 0},
-    {"position": [1180, 690], "zoom": 2.4, "duree": 4.0, "courbe": "douce"}
-  ],
+  "plaque_gros": {
+    "decor": "ullanor_aube",
+    "props": {
+      "ilse_plaque": [
+        1180,
+        760
+      ]
+    },
+    "sequence": [
+      {
+        "position": [
+          1180,
+          700
+        ],
+        "zoom": 2.2,
+        "duree": 0
+      },
+      {
+        "position": [
+          1180,
+          690
+        ],
+        "zoom": 2.4,
+        "duree": 4.0,
+        "courbe": "douce"
+      }
+    ]
+  },
   "plaque_lointaine": [
-    {"position": [700, 640], "zoom": 1.4, "duree": 0},
-    {"position": [720, 640], "zoom": 1.45, "duree": 4.0, "courbe": "lineaire"}
+    {
+      "position": [
+        700,
+        640
+      ],
+      "zoom": 1.4,
+      "duree": 0
+    },
+    {
+      "position": [
+        720,
+        640
+      ],
+      "zoom": 1.45,
+      "duree": 4.0,
+      "courbe": "lineaire"
+    }
   ],
   "depart_flottes": [
-    {"position": [960, 540], "zoom": 1.0, "duree": 0},
-    {"position": [960, 500], "zoom": 1.1, "duree": 5.0, "courbe": "douce"}
-  ]
+    {
+      "position": [
+        960,
+        540
+      ],
+      "zoom": 1.0,
+      "duree": 0
+    },
+    {
+      "position": [
+        960,
+        500
+      ],
+      "zoom": 1.1,
+      "duree": 5.0,
+      "courbe": "douce"
+    }
+  ],
+  "archive_ecriture": {
+    "decor": "archive",
+    "sequence": [
+      {
+        "position": [
+          948,
+          820
+        ],
+        "zoom": 2.4,
+        "duree": 0
+      },
+      {
+        "position": [
+          948,
+          815
+        ],
+        "zoom": 2.6,
+        "duree": 6,
+        "courbe": "lineaire"
+      }
+    ]
+  },
+  "archive_drapeau": {
+    "decor": "archive",
+    "sequence": [
+      {
+        "position": [
+          1250,
+          430
+        ],
+        "zoom": 1.7,
+        "duree": 0
+      },
+      {
+        "position": [
+          1150,
+          430
+        ],
+        "zoom": 1.8,
+        "duree": 6,
+        "courbe": "lineaire"
+      }
+    ]
+  },
+  "archive_liste": {
+    "decor": "archive",
+    "sequence": [
+      {
+        "position": [
+          948,
+          800
+        ],
+        "zoom": 2.0,
+        "duree": 0
+      },
+      {
+        "position": [
+          948,
+          790
+        ],
+        "zoom": 2.2,
+        "duree": 6,
+        "courbe": "lineaire"
+      }
+    ]
+  },
+  "archive_table_fin": {
+    "decor": "archive",
+    "sequence": [
+      {
+        "position": [
+          948,
+          770
+        ],
+        "zoom": 1.9,
+        "duree": 0
+      },
+      {
+        "position": [
+          960,
+          560
+        ],
+        "zoom": 1.05,
+        "duree": 8,
+        "courbe": "douce"
+      }
+    ]
+  },
+  "dremm_sefa_loin": {
+    "decor": "barge_quartiers_civils",
+    "sequence": [
+      {
+        "position": [
+          960,
+          540
+        ],
+        "zoom": 1.0,
+        "duree": 0
+      },
+      {
+        "position": [
+          1000,
+          560
+        ],
+        "zoom": 1.08,
+        "duree": 5,
+        "courbe": "lineaire"
+      }
+    ]
+  },
+  "sefa_ecrit": {
+    "decor": "barge_quartiers_civils",
+    "sequence": [
+      {
+        "position": [
+          1180,
+          640
+        ],
+        "zoom": 2.0,
+        "duree": 0
+      },
+      {
+        "position": [
+          1190,
+          650
+        ],
+        "zoom": 2.3,
+        "duree": 4,
+        "courbe": "douce"
+      }
+    ]
+  },
+  "sefa_trait": {
+    "decor": "barge_quartiers_civils",
+    "sequence": [
+      {
+        "position": [
+          1200,
+          670
+        ],
+        "zoom": 2.6,
+        "duree": 0
+      },
+      {
+        "position": [
+          1205,
+          672
+        ],
+        "zoom": 2.9,
+        "duree": 3,
+        "courbe": "lineaire"
+      }
+    ]
+  },
+  "stormbirds": {
+    "decor": "orvane_nuit",
+    "sequence": [
+      {
+        "position": [
+          960,
+          500
+        ],
+        "zoom": 1.15,
+        "duree": 0
+      },
+      {
+        "position": [
+          960,
+          600
+        ],
+        "zoom": 1.0,
+        "duree": 6,
+        "courbe": "douce"
+      }
+    ]
+  },
+  "citadelle_tombe": {
+    "decor": "orvane_aube",
+    "sequence": [
+      {
+        "position": [
+          960,
+          540
+        ],
+        "zoom": 1.0,
+        "duree": 0
+      },
+      {
+        "position": [
+          960,
+          500
+        ],
+        "zoom": 1.12,
+        "duree": 7,
+        "courbe": "lineaire"
+      }
+    ]
+  },
+  "hololithe_horus": [
+    {
+      "position": [
+        960,
+        520
+      ],
+      "zoom": 1.12,
+      "duree": 0
+    },
+    {
+      "position": [
+        960,
+        520
+      ],
+      "zoom": 1.15,
+      "duree": 4.0,
+      "courbe": "lineaire"
+    }
+  ],
+  "galerie_etoiles": {
+    "decor": "barge_galerie",
+    "sequence": [
+      {
+        "position": [
+          960,
+          540
+        ],
+        "zoom": 1.0,
+        "duree": 0
+      },
+      {
+        "position": [
+          960,
+          500
+        ],
+        "zoom": 1.1,
+        "duree": 8,
+        "courbe": "lineaire"
+      }
+    ]
+  }
 }

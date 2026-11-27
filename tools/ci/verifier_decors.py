@@ -21,12 +21,16 @@ NOM = re.compile(r"^\d{2}_[a-z0-9_]+\.png$")
 def verifier_guide(dossier, chemin, g):
     """<plan>.json du guide de style de la DA (§6) : fichiers, _normal et _ombre à la bonne taille."""
     erreurs = []
-    cadre = g.get("cadre_px")
+    # Guide de style (cadre_px) ou planche de CA2 (resolution).
+    cadre = g.get("cadre_px", g.get("resolution"))
     if not (isinstance(cadre, list) and len(cadre) == 2):
         return ["cadre_px absent ou invalide"]
     for k in g.get("calques") or []:
         f = k.get("fichier", "")
         p = os.path.join(dossier, f)
+        gabarit = os.path.join(dossier, os.path.dirname(f), "gabarit_" + os.path.basename(f))
+        if not os.path.isfile(p) and os.path.isfile(gabarit):
+            p = gabarit
         if not os.path.isfile(p):
             print(f"::warning file={chemin}::{f} absent (calque ignoré par le moteur)")
             continue
@@ -62,7 +66,7 @@ def verifier(dossier):
                         g = json.load(fic)
                     except ValueError as e:
                         return [f"{f} illisible : {e}"]
-                if "cadre_px" in g:
+                if "cadre_px" in g or ("resolution" in g and "calques" in g):
                     return verifier_guide(dossier, os.path.join(dossier, f), g)
     try:
         with open(chemin, encoding="utf-8") as f:

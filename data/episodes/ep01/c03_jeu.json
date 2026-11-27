@@ -1,0 +1,50 @@
+{
+  "_doc": "Zones du chapitre 3 (ch03-05-game-design.md). Cabine-quartiers des remembrancers : 4 points, Sefa obligatoire ; son dialogue mène l'entretien (C6).",
+  "quartiers_civils": {
+    "decor": "barge_quartiers_civils",
+    "depart": [
+      320,
+      960
+    ],
+    "limites": [
+      260,
+      780,
+      1280,
+      240
+    ],
+    "pois": {
+      "poi_poete": [
+        520,
+        900
+      ],
+      "poi_peintre": [
+        800,
+        860
+      ],
+      "poi_frere": [
+        1020,
+        800
+      ],
+      "poi_sefa": [
+        1220,
+        830
+      ]
+    },
+    "figurants": {
+      "poi_poete": "poete",
+      "poi_peintre": "peintre",
+      "poi_frere": "frere_1",
+      "poi_sefa": "sefa"
+    },
+    "obligatoires": [
+      "poi_sefa"
+    ],
+    "declencheurs": [
+      {
+        "apres": [],
+        "max_s": 240,
+        "noeud": "poi_sefa"
+      }
+    ]
+  }
+}

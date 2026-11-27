@@ -1,0 +1,127 @@
+{
+  "plan": "barge_quartiers_civils",
+  "episode": 1,
+  "chapitres": [
+    3,
+    4
+  ],
+  "etat": "pur",
+  "description": "Barge de bataille, cabine de Sefa Morn (quartiers civils) : vue DEPUIS UN COIN, la seule pièce à taille humaine de la barge. Basse (2,7 m), encombrée (couchettes, feuillets épinglés, chevalet, tapis), une petite lampe-lumen à cage de laiton = la seule chaleur ; au mur droit, un SAS D'ASTARTES démesuré, coupé par le plafond bas, hublot à 2,2 m : Sefa ne peut pas regarder à travers. Générateur : cA2/barge_quartiers_civils_calques.py [--4k] ; base : planche barge v2, vignette B-2.",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "hauteur_m": 1.5,
+    "focale_px": 620,
+    "point_de_fuite_px": [
+      960,
+      560
+    ],
+    "position": "coin de la cabine (0,3 ; 0,3), tournée vers le coin opposé (lacet 39°)"
+  },
+  "regle_palette": "acier #5E646A, sol acier rouillé, un seul liseré d'or terni sous le plafond ; chaleur civile #FFC27A contre le froid du hublot",
+  "echelle": {
+    "cabine_m": "4,6 x 5,6, plafond 2,7",
+    "civils_m": 1.75,
+    "porte_m": "sas d'Astartes 1,8 de large, plus haut que la cabine (coupé par le plafond à 2,7), hublot à 2,2, volant à 1,45"
+  },
+  "eclairage": "calques en ALBÉDO + occlusion ; ombres de la lampe cuites dans 20_sol_ombre (multiply, blanc neutre)",
+  "cle": {
+    "type": "lampe-lumen à cage de laiton (PointLight2D)",
+    "position_px": [
+      1158,
+      630
+    ],
+    "position_m": [
+      4.35,
+      0.98,
+      2.95
+    ],
+    "couleur": "#FFC27A",
+    "energie": 1.8,
+    "portee_px": 620,
+    "scintillement": {
+      "amplitude": 0.03,
+      "note": "quasi fixe : lampe électrique civile, pas une flamme"
+    }
+  },
+  "appoints": [
+    {
+      "type": "hublot (PointLight2D petite)",
+      "position_px": [
+        1047,
+        485
+      ],
+      "couleur": "#B8C4D0",
+      "energie": 0.6,
+      "portee_px": 140,
+      "note": "hublot à 2,2 m, hauteur d'œil d'Astartes"
+    },
+    {
+      "type": "CanvasModulate",
+      "couleur": "#17161A"
+    }
+  ],
+  "calques": [
+    {
+      "fichier": "calques/05_hublot.png",
+      "auteur": "CA2",
+      "distance_m": "derrière la porte",
+      "contenu": "le couloir des géants derrière le verre, froid et flou"
+    },
+    {
+      "fichier": "calques/00_coque.png",
+      "normal": "calques/00_coque_normal.png",
+      "auteur": "CA2",
+      "distance_m": "1 à 5,6",
+      "contenu": "plafond bas nervuré, mur gauche, mur du fond, mur droit, tôles rivetées, conduite, grille, sas d'Astartes démesuré coupé par le plafond (chambranle massif, renforts, seuil, volant à 1,45 m, hublot à 2,2 m percé dans l'alpha), le seul liseré d'or"
+    },
+    {
+      "fichier": "calques/20_sol.png",
+      "normal": "calques/20_sol_normal.png",
+      "ombre": "calques/20_sol_ombre.png",
+      "auteur": "CA2",
+      "distance_m": "0,2 à 5,6",
+      "contenu": "tôles du sol, tapis usé apporté par les civils ; ombres radiales de la lampe"
+    },
+    {
+      "fichier": "calques/30_mobilier.png",
+      "normal": "calques/30_mobilier_normal.png",
+      "auteur": "CA2",
+      "distance_m": "1,6 à 5,6",
+      "contenu": "couchettes superposées, feuillets épinglés (illisibles), table de travail (feuillets, encrier, livre), pied de lampe, chevalet dont la toile est tournée vers le mur"
+    },
+    {
+      "fichier": "calques/40_personnages.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": "1,9 et 5",
+      "contenu": "Sefa assise de profil à sa table, dos à la porte ; un poète allongé sur la couchette du haut. Gabarit : calques/gabarit_40_personnages.png"
+    },
+    {
+      "fichier": "calques/45_lampe.png",
+      "auteur": "CA2",
+      "distance_m": 2.95,
+      "contenu": "globe lumen dans sa cage de laiton (émissif) ; la lumière est la Light2D"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": 1.0,
+      "contenu": "malle d'effets personnels ouverte, presque noire (règle 5)"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA2",
+      "distance_m": "2 à 4",
+      "contenu": "poussière dans la lumière de la lampe ; à animer"
+    }
+  ],
+  "normales": "convention OpenGL (Y+), alpha = alpha du calque",
+  "4k": "calques/4k/ (mêmes noms, positions px x2)",
+  "apercus": [
+    "apercu.png"
+  ],
+  "statut": "essai v2"
+}

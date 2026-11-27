@@ -1,0 +1,166 @@
+{
+  "nom": "orvane_barricade",
+  "lieu": "Orvane, l'avenue de la citadelle barrée (ép. 1 ch. 4 §3, l'émissaire)",
+  "statut": "essai v1, en revue DA",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "resolution_4k": "calques/4k/",
+  "camera": {
+    "hauteur_m": 1.3,
+    "focale_px_1080p": 1050,
+    "decalage_x_m": -0.8,
+    "lacet_deg": -4,
+    "point_de_fuite_px": [
+      1034,
+      640
+    ],
+    "note": "frontal et bas, dans le dos de Vaskar et Dremm ; contraste avec orvane_rues (biais)"
+  },
+  "echelle": {
+    "avenue_m": 9,
+    "barricade_h_m": 2.6,
+    "barricade_z_m": 11,
+    "emissaire_z_m": 7.4,
+    "astartes_m": 2.3,
+    "civil_m": 1.75
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel_nuit.png",
+      "ordre": 0
+    },
+    {
+      "fichier": "calques/10_fond.png",
+      "ordre": 10,
+      "parallaxe": 0.05,
+      "note": "citadelle et tours"
+    },
+    {
+      "fichier": "calques/12_fenetres_fond.png",
+      "ordre": 12,
+      "fusion": "additif",
+      "emissif": true
+    },
+    {
+      "fichier": "calques/30_facades.png",
+      "ordre": 30,
+      "normal": "calques/30_facades_normal.png",
+      "ombre": "calques/35_barricade_ombre.png",
+      "eclaire": true,
+      "note": "avenue, façades, linge et fanions tendus"
+    },
+    {
+      "fichier": "calques/33_feux.png",
+      "ordre": 33,
+      "fusion": "additif",
+      "emissif": true,
+      "anim": "flammes 6-9 Hz, braises montantes",
+      "note": "braseros DERRIÈRE la barricade"
+    },
+    {
+      "fichier": "calques/gabarit_34_civils.png",
+      "ordre": 34,
+      "note": "gabarit : têtes des civils derrière la barricade"
+    },
+    {
+      "fichier": "calques/35_barricade.png",
+      "ordre": 35,
+      "normal": "calques/35_barricade_normal.png",
+      "eclaire": true,
+      "note": "meubles, porte, roue, sacs, drapeau du gouverneur (pourpre, bande blanche) ; à animer : le drapeau ondule"
+    },
+    {
+      "fichier": "calques/gabarit_40_personnages.png",
+      "ordre": 40,
+      "note": "gabarit : l'émissaire (manteau évasé, mains vides), Vaskar de dos coupé à gauche, Dremm à droite"
+    },
+    {
+      "fichier": "calques/45_fenetres_allumees.png",
+      "ordre": 45,
+      "fusion": "additif",
+      "emissif": true
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "ordre": 50,
+      "parallaxe": 1.15,
+      "normal": "calques/50_avant_plan_normal.png",
+      "eclaire": true,
+      "note": "charrette renversée, bas droite"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "ordre": 51,
+      "fusion": "additif",
+      "couleur": "#E07A3A",
+      "intensite": 0.6
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "ordre": 90,
+      "anim": "fumée des braseros, cendres"
+    }
+  ],
+  "lumieres": [
+    {
+      "nom": "brasero_1",
+      "type": "PointLight2D",
+      "couleur": "#E07A3A",
+      "position_px": [
+        882,
+        615
+      ],
+      "energie": 1.4,
+      "rayon_px": 900,
+      "hauteur_normal_px": -200,
+      "scintillement": true,
+      "note": "derrière la barricade : contre-jour. Les normales doivent faire mordre la lumière sur les arêtes hautes, pas sur la face avant"
+    },
+    {
+      "nom": "brasero_2",
+      "type": "PointLight2D",
+      "couleur": "#E07A3A",
+      "position_px": [
+        1182,
+        614
+      ],
+      "energie": 1.4,
+      "rayon_px": 900,
+      "hauteur_normal_px": -200,
+      "scintillement": true,
+      "note": "derrière la barricade : contre-jour. Les normales doivent faire mordre la lumière sur les arêtes hautes, pas sur la face avant"
+    },
+    {
+      "nom": "brasero_3",
+      "type": "PointLight2D",
+      "couleur": "#E07A3A",
+      "position_px": [
+        1376,
+        614
+      ],
+      "energie": 1.4,
+      "rayon_px": 900,
+      "hauteur_normal_px": -200,
+      "scintillement": true,
+      "note": "derrière la barricade : contre-jour. Les normales doivent faire mordre la lumière sur les arêtes hautes, pas sur la face avant"
+    },
+    {
+      "nom": "projecteur_stormbird",
+      "type": "PointLight2D (ou DirectionalLight2D faible)",
+      "couleur": "#C8D8E8",
+      "position_px": [
+        900,
+        1300
+      ],
+      "energie": 0.35,
+      "rayon_px": 1400,
+      "note": "appoint froid de face, depuis le Stormbird posé derrière la caméra : décolle la face avant de la barricade"
+    }
+  ],
+  "canvas_modulate": "#3C4460",
+  "apercu": "apercu_nuit.png (21 % sous #1A1612)",
+  "regles": "pas d'Œil d'Horus, aucun texte lisible, aucune image officielle ; personnages non alignés",
+  "source": "etude-heresie/cA2/or_barricade_calques.py [--4k]"
+}

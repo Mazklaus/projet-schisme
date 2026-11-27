@@ -1,0 +1,6 @@
+{
+  "_doc": "Noms de décor des .dlg qui désignent un dossier livré sous un autre nom, ou un état d'un lieu (Lead, 27/11). decor = dossier assets/decors/<decor> ; etat = état à appliquer (Decor25D.appliquer_etat).",
+  "barge_salle_briefing": {"decor": "barge_briefing"},
+  "barge_quartiers_sefa": {"decor": "barge_quartiers_civils"},
+  "orvane_matin": {"decor": "orvane_rues", "etat": "matin"}
+}

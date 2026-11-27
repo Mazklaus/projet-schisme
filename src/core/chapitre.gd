@@ -251,6 +251,14 @@ func afficher_carton(texte: String, duree: float, fond_noir := true, couleur := 
 	l.add_theme_color_override("font_color", couleur)
 	l.add_theme_color_override("font_outline_color", contour)
 	l.add_theme_constant_override("outline_size", 0 if fond_noir else 10)
+	if not fond_noir:
+		# Titre sur l'image (@titre) : en bas à gauche, au-dessus de la boîte de dialogue, pour ne
+		# pas tomber sur le point focal du plan (retour DA, Ullanor).
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		l.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+		l.offset_left = 110.0
+		l.offset_bottom = -300.0
+		l.add_theme_font_size_override("font_size", 48)
 	fond.add_child(l)
 	couche.add_child(fond)
 	add_child(couche)

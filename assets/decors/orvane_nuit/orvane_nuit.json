@@ -1,0 +1,120 @@
+{
+  "nom": "orvane_nuit",
+  "lieu": "Orvane vue du vaisseau d'assaut qui descend (ép. 1 ch. 4 §2, @plan stormbirds, ciné)",
+  "statut": "v1.1 (correctif DA : porte sans linteau, plus de coins noirs)",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "resolution_4k": "calques/4k/",
+  "camera": {
+    "hauteur_m": 120,
+    "focale_px_1080p": 900,
+    "tangage_deg": -38,
+    "note": "plongée depuis la porte latérale ouverte ; l'horizon est hors cadre en haut"
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel_nuit.png",
+      "ordre": 0
+    },
+    {
+      "fichier": "calques/10_sol.png",
+      "ordre": 10,
+      "parallaxe": 0.6,
+      "note": "sol des rues jusqu'à l'horizon"
+    },
+    {
+      "fichier": "calques/12_rues.png",
+      "ordre": 12,
+      "fusion": "additif",
+      "emissif": true,
+      "parallaxe": 0.6,
+      "note": "colliers de lampadaires le long des rues"
+    },
+    {
+      "fichier": "calques/20_ville.png",
+      "ordre": 20,
+      "parallaxe": 0.8,
+      "normal": "calques/20_ville_normal.png",
+      "eclaire": true,
+      "note": "îlots, tours, toits de tuiles à deux pans, toits-terrasses, drapeaux du gouverneur"
+    },
+    {
+      "fichier": "calques/32_linge.png",
+      "ordre": 32,
+      "parallaxe": 0.85,
+      "anim": "ondule dans le souffle des réacteurs quand le vaisseau passe"
+    },
+    {
+      "fichier": "calques/45_fenetres_allumees.png",
+      "ordre": 45,
+      "fusion": "additif",
+      "emissif": true,
+      "parallaxe": 0.8,
+      "anim": "quelques fenêtres s'éteignent au passage des vaisseaux"
+    },
+    {
+      "fichier": "calques/55_vaisseau.png",
+      "ordre": 55,
+      "parallaxe": 0.95,
+      "normal": "calques/55_vaisseau_normal.png",
+      "eclaire": true,
+      "anim": "descend et glisse vers le bas du cadre ; silhouette originale"
+    },
+    {
+      "fichier": "calques/56_phares.png",
+      "ordre": 56,
+      "fusion": "additif",
+      "emissif": true,
+      "note": "cônes d'atterrissage + feux de position, suivent 55"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "ordre": 90,
+      "anim": "bruine et traînées de vent vers le haut (la descente), nappes de nuage traversées"
+    },
+    {
+      "fichier": "calques/50_porte.png",
+      "ordre": 50,
+      "parallaxe": 1.0,
+      "normal": "calques/50_porte_normal.png",
+      "eclaire": true,
+      "note": "montant gauche vertical de la porte latérale, rivets, poignée (pas de linteau)"
+    },
+    {
+      "fichier": "calques/gabarit_48_vaskar.png",
+      "ordre": 48,
+      "note": "gabarit : épaulière de Vaskar, coupée par le bas du cadre"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "ordre": 51,
+      "fusion": "additif",
+      "couleur": "#C83A2A",
+      "intensite": 0.6,
+      "note": "éclairage de combat rouge de la soute sur la porte et l'épaulière"
+    }
+  ],
+  "lumieres": [
+    {
+      "nom": "soute_combat",
+      "type": "PointLight2D derrière la caméra",
+      "couleur": "#C83A2A",
+      "energie": 0.6,
+      "note": "ne touche que la porte et Vaskar"
+    },
+    {
+      "nom": "lune",
+      "type": "DirectionalLight2D faible",
+      "couleur": "#A8B8D0",
+      "energie": 0.25,
+      "note": "détache le dessus du second vaisseau et les toits"
+    }
+  ],
+  "canvas_modulate": "#5A6890",
+  "parallaxe_note": "pour la descente : faire glisser 10-45 vers le haut à des vitesses croissantes (0.6 → 0.85) donne la profondeur",
+  "apercu": "apercu_nuit.png (47 % : ciné de nuit, les fenêtres portent l'image)",
+  "regles": "vaisseaux = silhouettes originales, pas d'Œil d'Horus, aucun texte lisible, aucune image officielle",
+  "source": "etude-heresie/cA2/or_nuit_calques.py [--4k]"
+}

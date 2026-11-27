@@ -1,0 +1,120 @@
+{
+  "plan": "barge_quartiers_27",
+  "episode": 1,
+  "chapitres": [
+    3,
+    4,
+    5
+  ],
+  "etat": "pur",
+  "description": "Barge de bataille, quartiers de la 27e : la nef du Vengeful Spirit en version barge (acier nu riveté, clé à 12 m, or réduit aux liserés). CADRAGE DÉCENTRÉ, point de fuite à droite : le mur gauche domine avec les râteliers d'armure, l'établi d'armurier et sa lampe (seule source chaude) et l'étendard de compagnie en tissu éclairé par cette lampe. Générateur : cA2/barge_quartiers_27_calques.py [--4k] ; kit cA2/kit_voute.py ; base : planche barge v2, B-3.",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "hauteur_m": 1.7,
+    "focale_px": 950,
+    "point_de_fuite_px": [
+      1450,
+      600
+    ],
+    "note": "décentrement optique (point de fuite à droite), pas de couloir centré"
+  },
+  "regle_palette": "acier #5E646A, acier sombre #2A2E33, or terni #8F7A44 en liseré seulement (doubleaux, liseré des plastrons, bord de l'étendard) ; blanc LW éteint sur les armures",
+  "echelle": {
+    "nef_m": "12 de large, naissance des arcs à 7, clé à 12, travées de 5, profondeur 38",
+    "astartes_m": 2.3,
+    "px_par_m_a_l_etabli": 90
+  },
+  "eclairage": "calques en ALBÉDO + occlusion ; ombres de la lampe cuites dans 20_nef_ombre (multiply, blanc neutre)",
+  "cle": {
+    "type": "servo-lampe industrielle d'armurier (bras articulé, tête à cage, globe lumen ; PointLight2D)",
+    "position_px": [
+      1083,
+      613
+    ],
+    "position_m": [
+      -4.1,
+      1.55,
+      10.6
+    ],
+    "couleur": "#FFB868",
+    "energie": 1.6,
+    "portee_px": 380,
+    "scintillement": {
+      "amplitude": 0.02,
+      "note": "quasi fixe"
+    },
+    "note": "prend l'établi, Dremm, l'étendard (tissu mat) et les râteliers proches ; la voûte se perd vers le haut"
+  },
+  "appoints": [
+    {
+      "type": "veille de bord froide (masque ou Light2D texturée)",
+      "couleur": "#C8D2DC",
+      "niveau": 0.3,
+      "zone": "fond et porte blindée seulement ; ambiant 0,17 ailleurs"
+    }
+  ],
+  "calques": [
+    {
+      "fichier": "calques/00_fond.png",
+      "auteur": "CA2",
+      "distance_m": 38,
+      "contenu": "mur du fond, porte blindée en ogive à liseré d'or terni, rivets"
+    },
+    {
+      "fichier": "calques/10_voute.png",
+      "normal": "calques/10_voute_normal.png",
+      "auteur": "CA2",
+      "distance_m": "1 à 38 (hauteur 7 à 12)",
+      "contenu": "voûtains d'acier, doubleaux et ogives d'or terni assourdi (moitié de la valeur précédente), sans rosaces ; conduites le long de la retombée gauche"
+    },
+    {
+      "fichier": "calques/20_nef.png",
+      "normal": "calques/20_nef_normal.png",
+      "ombre": "calques/20_nef_ombre.png",
+      "auteur": "CA2",
+      "distance_m": "1 à 38",
+      "contenu": "sol d'acier, murs d'acier gris-brun rivetés (raidisseurs, lisses), colonnes engagées d'acier rivetées à bagues sombres ; ombres des colonnes et de l'établi projetées depuis la lampe"
+    },
+    {
+      "fichier": "calques/30_mobilier.png",
+      "normal": "calques/30_mobilier_normal.png",
+      "auteur": "CA2",
+      "distance_m": "5,5 à 36",
+      "contenu": "couchettes d'acier, râteliers d'armure (plastron, épaulières à lamelles, gorgerin, casque sur support), établi d'armurier (outils, bolter démonté, bras de servo-lampe articulé (socle boulonné, vérin)), étendard de compagnie en TISSU mat, plus sombre que la lampe, sur le mur gauche (plis, pointes, liseré ; motif Luna Wolves à poser par CA1, cA1/bannieres option B)"
+    },
+    {
+      "fichier": "calques/40_personnages.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": "11 à 19",
+      "contenu": "PAS alignés : Dremm penché sur l'établi (profil), un frère assis sur une couchette qui nettoie son bolter, un frère debout plus loin de l'autre côté. Gabarit : calques/gabarit_40_personnages.png"
+    },
+    {
+      "fichier": "calques/45_lampe.png",
+      "auteur": "CA2",
+      "distance_m": 10.6,
+      "contenu": "tête de servo-lampe : capot, globe lumen dans une cage de laiton (émissif) ; la lumière est la Light2D"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": "2,3 à 3,4",
+      "contenu": "armure sur support presque noire au premier plan gauche, liseré chaud côté lampe ; coin de couchette en bas à droite"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA2",
+      "distance_m": "9 à 12",
+      "contenu": "poussière dans la lumière de la lampe ; à animer"
+    }
+  ],
+  "normales": "convention OpenGL (Y+), alpha = alpha du calque",
+  "4k": "calques/4k/ (mêmes noms, positions px x2)",
+  "apercus": [
+    "apercu.png"
+  ],
+  "statut": "essai v2"
+}

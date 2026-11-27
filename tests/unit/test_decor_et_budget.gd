@@ -14,7 +14,7 @@ func test_decor_demo_construit() -> void:
 	assert_eq(d.taille, Vector2(2560, 1080))
 	var ciel := d.calques[0]
 	assert_almost_eq(ciel.scroll_scale.x, 0.05, 0.001)
-	assert_eq((ciel.get_node("Image") as Sprite2D).light_mask, 0, "le ciel n'est pas éclairé")
+	assert_eq((ciel.get_node("Image") as Sprite2D).light_mask & Decor25D.MASQUE_LUMIERE, 0, "le ciel n'est pas éclairé par les lumières du plan")
 	var colonne := d.calques[4]
 	assert_eq((colonne.get_node("Image") as Sprite2D).position, Vector2(1700, 380))
 	var tex := (colonne.get_node("Image") as Sprite2D).texture as CanvasTexture

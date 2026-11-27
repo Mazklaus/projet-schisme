@@ -1,0 +1,125 @@
+{
+  "plan": "barge_pont_embarquement",
+  "episode": 1,
+  "chapitres": [
+    3
+  ],
+  "etat": "pur",
+  "description": "Barge de bataille du détachement, pont d'embarquement : plan latéral sur le hangar, baie gothique ouverte à droite (ogive, meneaux d'acier en silhouette). Navette de Légion MASSIVE de trois-quarts, nez vers nous, rampe frontale abaissée vers les 3 civils minuscules parmi les Astartes. Acier nu, or terni en liseré, chevrons de danger au pourtour de l'aire. Générateur : cA2/barge_pont_embarquement_calques.py [--4k] ; base : planche barge v2, B-1 ; v2 après notes DA.",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "hauteur_m": 1.7,
+    "focale_px": 900,
+    "point_de_fuite_px": [
+      980,
+      650
+    ],
+    "axe": "perpendiculaire au mur latéral du hangar (fond à 28 m) ; la baie est le plan x = 16 m, à droite ; horizon descendu pour centrer navette et personnages"
+  },
+  "regle_palette": "acier #5E646A, acier sombre #2A2E33, or terni #8F7A44 en liseré seulement ; chevrons jaune usé et noir ; lumière d'arrivée froide #E8F0FF",
+  "echelle": {
+    "hangar": "mur du fond à 28 m, voûte à 20 m, travées de 7 m",
+    "navette_m": "8 de large, 15 de long, 7 de haut, face avant à 12 m",
+    "rampe_m": "3,2 de large, 3,6 de long",
+    "astartes_m": 2.3,
+    "civils_m": 1.75,
+    "px_par_m_a_la_rampe": 100
+  },
+  "eclairage": "calques en ALBÉDO + occlusion ; ombres portées cuites dans 20_pont_ombre (multiply, blanc neutre) dans la direction de la clé UNIQUEMENT",
+  "cle": {
+    "type": "lumière de la baie (DirectionalLight2D, ou PointLight2D large posée dans la baie)",
+    "position_px": [
+      1780,
+      435
+    ],
+    "direction_sol": "vers la gauche (x -1, z +0,18)",
+    "couleur": "#E8F0FF",
+    "energie": {
+      "arrivee": 1.6,
+      "orbite": 0.7
+    },
+    "portee_px": 1100,
+    "note": "tombe sur le pont côté baie et meurt vers la gauche ; le premier plan reste sombre"
+  },
+  "appoints": [
+    {
+      "type": "CanvasModulate",
+      "couleur": "#2A2E36",
+      "note": "ambiant froid très bas ; aucune autre source"
+    }
+  ],
+  "variantes": {
+    "arrivee": "05_exterieur_arrivee + 85_rais + 90_particules visibles, clé 1,6 (scène d'arrivée)",
+    "orbite": "05_exterieur_orbite (Orvane), rais et poussière masqués, clé 0,7"
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_fond.png",
+      "auteur": "CA2",
+      "distance_m": 26,
+      "contenu": "mur latéral du hangar : pilastres rivetés, arcs brisés aveugles d'or terni, lancettes, panneaux, passerelle haute ; doubleaux de la voûte"
+    },
+    {
+      "fichier": "calques/05_exterieur_arrivee.png",
+      "auteur": "CA2",
+      "distance_m": "infini",
+      "contenu": "le champ de la baie saturé de lumière (variante arrivée)"
+    },
+    {
+      "fichier": "calques/05_exterieur_orbite.png",
+      "auteur": "CA2",
+      "distance_m": "infini",
+      "contenu": "le noir, étoiles, Orvane (variante orbite)"
+    },
+    {
+      "fichier": "calques/20_pont.png",
+      "normal": "calques/20_pont_normal.png",
+      "ombre": "calques/20_pont_ombre.png",
+      "auteur": "CA2",
+      "distance_m": "1,2 à 26",
+      "contenu": "pont d'acier, chevrons de danger au pourtour de l'aire seulement, mur droit et baie gothique en ogive (percée dans l'alpha) avec meneaux et traverses d'acier opaques en silhouette ; ombres de la navette, de la rampe et du fret ; occlusion du premier plan"
+    },
+    {
+      "fichier": "calques/30_navette.png",
+      "normal": "calques/30_navette_normal.png",
+      "auteur": "CA2",
+      "distance_m": "8,4 à 27",
+      "contenu": "navette de Légion de l'Hérésie, massive et en brique : coque blindée épaisse, glacis chanfreiné, cockpit à petites vitres rectangulaires renforcées, contreforts, ailes courtes en flèche inversée, bloc réacteurs dorsal, trains épais, liseré d'or terni ; RAMPE FRONTALE abaissée vers nous ; caisses de fret à gauche"
+    },
+    {
+      "fichier": "calques/40_personnages.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": "6,6 à 10",
+      "contenu": "PAS alignés : Sefa et les deux autres civils au pied de la rampe (minuscules), 4 Astartes dont un plus près de nous que les civils (choc d'échelle). Chaque personnage porte son ombre longue vers la gauche. Gabarit : calques/gabarit_40_personnages.png"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": "2,3 à 3,7",
+      "contenu": "montant presque noir à gauche (liseré froid), main courante de passerelle en bas, caisses sombres en bas à droite, chaîne qui pend"
+    },
+    {
+      "fichier": "calques/85_rais.png",
+      "auteur": "CA2",
+      "distance_m": "10 à 24",
+      "contenu": "rais de lumière de la baie, en ADDITIF (variante arrivée)"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA2",
+      "distance_m": "8 à 22",
+      "contenu": "poussière dans les rais ; à animer (dérive lente vers la gauche)"
+    }
+  ],
+  "normales": "convention OpenGL (Y+), alpha = alpha du calque",
+  "4k": "calques/4k/ (mêmes noms, positions px x2)",
+  "apercus": [
+    "apercu_arrivee.png",
+    "apercu_orbite.png"
+  ],
+  "statut": "essai v2"
+}
