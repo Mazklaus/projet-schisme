@@ -202,7 +202,7 @@ func _monter_gros_plan_horus() -> void:
 		# Multiplication après le CanvasModulate de la couche : compensé pour rester neutre.
 		ombre.self_modulate = neutre_amb
 		s.add_child(ombre)
-		# Lumière de contour chaude venue du ciel : fine bande additive, plus forte en haut.
+		# Lumière de contour chaude venue du soleil bas à droite : fine bande additive (retour GD : -30 %).
 		if ResourceLoader.exists(HORUS_5B % [expr, "_contour"]):
 			var liseret := Sprite2D.new()
 			liseret.name = "Contour"
@@ -211,8 +211,8 @@ func _monter_gros_plan_horus() -> void:
 			ma.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 			ma.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 			liseret.material = ma
-			var c := Color("#FFD9A0")
-			liseret.self_modulate = Color(c.r * neutre_amb.r, c.g * neutre_amb.g, c.b * neutre_amb.b, 0.6)
+			var c := Color("#FFE8B0")
+			liseret.self_modulate = Color(c.r * neutre_amb.r, c.g * neutre_amb.g, c.b * neutre_amb.b, 0.42)
 			s.add_child(liseret)
 		couche.add_child(s)
 	# Lumière peinte = clé du soleil couchant, à droite ; la Light2D module légèrement le relief
