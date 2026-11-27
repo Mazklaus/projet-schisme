@@ -219,11 +219,20 @@ def ombre_contact(pied, rig):
 # ------------------------------------------------------------------ fiche commune (TP2)
 
 
+def pieces_perdues(rig_installe, rig):
+    """Pièces du rig déjà en place (livraison de CA1 : bras_croises, mains_graver…) absentes de la sortie."""
+    if not Path(rig_installe).is_file():
+        return []
+    avant = json.loads(Path(rig_installe).read_text(encoding="utf-8")).get("pieces", {})
+    return sorted(set(avant) - set(rig.get("pieces", {})))
+
+
 def fiche_commune(travail, rendu, typ, perso, graine):
     peint = travail / "peint"
     groupes = sorted(p.name[:-len("_albedo.png")] for p in rendu.glob("*_albedo.png") if not p.name.startswith("complet"))
-    reglages = {"modele": "xl", "preset": PRESETS[typ], "force": 0.45, "controle": 0.6, "largeur": 1024,
-                "lumiere": 10.0, "couleur": 0.7, "fond": "6A625A", "negatif": NEGATIF, "graines": str(graine)}
+    # Défauts de la série Ilse v3 de TP2, vue et acceptée par la DA (27/11).
+    reglages = {"modele": "xl", "preset": PRESETS[typ], "force": 0.55, "controle": 0.6, "largeur": 1024,
+                "lumiere": 10.0, "couleur": 0.6, "fond": "8A6A48", "negatif": NEGATIF, "graines": str(graine)}
     fiche = {"_doc": "Retouche commune des pièces d'un sprite en pied (Tools, preparer_sprite.py) : même graine, "
                      "mêmes réglages et même éclairage (albédo × occlusion, sans lampe) pour toutes les pièces, "
                      "profondeur du kit en contrôle. Sorties dans peint/<groupe>_rgb.png, puis relancer "
@@ -293,8 +302,9 @@ def main(argv=None):
     ap.add_argument("--sans-rendu", action="store_true", help="réutiliser <travail>/rendu/")
     ap.add_argument("--peint", help="passes peintes par groupe (<groupe>_rgb.png, sortie de la retouche commune)")
     ap.add_argument("--couleurs-de", help="livraison peinte dont garder les couleurs (même cadrage)")
-    ap.add_argument("--graine", type=int, default=31, help="graine commune de la retouche")
+    ap.add_argument("--graine", type=int, default=32, help="graine commune de la retouche")
     ap.add_argument("--installer", help="dossier du jeu où copier pied/ (ex. <dépôt>/assets/personnages/vaskar/pied)")
+    ap.add_argument("--forcer", action="store_true", help="installe même si le rig en place a des pièces en plus")
     a = ap.parse_args(argv)
     travail = Path(a.travail).expanduser().resolve()
     rendu, pied = travail / "rendu", travail / "pied"
@@ -337,6 +347,11 @@ def main(argv=None):
     journal(f"fiche de retouche commune : {n} pièces, graine {a.graine} -> {travail / 'retouche_commune.json'}")
     if a.installer:
         cible = Path(a.installer)
+        manquantes = pieces_perdues(cible / "rig.json", rig)
+        if manquantes and not a.forcer:
+            journal(f"installation refusée : {cible} a des pièces que cette sortie n'a pas ({', '.join(manquantes)}) ; "
+                    "--forcer pour écraser quand même")
+            return 1
         cible.mkdir(parents=True, exist_ok=True)
         for f in pied.iterdir():
             if f.suffix in (".png", ".json") and not f.name.startswith(("planche", "assemble")):

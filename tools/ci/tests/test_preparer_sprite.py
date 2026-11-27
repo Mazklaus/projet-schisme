@@ -55,3 +55,14 @@ class TestOmbre(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestPiecesPerdues(unittest.TestCase):
+    def test_pieces_dediees_de_ca1_signalees(self):
+        import tempfile, json as js
+        with tempfile.TemporaryDirectory() as d:
+            f = os.path.join(d, "rig.json")
+            js.dump({"pieces": {"torse": {}, "bras_croises": {}, "mains_graver": {}}}, open(f, "w"))
+            self.assertEqual(ps.pieces_perdues(f, {"pieces": {"torse": {}}}), ["bras_croises", "mains_graver"])
+            self.assertEqual(ps.pieces_perdues(os.path.join(d, "absent.json"), {"pieces": {}}), [])
+
