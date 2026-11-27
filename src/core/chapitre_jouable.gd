@@ -44,6 +44,8 @@ var pois_vus := {}
 var joueur: PersonnageJoue
 var decors: Dictionary = {}
 var decor_courant := ""
+## Effets de mise en scène des nœuds (src/core/mise_en_scene.gd).
+var mise_en_scene: MiseEnScene
 var temps_jeu := 0.0
 ## Secondes passées sans bouger ni lire (remis à zéro à chaque mouvement).
 var inactif := 0.0
@@ -137,6 +139,11 @@ func _avant_dialogue() -> void:
 		else:
 			push_error("Fichier jeu illisible : %s" % infos.jeu)
 	lecteur.noeud_entre.connect(_mise_en_scene_du_noeud)
+	mise_en_scene = MiseEnScene.new()
+	mise_en_scene.camera = camera
+	mise_en_scene.drapeaux = Jeu.etat.drapeaux
+	mise_en_scene.position_joueur = func(): return joueur.global_position if is_instance_valid(joueur) else Vector2(960, 900)
+	add_child(mise_en_scene)
 	_regie = RegieGrosPlans.charger("res://data/episodes/%s/gros_plans.json" % Jeu.etat.episode)
 	lecteur.noeud_entre.connect(_regie_entrer)
 	boite.evenement.connect(_sur_evenement_dialogue)
@@ -183,6 +190,8 @@ func _regie_entrer(noeud: String) -> void:
 
 
 func _sur_evenement_dialogue(e: Dictionary) -> void:
+	if mise_en_scene and e.get("type") == "replique":
+		mise_en_scene.ligne()
 	var avant := _regie.plan
 	var p := _regie.decider(e)
 	if p != avant or (p != "large" and _couche_gp and not _couche_gp.visible):
@@ -631,6 +640,39 @@ func _mise_en_scene_du_noeud(noeud: String) -> void:
 	# « etats » : [[nom, durée], …] enchaînés sur le décor affiché (l'aube pendant le C7).
 	if m.has("etats") and decor_par_id(decor_courant) is Decor25D:
 		_enchainer_etats(decor_par_id(decor_courant), m.etats)
+	# Particules, tirs, éclairs, tremblements, calques animés (MiseEnScene, Level Designer).
+	# Un nœud qui commence par @decor : les effets attendent le nouveau décor (sinon ils
+	# seraient posés sur l'ancien, puis retirés par le changement).
+	if mise_en_scene:
+		if _commence_par_decor(noeud):
+			_mise_en_scene_en_attente = m
+		else:
+			_jouer_mise_en_scene(m)
+
+
+var _mise_en_scene_en_attente: Dictionary = {}
+
+
+func _jouer_mise_en_scene(m: Dictionary) -> void:
+	var d := decor_par_id(decor_courant)
+	if d == null:
+		return
+	mise_en_scene.drapeaux = Jeu.etat.drapeaux
+	mise_en_scene.jouer(m, d, monde_de(d))
+
+
+## Vrai si le nœud change de décor avant sa première réplique ou son premier choix.
+func _commence_par_decor(noeud: String) -> bool:
+	if lecteur == null:
+		return false
+	for instr in lecteur.dialogue.get("noeuds", {}).get(noeud, []):
+		match instr.get("type"):
+			"commande":
+				if instr.get("nom") == "decor":
+					return true
+			"replique", "menu":
+				return false
+	return false
 
 
 func _enchainer_etats(d: Decor25D, liste: Array) -> void:
@@ -691,6 +733,8 @@ var _tween_ambiance: Tween
 ## ses lumières. Rend la teinte de départ du fondu (la surexposition si un souvenir était actif,
 ## alpha 0 sinon).
 func reinitialiser_image() -> Color:
+	if mise_en_scene:
+		mise_en_scene.nettoyer()
 	if _tween_souvenir and _tween_souvenir.is_valid():
 		_tween_souvenir.kill()
 	_tween_souvenir = null
@@ -1071,6 +1115,10 @@ func _changer_decor(id_demande: String) -> void:
 	if cible.visible and decor_courant == id:
 		if cible is Decor25D and not etat.is_empty() and cible.etat != etat:
 			cible.appliquer_etat(etat, 1.5)
+		if mise_en_scene and not _mise_en_scene_en_attente.is_empty():
+			var m := _mise_en_scene_en_attente
+			_mise_en_scene_en_attente = {}
+			_jouer_mise_en_scene(m)
 		if _voile_noir.modulate.a > 0.0 and phase != "ecran_fin":
 			await _fondu_noir(0.0, 0.35)
 		return
@@ -1116,6 +1164,10 @@ func _changer_decor(id_demande: String) -> void:
 		camera.en_cours = false
 		camera.position = cible.global_position + taille_decor(cible) / 2.0
 		camera.zoom = Vector2.ONE
+	if mise_en_scene and not _mise_en_scene_en_attente.is_empty():
+		var m := _mise_en_scene_en_attente
+		_mise_en_scene_en_attente = {}
+		_jouer_mise_en_scene(m)
 	await _fondu_noir(0.0, 0.35)
 
 
