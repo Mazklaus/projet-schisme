@@ -122,8 +122,9 @@ func test_gestes_json() -> void:
 		for o in g.get("os", {}):
 			assert_true(o in RigPersonnage.ORDRE, "%s : pièce %s hors contrat" % [nom, o])
 		if g.has("main"):
-			assert_true(g.main in ["pointe", "poing"], nom)
-	for nom in ["montrer", "croiser_bras", "main_epaule", "saluer", "degainer", "agenouiller"]:
+			assert_true(g.main in ["pointe", "poing", "pommeau"], nom)
+	for nom in ["montrer", "croiser_bras", "main_epaule", "saluer", "degainer", "agenouiller",
+			"casque_sous_bras", "main_pommeau"]:
 		assert_true(d.gestes.has(nom), "geste demandé par le GD : " + nom)
 
 
@@ -152,3 +153,118 @@ func test_main_epaule_distincte_de_montrer() -> void:
 	var epaule: float = d.gestes.main_epaule.os.bras_avant
 	assert_gt(epaule - montrer, 30.0, "main sur l'épaule : bras nettement plus bas")
 	assert_eq(d.gestes.croiser_bras.montre, ["bras_croises"], "pièce dédiée demandée à CA1")
+
+
+
+## Ilse v0 montée comme un Astartes : seul le profil de mouvement change.
+func _rig_astartes() -> RigPersonnage:
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d.type = "astartes"
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	return r
+
+
+func test_astartes_plus_lourd_et_plus_lent() -> void:
+	var h := _rig()
+	var a := _rig_astartes()
+	assert_eq(a.type_rig, "astartes")
+	assert_lt(float(a.profil.pas_rad_s), float(h.profil.pas_rad_s), "pas plus lent")
+	assert_gt(float(a.profil.poids_px), float(h.profil.poids_px), "plus de poids")
+	watch_signals(h)
+	watch_signals(a)
+	h.marche = 1.0
+	a.marche = 1.0
+	_avancer(h, 1.4)
+	_avancer(a, 1.4)
+	assert_lt(get_signal_emit_count(a, "evenement_anim"), get_signal_emit_count(h, "evenement_anim"), "moins d'appuis")
+	# Gestes économes : même geste, moins d'amplitude, entrée plus longue.
+	a.jouer_geste("montrer")
+	_avancer(a, 1.5)
+	assert_almost_eq(rad_to_deg(a.os.torse.rotation), -3.0, 1.0, "bloc propre : le bras arrière tendu montre")
+	assert_gt(a.duree_visible("montrer"), h.duree_visible("montrer"))
+
+
+func test_geste_propre_au_type() -> void:
+	var a := _rig_astartes()
+	var g := {"os": {"bras_avant": -80}, "astartes": {"os": {"bras_avant": -50}}}
+	assert_eq(a.os_du_geste(g), {"bras_avant": -50})
+	assert_eq(_rig().os_du_geste(g), {"bras_avant": -80.0})
+
+
+func test_casque_sans_piece() -> void:
+	# Sans tete_casque ni casque_main (Ilse), le geste se joue sans erreur et la tête reste visible.
+	var r := _rig()
+	assert_true(r.jouer_geste("casque_sous_bras"))
+	_avancer(r, 1.5)
+	assert_true(r.pieces.tete.visible)
+	assert_true(r.jouer_geste("main_pommeau"))
+	_avancer(r, 1.5)
+	assert_true(r.pieces.main_avant.visible, "pas de main_avant_pommeau livrée : main ordinaire")
+
+
+
+func test_epauliere_suit_peu_le_bras() -> void:
+	# Pièce d'épaulière ajoutée à Ilse pour le test (le contrat la réserve aux Astartes).
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d.pieces["epauliere_avant"] = {"fichier": "bras_avant.png", "pose": [6, 61], "pivot": [17, 18], "parent": "bras_avant"}
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	r.jouer_geste("montrer")
+	_avancer(r, 1.5)
+	var bras := rad_to_deg(r.os.bras_avant.rotation)
+	var globale := bras + rad_to_deg(r.os.epauliere_avant.rotation)
+	assert_almost_eq(globale, bras * RigPersonnage.EPAULIERE_SUIT, 1.0, "l'épaulière ne se lève pas comme une aile")
+
+
+func test_bassin_a_l_echelle_de_la_hanche() -> void:
+	var r := _rig()
+	assert_almost_eq(r.echelle_hanche, 1.0, 0.01, "Ilse sert de référence")
+	r.echelle_hanche = 1.2
+	assert_almost_eq(r.bassin_du_geste({"bassin_y": 85}), 102.0, 0.01)
+	assert_eq(r.bassin_du_geste({"bassin_y": 85, "humain": {"bassin_y": 40}}), 40.0)
+
+
+
+func test_piece_de_remplacement_a_mi_geste() -> void:
+	# bras_tendu ajouté pour le test : invisible au repos, montré à mi-geste à la place du bras.
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d.pieces["bras_tendu"] = {"fichier": "bras_avant.png", "pose": [6, 61], "pivot": [17, 18], "parent": "torse"}
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	r.avancer(0.016)
+	assert_false(r.pieces.bras_tendu.visible)
+	r.jouer_geste("montrer")
+	r.avancer(0.1)
+	assert_false(r.pieces.bras_tendu.visible, "pas encore : début du mouvement")
+	_avancer(r, 1.0)
+	assert_true(r.pieces.bras_tendu.visible)
+	assert_false(r.pieces.bras_avant.visible)
+	assert_false(r.pieces.main_avant_pointe.visible)
+	_avancer(r, 3.0)
+	assert_false(r.pieces.bras_tendu.visible, "rendue au repos")
+	assert_true(r.pieces.bras_avant.visible)
+
+
+
+func test_astartes_montre_avec_le_bras_arriere() -> void:
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d.type = "astartes"
+	d.pieces["bras_tendu_arriere"] = {"fichier": "bras_arriere.png", "pose": [46, 61], "pivot": [23, 18], "parent": "torse"}
+	d.pieces["bras_tendu"] = {"fichier": "bras_avant.png", "pose": [6, 61], "pivot": [17, 18], "parent": "torse"}
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	r.avancer(0.016)
+	assert_false(r.pieces.bras_tendu.visible, "pièce dédiée d'un autre type : cachée au repos")
+	r.jouer_geste("montrer")
+	_avancer(r, 1.5)
+	assert_true(r.pieces.bras_tendu_arriere.visible)
+	assert_false(r.pieces.bras_arriere.visible)
+	assert_true(r.pieces.bras_avant.visible, "le bras avant reste en place")
+	_avancer(r, 4.0)
+	assert_false(r.pieces.bras_tendu_arriere.visible)
+	assert_true(r.pieces.bras_arriere.visible)
