@@ -117,6 +117,24 @@ static func lire(id: String, dossier_decors := DOSSIER) -> Dictionary:
 ##   (au premier plan, profondeur 1, non éclairées) ;
 ## - <nom>_normal.png et <nom>_ombre.png à côté du calque sont repris s'ils existent ;
 ## - voile atmosphérique t = 1 - exp(-d / d0) vers la couleur « voile ».
+## Vrai si le moteur éclaire ce plan (lumières d'état, ou clé / appoint prévus en Light2D) :
+## alors seulement on affiche les versions « _plat » (albédo sans lumière cuite). Sans lumière
+## du moteur (Ullanor : soleil peint), une version plate sortirait blanche et sans modelé.
+## « plat »: true / false dans le JSON force le choix.
+static func plan_eclaire(g: Dictionary) -> bool:
+	if typeof(g.get("plat")) == TYPE_BOOL:
+		return g.plat
+	if typeof(g.get("lumieres")) == TYPE_ARRAY and not g.lumieres.is_empty():
+		return true
+	var sources: Array = [g.get("cle")]
+	if typeof(g.get("appoints")) == TYPE_ARRAY:
+		sources.append_array(g.appoints)
+	for a in sources:
+		if typeof(a) == TYPE_DICTIONARY and String(a.get("type", "")).contains("Light2D"):
+			return true
+	return false
+
+
 static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 	var distances: Array[float] = []
 	for k in g.get("calques", []):
@@ -125,6 +143,7 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 	var ref := float(g.get("distance_reference_m", distances.min() if not distances.is_empty() else 1.0))
 	# Champs facultatifs : absents ou null (« voile »: null dans un intérieur) reviennent au même.
 	var voile: Dictionary = g.voile if typeof(g.get("voile")) == TYPE_DICTIONARY else {}
+	var eclaire := plan_eclaire(g)
 	var calques := []
 	for k in g.get("calques", []):
 		if typeof(k) != TYPE_DICTIONARY or not k.has("fichier"):
@@ -154,7 +173,7 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			c.normales = base + "_normal.png"
 		# Version « plate » (albédo × occlusion, sans lumière cuite) : c'est elle que le moteur
 		# éclaire, sinon le contre-jour peint compterait deux fois. Le nœud garde le nom du calque.
-		if ResourceLoader.exists(dossier.path_join(base + "_plat.png")):
+		if eclaire and ResourceLoader.exists(dossier.path_join(base + "_plat.png")):
 			c.nom = f.get_file().get_basename()
 			c.fichier = base + "_plat.png"
 			if ResourceLoader.exists(dossier.path_join(base + "_plat_normal.png")):
@@ -177,7 +196,8 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			if not t.has("pivot_px") or not t.has("fichier") or not t.has("corps") or not manquants.is_empty():
 				push_warning("Décor %s : bloc « tete » de %s incomplet, ignoré (%s)" % [g.get("plan", "?"), f, manquants])
 			else:
-				c.tete = t
+				c.tete = t.duplicate()
+				c.tete["plat"] = eclaire
 		calques.append(c)
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
 		"source": "guide", "cle": g.cle if typeof(g.get("cle")) == TYPE_DICTIONARY else {},
@@ -294,7 +314,7 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	# Tête séparée (bloc « tete » du guide) : le calque affiche le corps seul, la tête et la
 	# partie du col qui passe devant sont des sprites à part (voir _poser_tete).
 	if k.has("tete"):
-		tex = _texture_avec_normales(dossier, k.tete.corps)
+		tex = _texture_avec_normales(dossier, k.tete.corps, k.tete.get("plat", true))
 	var sprite := Sprite2D.new()
 	sprite.name = "Image"
 	sprite.texture = tex
@@ -332,10 +352,10 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 
 
 ## Texture couleur + normales d'une partie ; préfère la version plate (_plat, _plat_normal).
-static func _texture_avec_normales(dossier: String, fichier: String) -> CanvasTexture:
+static func _texture_avec_normales(dossier: String, fichier: String, plat_permis := true) -> CanvasTexture:
 	var base := fichier.get_basename()
 	var tex := CanvasTexture.new()
-	var plat := ResourceLoader.exists(dossier.path_join(base + "_plat.png"))
+	var plat := plat_permis and ResourceLoader.exists(dossier.path_join(base + "_plat.png"))
 	tex.diffuse_texture = load(dossier.path_join(base + ("_plat.png" if plat else ".png")))
 	for n in ([base + "_plat_normal.png", base + "_normal.png"] if plat else [base + "_normal.png"]):
 		if ResourceLoader.exists(dossier.path_join(n)):
@@ -355,7 +375,7 @@ func _poser_tete(couche: Node, corps: Sprite2D, dossier: String, t: Dictionary) 
 			continue
 		var s := Sprite2D.new()
 		s.name = "Tete" if partie == "tete" else "Avant"
-		s.texture = _texture_avec_normales(dossier, t.fichier if partie == "tete" else t.avant)
+		s.texture = _texture_avec_normales(dossier, t.fichier if partie == "tete" else t.avant, t.get("plat", true))
 		s.centered = false
 		s.light_mask = corps.light_mask
 		s.material = corps.material

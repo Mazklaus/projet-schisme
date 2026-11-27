@@ -53,3 +53,13 @@ func test_tete_separee() -> void:
 	assert_not_null((tete.texture as CanvasTexture).normal_texture)
 	assert_almost_eq(float(tete.get_meta("rotation_max")), deg_to_rad(15.0), 0.001)
 	assert_eq(dec.detacher_tete(couche.name), tete, "pas de découpe automatique si la tête est livrée")
+
+
+func test_version_plate_seulement_sous_lumieres_du_moteur() -> void:
+	assert_false(Decor25D.plan_eclaire({"cle": {"type": "soleil"}}), "soleil peint (Ullanor) : versions peintes")
+	assert_true(Decor25D.plan_eclaire({"cle": {"type": "brasero (Light2D point)"}}))
+	assert_true(Decor25D.plan_eclaire({"lumieres": [{"position_px": [0, 0]}]}))
+	assert_false(Decor25D.plan_eclaire({"plat": false, "lumieres": [{}]}), "choix forcé dans le JSON")
+	var u := Decor25D.lire("ullanor")
+	for c in u.calques:
+		assert_false(String(c.fichier).ends_with("_plat.png"), "Ullanor : %s" % c.fichier)

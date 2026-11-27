@@ -68,15 +68,45 @@
     },
     {
       "fichier": "calques/45_vaskar.png",
-      "auteur": "CA1",
-      "distance_m": 6,
-      "contenu": "Vaskar Hol, premier plan droit (x ~1710), casque ôté, coupé à la taille, tourné vers Horus, profil perdu"
+      "auteur": "Tools Programmer (kit Blender) ; gabarit CA1 dans calques/gabarits_ca1/",
+      "distance_m": 8,
+      "contenu": "Vaskar Hol, premier plan droit, 8 m (~373 px/m), casque ôté, tourné vers Horus, profil perdu. Tête centrée en x ~1770, sommet du crâne ~y 360 : la tête se découpe en contre-jour sur le ciel clair, à droite du Warlord doré (qui s'arrête vers x 1650). Coupé vers les genoux par le bas du cadre ; le bord droit peut couper une cheminée.",
+      "tete": {
+        "corps": "calques/45_vaskar_corps.png",
+        "fichier": "calques/45_vaskar_tete_peinte.png",
+        "avant": "calques/45_vaskar_avant.png",
+        "pivot_px": [
+          1702.8,
+          499.9
+        ],
+        "ordre": [
+          "corps",
+          "tete",
+          "avant"
+        ],
+        "rotation_max_deg": 15
+      }
     },
     {
       "fichier": "calques/48_dremm.png",
-      "auteur": "CA1",
-      "distance_m": 4,
-      "contenu": "Capitaine Dremm Asaro, premier plan gauche (x ~270), casque sous le bras, coupé à la taille, 3/4 dos vers Horus"
+      "auteur": "Tools Programmer (kit Blender) ; gabarit CA1 dans calques/gabarits_ca1/",
+      "distance_m": 6,
+      "contenu": "Capitaine Dremm Asaro, premier plan gauche, 6 m (~498 px/m), plus près que Vaskar (c'est le capitaine), casque sous le bras, 3/4 dos vers Horus. Tête centrée en x ~200, sommet du crâne ~y 270 : contre le ciel, à gauche du Warlord doré (qui commence vers x 300). Coupé à mi-cuisse ; le bord gauche peut couper le dos.",
+      "tete": {
+        "corps": "calques/48_dremm_corps.png",
+        "fichier": "calques/48_dremm_tete_peinte.png",
+        "avant": "calques/48_dremm_avant.png",
+        "pivot_px": [
+          186.4,
+          462.5
+        ],
+        "ordre": [
+          "corps",
+          "tete",
+          "avant"
+        ],
+        "rotation_max_deg": 15
+      }
     },
     {
       "fichier": "calques/50_avant_plan.png",
@@ -87,5 +117,12 @@
       "fichier": "calques/90_particules.png",
       "auteur": "DA"
     }
-  ]
+  ],
+  "camera_premier_plan": {
+    "focale_mm": 56,
+    "capteur_mm": 36,
+    "hauteur_m": 1.6,
+    "horizon_y": 620,
+    "note": "caméra Blender commune à Vaskar et Dremm (px/m = 2987 / distance). Hauteur 1,6 m (regard d'un mortel) : les têtes des Astartes passent au-dessus des Titans, contre le ciel clair. Retour GD 18/11."
+  }
 }
