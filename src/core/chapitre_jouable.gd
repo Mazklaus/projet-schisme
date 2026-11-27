@@ -1440,7 +1440,8 @@ func jouer_vox(noeud: String) -> void:
 	var e := l.avancer()
 	while e.type == "replique":
 		var nom := BoiteDialogue.nom_affiche(e)
-		_vox_file.append(("%s : %s" % [nom, e.texte]) if not nom.is_empty() else e.texte)
+		var t := BoiteDialogue.typographie(e.texte)
+		_vox_file.append(("%s\u00A0: %s" % [nom, t]) if not nom.is_empty() else t)
 		e = l.avancer()
 	if not _vox_actif:
 		_vox_suivant()
@@ -1453,7 +1454,7 @@ func _vox_suivant() -> void:
 		return
 	_vox_actif = true
 	var texte: String = _vox_file.pop_front()
-	if texte.contains("(vox)"):
+	if texte.contains(BoiteDialogue.SUFFIXE_VOX):
 		Son.bruitage("vox_crepite")
 	_vox.text = texte
 	_vox.show()

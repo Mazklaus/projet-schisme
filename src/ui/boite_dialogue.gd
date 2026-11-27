@@ -23,7 +23,9 @@ const BATTEMENT_RAPIDE := 0.35
 ## Plaque : marges latérales et bas (1080p), hauteur ; le cartouche du nom chevauche le bord haut.
 const MARGE_X := 160.0
 const MARGE_BAS := 40.0
-const HAUTEUR := 216.0
+## Hauteur minimale : deux lignes (aucune réplique de l'ép. 1 ne dépasse 100 caractères, relecture
+## Narrative v2) ; la plaque grandit vers le haut au besoin (choix).
+const HAUTEUR := 168.0
 const CHEVAUCHEMENT := 24.0
 
 @export var caracteres_par_seconde := 45.0
@@ -46,6 +48,8 @@ var _prochain_battement := 0.0
 ## Indicateur « continuer » (chevron d'or qui descend en boucle) quand la réplique est affichée.
 var _suite: Chevron
 var _clignote := 0.0
+## Type de l'événement précédent : un choix qui suit une réplique la garde au-dessus des options.
+var _precedent := ""
 
 
 func _ready() -> void:
@@ -90,6 +94,8 @@ func _ready() -> void:
 	_texte.add_theme_font_override("italics_font", StyleSchisme.italique())
 	_texte.add_theme_font_size_override("normal_font_size", 33)
 	_texte.add_theme_font_size_override("italics_font_size", 33)
+	_texte.add_theme_font_size_override("bold_font_size", 33)
+	_texte.add_theme_font_size_override("bold_italics_font_size", 33)
 	_texte.add_theme_color_override("default_color", StyleSchisme.TEXTE)
 	_texte.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
 	_texte.add_theme_constant_override("shadow_offset_y", 1)
@@ -156,6 +162,8 @@ func reprendre() -> void:
 
 
 func _process(delta: float) -> void:
+	# Le cartouche suit le bord haut de la plaque, qui grandit vers le haut.
+	_cartouche.position.y = _panneau.position.y - _cartouche.size.y + CHEVAUCHEMENT
 	if _delai_total > 0.0:
 		var avant := ceili(_delai_restant)
 		_delai_restant -= delta
@@ -205,6 +213,8 @@ func _suivant() -> void:
 	var e := lecteur.avancer()
 	if e.type == "replique" or e.type == "choix":
 		evenement.emit(e)
+	var precedent := _precedent
+	_precedent = e.type
 	match e.type:
 		"replique":
 			_poser_nom(e)
@@ -214,14 +224,16 @@ func _suivant() -> void:
 				StyleSchisme.NARRATION if e.personnage.is_empty() else StyleSchisme.TEXTE)
 			_texte.visible_ratio = 0.0
 		"choix":
-			# La question est la réplique précédente ou la situation : le menu s'affiche seul.
-			_nom.text = ""
-			_cartouche.hide()
-			_texte.text = ""
+			# La question est la réplique précédente : elle reste au-dessus des options (relecture
+			# Narrative v2). Après une commande ou une narration lointaine, le menu s'affiche seul.
+			if precedent != "replique":
+				_nom.text = ""
+				_cartouche.hide()
+				_texte.text = ""
 			_texte.visible_ratio = 1.0
 			for o in e.options:
 				var b := OptionChoix.new()
-				b.text = o.texte
+				b.text = BoiteDialogue.typographie(o.texte)
 				b.pressed.connect(_choisir.bind(o.index))
 				_choix.add_child(b)
 			# Aucune option présélectionnée : le silence reste un vrai choix, et un appui
@@ -243,18 +255,32 @@ func _suivant() -> void:
 			fini.emit()
 
 
-## « FRÈRE 1 » → « Frère 1 » ; une réplique au vox est signalée et en italique.
+const SUFFIXE_VOX := ", au vox"
+
+
+## « FRÈRE 1 » → « Frère » (numéro caché) ; au vox : « Dremm, au vox » (relecture Narrative v2).
 static func nom_affiche(e: Dictionary) -> String:
 	if e.personnage.is_empty():
 		return ""
-	var n: String = e.personnage.substr(0, 1) + e.personnage.substr(1).to_lower()
-	return n + " (vox)" if e.humeur == "vox" else n
+	var brut := RegEx.create_from_string("\\s+[0-9]+$").sub(String(e.personnage).strip_edges(), "")
+	var n: String = brut.substr(0, 1) + brut.substr(1).to_lower()
+	return n + SUFFIXE_VOX if e.humeur == "vox" else n
+
+
+## Typographie française à l'affichage : espace insécable avant ? ! : ; et à l'intérieur des
+## guillemets. (Espace insécable normale U+00A0 : Cinzel et EB Garamond n'ont pas la fine U+202F.)
+static func typographie(t: String) -> String:
+	const ESP := "\u00A0"
+	var r := RegEx.create_from_string("([^\\s?!:;\u00A0«])[ \u00A0\u202F]?([?!:;»])")
+	t = r.sub(t, "$1" + ESP + "$2", true)
+	t = RegEx.create_from_string("«[ \u00A0\u202F]?").sub(t, "«" + ESP, true)
+	return t
 
 
 func _poser_nom(e: Dictionary) -> void:
 	var vox: bool = e.humeur == "vox"
 	var n := BoiteDialogue.nom_affiche(e)
-	_nom.text = n.trim_suffix(" (vox)") if vox else n
+	_nom.text = n.trim_suffix(SUFFIXE_VOX) if vox else n
 	_vox.visible = vox
 	_cartouche.visible = not n.is_empty() and _panneau.visible
 	# Le cartouche se recale sur la largeur du nom.
@@ -268,7 +294,8 @@ func _montrer_plaque(v: bool) -> void:
 
 
 static func texte_affiche(e: Dictionary) -> String:
-	return "[i]%s[/i]" % e.texte if e.personnage.is_empty() or e.humeur == "vox" else e.texte
+	var t := typographie(e.texte)
+	return "[i]%s[/i]" % t if e.personnage.is_empty() or e.humeur == "vox" else t
 
 
 func _arreter_delai() -> void:
@@ -340,7 +367,8 @@ class OptionChoix extends Button:
 	func _init() -> void:
 		alignment = HORIZONTAL_ALIGNMENT_LEFT
 		autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		_vide.content_margin_left = 58
+		# Texte des options aligné sur celui des répliques ; le losange est dans la marge de la plaque.
+		_vide.content_margin_left = 0
 		_vide.content_margin_right = 18
 		_vide.content_margin_top = 9
 		_vide.content_margin_bottom = 11
@@ -369,7 +397,8 @@ class OptionChoix extends Button:
 			t.height = 4
 			_reflet = StyleBoxTexture.new()
 			_reflet.texture = t
-			_reflet.content_margin_left = 58
+			_reflet.content_margin_left = 0
+			_reflet.expand_margin_left = 44
 			_reflet.content_margin_right = 18
 			_reflet.content_margin_top = 9
 			_reflet.content_margin_bottom = 11
@@ -384,9 +413,9 @@ class OptionChoix extends Button:
 		var f := has_focus()
 		var cy := size.y / 2.0
 		if f:
-			var largeur := minf(size.x * 0.6, 58 + get_theme_font("font").get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 31).x + 20)
-			draw_line(Vector2(22, size.y - 3), Vector2(largeur, size.y - 3), StyleSchisme.OR_TERNI, 1.0)
-		var c := Vector2(30, cy)
+			var largeur := minf(size.x * 0.6, get_theme_font("font").get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 31).x + 20)
+			draw_line(Vector2(-36, size.y - 3), Vector2(largeur, size.y - 3), StyleSchisme.OR_TERNI, 1.0)
+		var c := Vector2(-26, cy)
 		var r := 6.4
 		var pts := PackedVector2Array([c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0)])
 		if f:

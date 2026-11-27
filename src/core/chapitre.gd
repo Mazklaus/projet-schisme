@@ -327,7 +327,7 @@ static func contenu_archive(texte: String) -> Control:
 	phrase.add_theme_font_size_override("normal_font_size", 46)
 	phrase.add_theme_color_override("default_color", Color("#E3DAC4"))
 	phrase.add_theme_constant_override("line_separation", 10)
-	var t := texte.strip_edges()
+	var t := BoiteDialogue.typographie(texte.strip_edges())
 	if not t.is_empty():
 		t = "[color=#%s]%s[/color]%s" % [StyleSchisme.OR_CLAIR.to_html(false), t.substr(0, 1), t.substr(1)]
 	phrase.text = "[center]%s[/center]" % t

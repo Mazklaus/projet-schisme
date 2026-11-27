@@ -18,9 +18,10 @@ func _initialize() -> void:
 
 func _preparer() -> void:
 	var dlg: Dictionary = load("res://src/dialogue/format_dialogue.gd").analyser("""=== a
-DREMM (assurance): Vers ses tours et ses conseils. Nous, on part vers tout le reste. Quarante mondes, et il ne reste plus que lui pour nous les compter.
+DREMM (assurance): Vers ses tours et ses conseils. Nous, on part vers tout le reste ! Et toi ?
 VASKAR (vox): Vingt-septième, rassemblement au pont d'embarquement.
 > La flotte blanche s'arrache à Ullanor.
+DREMM: Et quand il n'y aura plus de mondes ?
 * « Il nous a menés jusqu'ici. Cela suffit. » -> b
 * « Et quand il n'y aura plus de mondes à conquérir ? » -> b
 * Ne rien dire. Regarder la flotte. -> b
@@ -33,6 +34,7 @@ A: fin""")
 		["dialogue", func(): _fond_et_boite(dlg), 120],
 		["vox", func(): _boite()._texte.visible_ratio = 1.0; _boite()._suivant(), 30],
 		["narration", func(): _boite()._texte.visible_ratio = 1.0; _boite()._suivant(), 30],
+		["replique_avant_choix", func(): _boite()._texte.visible_ratio = 1.0; _boite()._suivant(), 30],
 		["choix", func():
 			_boite()._suivant()
 			(_boite()._choix.get_child(1) as Button).grab_focus()
