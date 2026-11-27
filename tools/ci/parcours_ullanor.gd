@@ -18,11 +18,11 @@ extends SceneTree
 
 const ATTENDU := {
 	"sortir": {"choix_ep01_ullanor": 1, "vivant_ilse": true, "connait_ilse_sauveur": true,
-		"relation_dremm": -1, "relation_ilse": 2, "trait_compassion": 1},
+		"relation_dremm": -1, "relation_ilse": 2, "trait_vaskar_compassion": 1},
 	"auxiliaires": {"choix_ep01_ullanor": 2, "vivant_ilse": true, "connait_ilse_sauveur": false,
 		"relation_dremm": 0, "relation_ilse": 0},
 	"obeir": {"choix_ep01_ullanor": 3, "vivant_ilse": false, "relation_dremm": 1, "relation_ilse": 0,
-		"trait_obeissance": 1},
+		"trait_vaskar_obeissance": 1},
 }
 const OPTION := {"sortir": 0, "auxiliaires": 1, "obeir": 2}
 
@@ -104,7 +104,7 @@ func _process(delta: float) -> bool:
 		_phases.append(_phase)
 		print("[%5.1f s] phase %s" % [_temps_jeu, _phase])
 		if _phase == "jeu":
-			_pois_restants = scene.POI.keys() if poi else []
+			_pois_restants = scene.pois.keys() if poi else []
 		if not captures.is_empty():
 			root.get_texture().get_image().save_png("%s/%02d_%s.png" % [captures, _phases.size(), _phase])
 	if rafale > 0.0 and not captures.is_empty() and _temps_jeu >= _prochaine_rafale:
@@ -155,7 +155,7 @@ func _process(delta: float) -> bool:
 					_interagir_relache = true
 					_pois_restants.pop_front()
 				else:
-					_aller_vers(joueur, scene.POI[p])
+					_aller_vers(joueur, scene.pois[p])
 			else:
 				_aller_vers(joueur, Vector2(scene.EBOULEMENT_X + 60, 900))
 		"libre":

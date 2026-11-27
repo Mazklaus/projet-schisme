@@ -1,0 +1,122 @@
+{
+  "plan": "cthonia_tunnel",
+  "episode": 1,
+  "chapitre": 1,
+  "scene": "1 (flash-back : jeu court, ramper vers la lampe, puis ciné)",
+  "description": "Galerie minière de ruche sur Cthonia, étroite et effondrée. Vaskar enfant est coincé ; Dremm enfant le tire vers la lumière de sa lampe. Rime visuelle avec l'éboulement d'Ullanor. Générateur : cA2/cthonia_tunnel_calques.py [--4k].",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "grille": "episode-01/grille_eboulement.json",
+  "camera": {
+    "hauteur_m": 0.45,
+    "focale_px": 1000,
+    "point_de_fuite_px": [
+      1120,
+      560
+    ]
+  },
+  "echelle": {
+    "galerie_m": "~1,6 de large, ~1,4 de haut (taille d'enfant), roche brute irrégulière, plafond qui s'écrase vers la caméra ; le fond est bouché par l'éboulement à 6 m",
+    "enfant_m": 1.2,
+    "px_par_m_a_3_6m": 278
+  },
+  "eclairage": "calques en ALBÉDO (matière et occlusion, aucune lumière cuite) ; tout l'éclairage vient de la seule Light2D ci-dessous, avec les cartes de normales",
+  "cle": {
+    "type": "lampe à main (Light2D, point + cône)",
+    "position_px": [
+      1281,
+      399
+    ],
+    "position_m": [
+      0.58,
+      1.03,
+      3.6
+    ],
+    "couleur": "#FFD08A",
+    "energie": 1.6,
+    "portee_px": 620,
+    "cone": {
+      "vers_px": [
+        639,
+        722
+      ],
+      "demi_angle_deg": 25,
+      "note": "le cône va chercher la main ; texture de cône douce, poussière dense dedans"
+    },
+    "scintillement": {
+      "amplitude": 0.08,
+      "frequence_hz": [
+        3,
+        7
+      ],
+      "note": "flamme de lampe à huile, irrégulier"
+    }
+  },
+  "ambiance": {
+    "couleur": "#120D0B",
+    "niveau": 0.04,
+    "note": "presque noir total hors du halo"
+  },
+  "post_traitement": {
+    "note": "grammaire du flash-back, en shader Godot, PAS dans les calques",
+    "grain": 0.04,
+    "vignettage": 0.8,
+    "palette": "Cthonia : suie, roche, rouille, feu, gris"
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_noir.png",
+      "auteur": "CA2",
+      "distance_m": 40,
+      "contenu": "le noir : la galerie au-delà de la portée de la lampe"
+    },
+    {
+      "fichier": "calques/20_galerie.png",
+      "normal": "calques/20_galerie_normal.png",
+      "ombre": "calques/20_galerie_ombre.png",
+      "auteur": "CA2",
+      "distance_m": "1 à 40",
+      "contenu": "parois et plafond en roche brute irrégulière (plein cadre dès 0,25 m), blocs en saillie, un rail tordu à demi enfoui, étais inclinés en bois noirci ou en métal tordu (celui de 2,9 m a cédé, poteau tombé en travers), câble détendu ; ombres des étais depuis la lampe (multiplication)"
+    },
+    {
+      "fichier": "calques/30_gravats.png",
+      "normal": "calques/30_gravats_normal.png",
+      "auteur": "CA2",
+      "distance_m": "1,4 à 3,2",
+      "contenu": "le tas de l'éboulement (plus haut à gauche, passage à droite vers la lampe) ET le mur d'éboulis qui bouche le fond derrière Dremm : une seule sortie, vers la lampe"
+    },
+    {
+      "fichier": "calques/40_personnages.png",
+      "auteur": "CA1 / kit Blender",
+      "distance_m": "1,6 (main) et 3,9 (Dremm)",
+      "contenu": "Vaskar enfant : seule la main dépasse, intersection basse gauche (639, 722) ; Dremm enfant accroupi derrière la lampe levée, en contre-jour de sa propre lampe ; gabarit : calques/gabarit_40_personnages.png (pas un asset)"
+    },
+    {
+      "fichier": "calques/45_lampe.png",
+      "auteur": "CA2",
+      "distance_m": 3.6,
+      "contenu": "la lampe elle-même (verre et flamme, émissif) ; la lumière est la Light2D"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": "0,9 à 1,1",
+      "contenu": "gros blocs au ras de la caméra, éclat d'étai au bord gauche ; ne traverse pas la diagonale main -> lampe"
+    },
+    {
+      "fichier": "calques/90_poussiere.png",
+      "auteur": "CA2",
+      "distance_m": "1 à 6",
+      "contenu": "poussière en suspension, dense dans le cône de la lampe ; à animer (dérive lente, plus vive après l'éboulement)"
+    }
+  ],
+  "jeu": "la reptation va du bas gauche vers la lampe en suivant le passage à droite du tas ; le cône peut suivre la main en jeu (orientation de la Light2D)",
+  "apercus": [
+    "apercu.png",
+    "apercu_grille.png (contrôle de la grille)"
+  ],
+  "statut": "essai v2 (corrections DA : galerie basse et brute, plein cadre, fond bouché)"
+}

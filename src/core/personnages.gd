@@ -29,7 +29,8 @@ static func ecriture_permise(cle: String) -> bool:
 	return not (cle.begins_with("vivant_") and est_canon(cle.trim_prefix("vivant_")))
 
 
-## Borne une valeur selon la famille de sa clé (relations de -3 à +3, traits de 0 à 10).
+## Borne une valeur selon la famille de sa clé (relations de -3 à +3, traits trait_<perso>_<nom>
+## de 0 à 10).
 static func borner(cle: String, valeur: Variant) -> Variant:
 	if typeof(valeur) != TYPE_INT:
 		return valeur

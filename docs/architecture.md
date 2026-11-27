@@ -65,7 +65,7 @@ Commandes gérées par `Chapitre` : `@plan` (avec `&` en dernier argument, la co
 
 Les drapeaux vivent dans la sauvegarde (`Jeu.etat.drapeaux`) et restent partagés entre les épisodes.
 
-Les clés suivent `etude-heresie/systeme-de-choix.md` : `choix_epNN_<lieu>`, `vivant_<perso>`, `connait_<perso>_<fait>`, `relation_<perso>` (de −3 à +3), `trait_<nom>` (de 0 à 10, liste fermée) et `epNN_<sujet>` pour les clés locales. Le lecteur borne relations et traits. Il refuse d'écrire `vivant_<perso>` pour un personnage `canon` du registre `data/personnages.json` (`Personnages`). `tools/ci/verifier_cles.py` contrôle en CI toutes les clés écrites par les `.dlg`. Sans sauvegarde importée, un épisode part de `data/episodes/<id>/etat_defaut.json`, chargé par `Jeu.nouvelle_partie`.
+Les clés suivent `etude-heresie/systeme-de-choix.md` : `choix_epNN_<lieu>`, `vivant_<perso>`, `connait_<perso>_<fait>`, `relation_<perso>` (de −3 à +3), `trait_<perso>_<nom>` (de 0 à 10, liste fermée de 5 traits) et `epNN_<sujet>` pour les clés locales. Le lecteur borne relations et traits. Il refuse d'écrire `vivant_<perso>` pour un personnage `canon` du registre `data/personnages.json` (`Personnages`). `tools/ci/verifier_cles.py` contrôle en CI toutes les clés écrites par les `.dlg`. Sans sauvegarde importée, un épisode part de `data/episodes/<id>/etat_defaut.json`, chargé par `Jeu.nouvelle_partie`.
 
 ## Épisodes
 
@@ -75,7 +75,7 @@ Chaque épisode est un dossier dans `data/episodes/` contenant un `episode.json`
 
 Il y a 6 emplacements, chacun stocké en JSON dans `user://sauvegardes/`. L'écriture est atomique (fichier temporaire, puis renommage).
 
-Pour changer le format, il faut incrémenter `Sauvegarde.VERSION` et ajouter une méthode `_migrer_vers_<N>`. Une migration déjà livrée ne doit jamais être modifiée. Une sauvegarde plus récente que le jeu est refusée. Version 2 : renommage des clés de la tranche (`choix_ullanor` → `choix_ep01_ullanor`, `soldate_vivante` → `vivant_ilse`, `soldate_connait_sauveur` → `connait_ilse_sauveur`).
+Pour changer le format, il faut incrémenter `Sauvegarde.VERSION` et ajouter une méthode `_migrer_vers_<N>`. Une migration déjà livrée ne doit jamais être modifiée. Une sauvegarde plus récente que le jeu est refusée. Version 2 : renommage des clés de la tranche (`choix_ullanor` → `choix_ep01_ullanor`, `soldate_vivante` → `vivant_ilse`, `soldate_connait_sauveur` → `connait_ilse_sauveur`). Version 3 : traits propres à chaque personnage joué (`trait_<nom>` → `trait_vaskar_<nom>`).
 
 ## Budget de performance
 

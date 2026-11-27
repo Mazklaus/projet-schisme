@@ -72,7 +72,7 @@ func _verifier_branche(noeud: String, attendu: Dictionary, echo: String, variant
 
 func test_branche_sortir() -> void:
 	_verifier_branche("sortir", {"vivant_ilse": true, "relation_dremm": -1, "relation_ilse": 2,
-		"trait_compassion": 1, "connait_ilse_sauveur": true}, "Elle s'en souviendra.", "IlsePlaque")
+		"trait_vaskar_compassion": 1, "connait_ilse_sauveur": true}, "Elle s'en souviendra.", "IlsePlaque")
 	assert_has(_jouer("sortir", {}).commandes, "plan 5a_retard", "5a : il arrive en retard")
 
 
@@ -83,7 +83,7 @@ func test_branche_auxiliaires() -> void:
 
 
 func test_branche_obeir() -> void:
-	_verifier_branche("obeir", {"vivant_ilse": false, "relation_dremm": 1, "trait_obeissance": 1},
+	_verifier_branche("obeir", {"vivant_ilse": false, "relation_dremm": 1, "trait_vaskar_obeissance": 1},
 		"Le capitaine s'en souviendra.", "PoutreSeule")
 
 

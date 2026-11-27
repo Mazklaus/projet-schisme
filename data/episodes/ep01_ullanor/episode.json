@@ -10,5 +10,6 @@
       "dialogue": "res://data/dialogues/ep01/ullanor.dlg",
       "plans": "res://data/episodes/ep01_ullanor/plans.json"
     }
-  ]
+  ],
+  "cache": true
 }

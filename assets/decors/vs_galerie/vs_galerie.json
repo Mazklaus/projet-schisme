@@ -1,0 +1,145 @@
+{
+  "plan": "vs_galerie_observation",
+  "episode": 1,
+  "chapitres": [
+    2,
+    5
+  ],
+  "description": "Vengeful Spirit, galerie d'observation (VS-b), état PUR. Lieu des confidences entre Vaskar et Dremm. Vignette d'étude : cA2/planche_ep1_lieux.png. Générateur : cA2/vs_galerie_calques.py. Coordonnées en 1080p (cible 4K = x2, --4k).",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "etat": "pur",
+  "regle_palette": "marbre #EDE6D6 et or #B8963E dominants ; vert d'eau #1F4A47 dans les ombres seulement (<= 20 % de l'image), il gagne du terrain avec la corruption (états contaminé, corrompu : mêmes calques 20/30/50, teinte et signes changés)",
+  "horizon_y": 600,
+  "point_de_fuite_px": [
+    960,
+    600
+  ],
+  "cle": {
+    "type": "soleil hors champ",
+    "position_px": [
+      2700,
+      -500
+    ],
+    "note_position": "hors cadre, en haut à droite, au-delà de la planète",
+    "couleur": "#DCE6F0",
+    "direction_ombres_image": [
+      -0.62,
+      1.0
+    ],
+    "note": "lumière motivée (règle 1) : toutes les ombres portées des meneaux partent avec le même angle, en diagonale vers la gauche et la caméra ; personnages en contre-jour, liseré côté droit"
+  },
+  "appoints": [
+    {
+      "type": "lampe de bord (Light2D)",
+      "position_px": [
+        60,
+        420
+      ],
+      "couleur": "#E8B060",
+      "force": 0.15
+    },
+    {
+      "type": "lampe de bord (Light2D)",
+      "position_px": [
+        1860,
+        420
+      ],
+      "couleur": "#E8B060",
+      "force": 0.15
+    }
+  ],
+  "appoints_note": "chauds et faibles, NON peints dans les calques (pas de lumière cuite hors clé, guide §6) : à poser dans Godot",
+  "rebond": {
+    "source": "planète (bas droite du 00_exterieur_croisade)",
+    "couleur": "#6F8FB0",
+    "force": 0.2,
+    "zone": "sol, côté droit (x > 1100)",
+    "note": "peint faiblement dans 30_galerie, à doubler par une Light2D faible"
+  },
+  "voile": null,
+  "echelle": {
+    "plan_personnages_m": 25,
+    "px_par_m": 61,
+    "astartes_px": 140,
+    "note": "Astartes 2,3 m (bible d'échelle) ; la verrière fait plus de 13 m de haut"
+  },
+  "exterieurs": {
+    "note": "calque 00 interchangeable, sans lien avec l'état du vaisseau",
+    "croisade": {
+      "fichier": "calques/00_exterieur_croisade.png",
+      "chapitre": 2,
+      "contenu": "étoiles, bande galactique, monde conquis bas droite (azur), la flotte est dans 10_flotte"
+    },
+    "orvane": {
+      "fichier": "calques/00_exterieur_orvane.png",
+      "chapitre": 5,
+      "contenu": "orbite d'Orvane au soir de la conformité, côté nuit piqué de feux, liseré d'aube ; masquer 10_flotte ou la garder lointaine"
+    },
+    "warp": {
+      "fichier": "calques/00_exterieur_warp.png",
+      "chapitre": "option",
+      "contenu": "translation : remous froids, AUCUNE forme ni visage (état pur) ; masquer 10_flotte"
+    }
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_exterieur_croisade.png",
+      "auteur": "CA2",
+      "distance_m": "infini",
+      "contenu": "voir exterieurs"
+    },
+    {
+      "fichier": "calques/10_flotte.png",
+      "auteur": "CA2",
+      "distance_m": 50000,
+      "contenu": "vaisseaux de la flotte en silhouette gothique (éperon, dos crénelé, flèches, tour de commandement), liseré de clé, réacteurs ; parallaxe quasi nulle"
+    },
+    {
+      "fichier": "calques/20_verriere.png",
+      "normal": "calques/20_verriere_normal.png",
+      "auteur": "CA2",
+      "distance_m": 30,
+      "contenu": "verrière gothique : 7 baies en arcs brisés, oculus de remplage, traverse, meneaux or sombre avec liseré de clé, vitrage teinté à 8 %"
+    },
+    {
+      "fichier": "calques/30_galerie.png",
+      "normal": "calques/30_galerie_normal.png",
+      "ombre": "calques/30_galerie_ombre.png",
+      "auteur": "CA2",
+      "distance_m": 22,
+      "contenu": "murs latéraux en marbre sombre, statues dans des niches (6 m), rambarde d'or, sol de marbre crème chaud avec joints et losanges d'or incrustés, reflet net de la verrière, rebond azur faible à droite ; ombre portée des meneaux en diagonale (soleil hors champ, multiplication)"
+    },
+    {
+      "fichier": "calques/40_personnages.png",
+      "auteur": "CA1 (kit Blender, caméra déduite du JSON : oeil à 3,6 m, 28,6 mm) ; notes dans cA1/vs_galerie/",
+      "distance_m": 25,
+      "contenu": "Vaskar en profil perdu vers Dremm, Dremm de trois quarts dos ; pieds y ~822, ~140 px ; silhouettes à liseré froid",
+      "statut": "livré"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": 6,
+      "contenu": "pilier presque noir (#15130F) coupé par le bord gauche, liseré or et clé, bagues d'or sombre ; coin de bannière Luna Wolves en contre-jour en haut à droite (motif à définir avec CA1)"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA2",
+      "distance_m": 15,
+      "contenu": "poussière dans la lumière de la verrière ; à animer (dérive lente)"
+    }
+  ],
+  "normales": "convention OpenGL (Y+ vers le haut), attendue par Godot 4 ; alpha = alpha du calque",
+  "apercus": [
+    "apercu_croisade.png",
+    "apercu_orvane.png",
+    "apercu_warp.png"
+  ],
+  "chaine": "base procédurale CA2 -> (option) retouche img2img figée -> peindre_plan.py en dernier ; les trois états du vaisseau se font sur ces calques",
+  "statut": "essai v2 (corrections DA du 27/11)",
+  "bannieres": "motif Luna Wolves : cA1/bannieres/ (option B : croissant noir cerné d'or, cornes en haut, XVI en or, fond ivoire, queue d'aronde) ; à intégrer au coin de bannière de 50_avant_plan à la retouche"
+}

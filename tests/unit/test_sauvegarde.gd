@@ -49,3 +49,10 @@ func test_migration_v1_vers_v2_renomme_les_cles_de_la_tranche() -> void:
 	assert_eq(int(d.version), Sauvegarde.VERSION)
 	assert_eq(d.drapeaux, {"choix_ep01_ullanor": 1, "vivant_ilse": true, "connait_ilse_sauveur": true,
 		"relation_dremm": -1})
+
+
+func test_migration_vers_v3_traits_propres_a_vaskar() -> void:
+	var d := Sauvegarde.migrer({"version": 1, "drapeaux": {"trait_orgueil": 2, "trait_doute": 1, "choix_ullanor": 3}})
+	assert_eq(d.drapeaux, {"trait_vaskar_orgueil": 2, "trait_vaskar_doute": 1, "choix_ep01_ullanor": 3})
+	var d2 := Sauvegarde.migrer({"version": 2, "drapeaux": {"trait_compassion": 1}})
+	assert_eq(d2.drapeaux, {"trait_vaskar_compassion": 1})

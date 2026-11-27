@@ -26,10 +26,10 @@ func test_vivant_refuse_pour_un_personnage_canon() -> void:
 
 
 func test_traits_bornes_de_0_a_10_et_relations_de_moins_3_a_3() -> void:
-	var dr := {"trait_orgueil": 9, "trait_doute": 1, "relation_dremm": -2}
-	_jouer("=== a\n~ trait_orgueil += 4\n~ trait_doute -= 5\n~ relation_dremm -= 4\nA: fin", dr)
-	assert_eq(dr.trait_orgueil, 10)
-	assert_eq(dr.trait_doute, 0)
+	var dr := {"trait_vaskar_orgueil": 9, "trait_vaskar_doute": 1, "relation_dremm": -2}
+	_jouer("=== a\n~ trait_vaskar_orgueil += 4\n~ trait_vaskar_doute -= 5\n~ relation_dremm -= 4\nA: fin", dr)
+	assert_eq(dr.trait_vaskar_orgueil, 10)
+	assert_eq(dr.trait_vaskar_doute, 0)
 	assert_eq(dr.relation_dremm, -3)
 
 

@@ -1,0 +1,68 @@
+{
+  "plan": "ullanor_aube",
+  "description": "Ullanor à l'aube, le lendemain du Triomphe (ch. 1, scène 8) : la Légion encore en rang dans la poussière qui retombe. État aube des calques de la tranche. Pas de personnages ni d'Horus : le moteur pose Ilse, Vaskar et la plaque.",
+  "etat_de": "tranche-verticale/ullanor.json",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "horizon_y": 620,
+  "cle": {
+    "type": "soleil",
+    "position_px": [
+      240,
+      612
+    ],
+    "hauteur_deg": 2,
+    "couleur": "#FFC9A0",
+    "note": "le soleil se lève à gauche, à l'opposé du soir du Triomphe ; lumière rasante rose-or"
+  },
+  "ambiance": {
+    "couleur": "#E6C6BE",
+    "gain": 0.78
+  },
+  "rebond": {
+    "couleur": "#B9A0A0",
+    "force": 0.2
+  },
+  "rais_force": 0.7,
+  "voile": {
+    "couleur": "#C8AFA8",
+    "d0_m": 2400
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel.png",
+      "ambiance": false
+    },
+    {
+      "fichier": "calques/10_fond.png",
+      "distance_m": 7000
+    },
+    {
+      "fichier": "calques/20_titans.png",
+      "distance_m": 1050
+    },
+    {
+      "fichier": "calques/25_poussiere.png",
+      "distance_m": 1000
+    },
+    {
+      "fichier": "calques/30_voie.png",
+      "distance_m": 300,
+      "ombre": false
+    },
+    {
+      "fichier": "calques/35_dais.png",
+      "distance_m": 900
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "distance_m": 3
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "note": "poussière fine qui retombe"
+    }
+  ]
+}

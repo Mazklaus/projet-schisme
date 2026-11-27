@@ -1,0 +1,23 @@
+{
+  "id": "ep01",
+  "numero": 1,
+  "titre": "Le Maître de Guerre",
+  "chapitres": [
+    {
+      "id": "c01",
+      "titre": "Le Triomphe",
+      "scene": "res://scenes/ullanor/tranche_ullanor.tscn",
+      "dialogue": "res://data/dialogues/ep01/ch01.dlg",
+      "plans": "res://data/episodes/ep01_ullanor/plans.json",
+      "jeu": "res://data/episodes/ep01/c01_jeu.json",
+      "suite": "nuit"
+    },
+    {
+      "id": "c02",
+      "titre": "Le Vengeful Spirit",
+      "scene": "res://scenes/chapitres/chapitre_jouable.tscn",
+      "dialogue": "res://data/dialogues/ep01/ch02.dlg",
+      "jeu": "res://data/episodes/ep01/c02_jeu.json"
+    }
+  ]
+}

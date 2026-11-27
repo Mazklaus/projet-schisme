@@ -48,6 +48,30 @@
       "statut": "original",
       "affiliation": "Luna Wolves (Librarius)",
       "premier_episode": "ep01"
+    },
+    "akhenet": {
+      "nom": "Akhenet",
+      "statut": "original",
+      "affiliation": "Thousand Sons",
+      "premier_episode": "ep02"
+    },
+    "venn": {
+      "nom": "Venn",
+      "statut": "original",
+      "affiliation": "Luna Wolves",
+      "premier_episode": "ep02"
+    },
+    "casse": {
+      "nom": "Casse",
+      "statut": "original",
+      "affiliation": "Armée impériale",
+      "premier_episode": "ep02"
+    },
+    "bjarn": {
+      "nom": "Bjarn Hjalti",
+      "statut": "original",
+      "affiliation": "Space Wolves",
+      "premier_episode": "ep02"
     }
   }
 }

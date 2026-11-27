@@ -79,7 +79,7 @@ DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
 ~ connait_ilse_sauveur = true
 ~ relation_dremm -= 1
 ~ relation_ilse += 2
-~ trait_compassion += 1
+~ trait_vaskar_compassion += 1
 @action sortir
 -> fin
 
@@ -95,10 +95,11 @@ DREMM (vox): Rassemblement. Le Maître de Guerre parle. Maintenant.
 === obeir
 ~ choix_ep01_ullanor = 3
 ~ vivant_ilse = false
+~ connait_ilse_sauveur = false
 ~ relation_dremm += 1
 // Relation Ilse : sans objet (elle meurt) ; la clé reste présente pour la sauvegarde.
 ~ relation_ilse += 0
-~ trait_obeissance += 1
+~ trait_vaskar_obeissance += 1
 @action obeir
 -> fin
 

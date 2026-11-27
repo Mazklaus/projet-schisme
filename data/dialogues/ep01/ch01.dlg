@@ -1,0 +1,365 @@
+// Épisode 1, chapitre 1 « Le Triomphe » : répliques, v0.2 VALIDÉE par le GD (Narrative Designer, 27/11).
+// Structure : ch01-sequencier.md (validé par le GD). Clés : ch01-game-design.md v0.2 et systeme-de-choix.md v1.0.
+// Aucune voix, tout s'affiche à l'écran. Une réplique tient en 2 lignes au plus et se lit en 2 s.
+// Les @ indiquent la mise en scène ; le Lead les adapte aux commandes réelles.
+// Les scènes 4 à 6 (éboulement, choix, discours) reprennent ullanor.dlg tel quel, avec les clés renommées.
+
+// Lead : les scènes 4 à 6 et le Triomphe sont repris d'ullanor.dlg (nœuds non redéfinis ici).
+@inclure ullanor.dlg
+
+// ================================================================ 0. L'archive (017.M31)
+=== archive_ouverture
+// CANON (cadre) : l'Archiviste reste sans visage.
+@plan archive_table
+> Une lampe. Une main pose une plaque de blindage gravée sur la table.
+@carton 3 Ce que j'ai pu rassembler.
+@titre 3 017.M31.
+-> cthonia
+
+// ================================================================ 1. Cthonia : les tunnels (flash-back)
+=== cthonia
+@decor cthonia_tunnel
+@titre 3 Cthonia. Bien avant.
+> Le noir. La poussière. Quelque part, une lampe.
+@jeu
+// L'enfant rampe vers la lampe. Au premier mouvement :
+DREMM (enfant): Hol ? Hol ! Réponds, rat de galerie.
+-> FIN
+
+=== cthonia_proche
+// Déclenché quand l'enfant atteint la lumière : Dremm lui tend la main.
+DREMM (enfant): Attrape. Je te tiens.
+* Prendre sa main -> cthonia_main
+* Ressortir seul -> cthonia_seul
+*! 15 -> cthonia_main
+
+=== cthonia_main
+~ trait_vaskar_fraternite += 1
+~ trait_vaskar_orgueil += 0
+DREMM (enfant): Tu te perds toujours, toi.
+VASKAR (enfant): Tu me retrouves toujours.
+-> cthonia_fin
+
+=== cthonia_seul
+~ trait_vaskar_fraternite += 0
+~ trait_vaskar_orgueil += 1
+> Il s'écorche la tempe sur l'étai. Il ressort quand même.
+DREMM (enfant): Tête de pierre. Tu saignes.
+VASKAR (enfant): Mais je suis sorti.
+-> cthonia_fin
+
+=== cthonia_fin
+DREMM (enfant): Un jour, ils viendront nous prendre. Les géants.
+DREMM (enfant): Et on montera ensemble.
+// Raccord par le regard : l'œil de l'enfant, puis celui de l'adulte.
+-> triomphe
+
+// ================================================================ 2. Le Triomphe (ciné, version longue de la tranche)
+=== triomphe
+// CANON : la nomination. L'Empereur et Horus en silhouette lointaine seulement.
+// Reprendre « ouverture » de ullanor.dlg (plans 1a à 1f) tel quel.
+@reprendre ullanor:ouverture
+-> FIN
+
+// ================================================================ 3. Le campement (6 points d'intérêt, ordre libre)
+=== poi_etendard
+VASKAR: Hier, ils étaient des millions. Il a suffi d'un seul mort.
+~ ep01_poi_etendard = true
+-> FIN
+
+=== poi_freres
+FRÈRE 1: Deux siècles, et il s'en va.
+FRÈRE 2: Il nous laisse le meilleur de ses fils. Ça me suffit.
+FRÈRE 1: Et s'il ne revient pas ?
+FRÈRE 2: Alors c'est qu'il n'avait plus rien à nous apprendre.
+~ ep01_poi_freres = true
+-> FIN
+
+=== poi_titan
+> Un technaugure, minuscule, au pied d'un Titan à l'arrêt.
+TECHNAUGURE: Ne le touche pas. Il dort encore à moitié.
+VASKAR: Il rêve ?
+TECHNAUGURE: De la bataille. Toujours la même.
+~ ep01_poi_titan = true
+-> FIN
+
+=== poi_sergent
+> Un vieux frère de la 27e, assis à l'écart, nettoie un bolter d'un modèle ancien.
+KRENN: Hol. Tu regardes la citadelle comme un orphelin.
+VASKAR: Il part, sergent.
+KRENN: Je l'ai vu arriver, moi. Sur Terra. Avant que tu sois né.
+KRENN: Il ne part jamais vraiment. Tu verras.
+~ ep01_poi_sergent = true
+-> FIN
+
+=== poi_ilse
+> Une soldate grave des noms au poinçon sur une plaque de blindage.
+> Elle lève les yeux vers lui, puis les baisse.
+VASKAR: Combien ?
+ILSE: Pas assez de plaque.
+* Lui demander son nom -> ilse_nom
+* « Laisse ça, mortelle. » -> ilse_ecarter
+* La regarder sans rien dire -> ilse_regard
+*! 10 -> ilse_regard
+
+=== ilse_nom
+~ relation_ilse += 1
+~ trait_vaskar_orgueil += 0
+VASKAR: Et le tien ?
+ILSE: Varga. Ilse. Quatrième de Kalthar.
+ILSE: Celui-là, je le garde pour la fin.
+-> ilse_fin
+
+=== ilse_ecarter
+~ relation_ilse -= 1
+~ trait_vaskar_orgueil += 1
+VASKAR: Laisse ça, mortelle. La guerre est gagnée.
+ILSE: Pas pour eux.
+> Elle continue à graver.
+-> ilse_fin
+
+=== ilse_regard
+~ relation_ilse += 0
+~ trait_vaskar_orgueil += 0
+> Il la regarde graver un nom de plus. Elle ne lève plus les yeux.
+-> ilse_fin
+
+=== ilse_fin
+~ ep01_poi_ilse = true
+-> FIN
+
+=== poi_dremm
+> Dremm, casque sous le bras, au milieu de la 27e qui se défait.
+DREMM: Le voilà. Tu as vu ? Tu as VU ?
+VASKAR: J'ai vu.
+DREMM: Maître de Guerre. Notre père. Au-dessus de tous les autres.
+DREMM: On y était, Hol. Les deux rats de galerie.
+VASKAR: Et l'Empereur s'en va.
+DREMM: Oui.
+DREMM: Il a raison de partir ?
+* « Il sait ce qu'il fait. » -> depart_empereur
+* « Il nous laisse le meilleur. » -> depart_horus
+* Ne rien dire -> depart_silence
+*! 8 -> depart_silence
+
+// C2 : choix invisible, sans écho. Lu à Davin (ép. 3) et à Isstvan III (ép. 6).
+=== depart_empereur
+~ choix_ep01_depart = 1
+~ trait_vaskar_orgueil += 0
+~ trait_vaskar_doute += 0
+VASKAR: Il sait ce qu'il fait. Il l'a toujours su.
+DREMM: Tu parles comme Krenn.
+DREMM: Mais oui. Sûrement.
+-> dremm_fin
+
+=== depart_horus
+~ choix_ep01_depart = 2
+~ trait_vaskar_orgueil += 1
+~ trait_vaskar_doute += 0
+VASKAR: Il nous laisse le meilleur. Il le sait.
+DREMM: Voilà. VOILÀ.
+DREMM: Toi et moi, on va lui montrer qu'il a eu raison.
+-> dremm_fin
+
+=== depart_silence
+~ choix_ep01_depart = 3
+~ trait_vaskar_orgueil += 0
+~ trait_vaskar_doute += 1
+> Vaskar regarde la citadelle vide.
+DREMM: Toujours à regarder ailleurs.
+DREMM: Un jour, tu me diras ce que tu y vois.
+-> dremm_fin
+
+=== dremm_fin
+DREMM: Je rassemble la compagnie. Ne traîne pas.
+DREMM: Et ne te perds pas.
+~ ep01_poi_dremm = true
+-> FIN
+
+// Relance si le joueur reste 3 min sans voir de nouveau point.
+=== relance_poste
+DREMM (vox): Hol. Tu te perds encore dans les tunnels ?
+
+// ================================================================ 4 à 6. Éboulement, choix, discours
+// Reprendre de ullanor.dlg : vox_eboulement, vox_rappel, choix, sortir, auxiliaires, obeir, fin…
+// Clés renommées : choix_ep01_ullanor, vivant_ilse, connait_ilse_sauveur (migration du Lead).
+// Le cadrage de l'éboulement rime avec Cthonia : même plan bas, même main qui dépasse.
+@reprendre ullanor:vox_eboulement
+
+// ================================================================ 7. La nuit, au bord de la voie
+=== nuit
+@decor ullanor_nuit
+> Les feux du bivouac. Les Titans sont des ombres.
+-> nuit_sortir [si choix_ep01_ullanor == 1]
+-> nuit_auxiliaires [si choix_ep01_ullanor == 2]
+-> nuit_obeir
+
+// Options C4 : chaque branche affiche une version courte de sa réplique réelle (demande du GD).
+// Les noeuds gardent les noms assumer / excuser / retourner, qui portent les clés du Game Designer.
+// ---------------------------------------------------------------- 7a. Branche « la sortir »
+=== nuit_sortir
+DREMM: Tu es arrivé en retard, Hol. Devant toute la compagnie.
+DREMM: Le jour où il a été nommé.
+-> nuit_confidence_sortir [si choix_ep01_depart == 2]
+-> nuit_sortir_coeur
+
+=== nuit_confidence_sortir
+DREMM: Je lui ai promis qu'on serait les meilleurs. Toi et moi.
+-> nuit_sortir_coeur
+
+=== nuit_sortir_coeur
+DREMM: Je t'ai sorti une fois. Pas pour que tu traînes derrière le rang.
+* « Elle était sous la poutre. J'étais là. » -> sortir_assumer
+* « Ma place était dans le rang. » -> sortir_excuser
+* « Et toi, dans le tunnel ? » -> sortir_retourner
+
+=== sortir_assumer
+~ relation_dremm -= 1
+~ trait_vaskar_compassion += 1
+~ connait_dremm_tunnel = false
+VASKAR: J'ai fait ce que tu as fait pour moi.
+VASKAR: Elle était sous la poutre. J'étais là.
+DREMM: Moi, j'étais ton frère. Elle n'est personne.
+-> nuit_fin
+
+=== sortir_excuser
+~ relation_dremm += 1
+~ trait_vaskar_obeissance += 1
+~ connait_dremm_tunnel = false
+VASKAR: Tu as raison. Ma place était dans le rang.
+DREMM: Elle l'est toujours. N'oublie pas.
+-> nuit_fin
+
+=== sortir_retourner
+~ relation_dremm += 0
+~ connait_dremm_tunnel = true
+~ trait_vaskar_fraternite += 1
+VASKAR: Et toi, dans le tunnel ? Pourquoi tu es revenu ?
+DREMM: …
+DREMM: Parce que sans toi, je serais monté seul.
+-> nuit_fin
+
+// ---------------------------------------------------------------- 7b. Branche « auxiliaires »
+=== nuit_auxiliaires
+DREMM: Tu étais à ta place. C'est bien.
+DREMM: Mais tu as regardé derrière toi tout le discours.
+-> nuit_confidence_aux [si choix_ep01_depart == 2]
+-> nuit_aux_coeur
+
+=== nuit_confidence_aux
+DREMM: Lui ne regarde jamais derrière. C'est pour ça qu'il est devant.
+-> nuit_aux_coeur
+
+=== nuit_aux_coeur
+DREMM: Tu penses encore à la mortelle ?
+* « Je ne sais pas si c'était assez. » -> aux_assumer
+* « Non. C'est passé. » -> aux_excuser
+* « Et toi, dans le tunnel ? » -> aux_retourner
+
+=== aux_assumer
+~ relation_dremm += 0
+~ trait_vaskar_compassion += 1
+~ connait_dremm_tunnel = false
+VASKAR: J'ai appelé à l'aide. Je ne sais pas si c'était assez.
+DREMM: C'était assez pour le rang. Le reste, ce n'est pas à nous.
+-> nuit_fin
+
+=== aux_excuser
+~ relation_dremm += 1
+~ trait_vaskar_obeissance += 1
+~ connait_dremm_tunnel = false
+VASKAR: Non. C'est passé.
+DREMM: Bien. Demain, la flotte. Le monde est grand.
+-> nuit_fin
+
+=== aux_retourner
+~ relation_dremm += 0
+~ connait_dremm_tunnel = true
+~ trait_vaskar_fraternite += 1
+VASKAR: Toi, tu aurais appelé quelqu'un, dans le tunnel ?
+DREMM: Il n'y avait personne à appeler.
+DREMM: Alors je suis revenu. C'est tout.
+-> nuit_fin
+
+// ---------------------------------------------------------------- 7c. Branche « obéir » (cas par défaut, sans condition)
+=== nuit_obeir
+DREMM: Tu étais là, à côté de moi. Comme toujours.
+> Vaskar regarde vers la voie. Vers la poutre.
+-> nuit_confidence_obeir [si choix_ep01_depart == 2]
+-> nuit_obeir_coeur
+
+=== nuit_confidence_obeir
+DREMM: Il nous a regardés, Hol. Je te jure qu'il nous a regardés.
+-> nuit_obeir_coeur
+
+=== nuit_obeir_coeur
+DREMM: Qu'est-ce que tu regardes ?
+* « Une soldate. Je l'ai laissée. » -> obeir_assumer
+* « Rien. La fumée. » -> obeir_excuser
+* « Et toi, dans le tunnel ? » -> obeir_retourner
+
+=== obeir_assumer
+~ relation_dremm += 0
+~ trait_vaskar_compassion += 1
+~ connait_dremm_tunnel = false
+VASKAR: Une soldate. Sous la poutre. Je l'ai laissée.
+DREMM: Tu as obéi. C'est ce que nous sommes.
+-> nuit_fin
+
+=== obeir_excuser
+~ relation_dremm += 1
+~ trait_vaskar_obeissance += 1
+~ connait_dremm_tunnel = false
+VASKAR: Rien. La fumée.
+DREMM: Alors regarde devant. Il y a tout à prendre.
+-> nuit_fin
+
+=== obeir_retourner
+~ relation_dremm += 0
+~ connait_dremm_tunnel = true
+~ trait_vaskar_fraternite += 1
+VASKAR: Dans le tunnel, si on t'avait rappelé. Tu serais revenu ?
+DREMM: …
+DREMM: On ne m'a pas rappelé. Ne me demande pas ça.
+-> nuit_fin
+
+=== nuit_fin
+DREMM: Dors. Demain, on monte à bord de son vaisseau.
+-> aube
+
+// ================================================================ 8. L'aube, puis l'archive
+=== aube
+@decor ullanor_aube
+-> aube_plaque_offerte [si connait_ilse_sauveur == true]
+-> aube_plaque_lointaine [si vivant_ilse == true]
+-> aube_plaque_ramassee
+
+=== aube_plaque_offerte
+// Branche « la sortir » : elle sait qui l'a sauvée.
+> Contre son armure, quelqu'un a posé une plaque gravée.
+> Tout en bas, une ligne nouvelle.
+@plan plaque_gros
+> VASKAR HOL — vivant.
+-> aube_depart
+
+=== aube_plaque_lointaine
+// Branche « auxiliaires » : elle vit mais ne sait pas qui l'a sauvée. Plan lointain.
+> Au bord de la voie, la soldate, le bras en écharpe, grave une ligne de plus.
+@plan plaque_lointaine
+> CELUI QUI A APPELÉ — vivant.
+-> aube_depart
+
+=== aube_plaque_ramassee
+// Plan large et lointain : une main anonyme de l'Armée ramasse la plaque sous la poutre.
+> Au loin, sous la poutre, une main ramasse une plaque.
+-> aube_depart
+
+=== aube_depart
+// CANON : l'Empereur part vers Terra, la flotte de la Légion part de l'autre côté.
+@plan depart_flottes
+> Un vaisseau d'or part vers Terra. La flotte blanche part de l'autre côté.
+@decor archive
+@plan archive_table
+// La plaque de la scène 0, sous la lampe.
+@carton 4 Ils ne se reverraient qu'une fois.
+-> FIN

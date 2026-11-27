@@ -2,7 +2,7 @@
 """Vérifie les clés de drapeaux écrites par les dialogues (systeme-de-choix.md §2 et §7).
 
 - Chaque clé écrite (« ~ cle = v », « += », « -= ») appartient à une des six familles :
-  choix_epNN_<lieu>, vivant_<perso>, connait_<perso>_<fait>, relation_<perso>, trait_<nom>,
+  choix_epNN_<lieu>, vivant_<perso>, connait_<perso>_<fait>, relation_<perso>, trait_<perso>_<nom>,
   epNN_<sujet>.
 - <perso> est dans data/personnages.json ; aucune clé vivant_ ne porte sur un personnage canon.
 - Les traits sont dans la liste fermée.
@@ -35,8 +35,12 @@ def verifier(racine: pathlib.Path) -> list[str]:
                 continue
             famille, _, reste = cle.partition("_")
             if famille == "trait":
-                if reste not in TRAITS:
-                    erreurs.append(f"{ou} : trait inconnu « {reste} » (liste fermée : {', '.join(sorted(TRAITS))})")
+                # trait_<perso>_<nom> (spec v1.2) : traits propres à chaque personnage joué.
+                perso, _, nom = reste.rpartition("_")
+                if perso not in registre:
+                    erreurs.append(f"{ou} : {cle} : personnage « {perso} » absent de data/personnages.json")
+                elif nom not in TRAITS:
+                    erreurs.append(f"{ou} : trait inconnu « {nom} » (liste fermée : {', '.join(sorted(TRAITS))})")
             elif famille in ("vivant", "relation"):
                 perso = registre.get(reste)
                 if perso is None:

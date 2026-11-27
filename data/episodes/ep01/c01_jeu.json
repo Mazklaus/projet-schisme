@@ -1,0 +1,58 @@
+{
+  "_doc": "Zones d'exploration du chapitre 1 (ch01-game-design.md). « ouverture » complète la zone de la tranche (scènes 3 à 5).",
+  "cthonia": {
+    "decor": "cthonia_tunnel",
+    "depart": [
+      260,
+      930
+    ],
+    "limites": [
+      160,
+      880,
+      1500,
+      120
+    ],
+    "personnage": "vaskar_enfant",
+    "echelle": 0.55,
+    "declencheurs": [
+      {
+        "x": 1180,
+        "noeud": "cthonia_proche"
+      }
+    ]
+  },
+  "ouverture": {
+    "pois": {
+      "poi_titan": [
+        620,
+        860
+      ],
+      "poi_sergent": [
+        1250,
+        880
+      ],
+      "poi_dremm": [
+        2150,
+        870
+      ]
+    },
+    "figurants": {
+      "poi_sergent": "krenn",
+      "poi_dremm": "dremm",
+      "poi_titan": "technaugure"
+    },
+    "obligatoires": [
+      "poi_ilse",
+      "poi_dremm"
+    ],
+    "disparait_apres": [
+      "poi_dremm"
+    ],
+    "relance": {
+      "s": 180,
+      "noeud": "relance_poste"
+    },
+    "eboulement_max_s": 240,
+    "relisibles": false
+  }
+}

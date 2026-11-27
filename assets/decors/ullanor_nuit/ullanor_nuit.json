@@ -1,0 +1,228 @@
+{
+  "plan": "ullanor_nuit",
+  "description": "Ullanor, la nuit du Triomphe : bivouac de la Légion le long de la voie (ch. 1, scène 7). État nuit des calques de la tranche. Pas de personnages : Vaskar et Dremm sont posés par le moteur, éclairés par le feu le plus proche (x 250 ou 1660).",
+  "etat_de": "tranche-verticale/ullanor.json",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "horizon_y": 620,
+  "cle": {
+    "type": "lune",
+    "position_px": [
+      1500,
+      120
+    ],
+    "hauteur_deg": 55,
+    "couleur": "#8FA0C8",
+    "note": "clé froide faible venue du haut à droite ; la vraie lumière est celle des feux"
+  },
+  "ambiance": {
+    "couleur": "#5A6A9A",
+    "gain": 0.34,
+    "note": "multiplie chaque calque de décor (lune, nuit)"
+  },
+  "lumieres": [
+    {
+      "type": "feu",
+      "position_px": [
+        560,
+        686.5
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 49,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        700,
+        673.5
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 35,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        430,
+        707.5
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 63,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        300,
+        736.0
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 84,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        640,
+        723.0
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 70,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        180,
+        782.0
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 112,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        1240,
+        681.0
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 42,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        1380,
+        696.0
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 56,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        1520,
+        718.5
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 77,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        1300,
+        734.0
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 84,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        1700,
+        762.5
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 105,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        1820,
+        810.5
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 133,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        250,
+        888.0
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 238,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    },
+    {
+      "type": "feu",
+      "position_px": [
+        1660,
+        875.0
+      ],
+      "couleur": "#FF9A48",
+      "rayon_px": 210,
+      "intensite": 1.1,
+      "scintillement": 0.15
+    }
+  ],
+  "rais": false,
+  "voile": {
+    "couleur": "#2A2328",
+    "d0_m": 2200
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel.png",
+      "ambiance": false
+    },
+    {
+      "fichier": "calques/10_fond.png",
+      "distance_m": 7000
+    },
+    {
+      "fichier": "calques/20_titans.png",
+      "distance_m": 1050
+    },
+    {
+      "fichier": "calques/25_poussiere.png",
+      "distance_m": 1000
+    },
+    {
+      "fichier": "calques/30_voie.png",
+      "distance_m": 300,
+      "ombre": false
+    },
+    {
+      "fichier": "calques/35_dais.png",
+      "distance_m": 900
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "distance_m": 3
+    },
+    {
+      "fichier": "calques/32_feux.png",
+      "distance_m": 0,
+      "ambiance": false,
+      "emissif": true,
+      "note": "flammes ; le moteur les anime (sprite) aux positions de 'lumieres'"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "note": "braises qui montent des feux"
+    }
+  ]
+}
