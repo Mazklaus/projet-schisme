@@ -17,7 +17,7 @@ source d'un décor (<id>/<id>.json + calques/ [+ calques/4k/]), pour chaque calq
 
 Usage :
   python3 tools/finir_decor.py <dossier_decor> [--calques 10_salle,20_table] [--graine 7]
-      [--sans-retouche] [--sans-peinture] [--depot .] [--branche] [--pr] [--restaurer] [--essai]
+      [--sans-retouche] [--sans-peinture] [--retouche-de DOSSIER] [--depot .] [--branche] [--pr] [--restaurer] [--essai]
 Variables : RETOUCHE_PY (python du venv de retouche), RETOUCHER (chemin de retoucher.py),
 PEINDRE_PLAN (chemin de peindre_plan.py), PEINDRE_PY (python avec numpy et opencv).
 """
@@ -158,7 +158,15 @@ def finir(a):
         entree = maquette if maquette.exists() else source  # on repart toujours de la maquette
         etape = entree
         ligne = {"calque": p.name, "source": str(rel)}
-        if not a.sans_retouche:
+        if a.retouche_de:
+            # Retouche déjà faite et choisie par la DA (TP2, graine figée) : on la reprend telle quelle.
+            sortie = Path(a.retouche_de) / f"{p.stem}_g{a.graine}.png"
+            if not sortie.is_file():
+                journal(f"pas de retouche g{a.graine} pour {p.name} dans {a.retouche_de} : calque laissé tel quel")
+                continue
+            ligne["retouche"] = str(sortie)
+            etape = sortie
+        elif not a.sans_retouche:
             r, origine = reglages(dossier, d, p)
             sortie = travail / f"{p.stem}_retouche.png"
             prof = p.with_name(p.stem + "_profondeur.png")
@@ -176,12 +184,21 @@ def finir(a):
             continue
         final = Image.open(etape).convert("RGBA")
         if source == k4:                               # 4k = résultat peint ; 1080 = sa réduction
+            if final.size != Image.open(k4).size:
+                final = final.resize(Image.open(k4).size, Image.LANCZOS)
             final.save(k4, optimize=True)
             final.resize(Image.open(p).size, Image.LANCZOS).save(p, optimize=True)
         else:
             final.resize(Image.open(p).size, Image.LANCZOS).save(p, optimize=True)
         maintenant = datetime.datetime.now().isoformat(timespec="seconds")
-        if not a.sans_retouche:
+        if a.retouche_de:
+            fiche = Path(a.retouche_de) / f"{p.stem}_g{a.graine}.retouche.json"
+            f = json.loads(fiche.read_text(encoding="utf-8")) if fiche.is_file() else {}
+            f.update({"sortie": f"calques/{p.name}", "date": maintenant, "finir_decor": True,
+                      "reprise_de": str(Path(a.retouche_de) / f"{p.stem}_g{a.graine}.png"),
+                      "statut": f.get("statut", "essai")})
+            p.with_suffix(".retouche.json").write_text(json.dumps(f, ensure_ascii=False, indent=2), encoding="utf-8")
+        elif not a.sans_retouche:
             f = json.loads((travail / f"{p.stem}_retouche.retouche.json").read_text(encoding="utf-8"))
             f.update({"sortie": f"calques/{p.name}", "date": maintenant, "finir_decor": True,
                       "statut": f.get("statut", "essai")})
@@ -252,6 +269,8 @@ def main(argv=None):
     ap.add_argument("--graine", type=int, default=7)
     ap.add_argument("--sans-retouche", action="store_true", help="peindre_plan seulement")
     ap.add_argument("--sans-peinture", action="store_true", help="retouche seulement")
+    ap.add_argument("--retouche-de", metavar="DOSSIER",
+                    help="reprend les retouches choisies <calque>_g<graine>.png de ce dossier au lieu de relancer la retouche")
     ap.add_argument("--depot", help="clone de projet-schisme : importe et contrôle le décor")
     ap.add_argument("--branche", action="store_true", help="avec --depot : branche et commit")
     ap.add_argument("--pr", action="store_true", help="avec --depot : pousse et ouvre la PR")
