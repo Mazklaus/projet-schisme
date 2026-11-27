@@ -283,3 +283,23 @@ func test_ombre_de_contact() -> void:
 	assert_eq(r.get_child(1), o, "sous toutes les pièces (juste après le squelette)")
 	assert_eq(o.position, Vector2(20 - 51, 340 - 347), "pose relative aux pieds")
 	assert_string_contains((o.material as ShaderMaterial).shader.code, "blend_mul")
+	assert_eq(o.light_mask, 0, "hors des Light2D : sinon la lampe l'éclaire en rectangle")
+
+
+func test_ombre_compense_l_ambiance() -> void:
+	var cm := CanvasModulate.new()
+	cm.color = Color(0.5, 0.25, 1.0)
+	add_child_autofree(cm)
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d["ombre"] = {"fichier": "pied_avant.png", "pose": [20, 340]}
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	r.compenser_ambiance()
+	var m: Color = r.ombre.self_modulate
+	assert_almost_eq(m.r, 2.0, 0.001)
+	assert_almost_eq(m.g, 4.0, 0.001)
+	assert_almost_eq(m.b, 1.0, 0.001)
+	cm.visible = false
+	r.compenser_ambiance()
+	assert_eq(r.ombre.self_modulate, Color.WHITE)
