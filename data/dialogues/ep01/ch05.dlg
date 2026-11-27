@@ -74,6 +74,7 @@ DREMM: Tu parles comme un vieux de Terra.
 === nom_silence
 ~ choix_ep01_nom = 3
 ~ trait_vaskar_doute += 1
+@plan serre:vaskar
 > Vaskar regarde la place vide au-dessus des noms.
 DREMM: Toujours ailleurs, toi.
 -> codicier

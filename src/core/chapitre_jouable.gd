@@ -137,6 +137,124 @@ func _avant_dialogue() -> void:
 		else:
 			push_error("Fichier jeu illisible : %s" % infos.jeu)
 	lecteur.noeud_entre.connect(_mise_en_scene_du_noeud)
+	_regie = RegieGrosPlans.charger("res://data/episodes/%s/gros_plans.json" % Jeu.etat.episode)
+	lecteur.noeud_entre.connect(_regie_entrer)
+	boite.evenement.connect(_sur_evenement_dialogue)
+
+
+# --------------------------------------------------------------------------- gros plans
+
+## Gros plans de dialogue (fonds de CA2, bustes de CA1) : décidés par la régie, affichés dans un
+## CanvasLayer sous les gros plans d'Horus (5) et l'interface (10).
+const COUCHE_GROS_PLAN := 4
+const FONDU_GROS_PLAN_S := 0.25
+var _regie := RegieGrosPlans.new()
+var _couche_gp: CanvasLayer
+var _racine_gp: Node2D
+var _fond_gp := ""
+
+
+## « @plan large | serre | serre:<perso> » : surcharge de la régie (Narrative).
+func executer_commande(nom: String, args: Array) -> void:
+	if nom == "plan" and not args.is_empty() and RegieGrosPlans.est_surcharge(String(args[0])):
+		_regie.surcharger(String(args[0]))
+		return
+	if nom == "plan" and _regie.plan != "large":
+		_regie.plan_nomme()
+		_afficher_gros_plan("large")
+	await super.executer_commande(nom, args)
+
+
+func _regie_entrer(noeud: String) -> void:
+	_regie.entrer(String(infos.get("id", "")), noeud)
+	if _regie.plan == "large" and _couche_gp and _couche_gp.visible:
+		_afficher_gros_plan("large")
+
+
+func _sur_evenement_dialogue(e: Dictionary) -> void:
+	var avant := _regie.plan
+	var p := _regie.decider(e)
+	if p != avant or (p != "large" and _couche_gp and not _couche_gp.visible):
+		_afficher_gros_plan(p)
+
+
+func _afficher_gros_plan(p: String) -> void:
+	if p == "large":
+		if _couche_gp and _couche_gp.visible:
+			var t := create_tween()
+			t.tween_property(_racine_gp, "modulate:a", 0.0, FONDU_GROS_PLAN_S)
+			t.tween_callback(_couche_gp.hide)
+		return
+	var id_fond := String(_regie.scene.get("decor", ""))
+	if _couche_gp == null:
+		_couche_gp = CanvasLayer.new()
+		_couche_gp.name = "GrosPlanDialogue"
+		_couche_gp.layer = COUCHE_GROS_PLAN
+		_couche_gp.visible = false
+		add_child(_couche_gp)
+	if id_fond != _fond_gp:
+		if _racine_gp:
+			_racine_gp.queue_free()
+		_racine_gp = construire_fond_gros_plan(id_fond)
+		_couche_gp.add_child(_racine_gp)
+		_fond_gp = id_fond
+	var cote := _regie.cote_du_plan()
+	var buste := _racine_gp.get_node_or_null(^"Buste") as Sprite2D
+	if buste == null:
+		buste = Sprite2D.new()
+		buste.name = "Buste"
+		buste.centered = false
+		_racine_gp.add_child(buste)
+	var chemin := RegieGrosPlans.chemin_buste(p, cote)
+	var tex := load(chemin) as Texture2D
+	buste.texture = tex
+	# Buste générique (peint pour la gauche, regard vers la droite) : miroir à droite.
+	buste.flip_h = cote == "droite" and chemin.get_file() == "buste.png"
+	var zone: Array = _racine_gp.get_meta("zones", {}).get(cote, {}).get("x_px", [0, 960])
+	var centre_x := (float(zone[0]) + float(zone[1])) / 2.0
+	buste.position = Vector2(centre_x - tex.get_width() / 2.0, 1080.0 - tex.get_height())
+	if not _couche_gp.visible:
+		_racine_gp.modulate.a = 0.0
+		_couche_gp.show()
+	create_tween().tween_property(_racine_gp, "modulate:a", 1.0, FONDU_GROS_PLAN_S)
+
+
+## Fond de gros plan de CA2 (assets/decors/<id>) : calques déjà éclairés, posés tels quels ;
+## « additif » en addition, avec un vacillement léger. Les gabarits de CA1 ne vont pas en jeu.
+static func construire_fond_gros_plan(id: String) -> Node2D:
+	var racine := Node2D.new()
+	racine.name = "Fond_" + id
+	var dossier := DOSSIER_DECORS.path_join(id)
+	var g = JSON.parse_string(FileAccess.get_file_as_string(dossier.path_join(id + ".json"))) \
+		if FileAccess.file_exists(dossier.path_join(id + ".json")) else null
+	if typeof(g) != TYPE_DICTIONARY:
+		push_warning("Fond de gros plan introuvable : %s" % id)
+		return racine
+	racine.set_meta("zones", g.get("zones_calmes", {}))
+	for k in g.get("calques", []):
+		if typeof(k) != TYPE_DICTIONARY or not k.has("fichier") or k.has("pour"):
+			continue
+		var chemin := dossier.path_join(k.fichier)
+		if not ResourceLoader.exists(chemin):
+			continue
+		var sp := Sprite2D.new()
+		sp.name = String(k.fichier).get_file().get_basename()
+		sp.texture = load(chemin)
+		sp.centered = false
+		sp.light_mask = 0
+		var additif := String(k.get("mode", "")) == "additif" or sp.name.begins_with("9")
+		var m := CanvasItemMaterial.new()
+		m.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+		if additif:
+			m.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		sp.material = m
+		racine.add_child(sp)
+		if additif and not sp.name.begins_with("9"):
+			sp.ready.connect(func() -> void:
+				var t := sp.create_tween().set_loops()
+				for a in [0.88, 1.0, 0.93, 1.0]:
+					t.tween_property(sp, "modulate:a", a, randf_range(0.15, 0.35)))
+	return racine
 
 
 # --------------------------------------------------------------------------- mise en scène

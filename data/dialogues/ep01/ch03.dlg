@@ -41,6 +41,7 @@ DREMM (vox): Hol. Le rang.
 ~ trait_vaskar_obeissance += 1
 ~ ep01_plaques_ramassees = false
 > Elle ramasse seule, à genoux entre deux géants immobiles.
+@plan serre:vaskar
 > En se relevant, elle regarde Vaskar. Lui seul a baissé les yeux.
 -> quartiers_civils
 
@@ -164,7 +165,9 @@ SEFA: Le silence aussi, ça s'écrit.
 === dremm_sefa
 @plan dremm_sefa_loin
 > Plus loin, Dremm s'est assis par terre pour être à sa hauteur. Elle rit.
+@plan large
 DREMM: … et quand il s'est relevé, Sefa Morn, toute la plaine a crié son nom.
+@plan large
 DREMM: Écrivez ça. Écrivez qu'on y était.
 -> dremm_sefa_soldate [si choix_ep01_recit == 1]
 // Défaut : Sefa note, sans question.
@@ -173,6 +176,7 @@ SEFA: Je l'écris.
 
 === dremm_sefa_soldate
 SEFA: Et la soldate ?
+@plan serre:dremm
 > Le visage de Dremm se ferme. Il cherche Vaskar des yeux. Il le trouve.
 DREMM: Quelle soldate ?
 -> plaque_sefa
@@ -223,5 +227,6 @@ SEFA: Un jour, peut-être.
 > Briefing général. Un monde humain, au bord de la carte, a dit non.
 DREMM: Orvane. Ils refusent la conformité.
 DREMM: La 27e part avec le détachement. Et le Maître de Guerre nous regarde.
+@plan serre:dremm
 > Dremm sourit.
 -> FIN

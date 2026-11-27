@@ -1,0 +1,114 @@
+{
+ "plan": "barge_quartiers_civils_gros_plan",
+ "episode": 1,
+ "chapitres": [
+  3
+ ],
+ "decor_source": "barge_quartiers_civils",
+ "cadre_px": [
+  1920,
+  1080
+ ],
+ "usage": "fond des gros plans de Vaskar et Sefa dans la cabine (ch03 : entretien, plaque_montrer/refuser, recits, poi_*) ; Dremm aussi (dremm_sefa*)",
+ "description": "La cabine de Sefa en plan rapproché, mise au point sur le personnage (~1 m) : le mur du fond flou (feuillets épinglés, chevalet) à gauche, le sas d'Astartes au centre, son hublot froid tout en haut, la lampe-lumen en bas au centre (seule chaleur), le mur droit nu.",
+ "source": "calques 4k de barge_quartiers_civils (05, 00, 20 + ombre, 30, 45), fenêtre [785, 330, 1585, 780] agrandie x2,4, éclairage du décor source, bureau assombri et désaturé hors de la flaque de la lampe, flou 11 px ; sans 40_personnages",
+ "zones_calmes": {
+  "gauche": {
+   "x_px": [
+    190,
+    850
+   ],
+   "note": "mur du fond flou, feuillets fondus"
+  },
+  "droite": {
+   "x_px": [
+    1070,
+    1730
+   ],
+   "note": "mur droit nu, table floue en bas"
+  },
+  "regle": "un personnage à gauche (regard vers la droite) ou à droite (regard vers la gauche) ; la lampe reste visible entre les deux, en bas au centre"
+ },
+ "lumieres": {
+  "cle": {
+   "source": "lampe-lumen",
+   "position_px": [
+    895,
+    720
+   ],
+   "couleur": "#FFC27A",
+   "direction_camera": [
+    0.0,
+    -0.25,
+    0.97
+   ],
+   "note": "derrière le personnage et un peu en dessous (la lampe est sur la table, à 0,98 m) : liseré chaud sur le bord du visage tourné vers le centre de l'image, dessous du menton et des pommettes ; personnage à gauche = liseré côté droit, à droite = liseré côté gauche"
+  },
+  "contre": {
+   "source": "hublot du sas (froid, haut)",
+   "position_px": [
+    629,
+    372
+   ],
+   "couleur": "#B8C4D0",
+   "force": 0.25,
+   "note": "petit, froid, venu d'en haut et de derrière : une touche bleutée sur le haut du crâne et des épaules, jamais sur le visage"
+  },
+  "ambiance": {
+   "type": "CanvasModulate",
+   "couleur": "#17161A",
+   "note": "la face du personnage tournée vers la caméra reste dans l'ombre : la cabine n'a pas d'autre source"
+  }
+ },
+ "calques": [
+  {
+   "fichier": "calques/00_fond_flou.png",
+   "auteur": "CA2",
+   "distance_m": 4.0,
+   "note": "déjà éclairé et flou : ne pas rééclairer"
+  },
+  {
+   "fichier": "calques/45_lampe_bokeh.png",
+   "mode": "additif",
+   "auteur": "CA2",
+   "contenu": "la lampe, hors de la mise au point (scintillement 0,03)"
+  },
+  {
+   "fichier": "calques/46_hublot_bokeh.png",
+   "mode": "additif",
+   "auteur": "CA2",
+   "contenu": "le hublot, petit disque froid"
+  },
+  {
+   "fichier": "calques/gabarit_40_gauche.png",
+   "pour": "CA1",
+   "contenu": "buste, personnage à gauche"
+  },
+  {
+   "fichier": "calques/gabarit_40_droite.png",
+   "pour": "CA1",
+   "contenu": "buste, personnage à droite"
+  },
+  {
+   "fichier": "calques/gabarit_41_lisere_gauche.png",
+   "mode": "additif",
+   "pour": "CA1",
+   "contenu": "liseré de la lampe pour le personnage de gauche (côté droit)"
+  },
+  {
+   "fichier": "calques/gabarit_41_lisere_droite.png",
+   "mode": "additif",
+   "pour": "CA1",
+   "contenu": "liseré de la lampe pour le personnage de droite (à symétriser : côté gauche)"
+  },
+  {
+   "fichier": "calques/90_particules.png",
+   "auteur": "CA2",
+   "contenu": "poussière floue dans la lumière de la lampe, à animer"
+  }
+ ],
+ "valeurs_sous_1A1612_pct": 6.4,
+ "generateur": "cA2/gros_plans_ep01.py civils [--4k]",
+ "statut": "VALIDÉ par le DA (27/11, corrections faites), 1080 et 4k",
+ "4k": "calques/4k/ (mêmes noms)"
+}

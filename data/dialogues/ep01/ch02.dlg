@@ -139,6 +139,7 @@ KRENN: Alors tu as compris plus vite que ton capitaine.
 -> message_ilse
 
 === retour_horus
+@plan serre:krenn
 > Krenn regarde Vaskar longtemps, sans rien dire.
 KRENN: Le fils est grand, Hol. Le père est plus grand.
 KRENN: N'oublie jamais lequel nous a faits.
@@ -188,6 +189,7 @@ FRÈRE DE LA LOGE: Asaro dit que tu es le meilleur de sa compagnie.
 VASKAR: Asaro exagère.
 FRÈRE DE LA LOGE: Asaro n'exagère jamais quand il parle de toi.
 DREMM: On se jure une chose, Hol. Une seule.
+@plan large
 DREMM: Que quoi qu'il arrive, aucun de nous ne restera seul.
 DREMM: Comme dans le tunnel.
 // C5 : pas de minuteur (choix moral lent). Quitter la salle sans un mot vaut 3.

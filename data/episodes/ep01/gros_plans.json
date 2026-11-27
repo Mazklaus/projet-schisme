@@ -1,0 +1,17 @@
+{
+  "_doc": "Gros plans de dialogue (règle GD 27/11, voir src/core/regie_gros_plans.gd). Une scène : chapitre, motifs de nœuds, fond de CA2 (assets/decors/<decor>), côté de chaque personnage (règle des 180°). Inerte tant que les bustes de CA1 (assets/personnages/<perso>/buste.png ou buste_<cote>.png) ne sont pas livrés.",
+  "scenes": [
+    {
+      "chapitre": "c01",
+      "decor": "ullanor_nuit_gros_plan",
+      "noeuds": ["nuit", "nuit_*", "aux_*", "obeir_*", "sortir_*"],
+      "cotes": {"DREMM": "gauche", "VASKAR": "droite"}
+    },
+    {
+      "chapitre": "c03",
+      "decor": "barge_quartiers_civils_gros_plan",
+      "noeuds": ["entretien*", "plaque_*", "recit_*", "poi_*", "dremm_sefa*"],
+      "cotes": {"SEFA": "gauche", "VASKAR": "droite", "DREMM": "droite"}
+    }
+  ]
+}
