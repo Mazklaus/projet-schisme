@@ -3,3 +3,6 @@
 /build/
 /export_presets.cfg.local
 __pycache__/
+# Builds de captures (tools/capturer_episode.py) : locales ; seules les captures gardées par la DA
+# (qa/captures/<id>.jpg, option --garder) sont versionnées.
+/qa/captures/*/

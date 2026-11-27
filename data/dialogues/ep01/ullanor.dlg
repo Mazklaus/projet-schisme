@@ -153,7 +153,7 @@ HORUS: Gardez-le, et rien ne nous arrêtera.
 @montrer Ullanor/Calque_30_voie/PoutreSeule
 @plan 5e
 // 5f : écho.
-@carton 3 Le capitaine s'en souviendra.
+@carton 3.5 Le capitaine s'en souviendra.
 -> FIN
 
 === fin_5e_sauvee
@@ -167,5 +167,5 @@ HORUS: Gardez-le, et rien ne nous arrêtera.
 // 5e (auxiliaires) : des auxiliaires emportent une civière ; on ne voit pas qui est dessus.
 @montrer Ullanor/Calque_30_voie/Civiere
 @plan 5e
-@carton 3 Personne ne saura qui l'a sauvée.
+@carton 4 Personne ne saura qui l'a sauvée.
 -> FIN

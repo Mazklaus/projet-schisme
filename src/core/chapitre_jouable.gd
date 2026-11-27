@@ -80,7 +80,7 @@ func _ready() -> void:
 	joueur.name = "Joueur"
 	joueur.position = DEPART_DEFAUT
 	joueur.limites = ZONE_MARCHE_DEFAUT
-	joueur.sprite = _sprite("vaskar")
+	joueur.sprite = _figure("vaskar")
 	joueur.add_child(joueur.sprite)
 	joueur.visible = false
 	post_soleil = PostSoleil.new()
@@ -1042,6 +1042,58 @@ static func etiquettes_de_debogage() -> bool:
 	return OS.has_feature("editor") and OS.get_environment("SCHISME_SANS_DEBUG") != "1"
 
 
+## « @geste <perso> <geste> [attendre] » : geste d'un personnage découpé (data/anim/gestes.json).
+## Le personnage est un figurant posé ou le joueur. Sans « attendre », le dialogue continue
+## pendant le geste ; avec, il reprend une fois le geste posé (ou fini s'il ne se tient pas).
+## Un personnage encore en sprite d'un bloc ignore le geste (pas d'erreur : les .dlg peuvent
+## être écrits avant la livraison des pièces).
+func jouer_geste(args: Array) -> void:
+	if args.size() < 2:
+		push_warning("@geste : il faut un personnage et un geste (%s)" % [args])
+		return
+	var qui := String(args[0]).to_lower()
+	var f = props.get(qui)
+	if not is_instance_valid(f) and joueur and joueur.sprite and String(joueur.sprite.name) == qui:
+		f = joueur.sprite
+	if not (f is RigPersonnage):
+		return
+	var rig := f as RigPersonnage
+	if not rig.jouer_geste(String(args[1])):
+		return
+	if args.size() > 2 and String(args[2]) == "attendre":
+		await get_tree().create_timer(rig.duree_visible(String(args[1]))).timeout
+
+
+## Dossier du personnage découpé (rig.json + pièces, contrat de découpe v1).
+const DOSSIER_RIGS := "res://assets/personnages/%s/pied"
+
+
+## Figure d'un personnage : son rig s'il est livré, sinon son sprite d'un bloc (ou la silhouette).
+func _figure(nom: String) -> Node2D:
+	var rig := RigPersonnage.charger(DOSSIER_RIGS % nom)
+	if rig:
+		rig.scale = Vector2.ONE * _echelle_figure(rig)
+		return rig
+	return _sprite(nom)
+
+
+## Les pièces des rigs sont peintes au double de la taille en jeu (contrat v1).
+static func _echelle_figure(f: Node2D) -> float:
+	return 0.5 if f is RigPersonnage else 1.0
+
+
+## Figurant posé sur un point : rig ou sprite ; un sprite reçoit respiration et balancement,
+## désynchronisés (phase tirée du nom).
+func _figurant(parent: Node, nom: String, pos: Vector2) -> Node2D:
+	var f := _figure(nom)
+	f.position = pos
+	parent.add_child(f)
+	props[nom] = f
+	if f is Sprite2D:
+		VieFigure.animer(f)
+	return f
+
+
 func _prop(parent: Node, nom: String, pos: Vector2) -> Sprite2D:
 	var s := _sprite(nom)
 	s.position = pos
@@ -1271,6 +1323,8 @@ func _commande_specifique(nom: String, args: Array) -> void:
 		"effet":
 			# Effets de mise en scène encore sans rendu (yeux voilés…) : sans effet pour l'instant.
 			pass
+		"geste":
+			await jouer_geste(args)
 		_:
 			await super._commande_specifique(nom, args)
 
@@ -1314,9 +1368,7 @@ func _commencer_jeu(nom: String) -> void:
 	var peints := d != null and d.get_node_or_null(^"Calque_40_personnages") != null
 	for k in config.get("figurants", {}):
 		if not peints and pois.has(k) and not props.has(config.figurants[k]):
-			var f := _prop(monde_de(d), config.figurants[k], pois[k] + Vector2(0, -10))
-			# Figurants : respiration et balancement, désynchronisés (phase tirée du nom).
-			VieFigure.animer(f)
+			_figurant(monde_de(d), config.figurants[k], pois[k] + Vector2(0, -10))
 	_declenches = {}
 	_vus_depuis = {}
 	_tout_vu_depuis = -1.0
@@ -1345,11 +1397,13 @@ func _placer_joueur(d: Node2D) -> void:
 	var perso: String = config.get("personnage", "vaskar")
 	if joueur.sprite.name != perso:
 		joueur.sprite.queue_free()
-		joueur.sprite = _sprite(perso)
+		joueur.sprite = _figure(perso)
 		joueur.add_child(joueur.sprite)
-	joueur.sprite.scale = Vector2.ONE * float(config.get("echelle", 1.0))
-	# Respiration au repos : l'échelle du chapitre devient l'échelle de repos.
-	VieFigure.animer(joueur.sprite).reprendre()
+	joueur.sprite.scale = Vector2.ONE * float(config.get("echelle", 1.0)) * _echelle_figure(joueur.sprite)
+	# Respiration au repos (sprite d'un bloc) : l'échelle du chapitre devient l'échelle de repos.
+	# Un rig respire et marche de lui-même.
+	if joueur.sprite is Sprite2D:
+		VieFigure.animer(joueur.sprite).reprendre()
 	joueur.visible = true
 
 

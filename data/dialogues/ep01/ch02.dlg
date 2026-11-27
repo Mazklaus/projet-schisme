@@ -9,7 +9,7 @@
 @ambiance archive 1.5
 @plan archive_etagere
 > Sur une étagère, un vieux bolter. Il n'a plus de culasse.
-@carton 3 Il disait qu'il l'avait vu, une fois. De près.
+@carton 4.5 Il disait qu'il l'avait vu, une fois. De près.
 -> depart
 
 // ================================================================ 1. Le départ (galerie d'observation)
@@ -80,7 +80,7 @@ KRENN: Assieds-toi, Hol. Il part, alors je vais te le raconter.
 === unification
 @decor terra_unification
 @ambiance ep02_unification 1
-@titre 3 Terra. Avant la Croisade.
+@titre 3.5 Terra. Avant la Croisade.
 > La boue. Les ruines. Le feu, partout.
 @jeu
 // Le jeune Krenn avance dans la tranchée, puis se met à couvert.
@@ -126,7 +126,7 @@ KRENN: Je me suis relevé. Je ne sais toujours pas d'où m'est venu ce courage.
 -> retour_suite
 
 === retour_suite
-KRENN: Il ne m'a rien dit. Il n'avait pas besoin.
+KRENN: Il ne m'a rien dit. Il n'en avait pas besoin.
 -> retour_empereur [si choix_ep01_depart == 1]
 -> retour_horus [si choix_ep01_depart == 2]
 // Défaut (3, ou état importé incomplet).
@@ -213,7 +213,7 @@ DREMM: Voilà. Maintenant, tu es vraiment rentré.
 ~ trait_vaskar_fraternite += 0
 ~ trait_vaskar_doute += 1
 VASKAR: Pas encore, Dremm. Je n'ai pas besoin de jurer pour rester.
-DREMM: Personne n'a besoin. C'est justement pour ça qu'on jure.
+DREMM: Personne n'en a besoin. C'est justement pour ça qu'on jure.
 -> loge_echo
 
 === loge_partir
