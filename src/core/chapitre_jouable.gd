@@ -186,7 +186,11 @@ func _afficher_gros_plan(p: String) -> void:
 			t.tween_callback(_couche_gp.hide)
 		return
 	var id_fond := String(_regie.scene.get("decor", ""))
-	var cle_fond := "%s|%s" % [id_fond, _regie.scene.get("etat", "")]
+	# Sans « etat » dans la scène, le fond suit l'état du décor affiché (aube ou nuit au bloc).
+	var scene_gp: Dictionary = _regie.scene.duplicate()
+	if not scene_gp.has("etat") and decor is Decor25D and not String(decor.etat).is_empty():
+		scene_gp.etat = decor.etat
+	var cle_fond := "%s|%s" % [id_fond, scene_gp.get("etat", "")]
 	if _couche_gp == null:
 		_couche_gp = CanvasLayer.new()
 		_couche_gp.name = "GrosPlanDialogue"
@@ -196,7 +200,7 @@ func _afficher_gros_plan(p: String) -> void:
 	if cle_fond != _fond_gp:
 		if _racine_gp:
 			_racine_gp.queue_free()
-		_racine_gp = construire_fond_gros_plan(id_fond, _regie.scene)
+		_racine_gp = construire_fond_gros_plan(id_fond, scene_gp)
 		_couche_gp.add_child(_racine_gp)
 		_fond_gp = cle_fond
 	var cote := _regie.cote_du_plan()
@@ -234,6 +238,19 @@ static func construire_fond_gros_plan(id: String, scene: Dictionary = {}) -> Nod
 		push_warning("Fond de gros plan introuvable : %s" % id)
 		return racine
 	racine.set_meta("zones", g.get("zones_calmes", {}))
+	# État inconnu du fond (ou absent) : son premier état, jamais deux fonds superposés.
+	var etats_fond: Array = []
+	for k in g.get("calques", []):
+		if typeof(k) == TYPE_DICTIONARY and k.has("etat") and not etats_fond.has(String(k.etat)):
+			etats_fond.append(String(k.etat))
+	var voulu := String(scene.get("etat", ""))
+	if not etats_fond.is_empty() and not etats_fond.has(voulu):
+		scene = scene.duplicate()
+		scene.etat = etats_fond[0]
+		# « aube_naissante » du décor → fond « aube ».
+		for e in etats_fond:
+			if not voulu.is_empty() and voulu.begins_with(e):
+				scene.etat = e
 	for k in g.get("calques", []):
 		if typeof(k) != TYPE_DICTIONARY or not k.has("fichier") or k.has("pour"):
 			continue

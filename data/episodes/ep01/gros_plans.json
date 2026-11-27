@@ -1,5 +1,5 @@
 {
-  "_doc": "Gros plans de dialogue (règle GD 27/11, voir src/core/regie_gros_plans.gd). Une scène : chapitre, motifs de nœuds, fond de CA2 (assets/decors/<decor>), côté de chaque personnage (règle des 180°). Inerte tant que les bustes de CA1 (assets/personnages/<perso>/buste.png ou buste_<cote>.png) ne sont pas livrés.",
+  "_doc": "Gros plans de dialogue (règle GD 27/11, voir src/core/regie_gros_plans.gd). Une scène : chapitre, motifs de nœuds, fond de CA2 (assets/decors/<decor>), côté de chaque personnage (règle des 180°). Inerte tant que les bustes de CA1 (assets/personnages/<perso>/buste.png ou buste_<cote>.png) ne sont pas livrés. HORUS n'a jamais de côté : ses plans restent manuels (GD).",
   "scenes": [
     {
       "chapitre": "c01",
@@ -137,6 +137,123 @@
       "cotes": {
         "DREMM": "gauche",
         "ILSE": "gauche",
+        "FRÈRE": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c04",
+      "decor": "orvane_barricade_gros_plan",
+      "noeuds": [
+        "emissaire*"
+      ],
+      "cotes": {
+        "ÉMISSAIRE": "gauche",
+        "DREMM": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c04",
+      "decor": "orvane_aube_gros_plan",
+      "noeuds": [
+        "citadelle*"
+      ],
+      "cotes": {
+        "DREMM": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c03",
+      "decor": "barge_quartiers_27_gros_plan",
+      "noeuds": [
+        "accroche_orvane"
+      ],
+      "cotes": {
+        "DREMM": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c04",
+      "decor": "orvane_rues_gros_plan",
+      "noeuds": [
+        "assaut_ilse_*"
+      ],
+      "cotes": {
+        "ILSE": "gauche",
+        "FRÈRE": "gauche",
+        "VASKAR": "droite"
+      },
+      "etat": "nuit"
+    },
+    {
+      "chapitre": "c04",
+      "decor": "orvane_rues_gros_plan",
+      "noeuds": [
+        "retombee_*"
+      ],
+      "cotes": {
+        "ILSE": "gauche",
+        "FRÈRE": "gauche",
+        "VASKAR": "droite"
+      },
+      "etat": "matin"
+    },
+    {
+      "chapitre": "c04",
+      "decor": "orvane_bloc_gros_plan",
+      "noeuds": [
+        "attendre",
+        "evacuer"
+      ],
+      "cotes": {
+        "DREMM": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c03",
+      "decor": "barge_pont_embarquement_gros_plan",
+      "noeuds": [
+        "plaques_ramasser"
+      ],
+      "cotes": {
+        "SEFA": "gauche",
+        "DREMM": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c04",
+      "decor": "barge_briefing_gros_plan",
+      "noeuds": [
+        "briefing"
+      ],
+      "cotes": {
+        "DREMM": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c05",
+      "decor": "barge_quartiers_codicier_gros_plan",
+      "noeuds": [
+        "codicier"
+      ],
+      "cotes": {
+        "VARO": "gauche",
+        "VASKAR": "droite"
+      }
+    },
+    {
+      "chapitre": "c04",
+      "decor": "orvane_nuit_gros_plan",
+      "noeuds": [
+        "approche"
+      ],
+      "cotes": {
         "FRÈRE": "gauche",
         "VASKAR": "droite"
       }
