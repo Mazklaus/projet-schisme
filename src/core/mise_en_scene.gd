@@ -19,6 +19,7 @@ extends Node
 const LASER := Color("#FF7A3A")
 const BOLT := Color("#FFE6B0")
 const COEUR := Color(1.0, 0.97, 0.9)
+const POINTS_TRAIT := 12
 const Z_EFFETS := 80
 const RESERVE_TIRS := 10
 const VITESSE_TIR_PX_S := 4200.0
@@ -27,10 +28,11 @@ const VITESSE_TIR_PX_S := 4200.0
 const PARTICULES := {
 	"poussiere": {"fondu": true, "couleur": Color(0.62, 0.55, 0.46, 0.45), "vie": 4.0, "vitesse": [8.0, 30.0], "gravite": [0, 6], "taille": [4.0, 14.0], "direction": [0, -1], "dispersion": 180.0, "quantite": 60},
 	"gravats": {"couleur": Color(0.35, 0.3, 0.26, 0.9), "vie": 1.4, "vitesse": [20.0, 80.0], "gravite": [0, 600], "taille": [3.0, 9.0], "direction": [0, 1], "dispersion": 25.0, "quantite": 50},
-	"fumee": {"fondu": true, "couleur": Color(0.4, 0.38, 0.36, 0.28), "vie": 7.0, "vitesse": [10.0, 30.0], "gravite": [6, -12], "taille": [30.0, 70.0], "direction": [0, -1], "dispersion": 30.0, "quantite": 24},
+	"fumee": {"fondu": true, "grossit": true, "couleur": Color(0.4, 0.38, 0.36, 0.42), "vie": 7.0, "vitesse": [10.0, 30.0], "gravite": [16, -14], "taille": [30.0, 70.0], "direction": [0, -1], "dispersion": 30.0, "quantite": 24},
 	"braises": {"couleur": Color(1.0, 0.62, 0.25, 0.9), "vie": 2.5, "vitesse": [30.0, 90.0], "gravite": [8, -40], "taille": [1.5, 3.5], "direction": [0, -1], "dispersion": 35.0, "quantite": 30, "addition": true},
 	"cendres": {"fondu": true, "couleur": Color(0.85, 0.82, 0.76, 0.6), "vie": 6.0, "vitesse": [10.0, 40.0], "gravite": [10, 8], "taille": [1.5, 4.0], "direction": [1, 0], "dispersion": 180.0, "quantite": 80},
 	"etincelles": {"couleur": Color(1.0, 0.85, 0.55, 1.0), "vie": 0.5, "vitesse": [120.0, 320.0], "gravite": [0, 500], "taille": [1.5, 3.0], "direction": [0, -1], "dispersion": 70.0, "quantite": 24, "addition": true},
+	"flash": {"fondu": true, "couleur": Color(1.0, 0.48, 0.23, 0.9), "vie": 0.14, "vitesse": [0.0, 4.0], "gravite": [0, 0], "taille": [26.0, 44.0], "direction": [0, -1], "dispersion": 180.0, "quantite": 4, "addition": true},
 	"vitres": {"couleur": Color(0.8, 0.9, 1.0, 0.85), "vie": 1.2, "vitesse": [40.0, 160.0], "gravite": [0, 700], "taille": [2.0, 5.0], "direction": [0, 1], "dispersion": 50.0, "quantite": 90, "addition": true},
 }
 
@@ -54,6 +56,9 @@ const TAILLE_GOUTTE := 32.0
 static var _goutte: Texture2D
 ## Traînée des tirs : transparente à la queue, pleine à la tête (teintée par self_modulate).
 static var _degrade_trainee: Gradient
+## Fumée qui grossit en montant ; tête de tir effilée.
+static var _courbe_grossit: Curve
+static var _courbe_trait: Curve
 
 
 func _init() -> void:
@@ -243,6 +248,13 @@ func _particules(e: Dictionary) -> void:
 	p.texture = _texture_goutte()
 	p.scale_amount_min = pre.taille[0] / TAILLE_GOUTTE * 2.0
 	p.scale_amount_max = pre.taille[1] / TAILLE_GOUTTE * 2.0
+	if pre.has("grossit"):
+		if _courbe_grossit == null:
+			_courbe_grossit = Curve.new()
+			_courbe_grossit.max_value = 2.0
+			_courbe_grossit.add_point(Vector2(0, 0.6))
+			_courbe_grossit.add_point(Vector2(1, 1.8))
+		p.scale_amount_curve = _courbe_grossit
 	if pre.has("fondu"):
 		# La particule s'éteint en fin de vie au lieu de disparaître d'un coup.
 		var g := Gradient.new()
@@ -385,8 +397,10 @@ func _tirer(e: Dictionary, bouche: PointLight2D) -> void:
 	var trace := _trait_libre()
 	var couleur := Color(String(e.couleur)) if e.has("couleur") else (BOLT if bolter else LASER)
 	(trace.get_child(0) as Line2D).self_modulate = couleur
-	(trace.get_child(0) as Line2D).width = 11.0 if bolter else 5.0
-	(trace.get_child(1) as Line2D).width = 1.8 if bolter else 1.6
+	# Bolter : halo chaud large. Laser : halo #FF7A3A doux autour d'un cœur blanc épais.
+	(trace.get_child(0) as Line2D).width = 11.0 if bolter else 14.0
+	(trace.get_child(0) as Line2D).self_modulate.a = 1.0 if bolter else 0.55
+	(trace.get_child(1) as Line2D).width = 1.8 if bolter else 3.2
 	trace.visible = true
 	trace.modulate.a = 1.0
 	var longueur := 160.0 if bolter else 140.0
@@ -415,9 +429,10 @@ func _poser_trait(k: float, trace: Node2D, de: Vector2, vers: Vector2, longueur:
 	var queue := tete - (vers - de).normalized() * longueur
 	if de.distance_to(queue) > de.distance_to(tete):
 		queue = de
+	# La largeur suit width_curve point par point : la ligne a POINTS_TRAIT sommets.
 	for l in trace.get_children():
-		(l as Line2D).set_point_position(0, queue)
-		(l as Line2D).set_point_position(1, tete)
+		for i in POINTS_TRAIT:
+			(l as Line2D).set_point_position(i, queue.lerp(tete, float(i) / (POINTS_TRAIT - 1)))
 
 
 func _trait_libre() -> Node2D:
@@ -433,12 +448,13 @@ func _trait_libre() -> Node2D:
 	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	for i in 2:
 		var l := Line2D.new()
-		l.points = PackedVector2Array([Vector2.ZERO, Vector2.ZERO])
+		var pts := PackedVector2Array()
+		pts.resize(POINTS_TRAIT)
+		l.points = pts
 		l.gradient = _gradient_trainee()
 		l.self_modulate = COEUR
 		l.material = add
-		l.begin_cap_mode = Line2D.LINE_CAP_ROUND
-		l.end_cap_mode = Line2D.LINE_CAP_ROUND
+		l.width_curve = _courbe_tete()  # tête effilée, pas de bout rond
 		t.add_child(l)
 	_tirs.append(t)
 	_ajouter(t)
@@ -453,6 +469,15 @@ static func _gradient_trainee() -> Gradient:
 	return _degrade_trainee
 
 
+static func _courbe_tete() -> Curve:
+	if _courbe_trait == null:
+		_courbe_trait = Curve.new()
+		_courbe_trait.add_point(Vector2(0.0, 0.3))
+		_courbe_trait.add_point(Vector2(0.8, 1.0))
+		_courbe_trait.add_point(Vector2(1.0, 0.2))
+	return _courbe_trait
+
+
 func _impact(pos: Vector2, bolter: bool) -> void:
 	_particules({"type": "etincelles", "zone_px": [pos.x - 6, pos.y - 6, 12, 12], "duree": 0.3,
 		"densite": 0.6 if bolter else 0.35})
@@ -460,6 +485,9 @@ func _impact(pos: Vector2, bolter: bool) -> void:
 		# Le bolt explose à l'impact : un petit nuage de poussière en plus des étincelles.
 		_particules({"type": "poussiere", "zone_px": [pos.x - 10, pos.y - 10, 20, 20], "duree": 0.2,
 			"densite": 0.15})
+	else:
+		# Le laser brûle : un bref flash rouge-orange.
+		_particules({"type": "flash", "zone_px": [pos.x - 3, pos.y - 3, 6, 6], "duree": 0.1, "densite": 0.5})
 
 
 func _emetteurs() -> Array[Node]:
