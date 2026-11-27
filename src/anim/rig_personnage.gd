@@ -18,7 +18,7 @@ const ORDRE := [
 	"bras_arriere", "avant_bras_arriere", "main_arriere", "epauliere_arriere", "cuisse_arriere",
 	"jambe_arriere", "pied_arriere", "cape", "bassin", "arme_fourreau", "torse", "tete", "tete_face", "tete_casque",
 	"yeux_fermes", "yeux_fermes_face", "cuisse_avant", "jambe_avant", "pied_avant", "bras_avant",
-	"avant_bras_avant", "main_avant", "main_avant_pointe", "main_avant_poing", "main_avant_pommeau", "casque_main", "bras_croises", "arme_main",
+	"avant_bras_avant", "main_avant", "main_avant_pointe", "main_avant_poing", "main_avant_pommeau", "casque_main", "bras_croises", "bras_tendu", "arme_levee", "arme_main",
 	"epauliere_avant",
 ]
 ## Variantes : même os que leur pièce de base pour les angles, une seule visible à la fois.
@@ -67,6 +67,7 @@ var _transition_vers_geste := false
 var _relancer := false
 ## Pièces dédiées à un geste (« montre » dans gestes.json) : cachées hors de leur geste.
 var _pieces_de_geste: Array = []
+var _pieces_cachees: Array = []
 var _hauteur := 0.0
 ## Hauteur de hanche rapportée à celle d'Ilse (165 px source) : la descente du bassin d'un
 ## geste (agenouiller) suit la taille du personnage.
@@ -165,6 +166,11 @@ func construire(d: Dictionary, dossier: String) -> void:
 		for n in g.get("montre", []):
 			if not n in _pieces_de_geste:
 				_pieces_de_geste.append(n)
+		# Pièces ordinaires qu'un geste cache : à rendre visibles ensuite (les mains et la tête
+		# sont reposées à chaque image par _variantes).
+		for n in g.get("cache", []):
+			if not n in _pieces_cachees and not n in MAINS and not VARIANTES.has(n):
+				_pieces_cachees.append(n)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(String(perso))
 	_souffle_phase = rng.randf() * TAU
@@ -416,10 +422,15 @@ func _variantes(main: String, tete: String, casque_tenu: bool) -> void:
 	_clignement(_fin_clignement >= 0.0)
 
 
-## Pièces dédiées (bras croisés…) : montrées pendant leur geste, à la place des pièces
-## « cache ». Sans la pièce livrée, le geste garde le rig ordinaire.
+## Pièces dédiées (bras croisés, bras tendu, arme levée) : montrées pendant leur geste, à la
+## place des pièces « cache ». La bascule se fait à mi-transition, là où la courbe du geste va
+## le plus vite : le changement de pièce passe inaperçu. Sans la pièce livrée, le geste garde
+## le rig ordinaire.
 func _pieces_geste(g: Dictionary) -> void:
 	var montre: Array = g.get("montre", []).filter(func(n): return pieces.has(n))
+	for n in _pieces_cachees:
+		if pieces.has(n):
+			pieces[n].visible = true
 	for n in _pieces_de_geste:
 		if pieces.has(n):
 			pieces[n].visible = n in montre

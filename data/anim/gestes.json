@@ -1,5 +1,5 @@
 {
-  "_doc": "Gestes des rigs de personnages (RigPersonnage). Angles en degrés, ajoutés à la pose de repos ; négatif = vers l'avant (le personnage regarde à droite). « main » : variante de main_avant (pointe, poing). « tete » : « face » montre la tête de face. « bassin_y » : descente du bassin en px source. « tenir » : le geste reste posé jusqu'au suivant (ou @geste <perso> repos). « son » : ample ou fin (bruitage choisi selon le type du rig). Transitions avec anticipation et dépassement (RigPersonnage.courbe_geste). « montre » / « cache » : pièces dédiées affichées ou masquées pendant le geste (bras_croises). « profils » : mouvement par type de rig (pas_rad_s, marche = amplitude, poids_px = descente du bassin au contact, entree_s / sortie_s, gestes = ampleur, souffle_s / souffle). Un geste peut porter un bloc propre à un type (« astartes »: {\"os\": …}). « casque »: \"main\" : casque tenu (tete_casque cachée, casque_main montrée).",
+  "_doc": "Gestes des rigs de personnages (RigPersonnage). Angles en degrés, ajoutés à la pose de repos ; négatif = vers l'avant (le personnage regarde à droite). « main » : variante de main_avant (pointe, poing). « tete » : « face » montre la tête de face. « bassin_y » : descente du bassin en px source. « tenir » : le geste reste posé jusqu'au suivant (ou @geste <perso> repos). « son » : ample ou fin (bruitage choisi selon le type du rig). Transitions avec anticipation et dépassement (RigPersonnage.courbe_geste). « montre » / « cache » : pièces dédiées affichées ou masquées pendant le geste (bras_croises). « profils » : mouvement par type de rig (pas_rad_s, marche = amplitude, poids_px = descente du bassin au contact, entree_s / sortie_s, gestes = ampleur, souffle_s / souffle). Un geste peut porter un bloc propre à un type (« astartes »: {\"os\": …}). « casque »: \"main\" : casque tenu (tete_casque cachée, casque_main montrée). Règle Astartes (GD) : tout geste qui doit dégager la silhouette de l'armure a sa pièce de remplacement (bras_croises, bras_tendu, plus tard arme_levee) ; le rig bascule au milieu du geste, au moment le plus rapide.",
   "gestes": {
     "montrer": {
       "duree": 1.6,
@@ -20,7 +20,18 @@
           "torse": -2,
           "tete": -3
         }
-      }
+      },
+      "montre": [
+        "bras_tendu"
+      ],
+      "cache": [
+        "bras_avant",
+        "avant_bras_avant",
+        "main_avant",
+        "main_avant_pointe",
+        "main_avant_poing",
+        "main_avant_pommeau"
+      ]
     },
     "croiser_bras": {
       "duree": 2.4,
@@ -41,9 +52,12 @@
       "cache": [
         "bras_avant",
         "avant_bras_avant",
-        "main_avant",
         "avant_bras_arriere",
-        "main_arriere"
+        "main_arriere",
+        "main_avant",
+        "main_avant_pointe",
+        "main_avant_poing",
+        "main_avant_pommeau"
       ]
     },
     "main_epaule": {

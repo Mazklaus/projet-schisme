@@ -225,3 +225,25 @@ func test_bassin_a_l_echelle_de_la_hanche() -> void:
 	r.echelle_hanche = 1.2
 	assert_almost_eq(r.bassin_du_geste({"bassin_y": 85}), 102.0, 0.01)
 	assert_eq(r.bassin_du_geste({"bassin_y": 85, "humain": {"bassin_y": 40}}), 40.0)
+
+
+
+func test_piece_de_remplacement_a_mi_geste() -> void:
+	# bras_tendu ajouté pour le test : invisible au repos, montré à mi-geste à la place du bras.
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d.pieces["bras_tendu"] = {"fichier": "bras_avant.png", "pose": [6, 61], "pivot": [17, 18], "parent": "torse"}
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	r.avancer(0.016)
+	assert_false(r.pieces.bras_tendu.visible)
+	r.jouer_geste("montrer")
+	r.avancer(0.1)
+	assert_false(r.pieces.bras_tendu.visible, "pas encore : début du mouvement")
+	_avancer(r, 1.0)
+	assert_true(r.pieces.bras_tendu.visible)
+	assert_false(r.pieces.bras_avant.visible)
+	assert_false(r.pieces.main_avant_pointe.visible)
+	_avancer(r, 3.0)
+	assert_false(r.pieces.bras_tendu.visible, "rendue au repos")
+	assert_true(r.pieces.bras_avant.visible)
