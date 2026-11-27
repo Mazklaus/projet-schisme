@@ -141,12 +141,69 @@ func _attacher_figurants_cine() -> void:
 		s.scale = Vector2.ONE * d[2]
 		s.visible = false
 		voie.add_child(s)
-	var cle: Dictionary = Decor25D.lire(ullanor.id_decor).get("cle", {})
-	if cle.has("position_px"):
-		var l := _lumiere(Vector2(cle.position_px[0], cle.position_px[1]), Color(cle.get("couleur", "#FFE8B0")), 8.0)
-		l.name = "CleUllanor"
-		ullanor.add_child(l)
+	# Plus de lumière de clé ajoutée : la lumière d'Ullanor est peinte (retour DA), le halo et
+	# les rais viennent de la passe PostSoleil.
+	_monter_gros_plan_horus()
 
+
+## Gros plan 5b (validé GD) : couleur _fin, une seule carte de normales (armure et cou de TP2,
+## tête de CA1) et une seule Light2D pour tout le buste, sinon le visage se décolle. L'orgueil
+## (menton levé, déjà peint) passe en fondu sur le neutre.
+const HORUS_5B := "res://assets/personnages/horus_5b/horus_5b_%s%s.png"
+
+
+func _monter_gros_plan_horus() -> void:
+	var couche := get_node_or_null(^"GrosPlanHorus") as CanvasLayer
+	if couche == null or not ResourceLoader.exists(HORUS_5B % ["neutre", ""]):
+		return
+	var fond := couche.get_node(^"Image") as Sprite2D
+	fond.name = "Fond"
+	var g := Gradient.new()
+	g.colors = PackedColorArray([Color("#2E2936"), Color("#5E4A40"), Color("#7E6248")])
+	g.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
+	var gt := GradientTexture2D.new()
+	gt.gradient = g
+	gt.fill_from = Vector2(0, 0)
+	gt.fill_to = Vector2(0, 1)
+	gt.width = 64
+	gt.height = 1080
+	fond.texture = gt
+	fond.scale = Vector2(1920.0 / 64.0, 1.0)
+	fond.light_mask = 0
+	for expr in ["neutre", "orgueil"]:
+		var s := Sprite2D.new()
+		s.name = "Image" if expr == "neutre" else "Orgueil"
+		var t := CanvasTexture.new()
+		t.diffuse_texture = load(HORUS_5B % [expr, ""])
+		t.normal_texture = load(HORUS_5B % [expr, "_normal"])
+		s.texture = t
+		# Cadre 1024 carré : agrandi à 1,25 pour un vrai gros plan, sommet du crâne près du haut.
+		s.scale = Vector2.ONE * 1.25
+		s.position = Vector2(960, 60 + (512 - 170) * 1.25)
+		if expr == "orgueil":
+			s.modulate.a = 0.0
+		var ombre := Sprite2D.new()
+		ombre.name = "Ombre"
+		ombre.texture = load(HORUS_5B % [expr, "_ombre"])
+		var m := CanvasItemMaterial.new()
+		m.blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
+		m.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+		ombre.material = m
+		# Multiplication après le CanvasModulate de la couche : compensé pour rester neutre.
+		ombre.self_modulate = Color(1.0 / 0.78, 1.0 / 0.76, 1.0 / 0.76)
+		s.add_child(ombre)
+		couche.add_child(s)
+	# Lumière peinte = clé du soleil couchant, à droite ; la Light2D module légèrement le relief
+	# sous un CanvasModulate propre à la couche (ne touche pas la scène).
+	var amb := CanvasModulate.new()
+	amb.color = Color(0.78, 0.76, 0.76)
+	couche.add_child(amb)
+	var l := _lumiere(Vector2(1500, 300), Color("#FFE8B0"), 9.0)
+	l.name = "CleHorus"
+	l.energy = 0.45
+	l.height = 400.0
+	couche.add_child(l)
+	fond.self_modulate = Color(1.0 / 0.78, 1.0 / 0.76, 1.0 / 0.76)
 
 
 # --------------------------------------------------------------------------- commandes
@@ -157,6 +214,14 @@ func _commande_specifique(nom: String, args: Array) -> void:
 			await _action(args[0] if not args.is_empty() else "obeir")
 		"hochement":
 			await _hochement()
+		"expression":
+			# « @expression orgueil [durée] » : fondu du gros plan d'Horus vers l'expression.
+			var o := get_node_or_null(^"GrosPlanHorus/Orgueil") as CanvasItem
+			if o:
+				var cible := 1.0 if (args[0] if not args.is_empty() else "neutre") == "orgueil" else 0.0
+				var t := create_tween()
+				t.tween_property(o, "modulate:a", cible, float(args[1]) if args.size() > 1 else 0.5)
+				await t.finished
 		_:
 			await super._commande_specifique(nom, args)
 

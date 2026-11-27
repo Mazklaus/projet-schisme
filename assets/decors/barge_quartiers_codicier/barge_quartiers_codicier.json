@@ -46,6 +46,16 @@
   },
   "appoints": [
     {
+      "type": "traîne chaude de la lampe (PointLight2D), loi de l'aperçu 0,4·exp(−r/1200)",
+      "position_px": [
+        1382,
+        618
+      ],
+      "couleur": "#FFB868",
+      "energie": 0.4,
+      "portee_px": 1200
+    },
+    {
       "type": "couloir froid par l'embrasure (PointLight2D)",
       "position_px": [
         1671,
@@ -57,7 +67,7 @@
     },
     {
       "type": "CanvasModulate",
-      "couleur": "#16141A"
+      "couleur": "#24202A"
     }
   ],
   "calques": [

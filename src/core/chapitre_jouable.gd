@@ -88,12 +88,25 @@ func _ready() -> void:
 	if decor and decor.visible:
 		post_soleil.suivre(decor)
 		var amb0 := get_node_or_null(^"Ambiance") as CanvasModulate
+		if amb0:
+			amb0.set_meta("defaut", amb0.color)
+			amb0.color = ambiance_du_decor(decor, amb0.color)
 		decor.appliquer_rebond(amb0.color if amb0 else Color(0, 0, 0, 0))
 	super._ready()
 	_lever_noir_initial()
 
 
 var _decor_demande := false
+
+
+## CanvasModulate voulu pour un décor : celui du plan, blanc pour un plan à lumière peinte sans
+## ambiance (retour DA, Ullanor), sinon celui de la scène.
+static func ambiance_du_decor(d: Node2D, defaut: Color) -> Color:
+	if d is Decor25D and d.ambiant.a > 0.0:
+		return d.ambiant
+	if d is Decor25D and d.peint_sans_ambiance:
+		return Color.WHITE
+	return defaut
 var post_soleil: PostSoleil
 
 
@@ -410,9 +423,12 @@ func decor_par_id(id_demande: String) -> Node2D:
 			var amb := get_node_or_null(^"Ambiance") as CanvasModulate
 			if amb and dec.visible and dec.ambiant.a > 0.0:
 				if duree > 0.0:
-					create_tween().tween_property(amb, "color", dec.ambiant, duree)
+					var t := create_tween()
+					t.tween_property(amb, "color", dec.ambiant, duree)
+					t.tween_callback(func(): dec.appliquer_rebond(amb.color))
 				else:
-					amb.color = dec.ambiant)
+					amb.color = dec.ambiant
+					dec.appliquer_rebond(amb.color))
 		d = dec
 	else:
 		d = _decor_provisoire(id)
@@ -536,7 +552,7 @@ func _changer_decor(id_demande: String) -> void:
 	if amb:
 		if not amb.has_meta("defaut"):
 			amb.set_meta("defaut", amb.color)
-		var normal: Color = cible.ambiant if cible is Decor25D and cible.ambiant.a > 0.0 else amb.get_meta("defaut")
+		var normal: Color = ambiance_du_decor(cible, amb.get_meta("defaut"))
 		if _tween_ambiance and _tween_ambiance.is_valid():
 			_tween_ambiance.kill()
 		if sortie_souvenir.a > 0.0:
@@ -544,6 +560,8 @@ func _changer_decor(id_demande: String) -> void:
 			amb.color = sortie_souvenir
 			_tween_ambiance = create_tween()
 			_tween_ambiance.tween_property(amb, "color", normal, SORTIE_SOUVENIR_S)
+			if cible is Decor25D:
+				_tween_ambiance.tween_callback(func(): cible.appliquer_rebond(normal))
 		else:
 			amb.color = normal
 		if cible is Decor25D:

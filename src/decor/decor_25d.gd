@@ -213,11 +213,28 @@ static func plan_eclaire(g: Dictionary) -> bool:
 	return false
 
 
+## distance_m du guide : un nombre, ou un texte de CA2 (« 0,2 à 5,6 », « 1,9 et 5 ») dont on
+## prend la moyenne des nombres ; 0 si aucun nombre (« derrière la porte »).
+static func distance_guide(v) -> float:
+	if typeof(v) in [TYPE_FLOAT, TYPE_INT]:
+		return float(v)
+	if typeof(v) != TYPE_STRING:
+		return 0.0
+	var re := RegEx.create_from_string("\\d+(?:[.,]\\d+)?")
+	var nombres := re.search_all(String(v))
+	if nombres.is_empty():
+		return 0.0
+	var somme := 0.0
+	for m in nombres:
+		somme += m.get_string().replace(",", ".").to_float()
+	return somme / nombres.size()
+
+
 static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 	var distances: Array[float] = []
 	for k in g.get("calques", []):
-		if typeof(k) == TYPE_DICTIONARY and k.has("distance_m") and float(k.distance_m) > 0.0:
-			distances.append(float(k.distance_m))
+		if typeof(k) == TYPE_DICTIONARY and distance_guide(k.get("distance_m")) > 0.0:
+			distances.append(distance_guide(k.distance_m))
 	var ref := float(g.get("distance_reference_m", distances.min() if not distances.is_empty() else 1.0))
 	# Champs facultatifs : absents ou null (« voile »: null dans un intérieur) reviennent au même.
 	var voile: Dictionary = g.voile if typeof(g.get("voile")) == TYPE_DICTIONARY else {}
@@ -239,8 +256,8 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			continue
 		var c := {"fichier": f}
 		var base := f.get_basename()
-		if k.has("distance_m") and float(k.distance_m) > 0.0:
-			var d := float(k.distance_m)
+		if distance_guide(k.get("distance_m")) > 0.0:
+			var d := distance_guide(k.distance_m)
 			c.profondeur = clampf(ref / d, 0.0, 2.0)
 			c.lumiere = k.get("lumiere", true)
 			if voile.has("couleur") and voile.has("d0_m"):
@@ -335,6 +352,7 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 	# Seules les sources prévues en Light2D par la DA deviennent des lumières du moteur (un
 	# « soleil » de clé, comme à Ullanor, est déjà peint dans les calques).
 	# Une clé « mobile » (l'Empereur à l'Unification) est animée par la mise en scène, pas posée.
+	var loi_apercu := false
 	if String(cle.get("type", "")).contains("Light2D") and not String(cle.get("type", "")).contains("mobile"):
 		var cles := lumieres_du_plan(cle)
 		# Intérieur très sombre (CanvasModulate de la DA) éclairé par une seule source : la clé suit
@@ -344,13 +362,8 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 		for a in g.get("appoints", []) if typeof(g.get("appoints")) == TYPE_ARRAY else []:
 			if typeof(a) == TYPE_DICTIONARY and String(a.get("type", "")).contains("CanvasModulate") and a.has("couleur"):
 				cm = String(a.couleur)
-		if not cle.has("bougies_px") and not cm.is_empty() and Color(cm).get_luminance() < 0.15:
-			var portee := float(cle.get("portee_px", cle.get("rayon_px", 620)))
-			for e in cles:
-				if not e.has("profil"):
-					e.profil = "apercu"
-					e.rayon_px = 3.0 * portee / 2.5
-					e.hauteur_px = 1500.0
+		if not cle.has("bougies_px") and not cm.is_empty() and Color(cm).get_luminance() < 0.35:
+			loi_apercu = true
 		lum.append_array(cles)
 	for a in g.get("appoints", []) if typeof(g.get("appoints")) == TYPE_ARRAY else []:
 		if typeof(a) != TYPE_DICTIONARY:
@@ -367,9 +380,18 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			if m:
 				var n := float(m.get_string(1))
 				ambiant = Color(n, n, n).to_html(false)
+	if loi_apercu:
+		# Même loi pour les appoints (hublot, couloir, traîne de la lampe).
+		for e in lum:
+			if not e.has("profil"):
+				e.profil = "apercu"
+				e.rayon_px = 3.0 * float(e.get("rayon_px", 120))
+				e.hauteur_px = 1500.0
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
 		"source": "guide", "cle": cle, "lumieres": lum, "rais_force": float(g.get("rais_force", 1.0)),
-		"rebond": g.get("rebond", {}), "ambiant": ambiant, "veille": veille,
+		"rebond": g.get("rebond", {}),
+		# Plan à lumière peinte sans « ambiance » (Ullanor) : posé à 1,0, comme assembler.py.
+		"peint_sans_ambiance": not g.has("ambiance") and not plan_eclaire(g), "ambiant": ambiant, "veille": veille,
 		"etats": etats_guide, "etat_initial": etats_guide.keys()[0] if not etats_guide.is_empty() else ""}
 
 
@@ -475,6 +497,7 @@ func construire() -> void:
 	_poser_lumieres(d.get("lumieres", []))
 	set_meta("cle", d.get("cle", {}))
 	set_meta("rebond", d.get("rebond", {}))
+	peint_sans_ambiance = bool(d.get("peint_sans_ambiance", false))
 	for i in mini(calques.size(), d.calques.size()):
 		for cle_c in ["rebond", "hors_ambiance"]:
 			if d.calques[i].get(cle_c, false):
@@ -559,6 +582,13 @@ func appliquer_etat(nom: String, duree := 0.0) -> void:
 ## Ambiance de la scène (CanvasModulate du chapitre) : les personnages proches reçoivent le
 ## rebond {couleur, force} du plan, et les calques « hors_ambiance » en sont compensés.
 func appliquer_rebond(amb: Color) -> void:
+	# Ombres en multiplication : le CanvasModulate s'applique aussi à leur sortie, donc deux fois
+	# au fond ; on le compense sur l'ombre pour qu'elle reste « blanc = neutre ».
+	var comp := Color(1.0 / maxf(amb.r, 0.05), 1.0 / maxf(amb.g, 0.05), 1.0 / maxf(amb.b, 0.05)) \
+		if amb.a > 0.0 else Color.WHITE
+	for c in calques:
+		for o in c.find_children("Ombre", "Sprite2D", true, false):
+			o.self_modulate = comp
 	var rb: Dictionary = get_meta("rebond", {})
 	var rc := Color(String(rb.get("couleur", "#FFFFFF"))) if not rb.is_empty() else Color.BLACK
 	var force := float(rb.get("force", 0.0))
@@ -571,6 +601,10 @@ func appliquer_rebond(amb: Color) -> void:
 		if c.has_meta("rebond"):
 			m = Color(m.r * (1.0 + force * rc.r), m.g * (1.0 + force * rc.g), m.b * (1.0 + force * rc.b))
 		c.modulate = Color(m.r, m.g, m.b, c.modulate.a)
+
+
+## Plan à lumière peinte sans ambiance : le chapitre met son CanvasModulate à blanc.
+var peint_sans_ambiance := false
 
 
 ## Teinte de CanvasModulate voulue par le plan (« appoints » de la DA) ; alpha 0 : aucune.
