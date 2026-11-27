@@ -30,3 +30,16 @@ godot --headless --import
 | `sfx_poutre_grince` | `sfx_poutre_grince` | 3030 | QTE et choix | Boucle de 2 s, collé-glissé de l'acier ; volume et hauteur suivent la jauge |
 | `sfx_choix_tic` | `sfx_choix_tic` | 3040 | choix minuté | Tic sourd à chaque seconde (signal `delai_seconde` de la boîte) |
 | `sfx_choix_battement_01`, `sfx_choix_battement_02` | `sfx_choix_battement` | 3050–3051 | choix minuté | Coup sourd comme un cœur sous l'armure, 0,3 s ; la boîte le rapproche de 1 s à 0,35 s (signal `battement`) |
+
+### Épisode 1 : palette (`tools/son/generer_ep01.py`, qui reprend les instruments de `generer_ullanor.py`)
+
+```
+python3 tools/son/generer_ep01.py /tmp/wav_ep01
+python3 tools/son/encoder_ogg.py /tmp/wav_ep01 assets/audio
+```
+
+| Fichier | Fonction du générateur | Graine | Où il sonne | Ce que c'est |
+|---|---|---|---|---|
+| `mus_ep01_luna_wolves` | `mus_luna_wolves` | 4001 | épisode 1, thème de la Légion | Boucle de 58 s : sol mixolydien, deux cors à l'unisson (la fraternité), quintes à vide, timbales ; la reprise ajoute l'octave, le chœur et un tambour discret ; la phrase finit sur la quinte, ouverte |
+| `mus_ep01_horus` | `mus_horus_motif` | 4002 | épisode 1, motif d'Horus | Boucle de 19 s : ré – la – ré – do# – ré au cor grave et au chœur sur un ré majeur d'orgue ; à la reprise, le do# glisse sur do naturel et y reste (la note qui doute) |
+| `amb_ep01_cthonia` | `amb_cthonia` | 4003 | flash-backs, tunnels de Cthonia | Boucle de 45 s : roche, gouttes, vapeur dans les conduites, pilon de mine lointain (1 coup / 1,5 s), étais qui travaillent, coups sourds dans une galerie voisine ; espace étroit et sombre |
