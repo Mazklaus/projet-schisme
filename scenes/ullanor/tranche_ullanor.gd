@@ -329,7 +329,7 @@ func _libre(delta: float) -> void:
 	temps_libre += delta
 	var proche := joueur.distance_sol(POUTRE) < QTE_DISTANCE
 	if proche:
-		_inviter(POUTRE, "Maintenir E : soulever")
+		_inviter(POUTRE, "Maintenir %s : soulever" % touche("interagir"))
 		_jauge.show()
 		if Input.is_action_pressed("interagir"):
 			qte = minf(1.0, qte + delta / QTE_DUREE)

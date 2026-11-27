@@ -37,6 +37,19 @@ func termine() -> bool:
 	return noeud == FormatDialogue.FIN
 
 
+## Vrai s'il ne reste, dans le nœud courant, que des sauts sans condition vers FIN (ou rien) :
+## la dernière image du dialogue vient d'être montrée.
+func finit_ensuite() -> bool:
+	if termine():
+		return true
+	var instructions: Array = dialogue.noeuds.get(noeud, [])
+	for i in range(_index, instructions.size()):
+		var instr: Dictionary = instructions[i]
+		if instr.type != "saut" or instr.cible != FormatDialogue.FIN or not String(instr.get("condition", "")).is_empty():
+			return false
+	return true
+
+
 func avancer() -> Dictionary:
 	if not _options.is_empty():
 		push_warning("avancer() pendant un choix : appeler choisir()")

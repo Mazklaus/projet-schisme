@@ -103,3 +103,13 @@ func test_choix_sans_preselection_et_battement_qui_accelere() -> void:
 	e.pressed = true
 	boite._unhandled_input(e)
 	assert_eq(get_viewport().gui_get_focus_owner(), boite._choix.get_child(0))
+
+
+func test_finit_ensuite_apres_le_dernier_carton() -> void:
+	var d := FormatDialogue.analyser("=== a\n@carton 3 Un.\n-> b [si x]\n@carton 3 Deux.\n-> FIN\n=== b\nA: b")
+	var l := LecteurDialogue.new(d, {})
+	l.demarrer("a")
+	l.avancer()
+	assert_false(l.finit_ensuite(), "un saut conditionnel suit le premier carton")
+	l.avancer()
+	assert_true(l.finit_ensuite(), "seul -> FIN suit le second carton")

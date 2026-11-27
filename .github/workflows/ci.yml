@@ -88,8 +88,13 @@ jobs:
       - name: Parcours de l'épisode 1 (chapitres jouables, trois politiques, import de la tranche)
         run: |
           set -o pipefail
+          # Valeurs attendues : Game Designer (etude-heresie/episode-01/attendus-qa-ch01-02.md).
+          declare -A V
+          V[premier]=choix_ep01_depart=1,choix_ep01_ullanor=1,choix_ep01_loge=1,vivant_ilse=true,connait_ilse_sauveur=true,connait_dremm_tunnel=false,relation_dremm=-1,relation_ilse=3,trait_vaskar_compassion=2,ep01_krenn_releve=true,ep01_plaque_gardee=true
+          V[dernier]=choix_ep01_depart=3,choix_ep01_ullanor=3,choix_ep01_loge=3,vivant_ilse=false,connait_ilse_sauveur=false,connait_dremm_tunnel=true,relation_dremm=1,relation_ilse=0,trait_vaskar_fraternite=1,trait_vaskar_doute=2,trait_vaskar_orgueil=1,trait_vaskar_obeissance=1,ep01_krenn_releve=false,ep01_plaque_gardee=false
+          V[silence]=choix_ep01_depart=3,choix_ep01_ullanor=3,choix_ep01_loge=3,vivant_ilse=false,connait_ilse_sauveur=false,connait_dremm_tunnel=true,relation_dremm=1,relation_ilse=0,trait_vaskar_fraternite=2,trait_vaskar_doute=2,trait_vaskar_orgueil=0,trait_vaskar_obeissance=1,ep01_krenn_releve=false,ep01_plaque_gardee=false
           for p in premier dernier silence; do
-            ~/godot/godot --headless -s res://tools/ci/parcours_episode.gd -- --episode=ep01 --politique=$p --vitesse=8 --attendu=choix_ep01_depart,choix_ep01_ullanor,choix_ep01_loge,vivant_ilse 2>&1 | tee episode.log
+            ~/godot/godot --headless -s res://tools/ci/parcours_episode.gd -- --episode=ep01 --politique=$p --vitesse=8 --valeurs=${V[$p]} 2>&1 | tee episode.log
             if grep -E "SCRIPT ERROR|^ERROR" episode.log; then exit 1; fi
           done
           # Sauvegarde de la tranche (emplacement 0), puis reprise au chapitre 2 de l'épisode 1.
