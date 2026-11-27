@@ -268,3 +268,18 @@ func test_astartes_montre_avec_le_bras_arriere() -> void:
 	_avancer(r, 4.0)
 	assert_false(r.pieces.bras_tendu_arriere.visible)
 	assert_true(r.pieces.bras_arriere.visible)
+
+
+
+func test_ombre_de_contact() -> void:
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d["ombre"] = {"fichier": "pied_avant.png", "pose": [20, 340]}
+	d["source"] = {"kit": "kit_civil", "version": 1}
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	var o := r.get_node("Ombre") as Sprite2D
+	assert_not_null(o)
+	assert_eq(r.get_child(1), o, "sous toutes les pièces (juste après le squelette)")
+	assert_eq(o.position, Vector2(20 - 51, 340 - 347), "pose relative aux pieds")
+	assert_string_contains((o.material as ShaderMaterial).shader.code, "blend_mul")
