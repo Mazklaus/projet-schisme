@@ -228,7 +228,7 @@ func _afficher_gros_plan(p: String) -> void:
 		_ecran_buste.name = "EcranBuste"
 		_ecran_buste.centered = false
 		_ecran_buste.texture = _vue_buste.get_texture()
-		_ecran_buste.material = materiau_premultiplie()
+		_ecran_buste.material = materiau_premultiplie().duplicate()
 		_couche_buste.add_child(_ecran_buste)
 		_racine_buste = Node2D.new()
 		_racine_buste.name = "Buste"
@@ -239,6 +239,11 @@ func _afficher_gros_plan(p: String) -> void:
 		_racine_gp = construire_fond_gros_plan(id_fond, scene_gp)
 		_couche_gp.add_child(_racine_gp)
 		_fond_gp = cle_fond
+		var accord: Dictionary = _racine_gp.get_meta("accord", {})
+		var mat := _ecran_buste.material as ShaderMaterial
+		mat.set_shader_parameter("teinte", accord.get("teinte", Color.WHITE))
+		mat.set_shader_parameter("plafond", float(accord.get("plafond", 10.0)))
+		mat.set_shader_parameter("exposition", float(accord.get("exposition", 1.0)))
 	_poser_buste(p, false)
 	if not _couche_gp.visible:
 		_racine_gp.modulate.a = 0.0
@@ -527,13 +532,25 @@ static func materiau_premultiplie() -> ShaderMaterial:
 		sh.code = """
 shader_type canvas_item;
 render_mode blend_premul_alpha;
+// Accord avec le fond du gros plan : teinte du fond, et plafond (haute lumière du fond)
+// approché en douceur à partir de 75 %.
+uniform vec3 teinte = vec3(1.0);
+uniform float plafond = 10.0;
+uniform float exposition = 1.0;
 varying vec4 modulation;
 void vertex() {
 	modulation = COLOR;
 }
 void fragment() {
 	vec4 t = texture(TEXTURE, UV);
-	COLOR = vec4(t.rgb * modulation.rgb, t.a) * modulation.a;
+	vec3 u = t.rgb / max(t.a, 0.0001) * teinte * exposition;
+	float L = dot(u, vec3(0.2126, 0.7152, 0.0722));
+	float k = 0.75 * plafond;
+	if (L > k) {
+		float Lc = k + (plafond - k) * (1.0 - exp(-(L - k) / (plafond - k)));
+		u *= Lc / L;
+	}
+	COLOR = vec4(u * t.a * modulation.rgb, t.a) * modulation.a;
 }
 """
 		_materiau_premult = ShaderMaterial.new()
@@ -611,7 +628,73 @@ static func construire_fond_gros_plan(id: String, scene: Dictionary = {}) -> Nod
 				var t := sp.create_tween().set_loops()
 				for a in [0.88, 1.0, 0.93, 1.0]:
 					t.tween_property(sp, "modulate:a", a, randf_range(0.15, 0.35)))
+	racine.set_meta("accord", accord_du_fond(racine, "%s|%s" % [id, scene.get("etat", "")]))
 	return racine
+
+
+## Accord du buste avec son fond (DA 27/11 : l'armure restait blanc-gris sur un fond ambre) :
+## « teinte » = chroma moyenne du fond (luminance 1, dosée par FORCE_TEINTE_FOND), « plafond » =
+## haute lumière du fond (centile 99,5 de la luminance), que le buste ne dépasse pas.
+const FORCE_TEINTE_FOND := 0.6
+const ECHANTILLON_FOND := Vector2i(160, 90)
+static var _accords := {}
+
+
+const ACCORD := "res://data/gros_plans_accord.json"
+
+
+## « exposition » calée par fond (et état) dans data/gros_plans_accord.json ; 1 sinon.
+static func exposition_du_fond(cle: String) -> float:
+	var d = JSON.parse_string(FileAccess.get_file_as_string(ACCORD)) if FileAccess.file_exists(ACCORD) else null
+	var fonds: Dictionary = d.get("fonds", {}) if typeof(d) == TYPE_DICTIONARY else {}
+	var e = fonds.get(cle, fonds.get(cle.get_slice("|", 0), {}))
+	return float(e.get("exposition", 1.0)) if typeof(e) == TYPE_DICTIONARY else 1.0
+
+
+static func accord_du_fond(racine: Node2D, cle: String) -> Dictionary:
+	if _accords.has(cle):
+		return _accords[cle]
+	var w := ECHANTILLON_FOND.x
+	var h := ECHANTILLON_FOND.y
+	var px := PackedColorArray()
+	px.resize(w * h)
+	px.fill(Color.BLACK)
+	for sp in racine.get_children():
+		if not (sp is Sprite2D) or sp.texture == null:
+			continue
+		var img: Image = sp.texture.get_image()
+		if img == null:
+			continue
+		if img.is_compressed():
+			img.decompress()
+		img = img.duplicate()
+		img.resize(w, h, Image.INTERPOLATE_BILINEAR)
+		var add := (sp.material as CanvasItemMaterial) != null \
+			and (sp.material as CanvasItemMaterial).blend_mode == CanvasItemMaterial.BLEND_MODE_ADD
+		var op := float(sp.modulate.a)
+		for y in h:
+			for x in w:
+				var c := img.get_pixel(x, y)
+				var a := c.a * op
+				var i := y * w + x
+				px[i] = px[i] + Color(c.r * a, c.g * a, c.b * a, 0.0) if add \
+					else px[i].lerp(Color(c.r, c.g, c.b), a)
+	var somme := Color(0, 0, 0)
+	var lums := PackedFloat32Array()
+	lums.resize(px.size())
+	for i in px.size():
+		somme += px[i]
+		lums[i] = px[i].get_luminance()
+	lums.sort()
+	var moy := somme / float(px.size())
+	var l := maxf(moy.get_luminance(), 0.01)
+	var chroma := Color(moy.r / l, moy.g / l, moy.b / l)
+	var t := Color(1, 1, 1).lerp(chroma, FORCE_TEINTE_FOND)
+	var lt := maxf(t.get_luminance(), 0.01)
+	var r := {"teinte": Color(t.r / lt, t.g / lt, t.b / lt), "plafond": maxf(lums[int(lums.size() * 0.995)], 0.12),
+		"exposition": exposition_du_fond(cle)}
+	_accords[cle] = r
+	return r
 
 
 # --------------------------------------------------------------------------- mise en scène
