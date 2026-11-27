@@ -29,14 +29,40 @@ static var _re_choix := RegEx.create_from_string("^\\*\\s*(.+?)\\s*->\\s*([A-Za-
 static var _re_delai := RegEx.create_from_string("^\\*!\\s*([0-9]+(?:\\.[0-9]+)?)\\s*->\\s*([A-Za-z0-9_]+)\\s*$")
 static var _re_saut := RegEx.create_from_string("^->\\s*([A-Za-z0-9_]+)\\s*(?:\\[si\\s+([^\\]]+)\\])?\\s*$")
 static var _re_affect := RegEx.create_from_string("^~\\s*([A-Za-z0-9_]+)\\s*(=|\\+=|-=)\\s*(.+)$")
-static var _re_condition := RegEx.create_from_string("^(non\\s+)?([A-Za-z0-9_]+)\\s*(?:(>=|<=|==|!=|>|<)\\s*(-?[0-9]+))?$")
+static var _re_condition := RegEx.create_from_string("^(non\\s+)?([A-Za-z0-9_]+)\\s*(?:(>=|<=|==|!=|>|<)\\s*(-?[0-9]+|true|false|vrai|faux))?$")
 static var _re_commande := RegEx.create_from_string("^@([A-Za-z0-9_]+)\\s*(.*)$")
 
 
-static func charger(chemin: String) -> Dictionary:
+## Charge un .dlg. Une ligne « @inclure <fichier.dlg> » avant le premier nœud reprend les nœuds
+## d'un autre dialogue (chemin relatif au fichier) : les nœuds du fichier courant priment, ce
+## qui permet de réutiliser une scène et d'en réécrire seulement la sortie. « @reprendre
+## <fichier>:<nœud> » saute à un nœud repris.
+static func charger(chemin: String, _deja: Array = []) -> Dictionary:
 	if not FileAccess.file_exists(chemin):
 		return {"noeuds": {}, "ordre": [], "erreurs": ["fichier introuvable : " + chemin]}
-	return analyser(FileAccess.get_file_as_string(chemin))
+	var texte := FileAccess.get_file_as_string(chemin)
+	var d := analyser(texte)
+	for ligne in texte.split("\n"):
+		var l := ligne.strip_edges()
+		if l.begins_with("==="):
+			break
+		if not l.begins_with("@inclure "):
+			continue
+		var autre := chemin.get_base_dir().path_join(l.trim_prefix("@inclure ").strip_edges())
+		if autre in _deja:
+			d.erreurs.append("inclusion circulaire : " + autre)
+			continue
+		var inclus := charger(autre, _deja + [chemin])
+		for e in inclus.erreurs:
+			d.erreurs.append("%s : %s" % [autre.get_file(), e])
+		for nom in inclus.ordre:
+			if not d.noeuds.has(nom):
+				d.noeuds[nom] = inclus.noeuds[nom]
+				d.ordre.append(nom)
+	# Les cibles vers des nœuds inclus ne sont connues qu'ici.
+	d.erreurs = d.erreurs.filter(func(e: String): return not (e.contains("cible « ") and e.contains(" inconnue")))
+	_verifier_cibles(d.noeuds, d.erreurs)
+	return d
 
 
 static func analyser(texte: String) -> Dictionary:
@@ -63,7 +89,8 @@ static func analyser(texte: String) -> Dictionary:
 				ordre.append(nom_courant)
 			continue
 		if nom_courant.is_empty():
-			erreurs.append("ligne %d : texte avant le premier « === nœud »" % num)
+			if not l.begins_with("@inclure "):
+				erreurs.append("ligne %d : texte avant le premier « === nœud »" % num)
 			continue
 		var instr := _instruction(l)
 		if instr.is_empty():
@@ -124,6 +151,9 @@ static func _instruction(l: String) -> Dictionary:
 		m = _re_commande.search(l)
 		if m:
 			var args := m.get_string(2).strip_edges()
+			# « @reprendre <fichier>:<nœud> » : saut vers un nœud repris par @inclure.
+			if m.get_string(1) == "reprendre" and args.contains(":"):
+				return _avec_condition({"type": "saut", "cible": args.get_slice(":", 1).strip_edges()}, "")
 			return {"type": "commande", "nom": m.get_string(1),
 				"args": Array(args.split(" ", false)) if not args.is_empty() else []}
 		return {}
@@ -150,7 +180,9 @@ static func _avec_condition(instr: Dictionary, texte: String) -> Dictionary:
 	instr.condition = m.get_string(2)
 	instr.negation = not m.get_string(1).is_empty()
 	instr.op = m.get_string(3)
-	instr.seuil = m.get_string(4).to_int()
+	# « == true » / « == false » (vrai, faux) : comparés comme 1 et 0.
+	var seuil := m.get_string(4)
+	instr.seuil = 1 if seuil in ["true", "vrai"] else (0 if seuil in ["false", "faux"] else seuil.to_int())
 	return instr
 
 

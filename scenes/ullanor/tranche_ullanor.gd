@@ -1,4 +1,4 @@
-extends Chapitre
+extends ChapitreJouable
 ## Tranche verticale : Ullanor, après le Triomphe (2 min 30).
 ##
 ## Déroulé (game-design-tv.md v0.2, script-tv.md v0.3) :
@@ -17,16 +17,22 @@ extends Chapitre
 ##   5. ciné de fin et ses variantes (nœuds « fin… » du .dlg)               phase « fin »
 ##   6. écran de fin : le choix fait, Rejouer, Quitter                       phase « ecran_fin »
 ##
-## Commandes propres à la tranche (en plus de celles de Chapitre) :
-##   @decor ullanor|bivouac    change de décor (fondu enchaîné court)
-##   @jeu                      la ciné d'ouverture rend la main au joueur
+## Décors, exploration, vox, invite de déplacement et écran de fin : ChapitreJouable. La zone
+## « ouverture » (le champ après la fête) a ses réglages par défaut ici ; un chapitre qui
+## réutilise la scène (épisode 1, chapitre 1) les complète dans son fichier « jeu » : points
+## d'intérêt en plus, « obligatoires » avant l'éboulement, « relance », « eboulement_max_s »
+## (secondes après les obligatoires), « disparait_apres » (figurants qui quittent la scène).
+## Champ « suite » du chapitre : nœud joué après la ciné de fin au lieu de finir le chapitre.
+##
+## Commandes propres à la tranche (en plus de celles de ChapitreJouable) :
 ##   @action sortir|auxiliaires|obeir   ce que fait Vaskar après le choix
 ##   @hochement                Dremm hoche la tête une fois (5a, auxiliaires et obéi)
 ##
 ## Personnages et objets : placeholders (tools/placeholders/generer_tranche_ullanor.py),
 ## remplacés au même nom par la chaîne d'images.
 
-const PROPS := "res://assets/tranche_ullanor/props/"
+## Zone d'exploration de la tranche : celle du nœud « ouverture » qui appelle @jeu.
+const ZONE_CAMPEMENT := "ouverture"
 
 const DEPART := Vector2(300, 900)
 const ZONE_MARCHE := Rect2(100, 800, 3640, 200)
@@ -36,7 +42,6 @@ const POI := {
 	"poi_freres": Vector2(1640, 860),
 	"poi_ilse": Vector2(2470, 905),
 }
-const POI_DISTANCE := 160.0
 const POSTE := Vector2(2700, 835)
 const POUTRE := Vector2(2700, 912)
 ## L'éboulement se produit derrière Vaskar, quand il a dépassé le poste.
@@ -46,8 +51,6 @@ const RASSEMBLEMENT_X := 3560.0
 ## caméra n'aille montrer l'éboulement.
 const RELANCE_VOX_S := 30.0
 const GLISSEMENT_S := 30.0
-## Sans mouvement après la prise en main, l'icône des touches apparaît (une seule fois).
-const AIDE_DEPLACEMENT_S := 4.0
 ## Ce que l'écran de fin rappelle, selon choix_ep01_ullanor (textes du GD, 27/11).
 const RAPPEL_CHOIX := {
 	1: "Vaskar Hol a tiré Ilse Varga des décombres.",
@@ -58,44 +61,37 @@ const SILENCE_S := 20.0
 const QTE_DISTANCE := 190.0
 ## Temps de maintien pour lever la poutre (s).
 const QTE_DUREE := 1.4
-
 @export var ullanor: Decor25D
 @export var bivouac: Decor25D
 
-var phase := "cine"
-var joueur: PersonnageJoue
-var temps_jeu := 0.0
 var temps_libre := 0.0
-## Secondes passées sans bouger ni lire (remis à zéro à chaque mouvement).
-var inactif := 0.0
-var relance_faite := false
 ## La caméra est allée montrer l'éboulement au joueur resté immobile.
 var glissement_fait := false
-var aide_vue := false
-var _a_bouge := false
-var _aide: Control
-var ecran_fin: Control
 var qte := 0.0
-var pois_vus := {}
 var choix_fait := ""
-var props := {}
-var _invite: Label
-var _vox: Label
 var _jauge: ProgressBar
-var _voile_noir: ColorRect
-var _vox_file: Array[String] = []
-var _vox_actif := false
 ## Grincement de la poutre pendant la QTE et le choix (volume et hauteur suivent qte).
 var _grincement: AudioStreamPlayer
+## Temps de jeu où les points obligatoires ont tous été vus (-1 : pas encore).
+var _obligatoires_depuis := -1.0
 
 
 func _ready() -> void:
 	decor = ullanor
-	_construire_ui()
 	_construire_bivouac()
 	_attacher_figurants_cine()
 	bivouac.visible = false
 	super._ready()
+	joueur.name = "Vaskar"
+	_jauge = ProgressBar.new()
+	_jauge.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_jauge.offset_left = -200
+	_jauge.offset_right = 200
+	_jauge.offset_top = -140
+	_jauge.offset_bottom = -122
+	_jauge.show_percentage = false
+	_jauge.hide()
+	_ui.add_child(_jauge)
 	# Le battement sourd du choix minuté, qui accélère avec le trait de temps (tic en attendant
 	# le fichier du Sound Designer).
 	boite.battement.connect(func(intensite: float):
@@ -106,72 +102,8 @@ func _ready() -> void:
 
 # --------------------------------------------------------------------------- construction
 
-func _construire_ui() -> void:
-	var ui := CanvasLayer.new()
-	ui.name = "UIJeu"
-	ui.layer = 10
-	add_child(ui)
-	_vox = Label.new()
-	_vox.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	_vox.offset_top = 60
-	_vox.offset_bottom = 140
-	_vox.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_vox.add_theme_font_size_override("font_size", 30)
-	_vox.add_theme_color_override("font_outline_color", Color.BLACK)
-	_vox.add_theme_constant_override("outline_size", 8)
-	ui.add_child(_vox)
-	_jauge = ProgressBar.new()
-	_jauge.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_jauge.offset_left = -200
-	_jauge.offset_right = 200
-	_jauge.offset_top = -140
-	_jauge.offset_bottom = -122
-	_jauge.show_percentage = false
-	_jauge.hide()
-	ui.add_child(_jauge)
-	_aide = _construire_aide_deplacement()
-	ui.add_child(_aide)
-	_voile_noir = ColorRect.new()
-	_voile_noir.color = Color.BLACK
-	_voile_noir.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_voile_noir.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_voile_noir.modulate.a = 0.0
-	ui.add_child(_voile_noir)
-
-
-## Icône discrète des touches de déplacement, en bas de l'écran. Les lettres sont celles du
-## clavier du joueur (ZQSD en AZERTY, WASD en QWERTY).
-func _construire_aide_deplacement() -> Control:
-	var touches := ""
-	for code in [KEY_W, KEY_A, KEY_S, KEY_D]:
-		var k := KEY_NONE
-		if DisplayServer.get_name() != "headless":
-			k = DisplayServer.keyboard_get_label_from_physical(code)
-		touches += OS.get_keycode_string(k if k != KEY_NONE else code)
-	var l := Label.new()
-	l.name = "AideDeplacement"
-	l.text = "%s  ·  ← ↑ → ↓  ·  stick gauche" % touches
-	l.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	l.offset_left = -300
-	l.offset_right = 300
-	l.offset_top = -90
-	l.offset_bottom = -50
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", 24)
-	l.add_theme_color_override("font_color", Color(0.95, 0.9, 0.8))
-	l.add_theme_color_override("font_outline_color", Color.BLACK)
-	l.add_theme_constant_override("outline_size", 6)
-	l.modulate.a = 0.0
-	l.hide()
-	return l
-
-
 func _construire_bivouac() -> void:
-	var monde := Node2D.new()
-	monde.name = "Monde"
-	monde.y_sort_enabled = true
-	monde.z_index = 10
-	bivouac.add_child(monde)
+	var monde := monde_de(bivouac)
 	_prop(monde, "totem", POI.poi_etendard + Vector2(0, -10))
 	_prop(monde, "rhino", Vector2(1740, 830))
 	_prop(monde, "frere_1", Vector2(1580, 850))
@@ -182,20 +114,6 @@ func _construire_bivouac() -> void:
 	_prop(monde, "poutre", POUTRE).visible = false
 	_prop(monde, "ilse_main", POUTRE + Vector2(-150, 2)).visible = false
 	_prop(monde, "banniere_27e", Vector2(RASSEMBLEMENT_X + 60, 840))
-	joueur = PersonnageJoue.new()
-	joueur.name = "Vaskar"
-	joueur.position = DEPART
-	joueur.limites = ZONE_MARCHE
-	joueur.sprite = _sprite("vaskar")
-	joueur.add_child(joueur.sprite)
-	monde.add_child(joueur)
-	_invite = Label.new()
-	_invite.add_theme_font_size_override("font_size", 26)
-	_invite.add_theme_color_override("font_outline_color", Color.BLACK)
-	_invite.add_theme_constant_override("outline_size", 8)
-	_invite.z_index = 100
-	_invite.hide()
-	bivouac.add_child(_invite)
 	var soleil := _lumiere(Vector2(3300, 520), Color("#FFE8B0"), 10.0)
 	soleil.name = "CleBivouac"
 	bivouac.add_child(soleil)
@@ -230,55 +148,11 @@ func _attacher_figurants_cine() -> void:
 		ullanor.add_child(l)
 
 
-func _sprite(nom: String, normales := true) -> Sprite2D:
-	var s := Sprite2D.new()
-	s.name = nom
-	var tex := CanvasTexture.new()
-	tex.diffuse_texture = load(PROPS + nom + ".png")
-	if normales and ResourceLoader.exists(PROPS + nom + "_normal.png"):
-		tex.normal_texture = load(PROPS + nom + "_normal.png")
-	s.texture = tex
-	# Origine aux pieds : le tri en profondeur (y_sort) se fait sur la ligne du sol.
-	s.offset = Vector2(0, -tex.diffuse_texture.get_height() / 2.0)
-	return s
-
-
-func _prop(parent: Node, nom: String, pos: Vector2) -> Sprite2D:
-	var s := _sprite(nom)
-	s.position = pos
-	parent.add_child(s)
-	props[nom] = s
-	return s
-
-
-func _lumiere(pos: Vector2, couleur: Color, echelle: float) -> PointLight2D:
-	var g := Gradient.new()
-	g.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0)])
-	var t := GradientTexture2D.new()
-	t.gradient = g
-	t.fill = GradientTexture2D.FILL_RADIAL
-	t.fill_from = Vector2(0.5, 0.5)
-	t.fill_to = Vector2(1, 0.5)
-	t.width = 512
-	t.height = 512
-	var l := PointLight2D.new()
-	l.texture = t
-	l.texture_scale = echelle
-	l.position = pos
-	l.color = couleur
-	l.energy = 1.3
-	l.height = 60.0
-	return l
-
 
 # --------------------------------------------------------------------------- commandes
 
 func _commande_specifique(nom: String, args: Array) -> void:
 	match nom:
-		"decor":
-			await _changer_decor(args[0] if not args.is_empty() else "ullanor")
-		"jeu":
-			phase = "vers_jeu"
 		"action":
 			await _action(args[0] if not args.is_empty() else "obeir")
 		"hochement":
@@ -287,46 +161,50 @@ func _commande_specifique(nom: String, args: Array) -> void:
 			await super._commande_specifique(nom, args)
 
 
-func _changer_decor(nom: String) -> void:
-	if ullanor.visible == (nom == "ullanor") and bivouac.visible == (nom == "bivouac"):
-		return
-	await _fondu_noir(1.0, 0.35)
-	ullanor.visible = nom == "ullanor"
-	bivouac.visible = nom == "bivouac"
-	# En jeu, la caméra ne sort pas du décor ; en ciné, les plans sont libres.
-	var d: Decor25D = bivouac if nom == "bivouac" else null
-	camera.limit_left = 0 if d else -10000000
-	camera.limit_top = 0 if d else -10000000
-	camera.limit_right = int(d.taille.x) if d else 10000000
-	camera.limit_bottom = int(d.taille.y) if d else 10000000
-	await _fondu_noir(0.0, 0.35)
-
-
-func _fondu_noir(opacite: float, duree: float) -> void:
-	var t := create_tween()
-	t.tween_property(_voile_noir, "modulate:a", opacite, duree)
-	await t.finished
-
-
 func _dialogue_fini() -> void:
 	match phase:
-		"vers_jeu":
-			_commencer_jeu()
-		"jeu", "libre":
+		"libre":
 			joueur.actif = true
 		"fin":
-			_finir()
+			# Un chapitre qui continue après la ciné de fin (la nuit, l'aube…).
+			if infos.has("suite"):
+				phase = "epilogue"
+				jouer_noeud(infos.suite)
+			else:
+				_finir()
+		_:
+			super._dialogue_fini()
 
 
-func _commencer_jeu() -> void:
-	Son.ambiance("ullanor_bivouac", 2.0)
-	Son.musique("stop", 6.0)
-	await _changer_decor("bivouac")
-	phase = "jeu"
-	camera.cible = joueur
-	camera.suivi_zoom = 1.0
-	camera.caler_sur_cible()
-	joueur.actif = true
+## Réglages par défaut de la zone de la tranche, complétés par le fichier « jeu » du chapitre.
+func config_zone(nom: String) -> Dictionary:
+	var c := super.config_zone(nom)
+	if nom != ZONE_CAMPEMENT:
+		return c
+	var defaut := {"decor": "bivouac", "depart": [DEPART.x, DEPART.y], "relisibles": true,
+		"limites": [ZONE_MARCHE.position.x, ZONE_MARCHE.position.y, ZONE_MARCHE.size.x, ZONE_MARCHE.size.y],
+		"relance": {"s": RELANCE_VOX_S, "noeud": "vox_relance"}, "pois": {}}
+	for k in POI:
+		defaut.pois[k] = [POI[k].x, POI[k].y]
+	for k in c:
+		if k == "pois":
+			defaut.pois.merge(c.pois, true)
+		else:
+			defaut[k] = c[k]
+	return defaut
+
+
+func _commencer_jeu(nom: String) -> void:
+	if nom == ZONE_CAMPEMENT:
+		Son.ambiance("ullanor_bivouac", 2.0)
+		Son.musique("stop", 6.0)
+	await super._commencer_jeu(nom)
+	# Figurants des points d'intérêt ajoutés par le chapitre (placeholders tant que la chaîne
+	# d'images ne les a pas livrés).
+	if nom == ZONE_CAMPEMENT:
+		for k in pois:
+			if not POI.has(k) and not config.get("figurants", {}).has(k):
+				_prop(monde_de(bivouac), k.trim_prefix("poi_"), pois[k] + Vector2(0, -10))
 
 
 # --------------------------------------------------------------------------- jeu
@@ -341,50 +219,41 @@ func _process(delta: float) -> void:
 			_trembler_poutre()
 
 
+func poi_disponible(nom: String) -> bool:
+	# Ilse n'est plus sur sa caisse après l'éboulement ; un figurant parti ne revient pas.
+	if nom == "poi_ilse" and phase != "jeu":
+		return false
+	if pois_vus.has(nom) and nom in config.get("disparait_apres", []):
+		return false
+	return super.poi_disponible(nom)
+
+
 func _jeu(delta: float) -> void:
+	if zone != ZONE_CAMPEMENT:
+		super._jeu(delta)
+		return
 	temps_jeu += delta
-	_suivre_aide_deplacement()
-	if joueur.en_mouvement or boite.visible:
-		inactif = 0.0
-	else:
-		inactif += delta
-	if not relance_faite and inactif >= RELANCE_VOX_S:
-		relance_faite = true
-		inactif = 0.0
-		jouer_vox("vox_relance")
-	elif relance_faite and inactif >= GLISSEMENT_S:
+	_suivre_inactivite(delta)
+	for k in config.get("disparait_apres", []):
+		if pois_vus.has(k) and props.has(k.trim_prefix("poi_")) and not boite.visible:
+			props[k.trim_prefix("poi_")].visible = false
+	var oblig := obligatoires_vus()
+	if oblig and _obligatoires_depuis < 0.0:
+		_obligatoires_depuis = temps_jeu
+	# Filet : après la relance, GLISSEMENT_S sans bouger et la caméra va montrer l'éboulement
+	# (une fois les points obligatoires vus).
+	if oblig and relance_faite and inactif >= GLISSEMENT_S:
 		_montrer_eboulement()
 		return
-	if not boite.visible and joueur.position.x >= EBOULEMENT_X:
-		_eboulement()
+	var par_temps: bool = oblig and config.has("eboulement_max_s") \
+		and temps_jeu - _obligatoires_depuis >= float(config.eboulement_max_s)
+	if not boite.visible and oblig and (joueur.position.x >= EBOULEMENT_X or par_temps):
+		if par_temps and joueur.position.x < EBOULEMENT_X:
+			_montrer_eboulement()
+		else:
+			_eboulement()
 		return
-	var poi := poi_proche()
-	if poi.is_empty() or boite.visible:
-		_invite.hide()
-		return
-	_inviter(POI[poi], "E : regarder")
-	if Input.is_action_just_pressed("interagir"):
-		_invite.hide()
-		joueur.actif = false
-		pois_vus[poi] = true
-		jouer_noeud(poi)
-
-
-## L'icône des touches apparaît si le joueur n'a pas bougé AIDE_DEPLACEMENT_S après la prise
-## en main, et disparaît au premier mouvement pour ne plus revenir.
-func _suivre_aide_deplacement() -> void:
-	if _a_bouge:
-		return
-	if joueur.en_mouvement:
-		_a_bouge = true
-		if _aide.visible:
-			var t := create_tween()
-			t.tween_property(_aide, "modulate:a", 0.0, 0.4)
-			t.tween_callback(_aide.hide)
-	elif not aide_vue and temps_jeu >= AIDE_DEPLACEMENT_S and not boite.visible:
-		aide_vue = true
-		_aide.show()
-		create_tween().tween_property(_aide, "modulate:a", 0.85, 0.6)
+	_interagir_pois()
 
 
 ## Filet de sécurité : le joueur n'a pas bougé depuis la relance. La caméra glisse doucement
@@ -399,25 +268,6 @@ func _montrer_eboulement() -> void:
 	await camera.sequence_terminee
 	_eboulement()
 
-
-func poi_proche() -> String:
-	var meilleur := ""
-	var d_min := POI_DISTANCE
-	for nom in POI:
-		# Ilse n'est plus sur sa caisse après l'éboulement.
-		if nom == "poi_ilse" and phase != "jeu":
-			continue
-		var d := joueur.distance_sol(POI[nom])
-		if d < d_min:
-			d_min = d
-			meilleur = nom
-	return meilleur
-
-
-func _inviter(pos: Vector2, texte: String) -> void:
-	_invite.text = texte
-	_invite.position = pos + Vector2(-90, -300)
-	_invite.show()
 
 
 func _eboulement() -> void:
@@ -580,90 +430,13 @@ func _hochement() -> void:
 	await t.finished
 
 
+
+
 # --------------------------------------------------------------------------- écran de fin
 
-## Fin de la tranche : noir franc après l'écho, puis l'écran de fin (plus de rebouclage sur
-## l'ouverture). La partie est sauvegardée et l'épisode marqué terminé avant l'affichage.
-func _finir() -> void:
-	if phase == "ecran_fin":
-		return
-	var suivant := Jeu.clore_chapitre()
-	if not suivant.is_empty():
-		Jeu.aller_au_chapitre(suivant.episode, suivant.chapitre)
-		Jeu.sauver()
-		return
-	phase = "ecran_fin"
-	Son.musique("stop", 1.5)
-	Son.couper("ambiance", 2.5)
-	await _fondu_noir(1.0, 0.6)
-	ecran_fin = _construire_ecran_fin(RAPPEL_CHOIX.get(int(Jeu.drapeau("choix_ep01_ullanor", 3)), ""))
-	$UIJeu.add_child(ecran_fin)
-	ecran_fin.modulate.a = 0.0
-	create_tween().tween_property(ecran_fin, "modulate:a", 1.0, 0.8)
-	(ecran_fin.find_child("Rejouer", true, false) as Button).grab_focus.call_deferred()
+func titre_fin() -> String:
+	return "Ullanor"
 
 
-func _construire_ecran_fin(rappel: String) -> Control:
-	var centre := CenterContainer.new()
-	centre.name = "EcranFin"
-	centre.set_anchors_preset(Control.PRESET_FULL_RECT)
-	var vb := VBoxContainer.new()
-	vb.alignment = BoxContainer.ALIGNMENT_CENTER
-	vb.add_theme_constant_override("separation", 18)
-	centre.add_child(vb)
-	var titre := Label.new()
-	titre.text = "Ullanor"
-	titre.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titre.add_theme_font_size_override("font_size", 84)
-	titre.add_theme_color_override("font_color", Color("#F2EAD3"))
-	vb.add_child(titre)
-	var ligne := Label.new()
-	ligne.name = "Rappel"
-	ligne.text = rappel
-	ligne.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	ligne.add_theme_font_size_override("font_size", 30)
-	ligne.add_theme_color_override("font_color", Color("#C9A44C"))
-	vb.add_child(ligne)
-	var espace := Control.new()
-	espace.custom_minimum_size.y = 40
-	vb.add_child(espace)
-	for d in [["Rejouer", func(): Jeu.nouvelle_partie(Jeu.etat.episode)], ["Quitter", func(): get_tree().quit()]]:
-		var b := Button.new()
-		b.name = d[0]
-		b.text = d[0]
-		b.custom_minimum_size = Vector2(320, 0)
-		b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		b.add_theme_font_size_override("font_size", 30)
-		b.pressed.connect(d[1])
-		vb.add_child(b)
-	return centre
-
-
-# --------------------------------------------------------------------------- vox
-
-## Affiche les répliques d'un nœud en surimpression, sans arrêter le jeu.
-func jouer_vox(noeud: String) -> void:
-	var l := LecteurDialogue.new(lecteur.dialogue, Jeu.etat.drapeaux)
-	l.demarrer(noeud)
-	var e := l.avancer()
-	while e.type == "replique":
-		var nom := BoiteDialogue.nom_affiche(e)
-		_vox_file.append(("%s : %s" % [nom, e.texte]) if not nom.is_empty() else e.texte)
-		e = l.avancer()
-	if not _vox_actif:
-		_vox_suivant()
-
-
-func _vox_suivant() -> void:
-	if _vox_file.is_empty():
-		_vox_actif = false
-		_vox.hide()
-		return
-	_vox_actif = true
-	var texte: String = _vox_file.pop_front()
-	if texte.contains("(vox)"):
-		Son.bruitage("vox_crepite")
-	_vox.text = texte
-	_vox.show()
-	await get_tree().create_timer(maxf(2.5, texte.length() * 0.06)).timeout
-	_vox_suivant()
+func rappel_fin() -> String:
+	return RAPPEL_CHOIX.get(int(Jeu.drapeau("choix_ep01_ullanor", 3)), "")

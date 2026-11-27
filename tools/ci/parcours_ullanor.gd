@@ -104,7 +104,7 @@ func _process(delta: float) -> bool:
 		_phases.append(_phase)
 		print("[%5.1f s] phase %s" % [_temps_jeu, _phase])
 		if _phase == "jeu":
-			_pois_restants = scene.POI.keys() if poi else []
+			_pois_restants = scene.pois.keys() if poi else []
 		if not captures.is_empty():
 			root.get_texture().get_image().save_png("%s/%02d_%s.png" % [captures, _phases.size(), _phase])
 	if rafale > 0.0 and not captures.is_empty() and _temps_jeu >= _prochaine_rafale:
@@ -155,7 +155,7 @@ func _process(delta: float) -> bool:
 					_interagir_relache = true
 					_pois_restants.pop_front()
 				else:
-					_aller_vers(joueur, scene.POI[p])
+					_aller_vers(joueur, scene.pois[p])
 			else:
 				_aller_vers(joueur, Vector2(scene.EBOULEMENT_X + 60, 900))
 		"libre":
