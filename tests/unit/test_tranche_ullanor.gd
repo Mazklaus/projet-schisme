@@ -129,12 +129,11 @@ func test_hochement_de_dremm() -> void:
 	add_child_autofree(dec)
 	var tete := dec.detacher_tete("Calque_48_dremm")
 	assert_not_null(tete)
-	var zone := Rect2i(tete.region_rect)
-	assert_between(zone.size.y, 60, 160, "la tête s'arrête aux épaules")
-	assert_between(zone.size.x, 120, 260)
-	var masque: Vector4 = (dec.get_node("Calque_48_dremm/Image").material as ShaderMaterial).get_shader_parameter("masque")
-	assert_gt(masque.z, 0.0, "le calque d'origine masque la tête")
-	assert_eq((tete.material as ShaderMaterial).get_shader_parameter("masque"), Vector4.ZERO)
+	# Essai 18 (DA) : tête peinte livrée à part (bloc « tete »), pivotée au cou.
+	assert_eq(tete.get_parent().name, &"Calque_48_dremm")
+	assert_almost_eq(tete.position, Vector2(186.4, 462.5), Vector2(1, 1), "pivot du cou")
+	assert_true(tete.get_parent().has_node("Avant"), "le col passe devant la tête")
+	assert_false(tete.region_enabled, "rien à découper : la tête est un calque")
 
 
 func test_decors_complets() -> void:

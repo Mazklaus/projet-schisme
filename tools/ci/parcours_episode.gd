@@ -111,6 +111,10 @@ func _process(delta: float) -> bool:
 	var boutons: Array = boite.find_children("*", "Button", true, false)
 	if not boutons.is_empty():
 		_relacher()
+		if "carton_final" in scene and is_instance_valid(scene.carton_final):
+			printerr("ÉCHEC : %s caché sous le noir d'un carton (%s)" % ["menu", _etape])
+			quit(1)
+			return false
 		var minute: bool = boite._delai_total > 0.0
 		if politique == "silence" and minute:
 			return false
@@ -119,6 +123,10 @@ func _process(delta: float) -> bool:
 		return false
 	if boite.visible:
 		_relacher()
+		if "carton_final" in scene and is_instance_valid(scene.carton_final):
+			printerr("ÉCHEC : %s caché sous le noir d'un carton (%s)" % ["dialogue", _etape])
+			quit(1)
+			return false
 		if _images % 4 == 0:
 			var e := InputEventAction.new()
 			e.action = "avancer"
@@ -126,6 +134,10 @@ func _process(delta: float) -> bool:
 			Input.parse_input_event(e)
 		return false
 	var joueur: Node2D = scene.joueur
+	if scene.phase in ["jeu", "libre"] and _noir(scene):
+		printerr("ÉCHEC : phase jouable %s sous un écran noir" % _etape)
+		quit(1)
+		return false
 	match scene.phase:
 		"jeu":
 			_explorer(scene, joueur)
@@ -162,6 +174,21 @@ func _explorer(scene, joueur: Node2D) -> void:
 			_aller_vers(joueur, scene.pois[p])
 		return
 	_aller_vers(joueur, Vector2(joueur.limites.end.x, joueur.position.y))
+
+
+## Écran noir : carton gardé, ou voile noir de la scène opaque depuis plus de 2 s de jeu.
+var _noir_depuis := -1.0
+
+
+func _noir(scene) -> bool:
+	var noir: bool = ("carton_final" in scene and is_instance_valid(scene.carton_final)) or (
+		"_voile_noir" in scene and scene._voile_noir.modulate.a > 0.95)
+	if not noir:
+		_noir_depuis = -1.0
+		return false
+	if _noir_depuis < 0.0:
+		_noir_depuis = _temps
+	return _temps - _noir_depuis > 2.0
 
 
 func _verifier(jeu, scene) -> bool:

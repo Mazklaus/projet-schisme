@@ -117,6 +117,24 @@ static func lire(id: String, dossier_decors := DOSSIER) -> Dictionary:
 ##   (au premier plan, profondeur 1, non éclairées) ;
 ## - <nom>_normal.png et <nom>_ombre.png à côté du calque sont repris s'ils existent ;
 ## - voile atmosphérique t = 1 - exp(-d / d0) vers la couleur « voile ».
+## Vrai si le moteur éclaire ce plan (lumières d'état, ou clé / appoint prévus en Light2D) :
+## alors seulement on affiche les versions « _plat » (albédo sans lumière cuite). Sans lumière
+## du moteur (Ullanor : soleil peint), une version plate sortirait blanche et sans modelé.
+## « plat »: true / false dans le JSON force le choix.
+static func plan_eclaire(g: Dictionary) -> bool:
+	if typeof(g.get("plat")) == TYPE_BOOL:
+		return g.plat
+	if typeof(g.get("lumieres")) == TYPE_ARRAY and not g.lumieres.is_empty():
+		return true
+	var sources: Array = [g.get("cle")]
+	if typeof(g.get("appoints")) == TYPE_ARRAY:
+		sources.append_array(g.appoints)
+	for a in sources:
+		if typeof(a) == TYPE_DICTIONARY and String(a.get("type", "")).contains("Light2D"):
+			return true
+	return false
+
+
 static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 	var distances: Array[float] = []
 	for k in g.get("calques", []):
@@ -125,6 +143,7 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 	var ref := float(g.get("distance_reference_m", distances.min() if not distances.is_empty() else 1.0))
 	# Champs facultatifs : absents ou null (« voile »: null dans un intérieur) reviennent au même.
 	var voile: Dictionary = g.voile if typeof(g.get("voile")) == TYPE_DICTIONARY else {}
+	var eclaire := plan_eclaire(g)
 	var calques := []
 	for k in g.get("calques", []):
 		if typeof(k) != TYPE_DICTIONARY or not k.has("fichier"):
@@ -159,7 +178,7 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			c.normales = base + "_normal.png"
 		# Version « plate » (albédo × occlusion, sans lumière cuite) : c'est elle que le moteur
 		# éclaire, sinon le contre-jour peint compterait deux fois. Le nœud garde le nom du calque.
-		if ResourceLoader.exists(dossier.path_join(base + "_plat.png")):
+		if eclaire and ResourceLoader.exists(dossier.path_join(base + "_plat.png")):
 			c.nom = f.get_file().get_basename()
 			c.fichier = base + "_plat.png"
 			if ResourceLoader.exists(dossier.path_join(base + "_plat_normal.png")):
@@ -171,7 +190,9 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 		# État d'un lieu (nuit, aube…) : « ambiance » {couleur, gain} multiplie chaque calque de
 		# décor, sauf ceux qui portent « ambiance »: false (ciel, flammes).
 		var amb: Dictionary = g.ambiance if typeof(g.get("ambiance")) == TYPE_DICTIONARY else {}
-		if amb.has("couleur") and k.get("ambiance", true):
+		# {couleur, niveau} (plans éclairés en Light2D) est l'ambiant de la scène, pas une teinte
+		# des calques : voir « ambiant » plus bas.
+		if amb.has("couleur") and not amb.has("niveau") and k.get("ambiance", true):
 			var t := Color(amb.couleur) * float(amb.get("gain", 1.0))
 			t.a = 1.0
 			c.teinte = t.to_html()
@@ -182,15 +203,19 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			if not t.has("pivot_px") or not t.has("fichier") or not t.has("corps") or not manquants.is_empty():
 				push_warning("Décor %s : bloc « tete » de %s incomplet, ignoré (%s)" % [g.get("plan", "?"), f, manquants])
 			else:
-				c.tete = t
+				c.tete = t.duplicate()
+				c.tete["plat"] = eclaire
 		calques.append(c)
 	var lum: Array = g.lumieres.duplicate() if typeof(g.get("lumieres")) == TYPE_ARRAY else []
 	var cle: Dictionary = g.cle if typeof(g.get("cle")) == TYPE_DICTIONARY else {}
 	var ambiant := ""
+	if typeof(g.get("ambiance")) == TYPE_DICTIONARY and g.ambiance.has("niveau") and g.ambiance.has("couleur"):
+		ambiant = g.ambiance.couleur
 	var veille := {}
 	# Seules les sources prévues en Light2D par la DA deviennent des lumières du moteur (un
 	# « soleil » de clé, comme à Ullanor, est déjà peint dans les calques).
-	if String(cle.get("type", "")).contains("Light2D"):
+	# Une clé « mobile » (l'Empereur à l'Unification) est animée par la mise en scène, pas posée.
+	if String(cle.get("type", "")).contains("Light2D") and not String(cle.get("type", "")).contains("mobile"):
 		lum.append_array(lumieres_du_plan(cle))
 	for a in g.get("appoints", []) if typeof(g.get("appoints")) == TYPE_ARRAY else []:
 		if typeof(a) != TYPE_DICTIONARY:
@@ -225,7 +250,8 @@ static func lumieres_du_plan(L: Dictionary) -> Array:
 	var sc = L.get("scintillement", 0.0)
 	var amplitude := float(sc.get("amplitude", 0.0)) if typeof(sc) == TYPE_DICTIONARY else float(sc)
 	var sortie: Array = []
-	var energie := float(L.get("energie", 1.0))
+	# Le guide écrit « energie » ou « force », « portee_px » (rayon d'action) ou « rayon_px ».
+	var energie := float(L.get("energie", L.get("force", 1.0)))
 	if points.size() > 1:
 		# Groupe (bougies) : une lumière de groupe au barycentre, à traîne longue (profil de
 		# l'aperçu de la DA : 1,4·exp(−r/380) + 0,4·exp(−r/110)), qui porte les piliers et la
@@ -248,7 +274,16 @@ static func lumieres_du_plan(L: Dictionary) -> Array:
 		return sortie
 	for pt in points:
 		sortie.append({"position_px": pt, "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
-			"rayon_px": float(L.get("portee_px", 300)) / 2.5, "scintillement": amplitude})
+			"rayon_px": float(L.get("portee_px", L.get("rayon_px", 300))) / 2.5, "scintillement": amplitude,
+			"hauteur_px": 200.0})
+	# Cône (lampe à main de Cthonia) : une seconde lumière orientée vers « vers_px ».
+	var cone = L.get("cone")
+	if typeof(cone) == TYPE_DICTIONARY and typeof(cone.get("vers_px")) == TYPE_ARRAY:
+		var de := Vector2(points[0][0], points[0][1])
+		var vers := Vector2(cone.vers_px[0], cone.vers_px[1])
+		sortie.append({"position_px": points[0], "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
+			"rayon_px": de.distance_to(vers) * 1.4 / 2.5, "scintillement": amplitude, "hauteur_px": 200.0,
+			"profil": "cone_%d" % int(cone.get("demi_angle_deg", 25)), "orientation": (vers - de).angle()})
 	return sortie
 
 
@@ -336,6 +371,7 @@ func _poser_lumieres(liste: Array) -> void:
 		l.name = "Lumiere_%02d" % i
 		l.texture = textures[profil]
 		l.position = Vector2(L.position_px[0], L.position_px[1])
+		l.rotation = float(L.get("orientation", 0.0))
 		l.texture_scale = float(L.get("rayon_px", 120)) * 2.5 / 128.0
 		l.color = Color(L.get("couleur", "#FFB060"))
 		l.energy = float(L.get("intensite", 1.0))
@@ -352,7 +388,22 @@ func _poser_lumieres(liste: Array) -> void:
 
 ## Texture radiale d'une lumière (256 px, rayon 128) : « lineaire » (feux) ou « traine »
 ## (décroissance exponentielle à longue traîne de l'aperçu de la DA, sur un rayon de 1100 px).
-static func _texture_lumiere(profil: String) -> GradientTexture2D:
+static func _texture_lumiere(profil: String) -> Texture2D:
+	if profil.begins_with("cone_"):
+		# Cône doux vers +x (la lumière est tournée par « orientation ») : décroissance radiale
+		# et bords angulaires adoucis.
+		var demi := deg_to_rad(float(profil.trim_prefix("cone_")))
+		var img := Image.create(256, 256, false, Image.FORMAT_L8)
+		for y in 256:
+			for x in 256:
+				var v := Vector2(x - 128 + 0.5, y - 128 + 0.5) / 128.0
+				var r := v.length()
+				var a := absf(v.angle())
+				var radial := clampf(1.0 - r, 0.0, 1.0)
+				var angulaire := clampf(1.0 - (a - demi * 0.6) / (demi * 0.8), 0.0, 1.0)
+				var val := radial * radial * angulaire if r > 0.0 else 1.0
+				img.set_pixel(x, y, Color(val, val, val))
+		return ImageTexture.create_from_image(img)
 	var g := Gradient.new()
 	if profil == "traine":
 		var offsets := PackedFloat32Array()
@@ -409,7 +460,7 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	# Tête séparée (bloc « tete » du guide) : le calque affiche le corps seul, la tête et la
 	# partie du col qui passe devant sont des sprites à part (voir _poser_tete).
 	if k.has("tete"):
-		tex = _texture_avec_normales(dossier, k.tete.corps)
+		tex = _texture_avec_normales(dossier, k.tete.corps, k.tete.get("plat", true))
 	var sprite := Sprite2D.new()
 	sprite.name = "Image"
 	sprite.texture = tex
@@ -447,10 +498,10 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 
 
 ## Texture couleur + normales d'une partie ; préfère la version plate (_plat, _plat_normal).
-static func _texture_avec_normales(dossier: String, fichier: String) -> CanvasTexture:
+static func _texture_avec_normales(dossier: String, fichier: String, plat_permis := true) -> CanvasTexture:
 	var base := fichier.get_basename()
 	var tex := CanvasTexture.new()
-	var plat := ResourceLoader.exists(dossier.path_join(base + "_plat.png"))
+	var plat := plat_permis and ResourceLoader.exists(dossier.path_join(base + "_plat.png"))
 	tex.diffuse_texture = load(dossier.path_join(base + ("_plat.png" if plat else ".png")))
 	for n in ([base + "_plat_normal.png", base + "_normal.png"] if plat else [base + "_normal.png"]):
 		if ResourceLoader.exists(dossier.path_join(n)):
@@ -470,7 +521,7 @@ func _poser_tete(couche: Node, corps: Sprite2D, dossier: String, t: Dictionary) 
 			continue
 		var s := Sprite2D.new()
 		s.name = "Tete" if partie == "tete" else "Avant"
-		s.texture = _texture_avec_normales(dossier, t.fichier if partie == "tete" else t.avant)
+		s.texture = _texture_avec_normales(dossier, t.fichier if partie == "tete" else t.avant, t.get("plat", true))
 		s.centered = false
 		s.light_mask = corps.light_mask
 		s.material = corps.material

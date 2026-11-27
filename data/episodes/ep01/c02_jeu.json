@@ -67,5 +67,38 @@
       140
     ],
     "_note": "Décor 1920 px (CA1) : la brèche entre x 900 et 1150 est réservée au jeune Krenn."
+  },
+  "decors": {
+    "terra_unification": {
+      "caches": [
+        "Calque_35_lumiere"
+      ]
+    }
+  },
+  "mises_en_scene": {
+    "unification_lumiere": {
+      "lumiere_montante": {
+        "calque": "Calque_35_lumiere",
+        "duree": 2.5,
+        "echelle": [
+          0.8,
+          1.15
+        ],
+        "centre_px": [
+          1240,
+          520
+        ],
+        "lumiere": {
+          "position_px": [
+            1240,
+            520
+          ],
+          "couleur": "#FFF1D0",
+          "energie": 2.5,
+          "rayon_px": 900
+        },
+        "ambiance": "#FFF6E6"
+      }
+    }
   }
 }
