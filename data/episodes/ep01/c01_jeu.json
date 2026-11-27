@@ -54,5 +54,359 @@
     },
     "eboulement_max_s": 240,
     "relisibles": false
+  },
+  "mises_en_scene": {
+    "cthonia": {
+      "plan": "cthonia_ouverture",
+      "particules": [
+        {
+          "type": "gravats",
+          "zone_px": [
+            540,
+            300,
+            200,
+            600
+          ],
+          "debut_s": 0.5,
+          "duree": 1.5,
+          "densite": 1.0
+        },
+        {
+          "type": "poussiere",
+          "zone_px": [
+            900,
+            380,
+            600,
+            500
+          ],
+          "densite": 0.3
+        },
+        {
+          "type": "poussiere",
+          "zone_px": [
+            180,
+            300,
+            80,
+            560
+          ],
+          "relatif_joueur": true,
+          "intervalle_s": 7,
+          "duree": 0.8,
+          "densite": 0.8
+        }
+      ],
+      "tremblement": [
+        {
+          "debut_s": 0.5,
+          "amplitude_px": 4,
+          "duree": 1.0
+        }
+      ],
+      "calques": [
+        {
+          "calque": "Calque_45_lampe",
+          "anim": "osciller",
+          "amplitude_px": 6,
+          "periode_s": 1.6
+        }
+      ],
+      "lampe_suit_joueur": {
+        "distance_px": 500
+      }
+    },
+    "cthonia_proche": {
+      "plan": "cthonia_main_tendue",
+      "figures": [
+        {
+          "id": "dremm_enfant",
+          "perso": "dremm_enfant",
+          "de": [
+            1300,
+            760
+          ],
+          "echelle": 0.55,
+          "geste": "tendre_main",
+          "regard": "g"
+        }
+      ],
+      "eclairs": [
+        {
+          "cible": "lampe",
+          "energie": 0.9,
+          "duree": 1.0
+        }
+      ]
+    },
+    "cthonia_main": {
+      "plan": "cthonia_sortie",
+      "figures": [
+        {
+          "id": "vaskar_enfant",
+          "perso": "vaskar_enfant",
+          "de": [
+            1180,
+            880
+          ],
+          "vers": [
+            1300,
+            800
+          ],
+          "duree": 1.2,
+          "courbe": "sortie",
+          "echelle": 0.55
+        },
+        {
+          "id": "dremm_enfant",
+          "perso": "dremm_enfant",
+          "de": [
+            1300,
+            760
+          ],
+          "echelle": 0.55,
+          "geste": "rire",
+          "debut_s": 1.2
+        }
+      ],
+      "particules": [
+        {
+          "type": "poussiere",
+          "zone_px": [
+            1140,
+            840,
+            120,
+            80
+          ],
+          "debut_s": 0.2,
+          "duree": 0.8,
+          "densite": 1.0
+        }
+      ]
+    },
+    "cthonia_seul": {
+      "plan": "cthonia_seul",
+      "figures": [
+        {
+          "id": "vaskar_enfant",
+          "perso": "vaskar_enfant",
+          "de": [
+            1180,
+            880
+          ],
+          "vers": [
+            1300,
+            800
+          ],
+          "duree": 3.0,
+          "courbe": "lineaire",
+          "echelle": 0.55
+        },
+        {
+          "id": "dremm_enfant",
+          "perso": "dremm_enfant",
+          "de": [
+            1360,
+            760
+          ],
+          "echelle": 0.55,
+          "geste": "croiser_bras",
+          "debut_s": 3.0
+        }
+      ],
+      "particules": [
+        {
+          "type": "gravats",
+          "zone_px": [
+            1240,
+            760,
+            60,
+            40
+          ],
+          "debut_s": 1.5,
+          "duree": 0.4,
+          "densite": 0.6
+        }
+      ],
+      "tremblement": [
+        {
+          "debut_s": 1.5,
+          "amplitude_px": 2,
+          "duree": 0.4
+        }
+      ]
+    },
+    "cthonia_fin": {
+      "plan": "cthonia_regard",
+      "figures": [
+        {
+          "id": "vaskar_enfant",
+          "perso": "vaskar_enfant",
+          "de": [
+            1300,
+            800
+          ],
+          "echelle": 0.55,
+          "regard": "haut"
+        },
+        {
+          "id": "dremm_enfant",
+          "perso": "dremm_enfant",
+          "de": [
+            1360,
+            760
+          ],
+          "echelle": 0.55,
+          "regard": "haut"
+        }
+      ],
+      "fondu_sortie": {
+        "couleur": "#FFE8C0",
+        "duree": 0.8,
+        "_note": "Raccord par le regard (secours) : fondu au blanc chaud, en attendant le plan de l'œil de Vaskar adulte (CA1, GD 27/11)."
+      }
+    },
+    "ouverture": {
+      "foule": {
+        "perso": "frere",
+        "zone_px": [
+          80,
+          640,
+          1760,
+          120
+        ],
+        "nombre": 160,
+        "echelle": [
+          0.25,
+          0.4
+        ],
+        "balancement": 0.25
+      },
+      "calques": [
+        {
+          "calque": "Calque_32_etendards_g",
+          "anim": "osciller",
+          "amplitude_px": 4,
+          "periode_s": 2.2
+        },
+        {
+          "calque": "Calque_32_etendards_d",
+          "anim": "osciller",
+          "amplitude_px": 4,
+          "periode_s": 2.2
+        },
+        {
+          "calque": "Calque_25_poussiere",
+          "anim": "defiler",
+          "amplitude_px": 6,
+          "periode_s": 1
+        }
+      ],
+      "particules": [
+        {
+          "type": "fumee",
+          "zone_px": [
+            300,
+            640,
+            1320,
+            80
+          ],
+          "densite": 0.2
+        },
+        {
+          "type": "poussiere",
+          "zone_px": [
+            420,
+            640,
+            200,
+            60
+          ],
+          "debut_s": 2.0,
+          "duree": 1.0,
+          "densite": 1.0
+        },
+        {
+          "type": "poussiere",
+          "zone_px": [
+            420,
+            640,
+            200,
+            60
+          ],
+          "debut_s": 6.0,
+          "duree": 1.0,
+          "densite": 1.0
+        }
+      ],
+      "tremblement": [
+        {
+          "debut_s": 2.0,
+          "amplitude_px": 6,
+          "duree": 0.6
+        },
+        {
+          "debut_s": 6.0,
+          "amplitude_px": 6,
+          "duree": 0.6
+        }
+      ],
+      "_note": "Version longue du Triomphe (fiche 11). La gerbe de cendres de « Maître de Guerre » et le départ de l'Empereur s'accrochent au @plan 1c et au @plan 1g_depart (Narrative).",
+      "sur_plan": {
+        "1c": {
+          "particules": [
+            {
+              "type": "cendres",
+              "zone_px": [
+                200,
+                600,
+                1520,
+                160
+              ],
+              "duree": 2.0,
+              "densite": 0.8
+            }
+          ]
+        },
+        "1g_depart": {
+          "figures": [
+            {
+              "id": "vaisseau_empereur",
+              "perso": "vaisseau_empereur",
+              "de": [
+                910,
+                370
+              ],
+              "vers": [
+                1500,
+                -60
+              ],
+              "duree": 5.0,
+              "courbe": "entree",
+              "echelle": 0.3,
+              "lumiere": {
+                "couleur": "#FFE8B0",
+                "energie": 1.2
+              }
+            }
+          ],
+          "eclairs": [
+            {
+              "position_px": [
+                910,
+                390
+              ],
+              "couleur": "#FFF1D0",
+              "energie": 0.5,
+              "depuis": 1.0,
+              "duree": 2.0,
+              "debut_s": 1.5
+            }
+          ],
+          "foule": {
+            "balancement": 0.08,
+            "debut_s": 5.0,
+            "duree": 3.0
+          }
+        }
+      }
+    }
   }
 }
