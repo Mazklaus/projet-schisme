@@ -140,3 +140,14 @@ func test_donnees_ep01_lisibles() -> void:
 				mes.ligne()
 			mes.nettoyer()
 	assert_eq(mes.effets().size(), 0)
+
+
+func test_plein_ecran_survit_au_nettoyage_et_se_retire_seul() -> void:
+	mes.jouer({"plein_ecran": {"dossier": "res://assets/plans/oeil_vaskar", "image": "10_oeil_ouvert.png",
+		"clignement": ["20_paupiere_mi.png", "21_paupiere_fermee.png"],
+		"entree_s": 0.05, "tenue_s": 0.3, "sortie_s": 0.05}}, decor)
+	assert_not_null(mes.get_node_or_null("PleinEcran"), "posé par-dessus tout")
+	mes.nettoyer()
+	assert_not_null(mes.get_node_or_null("PleinEcran"), "il couvre la coupe de décor : pas retiré par nettoyer()")
+	await wait_seconds(0.8)
+	assert_null(mes.get_node_or_null("PleinEcran"), "retiré seul à la fin")

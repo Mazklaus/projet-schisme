@@ -6,7 +6,7 @@ extends Node
 ## décor.
 ##
 ## Clés gérées : particules, eclairs, tirs, obus, grenades, tremblement, calques, arret_tirs,
-## reprise_tirs, tirs_cadence. Chaque élément peut porter :
+## reprise_tirs, tirs_cadence, plein_ecran (plan peint plein cadre : l'œil de Vaskar). Chaque élément peut porter :
 ##   "si": "choix_ep01_orvane == 1"   (conditions du .dlg, « and » pour en enchaîner plusieurs)
 ##   "apres_ligne": N                 (à la N-ième réplique du nœud au lieu de debut_s)
 ##   "debut_s": t, "duree": d         (sans durée : jusqu'au changement de décor)
@@ -55,6 +55,18 @@ func _init() -> void:
 	name = "MiseEnScene"
 
 
+## Le chapitre est détruit : libérer tout de suite (pas d'attente de fin de frame à la sortie).
+func _exit_tree() -> void:
+	for t in _tweens_calques:
+		if t.is_valid():
+			t.kill()
+	for n in _effets:
+		if is_instance_valid(n) and not n.is_inside_tree():
+			n.free()
+	_effets.clear()
+	_tirs.clear()
+
+
 # ------------------------------------------------------------------------------------ entrée
 
 ## Entrée dans un nœud : remet le compteur de répliques à zéro et programme ses éléments.
@@ -83,6 +95,8 @@ func jouer(m: Dictionary, decor_courant: Node2D, parent_effets: Node2D = null) -
 		_programmer(m.reprise_tirs, _reprendre_tirs)
 	if m.has("tirs_cadence"):
 		_regler_cadence(float(m.tirs_cadence))
+	if m.has("plein_ecran"):
+		_programmer(m.plein_ecran, _plein_ecran.bind(m.plein_ecran))
 
 
 ## Une réplique de plus dans le nœud : lance ce qui attendait cette ligne.
@@ -536,3 +550,76 @@ func _animer_calque(e: Dictionary) -> void:
 			t.tween_property(img, "modulate:a", 0.0, maxf(duree, 0.01))
 		_:
 			t.kill()  # « clignoter » et autres : shader du Lead, pas encore
+
+
+# ------------------------------------------------------------------------------ plein écran
+
+## Plan peint plein cadre posé par-dessus tout (raccord par le regard Cthonia → Ullanor, CA1) :
+## entrée depuis une couleur (le blanc chaud), tenue avec un clignement, sortie en fondu sur ce
+## qui joue dessous. Il survit au changement de décor (il couvre justement la coupe) et se
+## retire seul.
+##   {"dossier": "res://assets/plans/oeil_vaskar", "image": "10_oeil_ouvert.png",
+##    "clignement": ["20_paupiere_mi.png", "21_paupiere_fermee.png"], "clignement_s": 0.7,
+##    "couleur_entree": "#FFE8C0", "entree_s": 0.35, "tenue_s": 1.4, "sortie_s": 0.6}
+func _plein_ecran(e: Dictionary) -> void:
+	var dossier := String(e.get("dossier", ""))
+	var chemin := dossier.path_join(String(e.get("image", "")))
+	if not ResourceLoader.exists(chemin):
+		push_warning("Mise en scène : plan plein écran introuvable : %s" % chemin)
+		return
+	var couche := CanvasLayer.new()
+	couche.name = "PleinEcran"
+	couche.layer = 40
+	add_child(couche)
+	var fond := ColorRect.new()
+	fond.color = Color(String(e.get("couleur_entree", "#FFE8C0")))
+	fond.set_anchors_preset(Control.PRESET_FULL_RECT)
+	fond.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	couche.add_child(fond)
+	var image := _texture_plein_ecran(load(chemin))
+	image.modulate.a = 0.0
+	couche.add_child(image)
+	var paupieres: Array[TextureRect] = []
+	for f in e.get("clignement", []):
+		var c := dossier.path_join(String(f))
+		if ResourceLoader.exists(c):
+			var p := _texture_plein_ecran(load(c))
+			p.visible = false
+			couche.add_child(p)
+			paupieres.append(p)
+	var entree := float(e.get("entree_s", 0.35))
+	var tenue := float(e.get("tenue_s", 1.4))
+	var sortie := float(e.get("sortie_s", 0.6))
+	var t := couche.create_tween()
+	t.tween_property(image, "modulate:a", 1.0, entree)
+	t.tween_callback(func(): fond.visible = false)
+	if paupieres.size() >= 2:
+		# Rythme de CA1 : mi 40 ms, fermée 70 ms, mi 50 ms.
+		var avant := clampf(float(e.get("clignement_s", tenue * 0.45)), 0.0, tenue)
+		t.tween_interval(avant)
+		t.tween_callback(func(): paupieres[0].visible = true)
+		t.tween_interval(0.04)
+		t.tween_callback(func():
+			paupieres[0].visible = false
+			paupieres[1].visible = true)
+		t.tween_interval(0.07)
+		t.tween_callback(func():
+			paupieres[1].visible = false
+			paupieres[0].visible = true)
+		t.tween_interval(0.05)
+		t.tween_callback(func(): paupieres[0].visible = false)
+		t.tween_interval(maxf(tenue - avant - 0.16, 0.0))
+	else:
+		t.tween_interval(tenue)
+	t.tween_property(image, "modulate:a", 0.0, sortie)
+	t.tween_callback(couche.queue_free)
+
+
+func _texture_plein_ecran(tex: Texture2D) -> TextureRect:
+	var r := TextureRect.new()
+	r.texture = tex
+	r.set_anchors_preset(Control.PRESET_FULL_RECT)
+	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return r

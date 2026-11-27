@@ -1,0 +1,26 @@
+{
+ "plan": "raccord_regard_vaskar",
+ "taille": [
+  2560,
+  1440
+ ],
+ "calques": [
+  {
+   "fichier": "10_oeil_ouvert.png",
+   "ordre": 10
+  },
+  {
+   "fichier": "20_paupiere_mi.png",
+   "ordre": 20,
+   "clignement": "frame 1 et 3"
+  },
+  {
+   "fichier": "21_paupiere_fermee.png",
+   "ordre": 21,
+   "clignement": "frame 2"
+  }
+ ],
+ "clignement_conseil": "mi 40 ms, fermée 70 ms, mi 50 ms ; un clignement lent après l'ouverture du plan",
+ "reflet": "soleil d'Ullanor FFE8B0, en haut à gauche de la pupille",
+ "identite": "iris 6A7680, cicatrice tempe gauche (droite de l'image)"
+}
