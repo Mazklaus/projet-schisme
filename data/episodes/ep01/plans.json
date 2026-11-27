@@ -94,25 +94,34 @@
       }
     ]
   },
-  "plaque_gros": [
-    {
-      "position": [
+  "plaque_gros": {
+    "decor": "ullanor_aube",
+    "props": {
+      "ilse_plaque": [
         1180,
-        700
-      ],
-      "zoom": 2.2,
-      "duree": 0
+        760
+      ]
     },
-    {
-      "position": [
-        1180,
-        690
-      ],
-      "zoom": 2.4,
-      "duree": 4.0,
-      "courbe": "douce"
-    }
-  ],
+    "sequence": [
+      {
+        "position": [
+          1180,
+          700
+        ],
+        "zoom": 2.2,
+        "duree": 0
+      },
+      {
+        "position": [
+          1180,
+          690
+        ],
+        "zoom": 2.4,
+        "duree": 4.0,
+        "courbe": "douce"
+      }
+    ]
+  },
   "plaque_lointaine": [
     {
       "position": [

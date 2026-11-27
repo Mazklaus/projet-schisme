@@ -38,6 +38,8 @@ const VERSION_FORMAT := 1
 const DOSSIER := "res://assets/decors"
 ## Masque de lumière des calques éclairables ; un calque non éclairé a un masque vide.
 const MASQUE_LUMIERE := 1
+## Calques non éclairés (ciel, particules) : seules les lumières de halo les touchent.
+const MASQUE_HALO := 4
 
 @export var id_decor := "":
 	set(v):
@@ -159,6 +161,19 @@ static func depuis_planche(g: Dictionary, dossier: String) -> Dictionary:
 		calques.append(c)
 	var lum: Array = []
 	for L in g.get("lumieres", []):
+		if typeof(L) == TYPE_DICTIONARY and String(L.get("type", "")).contains("Directional"):
+			# Soleil rasant (« de la droite, rasante ») : DirectionalLight2D, énergie par état.
+			var dir := String(L.get("direction", ""))
+			var e := {"type": "directionnelle", "couleur": L.get("couleur", "#FFFFFF"),
+				"orientation": deg_to_rad(90.0 if dir.contains("droite") else -90.0 if dir.contains("gauche") else 0.0),
+				"hauteur": 0.25 if dir.contains("rasant") else 0.6}
+			if typeof(L.get("energie_par_etat")) == TYPE_DICTIONARY:
+				e.energie_par_etat = L.energie_par_etat
+				e.intensite = float(L.energie_par_etat.values()[0])
+			else:
+				e.intensite = float(L.get("energie", 1.0))
+			lum.append(e)
+			continue
 		if typeof(L) != TYPE_DICTIONARY or typeof(L.get("position_px")) != TYPE_ARRAY:
 			continue
 		var e := {"position_px": L.position_px, "couleur": L.get("couleur", "#FFFFFF"),
@@ -230,6 +245,13 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			c.lumiere = k.get("lumiere", true)
 			if voile.has("couleur") and voile.has("d0_m"):
 				c.voile = [voile.couleur, 1.0 - exp(-d / float(voile.d0_m))]
+			# Personnages au premier plan (4x_, à quelques mètres) : ils reçoivent le rebond du
+			# sol en plus de la clé (retour DA : Vaskar et Dremm trop sombres) ; « ambiance »:
+			# false dans le JSON les sort aussi de l'ambiance de la scène.
+			if f.get_file().begins_with("4") and d < 30.0:
+				c.rebond = true
+			if k.get("ambiance", true) == false:
+				c.hors_ambiance = true
 		else:
 			var ciel := f.get_file().begins_with("00_")
 			c.profondeur = 0.0 if ciel else 1.0
@@ -314,7 +336,22 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 	# « soleil » de clé, comme à Ullanor, est déjà peint dans les calques).
 	# Une clé « mobile » (l'Empereur à l'Unification) est animée par la mise en scène, pas posée.
 	if String(cle.get("type", "")).contains("Light2D") and not String(cle.get("type", "")).contains("mobile"):
-		lum.append_array(lumieres_du_plan(cle))
+		var cles := lumieres_du_plan(cle)
+		# Intérieur très sombre (CanvasModulate de la DA) éclairé par une seule source : la clé suit
+		# la loi des aperçus de CA2, énergie·exp(−(r/portée)^1,4) sans atténuation par les normales
+		# (lumière haute), sinon tout ce qui est hors de sa portée reste noir.
+		var cm := ""
+		for a in g.get("appoints", []) if typeof(g.get("appoints")) == TYPE_ARRAY else []:
+			if typeof(a) == TYPE_DICTIONARY and String(a.get("type", "")).contains("CanvasModulate") and a.has("couleur"):
+				cm = String(a.couleur)
+		if not cle.has("bougies_px") and not cm.is_empty() and Color(cm).get_luminance() < 0.15:
+			var portee := float(cle.get("portee_px", cle.get("rayon_px", 620)))
+			for e in cles:
+				if not e.has("profil"):
+					e.profil = "apercu"
+					e.rayon_px = 3.0 * portee / 2.5
+					e.hauteur_px = 1500.0
+		lum.append_array(cles)
 	for a in g.get("appoints", []) if typeof(g.get("appoints")) == TYPE_ARRAY else []:
 		if typeof(a) != TYPE_DICTIONARY:
 			continue
@@ -331,7 +368,8 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				var n := float(m.get_string(1))
 				ambiant = Color(n, n, n).to_html(false)
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
-		"source": "guide", "cle": cle, "lumieres": lum, "ambiant": ambiant, "veille": veille,
+		"source": "guide", "cle": cle, "lumieres": lum, "rais_force": float(g.get("rais_force", 1.0)),
+		"rebond": g.get("rebond", {}), "ambiant": ambiant, "veille": veille,
 		"etats": etats_guide, "etat_initial": etats_guide.keys()[0] if not etats_guide.is_empty() else ""}
 
 
@@ -435,9 +473,18 @@ func construire() -> void:
 		var k: Dictionary = d.calques[i]
 		calques.append(_creer_calque(dossier, k, i))
 	_poser_lumieres(d.get("lumieres", []))
+	set_meta("cle", d.get("cle", {}))
+	set_meta("rebond", d.get("rebond", {}))
+	for i in mini(calques.size(), d.calques.size()):
+		for cle_c in ["rebond", "hors_ambiance"]:
+			if d.calques[i].get(cle_c, false):
+				calques[i].set_meta(cle_c, true)
+	set_meta("rais_force", float(d.get("rais_force", 1.0)))
 	ambiant = Color(d.ambiant) if not String(d.get("ambiant", "")).is_empty() else Color(0, 0, 0, 0)
 	if not d.get("veille", {}).is_empty():
 		_poser_veille(d.veille)
+	else:
+		_exterieur_emissif()
 	etats = d.get("etats", {})
 	if not String(d.get("etat_initial", "")).is_empty():
 		appliquer_etat(d.etat_initial, 0.0)
@@ -492,7 +539,7 @@ func appliquer_etat(nom: String, duree := 0.0) -> void:
 				t.tween_property(l, "color", c, duree)
 			else:
 				l.color = c
-		if l is PointLight2D and l.has_meta("energie_par_etat"):
+		if l is Light2D and l.has_meta("energie_par_etat"):
 			var e: Dictionary = l.get_meta("energie_par_etat")
 			if e.has(nom):
 				var v := float(e[nom])
@@ -504,12 +551,58 @@ func appliquer_etat(nom: String, duree := 0.0) -> void:
 	var cm = etats.get(nom, {}).get("canvas_modulate") if typeof(etats.get(nom)) == TYPE_DICTIONARY else null
 	if typeof(cm) == TYPE_STRING:
 		ambiant = Color(cm)
+		if not has_node(^"Veille"):
+			_exterieur_emissif()
 	etat_change.emit(nom, duree)
+
+
+## Ambiance de la scène (CanvasModulate du chapitre) : les personnages proches reçoivent le
+## rebond {couleur, force} du plan, et les calques « hors_ambiance » en sont compensés.
+func appliquer_rebond(amb: Color) -> void:
+	var rb: Dictionary = get_meta("rebond", {})
+	var rc := Color(String(rb.get("couleur", "#FFFFFF"))) if not rb.is_empty() else Color.BLACK
+	var force := float(rb.get("force", 0.0))
+	for c in calques:
+		if not ((c.has_meta("rebond") and force > 0.0) or c.has_meta("hors_ambiance")):
+			continue
+		var m := Color.WHITE
+		if amb.a > 0.0:
+			m = Color(1.0 / maxf(amb.r, 0.2), 1.0 / maxf(amb.g, 0.2), 1.0 / maxf(amb.b, 0.2))
+		if c.has_meta("rebond"):
+			m = Color(m.r * (1.0 + force * rc.r), m.g * (1.0 + force * rc.g), m.b * (1.0 + force * rc.b))
+		c.modulate = Color(m.r, m.g, m.b, c.modulate.a)
 
 
 ## Teinte de CanvasModulate voulue par le plan (« appoints » de la DA) ; alpha 0 : aucune.
 var ambiant := Color(0, 0, 0, 0)
 const MASQUE_VEILLE := 2
+
+
+## Plan sombre (intérieur, soir) : le ciel ou l'extérieur vu par la baie (calque 00_ non éclairé)
+## garde sa propre lumière, comme dans les aperçus. Le CanvasModulate n'agit que sur son propre
+## CanvasLayer : ces calques passent dans un CanvasLayer derrière la scène, qui suit la caméra.
+var _couche_ciel: CanvasLayer
+
+
+func _exterieur_emissif() -> void:
+	if ambiant.a <= 0.0 or ambiant.get_luminance() >= 0.5 or _couche_ciel:
+		return
+	for c in calques:
+		if not String(c.name).begins_with("Calque_00_"):
+			continue
+		var s := c.get_node_or_null(^"Image") as CanvasItem
+		if s == null or s.light_mask & MASQUE_LUMIERE != 0:
+			continue
+		if _couche_ciel == null:
+			_couche_ciel = CanvasLayer.new()
+			_couche_ciel.name = "Ciel"
+			_couche_ciel.layer = -1
+			_couche_ciel.follow_viewport_enabled = true
+			_couche_ciel.transform = global_transform if is_inside_tree() else transform
+			_couche_ciel.visible = is_visible_in_tree()
+			add_child(_couche_ciel)
+			visibility_changed.connect(func(): _couche_ciel.visible = is_visible_in_tree())
+		c.reparent(_couche_ciel, false)
 
 
 ## Veille froide qui ne touche que le fond et la voûte (calques 00_ et 10_).
@@ -533,6 +626,18 @@ func _poser_lumieres(liste: Array) -> void:
 	var textures := {}
 	for i in liste.size():
 		var L: Dictionary = liste[i]
+		if L.get("type", "") == "directionnelle":
+			var dl := DirectionalLight2D.new()
+			dl.name = "Lumiere_%02d" % i
+			dl.color = couleur_guide(L.get("couleur", "#FFFFFF"))
+			dl.energy = float(L.get("intensite", 1.0))
+			dl.rotation = float(L.get("orientation", 0.0))
+			dl.height = float(L.get("hauteur", 0.5))
+			dl.range_item_cull_mask = MASQUE_LUMIERE
+			if typeof(L.get("energie_par_etat")) == TYPE_DICTIONARY:
+				dl.set_meta("energie_par_etat", L.energie_par_etat)
+			add_child(dl)
+			continue
 		if not L.has("position_px"):
 			continue
 		var profil: String = L.get("profil", "lineaire")
@@ -598,6 +703,17 @@ static func _texture_lumiere(profil: String) -> Texture2D:
 			couleurs.append(Color(v, v, v, 1.0))
 		g.offsets = offsets
 		g.colors = couleurs
+	elif profil == "apercu":
+		# exp(−(r/portée)^1,4) sur un rayon de 3 portées (aperçus de CA2).
+		var offsets := PackedFloat32Array()
+		var couleurs := PackedColorArray()
+		for i in 25:
+			var t := i / 24.0
+			var v := exp(-pow(3.0 * t, 1.4)) if i < 24 else 0.0
+			offsets.append(t)
+			couleurs.append(Color(v, v, v, 1.0))
+		g.offsets = offsets
+		g.colors = couleurs
 	else:
 		g.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0)])
 	var tex := GradientTexture2D.new()
@@ -647,7 +763,7 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 	sprite.centered = false
 	if k.has("position"):
 		sprite.position = Vector2(k.position[0], k.position[1])
-	sprite.light_mask = MASQUE_LUMIERE if k.get("lumiere", true) else 0
+	sprite.light_mask = MASQUE_LUMIERE if k.get("lumiere", true) else MASQUE_HALO
 	if k.has("voile") and float(k.voile[1]) > 0.0:
 		var m := materiau_voile()
 		m.set_shader_parameter("voile", Color(k.voile[0]))

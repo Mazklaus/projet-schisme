@@ -2,7 +2,7 @@
   "_note": "Plans caméra de la tranche, en pixels du décor d'Ullanor (1920×1080, cadre de référence au centre). Un premier plan de durée 0 est une coupe ; sinon la caméra part de là où elle est.",
   "1a": [
     {"position": [960, 540], "zoom": 1.0, "duree": 0},
-    {"position": [960, 520], "zoom": 1.08, "duree": 8.0, "courbe": "lineaire"}
+    {"position": [960, 540], "zoom": 1.03, "duree": 8.0, "courbe": "lineaire"}
   ],
   "1b": [
     {"position": [910, 390], "zoom": 3.2, "duree": 5.0, "courbe": "douce"}

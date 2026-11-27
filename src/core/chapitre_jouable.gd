@@ -83,7 +83,26 @@ func _ready() -> void:
 	joueur.sprite = _sprite("vaskar")
 	joueur.add_child(joueur.sprite)
 	joueur.visible = false
+	post_soleil = PostSoleil.new()
+	add_child(post_soleil)
+	if decor and decor.visible:
+		post_soleil.suivre(decor)
+		var amb0 := get_node_or_null(^"Ambiance") as CanvasModulate
+		decor.appliquer_rebond(amb0.color if amb0 else Color(0, 0, 0, 0))
 	super._ready()
+	_lever_noir_initial()
+
+
+var _decor_demande := false
+var post_soleil: PostSoleil
+
+
+## Si le début du chapitre ne change pas de décor, on lève le noir sur le décor de la scène.
+func _lever_noir_initial() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not _decor_demande and _voile_noir.modulate.a > 0.0:
+		_fondu_noir(0.0, 0.35)
 
 
 func _avant_dialogue() -> void:
@@ -145,6 +164,10 @@ func _lumiere_montante(e: Dictionary) -> void:
 		var L: Dictionary = e.lumiere
 		var l := _lumiere(Vector2(L.position_px[0], L.position_px[1]), Color(L.get("couleur", "#FFF1D0")),
 			float(L.get("rayon_px", 900)) / 128.0)
+		l.name = "LumiereMontante"
+		l.add_to_group("souvenir_surexpose")
+		# Le halo monte aussi dans le ciel (calques non éclairés, masque halo).
+		l.range_item_cull_mask = Decor25D.MASQUE_LUMIERE | Decor25D.MASQUE_HALO
 		l.energy = 0.0
 		l.height = 300.0
 		d.add_child(l)
@@ -152,9 +175,34 @@ func _lumiere_montante(e: Dictionary) -> void:
 	var amb := get_node_or_null(^"Ambiance") as CanvasModulate
 	if amb and e.has("ambiance"):
 		var avant := amb.color
-		var t2 := create_tween()
-		t2.tween_property(amb, "color", Color(e.ambiance), duree * 0.6)
-		t2.tween_property(amb, "color", avant, duree)
+		_tween_souvenir = create_tween()
+		_tween_souvenir.tween_property(amb, "color", Color(e.ambiance), duree * 0.6)
+		_tween_souvenir.tween_property(amb, "color", avant, duree)
+		_surexpose = Color(e.ambiance)
+
+
+## Réglages d'image d'un souvenir (« mémoire surexposée ») : retirés à chaque changement de décor.
+var _tween_souvenir: Tween
+var _surexpose := Color(0, 0, 0, 0)
+const SORTIE_SOUVENIR_S := 1.0
+var _tween_ambiance: Tween
+
+
+## Remet l'image à zéro avant un nouveau décor : coupe le tween d'ambiance du souvenir et retire
+## ses lumières. Rend la teinte de départ du fondu (la surexposition si un souvenir était actif,
+## alpha 0 sinon).
+func reinitialiser_image() -> Color:
+	if _tween_souvenir and _tween_souvenir.is_valid():
+		_tween_souvenir.kill()
+	_tween_souvenir = null
+	for l in get_tree().get_nodes_in_group("souvenir_surexpose"):
+		l.queue_free()
+	for n in get_tree().get_nodes_in_group("props_de_plan"):
+		props.erase(String(n.name))
+		n.queue_free()
+	var depart := _surexpose
+	_surexpose = Color(0, 0, 0, 0)
+	return depart
 
 
 ## Plan objet : changer de décor si besoin, puis remplacer des textures de calques (extérieur de
@@ -163,8 +211,17 @@ func _preparer_plan(p: Dictionary) -> void:
 	if p.has("decor") and p.decor != decor_courant:
 		await _changer_decor(p.decor)
 	var d := decor_par_id(p.get("decor", decor_courant))
+	# « props » : {nom: [x, y]} posés sur le décor le temps du plan (la plaque à l'aube).
+	for nom in p.get("props", {}):
+		if not is_instance_valid(props.get(nom)):
+			var pos: Array = p.props[nom]
+			var s := _prop(d, nom, Vector2(pos[0], pos[1]))
+			s.add_to_group("props_de_plan")
 	for nom in p.get("textures", {}):
-		var image := d.get_node_or_null(NodePath(String(nom) + "/Image")) as Sprite2D
+		var image: Sprite2D = null
+		for c in (d.calques if d is Decor25D else d.get_children()):
+			if String(c.name) == String(nom):
+				image = c.get_node_or_null(^"Image") as Sprite2D
 		var chemin := "%s/%s/%s" % [DOSSIER_DECORS, p.get("decor", decor_courant), p.textures[nom]]
 		if image and ResourceLoader.exists(chemin) and image.texture is CanvasTexture:
 			(image.texture as CanvasTexture).diffuse_texture = load(chemin)
@@ -194,7 +251,9 @@ func _construire_ui() -> void:
 	_voile_noir.color = Color.BLACK
 	_voile_noir.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_voile_noir.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_voile_noir.modulate.a = 0.0
+	# Noir au lancement : le décor posé dans la scène (le Triomphe d'Ullanor) ne doit pas
+	# apparaître avant le premier @decor ou @plan du chapitre (QA : 2 s du Triomphe avant l'archive).
+	_voile_noir.modulate.a = 1.0
 	_ui.add_child(_voile_noir)
 	_invite = Label.new()
 	_invite.add_theme_font_size_override("font_size", 26)
@@ -449,6 +508,7 @@ func _etat_a_l_entree(id: String, etat_alias: String) -> String:
 
 
 func _changer_decor(id_demande: String) -> void:
+	_decor_demande = true
 	var r := resoudre_decor(id_demande)
 	var id: String = r.decor
 	var cible := decor_par_id(id)
@@ -456,8 +516,11 @@ func _changer_decor(id_demande: String) -> void:
 	if cible.visible and decor_courant == id:
 		if cible is Decor25D and not etat.is_empty() and cible.etat != etat:
 			cible.appliquer_etat(etat, 1.5)
+		if _voile_noir.modulate.a > 0.0 and phase != "ecran_fin":
+			await _fondu_noir(0.0, 0.35)
 		return
 	await _fondu_noir(1.0, 0.35)
+	var sortie_souvenir := reinitialiser_image()
 	for d in decors.values():
 		d.visible = d == cible
 	decor_courant = id
@@ -473,7 +536,19 @@ func _changer_decor(id_demande: String) -> void:
 	if amb:
 		if not amb.has_meta("defaut"):
 			amb.set_meta("defaut", amb.color)
-		amb.color = cible.ambiant if cible is Decor25D and cible.ambiant.a > 0.0 else amb.get_meta("defaut")
+		var normal: Color = cible.ambiant if cible is Decor25D and cible.ambiant.a > 0.0 else amb.get_meta("defaut")
+		if _tween_ambiance and _tween_ambiance.is_valid():
+			_tween_ambiance.kill()
+		if sortie_souvenir.a > 0.0:
+			# Sortie de souvenir : de la surexposition vers l'étalonnage normal du lieu.
+			amb.color = sortie_souvenir
+			_tween_ambiance = create_tween()
+			_tween_ambiance.tween_property(amb, "color", normal, SORTIE_SOUVENIR_S)
+		else:
+			amb.color = normal
+		if cible is Decor25D:
+			cible.appliquer_rebond(normal)
+	post_soleil.suivre(cible)
 	# En ciné, les plans sont libres ; les limites de la caméra sont posées au début du jeu.
 	_limiter_camera(null)
 	# Nouveau lieu : la caméra repart du cadre de référence du décor (centrée, zoom 1), pas de
