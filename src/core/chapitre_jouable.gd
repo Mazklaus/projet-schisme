@@ -291,9 +291,17 @@ func _poser_buste(p: String, enchaine := true) -> void:
 
 
 ## Cadrage des gros plans (tools/gros_plans/cadrage.py, calcul de CA1) : la tête du buste prend
-## la largeur et la place de la tête du gabarit 40 du fond. « serrage » > 1 resserre autour des yeux.
+## la largeur et l'axe de la tête du gabarit 40 du fond, resserrée pour l'émotion (DA 27/11) :
+## haut du crâne à CRANE_CIBLE, menton à MENTON_CIBLE de la hauteur du cadre. Tête du gabarit :
+## crâne 117 px au-dessus des yeux, 280 px du crâne au menton.
 const CADRAGE := "res://data/gros_plans_cadrage.json"
-static var serrage := 1.0
+const CRANE_CIBLE := 0.15
+const MENTON_CIBLE := 0.45
+const GABARIT_CRANE_YEUX := 117.0
+const GABARIT_HAUTEUR_TETE := 280.0
+## Hauteur crâne-menton d'un buste de CA1 ≈ 1,08 largeur maximale de la silhouette de la tête
+## (mesuré sur Dremm et Sefa : 235 / 217 et 255 / 254 ; la chevelure élargit Sefa).
+const RAPPORT_TETE := 1.08
 static var _cadrage: Dictionary
 
 
@@ -308,10 +316,17 @@ static func cadrage() -> Dictionary:
 ## des fonds de CA2 (yeux à 497, tête de 211 px), centrée dans la zone calme du côté.
 static func tete_du_fond(id_fond: String, cote: String, zones: Dictionary = {}) -> Dictionary:
 	var t = cadrage().fonds.get(id_fond, {}).get(cote)
-	if typeof(t) == TYPE_DICTIONARY:
-		return t
-	var zone: Array = zones.get(cote, {}).get("x_px", [0, 960] if cote != "droite" else [960, 1920])
-	return {"x": (float(zone[0]) + float(zone[1])) / 2.0, "y": 497.0, "largeur": 211.0}
+	if typeof(t) != TYPE_DICTIONARY:
+		var zone: Array = zones.get(cote, {}).get("x_px", [0, 960] if cote != "droite" else [960, 1920])
+		t = {"x": (float(zone[0]) + float(zone[1])) / 2.0, "y": 497.0, "largeur": 211.0}
+	return tete_serree(t)
+
+
+## Tête du gabarit resserrée : même axe, échelle et hauteur des yeux tirées des cibles.
+static func tete_serree(t: Dictionary) -> Dictionary:
+	var h := Decor25D.taille_ecran().y
+	var k := (MENTON_CIBLE - CRANE_CIBLE) * h / GABARIT_HAUTEUR_TETE
+	return {"x": float(t.x), "y": CRANE_CIBLE * h + GABARIT_CRANE_YEUX * k, "largeur": float(t.largeur) * k}
 
 
 ## Sprite du buste : albédo et normales dosées (visage FORCE_NORMALES_TETE, armure et vêtements
@@ -360,15 +375,18 @@ static func construire_sprite_buste(chemin: String, tete_fond: Dictionary, cote:
 		return sp
 	var taille := tex.get_size()
 	var b = cadrage().bustes.get(perso.to_upper(), {}).get(cote)
-	var tete_b: Dictionary = b if typeof(b) == TYPE_DICTIONARY else {"x": taille.x / 2.0, "y": taille.y / 3.0, "largeur": taille.x * 0.18}
+	var tete_b: Dictionary = b if typeof(b) == TYPE_DICTIONARY else {"x": taille.x / 2.0, "crane": taille.y * 0.15, "largeur": taille.x * 0.18}
 	if sp.flip_h:
 		tete_b = tete_b.duplicate()
 		tete_b.x = taille.x - float(tete_b.x)
-	# Cou : environ 0,9 largeur de tête sous la ligne des yeux.
-	m.set_shader_parameter("y_cou", (float(tete_b.y) + 0.9 * float(tete_b.largeur)) / taille.y)
-	var ech := float(tete_fond.largeur) / float(tete_b.largeur) * serrage
+	# Tête : RAPPORT_TETE largeur de silhouette, crâne et menton aux cibles.
+	var tete_h := float(tete_b.largeur) * RAPPORT_TETE
+	var h := Decor25D.taille_ecran().y
+	var ech := (MENTON_CIBLE - CRANE_CIBLE) * h / tete_h
+	# Cou : un peu sous le menton.
+	m.set_shader_parameter("y_cou", (float(tete_b.crane) + tete_h * 1.05) / taille.y)
 	sp.scale = Vector2.ONE * ech
-	sp.position = Vector2(float(tete_fond.x) - float(tete_b.x) * ech, float(tete_fond.y) - float(tete_b.y) * ech)
+	sp.position = Vector2(float(tete_fond.x) - float(tete_b.x) * ech, CRANE_CIBLE * h - float(tete_b.crane) * ech)
 	return sp
 
 
@@ -377,8 +395,9 @@ static func construire_sprite_buste(chemin: String, tete_fond: Dictionary, cote:
 ## sans rien, une clé neutre de face. direction_camera = sens de la lumière (x à droite, y vers le
 ## haut, z vers la caméra : z > 0 vient de derrière, rasante ; z < 0 vient de face).
 static func construire_eclairage_buste(ecl: Dictionary, id_fond: String, cote: String, etat := "", tete_x := -1.0) -> Array:
+	var tete := tete_du_fond(id_fond, cote)
 	if tete_x < 0.0:
-		tete_x = 1440.0 if cote == "droite" else 480.0
+		tete_x = float(tete.x)
 	var L: Dictionary = ecl.get("fonds", {}).get(id_fond, {}).get("lumieres", {})
 	# Le .eclairage.json d'un côté droit est déjà symétrisé par CA1 ; le fond, lui, est écrit
 	# pour la gauche.
@@ -417,7 +436,28 @@ static func construire_eclairage_buste(ecl: Dictionary, id_fond: String, cote: S
 		var dc = cle.get("direction_camera", [0.3, -0.3, 0.5])
 		noeuds.append(_lumiere_buste("Contre", contre, float(contre.get("force", 0.3)), miroir,
 			[-float(dc[0]), -0.6, 0.6], tete_x))
+	# Plancher du visage (DA, nuit d'Ullanor : les yeux doivent sortir) : un appoint doux de face,
+	# limité à la tête, de la couleur de l'ambiance.
+	var plancher := float(amb.get("plancher_visage", PLANCHER_VISAGE.get(id_fond, 0.0)))
+	if plancher > 0.0:
+		var f := PointLight2D.new()
+		f.name = "PlancherVisage"
+		f.position = Vector2(tete_x, float(tete.y) + 0.3 * float(tete.largeur))
+		f.texture = _texture_lumiere_buste()
+		f.texture_scale = float(tete.largeur) * 1.6 / 128.0
+		f.height = 400.0
+		var c := couleur_amb.lerp(Color.WHITE, 0.5)
+		f.color = c
+		f.energy = plancher
+		noeuds.append(f)
 	return noeuds
+
+
+## Plancher du visage par fond, quand l'.eclairage.json n'a pas « ambiance.plancher_visage ».
+const PLANCHER_VISAGE := {"ullanor_nuit_gros_plan": 0.4}
+## Un contre venu de derrière (DirectionalLight2D rasante) ne rend qu'une fraction de sa force sur
+## les normales : sans gain, la lune de la nuit d'Ullanor ne se voyait pas (DA).
+const GAIN_CONTRE_RASANT := 4.0
 
 
 static func _lumiere_buste(nom: String, d: Dictionary, energie: float, miroir: bool, dir_defaut, tete_x := 480.0) -> Light2D:
@@ -452,6 +492,8 @@ static func _lumiere_buste(nom: String, d: Dictionary, energie: float, miroir: b
 		# DirectionalLight2D éclaire vers +y à rotation nulle.
 		dl.rotation = atan2(-sx, sy)
 		dl.height = clampf(-z * 0.45, 0.12, 0.45) if z < 0.0 else clampf(0.3 * (1.0 - z), 0.03, 0.2)
+		if z > 0.0 and nom == "Contre":
+			energie *= GAIN_CONTRE_RASANT
 		l = dl
 	l.name = nom
 	l.color = couleur

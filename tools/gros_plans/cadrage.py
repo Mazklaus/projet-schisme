@@ -3,9 +3,10 @@
 La tête du buste prend la largeur et la place de la tête du gabarit 40 de chaque fond (CA2) :
   fond  : haut de la silhouette gy0, largeur max de la tête gw sur 300 px, centre gcx,
           ligne des yeux gey = gy0 + 0,45 x 260 ;
-  buste : ligne des yeux tete_y_px du kit (<perso>_camera_<g|d>.json), largeur de peau bw et
-          centre bcx sur cette ligne (buste_<côté>.png de travail de CA1).
-Le jeu pose le buste à l'échelle gw / bw, (bcx, tete_y_px) sur (gcx, gey).
+  buste : sur le buste final neutre, silhouette de la tête : haut du crâne, largeur maximale
+          et axe, jusqu'aux épaules.
+Le jeu garde l'axe du gabarit (gcx) et resserre (DA 27/11) : crâne à 15 %, menton à 45 %, la
+hauteur de tête étant estimée à 1,08 largeur de silhouette (RAPPORT_TETE du jeu).
 Usage : python3 tools/gros_plans/cadrage.py /mnt/project-files/etude-heresie [dépôt]
 """
 import glob, json, os, sys
@@ -14,8 +15,6 @@ from PIL import Image
 
 E = sys.argv[1].rstrip("/") + "/"
 DEPOT = sys.argv[2] if len(sys.argv) > 2 else "."
-KIT = E + "chaine-images/kit-gros-plans/trois_quarts/"
-TP2 = E + "chaine-images/retouche/assets/personnages/"
 
 
 def ld(p):
@@ -49,13 +48,35 @@ for dossier in sorted(glob.glob(os.path.join(DEPOT, "assets/decors/*_gros_plan")
 for dossier in sorted(glob.glob(os.path.join(DEPOT, "assets/personnages/*"))):
     perso = os.path.basename(dossier)
     for cote in ("gauche", "droite"):
-        cam = KIT + f"{perso}_camera_{'g' if cote == 'gauche' else 'd'}.json"
-        bo = TP2 + f"{perso}/buste_{cote}.png"
-        if not (os.path.exists(cam) and os.path.exists(bo) and glob.glob(os.path.join(dossier, f"buste_{cote}_*.png"))):
+        fin = os.path.join(dossier, f"buste_{cote}_neutre.png")
+        if not os.path.exists(fin):
             continue
-        bey = json.load(open(cam))["tete_y_px"]
-        sk = np.nonzero(peau(ld(bo))[bey])[0]
+        al = ld(fin)[..., 3] > 0.5
+        w = al.shape[1]
+        # Silhouette de la tête (comme le gabarit, qui est une silhouette) : depuis le point le
+        # plus haut du tiers central, la plage opaque continue qui le contient, ligne à ligne,
+        # jusqu'aux épaules (largeur > 1,6 fois la médiane).
+        centre = al[:, int(0.3 * w):int(0.7 * w)]
+        crane = int(np.nonzero(centre.any(1))[0].min())
+        cx = int(0.3 * w) + int(np.nonzero(centre[crane])[0].mean())
+        larg, milieux = [], []
+        for y in range(crane, crane + 500):
+            if not al[y, cx]:
+                break
+            g = cx
+            while g > 0 and al[y, g - 1]:
+                g -= 1
+            d = cx
+            while d < w - 1 and al[y, d + 1]:
+                d += 1
+            if len(larg) > 20 and d - g > 1.6 * float(np.median(larg)):
+                break
+            larg.append(d - g)
+            milieux.append((g + d) / 2)
+            cx = int(round((g + d) / 2))
+        largeur = int(max(larg))
+        x = float(np.mean(milieux[len(milieux) // 4:]))
         sortie["bustes"].setdefault(perso.upper(), {})[cote] = {
-            "x": round((sk.min() + sk.max()) / 2, 1), "y": bey, "largeur": int(sk.max() - sk.min())}
+            "x": round(x, 1), "crane": crane, "largeur": largeur}
 json.dump(sortie, open(os.path.join(DEPOT, "data/gros_plans_cadrage.json"), "w"), ensure_ascii=False, indent=1)
 print(len(sortie["fonds"]), "fonds,", len(sortie["bustes"]), "bustes")

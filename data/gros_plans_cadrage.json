@@ -101,26 +101,26 @@
  "bustes": {
   "DREMM": {
    "gauche": {
-    "x": 511.0,
-    "y": 341,
-    "largeur": 178
+    "x": 513.0,
+    "crane": 148,
+    "largeur": 217
    },
    "droite": {
-    "x": 512.0,
-    "y": 341,
-    "largeur": 178
+    "x": 510.0,
+    "crane": 148,
+    "largeur": 217
    }
   },
   "SEFA": {
    "gauche": {
-    "x": 511.5,
-    "y": 341,
-    "largeur": 205
+    "x": 509.7,
+    "crane": 193,
+    "largeur": 254
    },
    "droite": {
-    "x": 515.0,
-    "y": 341,
-    "largeur": 198
+    "x": 510.0,
+    "crane": 212,
+    "largeur": 254
    }
   }
  }

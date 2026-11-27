@@ -130,7 +130,10 @@ func test_cadrage_tete_du_gabarit() -> void:
 	var tete: Dictionary = CJ.tete_du_fond("barge_quartiers_civils_gros_plan", "gauche")
 	var sp: Sprite2D = CJ.construire_sprite_buste("res://assets/personnages/dremm/buste_gauche_neutre.png", tete, "gauche", "DREMM")
 	var b: Dictionary = CJ.cadrage().bustes.DREMM.gauche
-	assert_almost_eq(sp.scale.x, float(tete.largeur) / float(b.largeur), 0.001, "largeur de tête du gabarit")
-	assert_almost_eq(sp.position.y + float(b.y) * sp.scale.y, float(tete.y), 0.5, "yeux sur ceux du gabarit")
+	var crane: float = sp.position.y + float(b.crane) * sp.scale.y
+	var menton: float = crane + float(b.largeur) * CJ.RAPPORT_TETE * sp.scale.y
+	assert_almost_eq(crane / 1080.0, 0.15, 0.005, "crâne à 15 % (DA)")
+	assert_almost_eq(menton / 1080.0, 0.45, 0.005, "menton à 45 % (DA)")
+	assert_almost_eq(sp.position.x + float(b.x) * sp.scale.x, float(tete.x), 0.5, "axe du gabarit")
 	assert_true(sp.material is ShaderMaterial, "normales dosées")
 	sp.free()
