@@ -196,6 +196,11 @@ static func _verifier_cibles(noeuds: Dictionary, erreurs: Array[String]) -> void
 				cibles = instr.options.duplicate()
 				if instr.has("cible_delai"):
 					cibles.append({"cible": instr.cible_delai, "ligne": instr.ligne})
+					# L'option par défaut d'un menu minuté (celle que suit le silence) n'est jamais
+					# masquée : le silence doit toujours mener à un choix que le joueur voit.
+					var vers_defaut: Array = instr.options.filter(func(o): return o.cible == instr.cible_delai)
+					if not vers_defaut.is_empty() and vers_defaut.all(func(o): return not String(o.get("condition", "")).is_empty()):
+						erreurs.append("ligne %d : l'option par défaut « %s » du menu minuté ne peut pas être conditionnelle" % [vers_defaut[0].ligne, vers_defaut[0].texte])
 			for c in cibles:
 				if c.cible != FIN and not noeuds.has(c.cible):
 					erreurs.append("ligne %d : cible « %s » inconnue" % [c.ligne, c.cible])

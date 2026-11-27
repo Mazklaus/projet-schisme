@@ -44,7 +44,7 @@ func test_choix_minute_expire() -> void:
 
 
 func test_menu_sans_option_visible_suit_le_delai() -> void:
-	var l := _lecteur("=== a\n* x -> b [si cle]\n*! 8 -> b\n=== b\nA: b")
+	var l := _lecteur("=== a\n* x -> c [si cle]\n*! 8 -> b\n=== b\nA: b\n=== c\nA: c")
 	assert_eq(l.avancer().texte, "b")
 
 

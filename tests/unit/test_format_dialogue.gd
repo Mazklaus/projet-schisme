@@ -61,3 +61,11 @@ func test_tous_les_dialogues_du_jeu_sont_valides() -> void:
 				assert_eq(d.erreurs, [] as Array[String], c.dialogue)
 				n += 1
 	assert_gt(n, 0)
+
+
+func test_option_par_defaut_du_menu_minute_jamais_masquee() -> void:
+	var d := FormatDialogue.analyser("=== a\n* Partir -> b\n* Obéir -> c [si x]\n*! 8 -> c\n=== b\nA: b\n=== c\nA: c")
+	assert_eq(d.erreurs.size(), 1)
+	assert_string_contains(d.erreurs[0], "option par défaut")
+	var ok := FormatDialogue.analyser("=== a\n* Partir -> b [si x]\n* Obéir -> c\n*! 8 -> c\n=== b\nA: b\n=== c\nA: c")
+	assert_eq(ok.erreurs, [] as Array[String])

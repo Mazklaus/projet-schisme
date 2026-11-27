@@ -36,6 +36,11 @@ func test_traits_bornes_de_0_a_10_et_relations_de_moins_3_a_3() -> void:
 func test_etat_par_defaut_de_l_episode() -> void:
 	assert_eq(Jeu.etat_defaut("ep01_ullanor"), {}, "épisode 1 : rien avant lui")
 	assert_eq(Jeu.etat_defaut("episode_inexistant"), {})
+	var ep02 := Jeu.etat_defaut("ep02_vengeful_spirit")
+	assert_eq(int(ep02.choix_ep01_ullanor), 3, "épisode 2 : le silence d'Ullanor")
+	assert_false(ep02.vivant_ilse)
+	for cle in ep02:
+		assert_true(Personnages.ecriture_permise(cle), cle)
 
 
 func test_cles_des_dialogues_conformes() -> void:
