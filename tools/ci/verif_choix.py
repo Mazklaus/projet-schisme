@@ -94,12 +94,19 @@ def cles_branche(noeuds, depart, vus=None):
         if typ == "affect":
             fam, _m = famille(g[0])
             if fam and fam != "local":
-                ecrit[g[0]] = (g[1], g[2])
+                # On garde un « += n » positif déjà vu sur ce chemin : un « += 0 » plus loin
+                # (cas par défaut d'une scène suivante) ne doit pas l'effacer du comptage.
+                avant = ecrit.get(g[0])
+                if not (avant and avant[0] == "+=" and avant[1].lstrip("+").isdigit() and int(avant[1]) > 0):
+                    ecrit[g[0]] = (g[1], g[2])
         elif typ == "choix":
             return ecrit
         elif typ == "saut":
             if g[1] is None:
-                ecrit.update(cles_branche(noeuds, g[0], vus))
+                for cle, val in cles_branche(noeuds, g[0], vus).items():
+                    avant = ecrit.get(cle)
+                    if not (avant and avant[0] == "+=" and avant[1].lstrip("+").isdigit() and int(avant[1]) > 0):
+                        ecrit[cle] = val
                 return ecrit
     return ecrit
 
