@@ -1,0 +1,41 @@
+{
+  "entree": "episode-01/cthonia_tunnel/calques/50_avant_plan.png",
+  "sortie": "calques/50_avant_plan.png",
+  "date": "2026-11-27T16:09:36",
+  "modeles": [
+    "Lykon/dreamshaper-xl-lightning",
+    "diffusers/controlnet-depth-sdxl-1.0-small",
+    "madebyollin/sdxl-vae-fp16-fix"
+  ],
+  "invite": ", dark foreground boulders, jagged fractured rock with deep cracks, chipped edges, soot-black stone, grit, splintered wooden plank with fibres, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+  "invite_negative": "people, figures, child, text, letters, lamp, lantern, light bulb, light source, glowing, wire, cable, smooth, flat, plain, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
+  "reglages": {
+    "modele": "xl",
+    "preset": "dark foreground boulders, jagged fractured rock with deep cracks, chipped edges, soot-black stone, grit, splintered wooden plank with fibres",
+    "invite": "",
+    "force": 0.75,
+    "pas": 8,
+    "cfg": 2.0,
+    "controle": 0.5,
+    "largeur": 1536,
+    "profondeur": "",
+    "fond": "2A201D",
+    "marge": 0.08,
+    "alpha_nouveau": false,
+    "lumiere": 10.0,
+    "couleur": 0.7,
+    "composantes": true,
+    "masque": "",
+    "proteger": "",
+    "negatif": "people, figures, child, text, letters, lamp, lantern, light bulb, light source, glowing, wire, cable, smooth, flat, plain",
+    "identite": "",
+    "identite_force": 0.6,
+    "graines": "62"
+  },
+  "statut": "fige",
+  "note": "passer statut a 'fige' quand la DA a choisi et le GD valide",
+  "pretraitement": "gain x2.5, pretexture amp 0.35 graine 5, retouche (graine 62), gain x0.4, lisere.py 1281,399 FFD08A 0.35 ep 4",
+  "choix": "DA 27/11 15:42 (reprises) (50_avant_plan_g63)",
+  "installe": "2026-11-27T19:46:41",
+  "note_4k": "4k = agrandissement provisoire du 1080 peint, à refaire au lot 4k de fin"
+}
