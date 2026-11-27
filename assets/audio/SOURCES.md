@@ -77,3 +77,27 @@ python3 tools/son/encoder_ogg.py /tmp/wav_ch35 assets/audio
 | `amb_ep04_orvane_bloc` | `amb_orvane_bloc` | 6007 | ch. 4, le bloc d'habitation à l'aube (`orvane_bloc`, crise C7) | Boucle de 45 s : tirs isolés entre les murs, voix étouffées de civils (sans mots), verre qui tombe, vent, premiers oiseaux |
 | `amb_ep04_orvane_matin` | `amb_orvane_matin` | 6008 | ch. 4, retombée (`orvane_aube`) | Boucle de 45 s : feux qui finissent, conduite qui goutte, sirène qui s'éloigne, cendre dans le vent, quelques oiseaux ; identique pour toutes les branches |
 | `amb_ep05_orvane_soir` | `amb_orvane_soir` | 6009 | ch. 5, graver les morts (`orvane_soir`) | Boucle de 45 s : vent, brasero, générateur, insectes du soir, et loin deux ciseaux qui frappent la pierre (on grave des noms) |
+
+### Épisode 2 (`tools/son/generer_episode02.py`, préfixe `e2_`, mêmes outils)
+
+Le préfixe `e2_` désigne l'épisode 2. Dans l'épisode 1, les fichiers `amb_ep0N_` portaient le numéro du chapitre.
+
+```
+python3 tools/son/generer_episode02.py /tmp/wav_e2
+python3 tools/son/encoder_ogg.py /tmp/wav_e2 assets/audio
+```
+
+| Fichier | Fonction du générateur | Graine | Où il sonne | Ce que c'est |
+|---|---|---|---|---|
+| `amb_e2_cour_or` | `amb_cour_or` | 7001 | ch. 1, cours d'or de 63-19 avant l'assaut (`palais_6319`) | Boucle de 40 s : dallage immense, bannières, fontaine, garde d'apparat, fanfare de deux trompettes un peu fausses (le faste creux) |
+| `amb_e2_cour_or_assaut` | `amb_cour_or_assaut` | 7002 | ch. 1, l'assaut du palais | Boucle de 45 s : bolters de la Légion contre fusils laser des gardes, marbre qui éclate, corne d'alarme archaïque |
+| `amb_e2_tour` | `amb_tour` | 7003 | ch. 1, le flanc pendant qu'Horus monte à la tour | Boucle de 40 s : la bataille qui se tait par vagues, tirs lointains, vent en hauteur, feux |
+| `sfx_e2_teleport` | `sfx_teleport` | 7004 | ch. 1, l'éclair au sommet de la tour | L'air qui se charge, l'implosion, le tonnerre qui roule (8 s avec la réverbération) |
+| `sfx_e2_tir_unique` | `sfx_tir_unique` | 7005 | ch. 1, Horus tue l'« Empereur » | Un seul coup très loin et ses trois échos sur les façades |
+| `amb_e2_palais_soir` | `amb_palais_soir` | 7006 | ch. 1, le palais pris le soir (`palais_salle_trone`) | Boucle de 45 s : salle du trône vide, vent par les vitres brisées, fontaine qui goutte, pas lointains |
+| `sfx_e2_couronne` | `sfx_couronne` | 7007 | ch. 1, Dremm jette la couronne | L'or creux sur le marbre, les rebonds, la couronne qui tourne sur sa tranche |
+| `amb_e2_navettes` | `amb_navettes` | 7008 | ch. 2, arrivée des civils (`vs_grand_hangar`) | Boucle de 50 s : turbines, foule civile sans mots, malles, signal de bord à deux tons (aucune annonce parlée) |
+| `amb_e2_whisperheads` | `amb_whisperheads` | 7009 | ch. 2, la crête (`whisperheads`) | Boucle de 50 s : brouillard et pluie de montagne, vent qui siffle, pierres, assaut de la 10e étouffé par le brouillard |
+| `amb_e2_vox_escouade` | `amb_vox_escouade` | 7010 | ch. 2, le vox de l'escouade | Boucle de 30 s : porteuse, crépitements, appels brefs sans mots dans la bande du vox, clics de micro |
+| `sfx_e2_vox_anomalie` | `sfx_vox_anomalie` | 7011 | ch. 2, « la voix » (Venn) | Sans voix : une respiration trop régulière dans la porteuse, puis le bruit qui bat en deux temps (long-court) trois fois, une modulation qui descend sous le souffle, et la coupure. Ambigu : on peut croire à une panne |
+| `sfx_e2_vox_cris` | `sfx_vox_cris` | 7012 | ch. 2, l'incident de Jubal, entendu au vox | Tirs et cris de gorge sans mots, saturés, puis le canal qui coupe |
