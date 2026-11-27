@@ -1,0 +1,118 @@
+{
+  "_doc": "Gestes des rigs de personnages (RigPersonnage). Angles en degrés, ajoutés à la pose de repos ; négatif = vers l'avant (le personnage regarde à droite). « main » : variante de main_avant (pointe, poing). « tete » : « face » montre la tête de face. « bassin_y » : descente du bassin en px source. « tenir » : le geste reste posé jusqu'au suivant (ou @geste <perso> repos). « son » : ample ou fin (bruitage choisi selon le type du rig).",
+  "entree_s": 0.35,
+  "sortie_s": 0.45,
+  "gestes": {
+    "montrer": {
+      "duree": 1.6,
+      "son": "ample",
+      "main": "pointe",
+      "os": {
+        "bras_avant": -80,
+        "avant_bras_avant": -12,
+        "main_avant": -5,
+        "torse": -3,
+        "tete": -4
+      }
+    },
+    "croiser_bras": {
+      "duree": 2.4,
+      "son": "ample",
+      "tenir": true,
+      "os": {
+        "bras_avant": -8,
+        "avant_bras_avant": -82,
+        "main_avant": -10,
+        "bras_arriere": 4,
+        "avant_bras_arriere": -60,
+        "torse": 2,
+        "tete": 3
+      }
+    },
+    "main_epaule": {
+      "duree": 2.0,
+      "son": "ample",
+      "os": {
+        "bras_avant": -62,
+        "avant_bras_avant": -18,
+        "main_avant": 20,
+        "torse": -4,
+        "tete": 5
+      }
+    },
+    "saluer": {
+      "duree": 1.4,
+      "son": "ample",
+      "main": "poing",
+      "os": {
+        "bras_avant": -28,
+        "avant_bras_avant": -128,
+        "torse": -2,
+        "tete": 3
+      }
+    },
+    "degainer": {
+      "duree": 1.2,
+      "son": "ample",
+      "tenir": true,
+      "main": "poing",
+      "os": {
+        "bras_avant": 25,
+        "avant_bras_avant": -55,
+        "torse": -6,
+        "tete": -3
+      }
+    },
+    "agenouiller": {
+      "duree": 2.0,
+      "son": "ample",
+      "tenir": true,
+      "bassin_y": 85,
+      "os": {
+        "cuisse_avant": -99,
+        "jambe_avant": 99,
+        "pied_avant": 0,
+        "cuisse_arriere": 5,
+        "jambe_arriere": 85,
+        "pied_arriere": -55,
+        "torse": 6,
+        "tete": 10,
+        "bras_avant": -10,
+        "avant_bras_avant": -30
+      }
+    },
+    "hocher": {
+      "duree": 0.7,
+      "son": "fin",
+      "os": {
+        "tete": 12
+      }
+    },
+    "tete_baissee": {
+      "duree": 1.8,
+      "son": "fin",
+      "tenir": true,
+      "os": {
+        "tete": 16,
+        "torse": 3
+      }
+    },
+    "tete_levee": {
+      "duree": 1.6,
+      "son": "fin",
+      "os": {
+        "tete": -12
+      }
+    },
+    "tete_face": {
+      "duree": 1.8,
+      "son": "fin",
+      "tete": "face",
+      "os": {}
+    },
+    "repos": {
+      "duree": 0.1,
+      "os": {}
+    }
+  }
+}
