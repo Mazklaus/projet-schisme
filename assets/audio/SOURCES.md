@@ -44,6 +44,8 @@ python3 tools/son/encoder_ogg.py /tmp/wav_ep01 assets/audio
 | `mus_ep01_luna_wolves` | `mus_luna_wolves` | 4001 | épisode 1, thème de la Légion | Boucle de 58 s : sol mixolydien, deux cors à l'unisson (la fraternité), quintes à vide, timbales ; la reprise ajoute l'octave, le chœur et un tambour discret ; la phrase finit sur la quinte, ouverte |
 | `mus_ep01_horus` | `mus_horus_motif` | 4002 | épisode 1, motif d'Horus | Boucle de 19 s : ré – la – ré – do# – ré au cor grave et au chœur sur un ré majeur d'orgue ; à la reprise, le do# glisse sur do naturel et y reste (la note qui doute) |
 | `amb_ep01_cthonia` | `amb_cthonia` | 4003 | flash-backs, tunnels de Cthonia | Boucle de 45 s : roche, gouttes, vapeur dans les conduites, pilon de mine lointain (1 coup / 1,5 s), étais qui travaillent, coups sourds dans une galerie voisine ; espace étroit et sombre |
+| `amb_archive` | `amb_archive` | 4004 | l'archive (cadre, 017.M31), ch. 1 et 2 | Boucle de 40 s : petite salle fermée la nuit, lampe à huile qui vacille, une page tournée, le bois qui craque ; très calme |
+| `amb_ep02_unification` | `amb_unification` | 4005 | ch. 2, flash-back de Krenn (Terra, l'Unification) | Boucle de 45 s : boue et ruines, rafales et tirs isolés lointains avec écho, explosions qui roulent, feu, vent chargé de cendres |
 
 ### Épisode 2 et 3 : Vengeful Spirit (`tools/son/generer_ep02.py`, mêmes outils que `generer_ullanor.py`)
 

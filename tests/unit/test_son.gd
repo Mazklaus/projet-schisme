@@ -1,8 +1,10 @@
 extends GutTest
-## Son de la tranche : chaque son appelé par le dialogue ou par la scène existe dans
-## assets/audio/, et l'autoload Son reste silencieux (sans erreur) quand un fichier manque.
+## Son de l'épisode 1 : chaque son appelé par les dialogues ou par la scène existe dans
+## assets/audio/, chaque nœud qui pose un décor pose aussi son ambiance (plus de chapitre muet,
+## constat QA du 27/11), et l'autoload Son reste silencieux (sans erreur) quand un fichier manque.
 
-const DLG := "res://data/dialogues/ep01/ullanor.dlg"
+const DLGS := ["res://data/dialogues/ep01/ullanor.dlg", "res://data/dialogues/ep01/ch01.dlg",
+		"res://data/dialogues/ep01/ch02.dlg"]
 ## Sons appelés depuis scenes/ullanor/tranche_ullanor.gd (préfixe compris).
 const SONS_SCENE := ["amb_ullanor_bivouac", "sfx_eboulement", "sfx_poutre_grince", "sfx_choix_tic", "sfx_choix_battement_01", "sfx_vox_crepite_01"]
 const PREFIXES := {"ambiance": "amb_", "musique": "mus_", "bruitage": "sfx_"}
@@ -14,17 +16,38 @@ func _fichier_existe(nom: String) -> bool:
 
 
 func test_sons_du_dialogue_presents() -> void:
-	var appels := 0
-	for ligne in FileAccess.get_file_as_string(DLG).split("\n"):
-		var mots := ligne.strip_edges().split(" ", false)
-		if mots.size() < 2 or not mots[0].begins_with("@") or not PREFIXES.has(mots[0].substr(1)):
-			continue
-		if mots[1] == "stop":
-			continue
-		appels += 1
-		var nom: String = PREFIXES[mots[0].substr(1)] + mots[1]
-		assert_true(_fichier_existe(nom), "son absent : %s (%s)" % [nom, ligne.strip_edges()])
-	assert_gt(appels, 8, "le dialogue de la tranche pose ses sons")
+	for dlg in DLGS:
+		var appels := 0
+		for ligne in FileAccess.get_file_as_string(dlg).split("\n"):
+			var mots := ligne.strip_edges().split(" ", false)
+			if mots.size() < 2 or not mots[0].begins_with("@") or not PREFIXES.has(mots[0].substr(1)):
+				continue
+			if mots[1] == "stop":
+				continue
+			appels += 1
+			var nom: String = PREFIXES[mots[0].substr(1)] + mots[1]
+			assert_true(_fichier_existe(nom), "son absent : %s (%s, %s)" % [nom, ligne.strip_edges(), dlg])
+		assert_gt(appels, 4, "le dialogue pose ses sons : " + dlg)
+
+
+## Un nœud qui change de décor change aussi d'ambiance : sinon la scène garde le son de la
+## précédente, ou reste muette après un chargement de partie.
+func test_chaque_decor_a_son_ambiance() -> void:
+	for dlg in DLGS:
+		var noeud := ""
+		var decor := false
+		var ambiance := false
+		for ligne in (FileAccess.get_file_as_string(dlg) + "\n=== _fin").split("\n"):
+			var l := ligne.strip_edges()
+			if l.begins_with("==="):
+				assert_false(decor and not ambiance, "décor sans ambiance : %s (%s)" % [noeud, dlg])
+				noeud = l.substr(3).strip_edges()
+				decor = false
+				ambiance = false
+			elif l.begins_with("@decor "):
+				decor = true
+			elif l.begins_with("@ambiance "):
+				ambiance = true
 
 
 func test_sons_de_la_scene_presents() -> void:
