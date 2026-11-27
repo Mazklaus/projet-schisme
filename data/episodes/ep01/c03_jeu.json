@@ -56,5 +56,10 @@
         "frere_1"
       ]
     }
+  },
+  "decors": {
+    "archive": {
+      "etat": "ch3"
+    }
   }
 }
