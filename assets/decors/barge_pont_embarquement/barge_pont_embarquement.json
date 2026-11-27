@@ -65,54 +65,66 @@
     {
       "fichier": "calques/05_exterieur_arrivee.png",
       "auteur": "CA2",
-      "distance_m": "infini",
-      "contenu": "le champ de la baie saturé de lumière (variante arrivée)"
+      "distance_m": 10000.0,
+      "contenu": "le champ de la baie saturé de lumière (variante arrivée)",
+      "note": "distance : infini m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/05_exterieur_orbite.png",
       "auteur": "CA2",
-      "distance_m": "infini",
-      "contenu": "le noir, étoiles, Orvane (variante orbite)"
+      "distance_m": 10000.0,
+      "contenu": "le noir, étoiles, Orvane (variante orbite)",
+      "note": "distance : infini m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/20_pont.png",
       "normal": "calques/20_pont_normal.png",
       "ombre": "calques/20_pont_ombre.png",
       "auteur": "CA2",
-      "distance_m": "1,2 à 26",
-      "contenu": "pont d'acier, chevrons de danger au pourtour de l'aire seulement, mur droit et baie gothique en ogive (percée dans l'alpha) avec meneaux et traverses d'acier opaques en silhouette ; ombres de la navette, de la rampe et du fret ; occlusion du premier plan"
+      "distance_m": 13.6,
+      "contenu": "pont d'acier, chevrons de danger au pourtour de l'aire seulement, mur droit et baie gothique en ogive (percée dans l'alpha) avec meneaux et traverses d'acier opaques en silhouette ; ombres de la navette, de la rampe et du fret ; occlusion du premier plan",
+      "note": "distance : 1,2 à 26 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/30_navette.png",
       "normal": "calques/30_navette_normal.png",
       "auteur": "CA2",
-      "distance_m": "8,4 à 27",
-      "contenu": "navette de Légion de l'Hérésie, massive et en brique : coque blindée épaisse, glacis chanfreiné, cockpit à petites vitres rectangulaires renforcées, contreforts, ailes courtes en flèche inversée, bloc réacteurs dorsal, trains épais, liseré d'or terni ; RAMPE FRONTALE abaissée vers nous ; caisses de fret à gauche"
+      "distance_m": 17.7,
+      "contenu": "navette de Légion de l'Hérésie, massive et en brique : coque blindée épaisse, glacis chanfreiné, cockpit à petites vitres rectangulaires renforcées, contreforts, ailes courtes en flèche inversée, bloc réacteurs dorsal, trains épais, liseré d'or terni ; RAMPE FRONTALE abaissée vers nous ; caisses de fret à gauche",
+      "note": "distance : 8,4 à 27 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/40_personnages.png",
       "auteur": "CA1 / kit Blender",
-      "distance_m": "6,6 à 10",
-      "contenu": "PAS alignés : Sefa et les deux autres civils au pied de la rampe (minuscules), 4 Astartes dont un plus près de nous que les civils (choc d'échelle). Chaque personnage porte son ombre longue vers la gauche. Gabarit : calques/gabarit_40_personnages.png"
+      "distance_m": 8.3,
+      "contenu": "PAS alignés : Sefa et les deux autres civils au pied de la rampe (minuscules), 4 Astartes dont un plus près de nous que les civils (choc d'échelle). Chaque personnage porte son ombre longue vers la gauche. Gabarit : calques/gabarit_40_personnages.png",
+      "normal": "calques/40_personnages_normal.png",
+      "ombre": "calques/40_personnages_ombre.png",
+      "generateur": "cA1/barge_pont_embarquement/rendu_pe.py (kit Astartes + kit_civil, -- 1920|3840) puis post_pe.py",
+      "statut": "v2 CA1 (civils kit_civil, Astartes 2,45 m, ast_2 avancé, ombres = projection vraie), à valider DA",
+      "note": "distance : 6,6 à 10 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/50_avant_plan.png",
       "normal": "calques/50_avant_plan_normal.png",
       "auteur": "CA2",
-      "distance_m": "2,3 à 3,7",
-      "contenu": "montant presque noir à gauche (liseré froid), main courante de passerelle en bas, caisses sombres en bas à droite, chaîne qui pend"
+      "distance_m": 3.0,
+      "contenu": "montant presque noir à gauche (liseré froid), main courante de passerelle en bas, caisses sombres en bas à droite, chaîne qui pend",
+      "note": "distance : 2,3 à 3,7 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/85_rais.png",
       "auteur": "CA2",
-      "distance_m": "10 à 24",
-      "contenu": "rais de lumière de la baie, en ADDITIF (variante arrivée)"
+      "distance_m": 17.0,
+      "contenu": "rais de lumière de la baie, en ADDITIF (variante arrivée)",
+      "note": "distance : 10 à 24 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/90_particules.png",
       "auteur": "CA2",
-      "distance_m": "8 à 22",
-      "contenu": "poussière dans les rais ; à animer (dérive lente vers la gauche)"
+      "distance_m": 15.0,
+      "contenu": "poussière dans les rais ; à animer (dérive lente vers la gauche)",
+      "note": "distance : 8 à 22 m (valeur représentative ci-dessus)"
     }
   ],
   "normales": "convention OpenGL (Y+), alpha = alpha du calque",

@@ -67,29 +67,37 @@
       "fichier": "calques/10_voute.png",
       "normal": "calques/10_voute_normal.png",
       "auteur": "CA2",
-      "distance_m": "1 à 38 (hauteur 7 à 12)",
-      "contenu": "voûtains d'acier, doubleaux et ogives d'or terni assourdi (moitié de la valeur précédente), sans rosaces ; conduites le long de la retombée gauche"
+      "distance_m": 19.5,
+      "contenu": "voûtains d'acier, doubleaux et ogives d'or terni assourdi (moitié de la valeur précédente), sans rosaces ; conduites le long de la retombée gauche",
+      "note": "distance : 1 à 38 (hauteur 7 à 12) m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/20_nef.png",
       "normal": "calques/20_nef_normal.png",
       "ombre": "calques/20_nef_ombre.png",
       "auteur": "CA2",
-      "distance_m": "1 à 38",
-      "contenu": "sol d'acier, murs d'acier gris-brun rivetés (raidisseurs, lisses), colonnes engagées d'acier rivetées à bagues sombres ; ombres des colonnes et de l'établi projetées depuis la lampe"
+      "distance_m": 19.5,
+      "contenu": "sol d'acier, murs d'acier gris-brun rivetés (raidisseurs, lisses), colonnes engagées d'acier rivetées à bagues sombres ; ombres des colonnes et de l'établi projetées depuis la lampe",
+      "note": "distance : 1 à 38 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/30_mobilier.png",
       "normal": "calques/30_mobilier_normal.png",
       "auteur": "CA2",
-      "distance_m": "5,5 à 36",
-      "contenu": "couchettes d'acier, râteliers d'armure (plastron, épaulières à lamelles, gorgerin, casque sur support), établi d'armurier (outils, bolter démonté, bras de servo-lampe articulé (socle boulonné, vérin)), étendard de compagnie en TISSU mat, plus sombre que la lampe, sur le mur gauche (plis, pointes, liseré ; motif Luna Wolves à poser par CA1, cA1/bannieres option B)"
+      "distance_m": 20.75,
+      "contenu": "couchettes d'acier, râteliers d'armure (plastron, épaulières à lamelles, gorgerin, casque sur support), établi d'armurier (outils, bolter démonté, bras de servo-lampe articulé (socle boulonné, vérin)), étendard de compagnie en TISSU mat, plus sombre que la lampe, sur le mur gauche (plis, pointes, liseré ; motif Luna Wolves à poser par CA1, cA1/bannieres option B)",
+      "note": "distance : 5,5 à 36 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/40_personnages.png",
       "auteur": "CA1 / kit Blender",
-      "distance_m": "11 à 19",
-      "contenu": "PAS alignés : Dremm penché sur l'établi (profil), un frère assis sur une couchette qui nettoie son bolter, un frère debout plus loin de l'autre côté. Gabarit : calques/gabarit_40_personnages.png"
+      "distance_m": 15.0,
+      "contenu": "PAS alignés : Dremm penché sur l'établi (profil, tête nue, mains sur le plateau, côté allée), un frère assis au bord d'une couchette basse côté droit (pieds dans l'allée) qui nettoie son bolter, un frère debout plus loin de l'autre côté, casque à la main. Kit Mk II, 2,45 m.",
+      "note": "distance : 11 à 19 m (valeur représentative ci-dessus)",
+      "normal": "calques/40_personnages_normal.png",
+      "ombre": "calques/40_personnages_ombre.png (multiply, noir + alpha, sous 40)",
+      "generateur": "cA1/barge_quartiers_27/rendu_b27.py + post_b27.py (-- 1920|3840)",
+      "statut": "v1b CA1, validé DA, retouche TP2"
     },
     {
       "fichier": "calques/45_lampe.png",
@@ -101,14 +109,16 @@
       "fichier": "calques/50_avant_plan.png",
       "normal": "calques/50_avant_plan_normal.png",
       "auteur": "CA2",
-      "distance_m": "2,3 à 3,4",
-      "contenu": "armure sur support presque noire au premier plan gauche, liseré chaud côté lampe ; coin de couchette en bas à droite"
+      "distance_m": 2.85,
+      "contenu": "armure sur support presque noire au premier plan gauche, liseré chaud côté lampe ; coin de couchette en bas à droite",
+      "note": "distance : 2,3 à 3,4 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/90_particules.png",
       "auteur": "CA2",
-      "distance_m": "9 à 12",
-      "contenu": "poussière dans la lumière de la lampe ; à animer"
+      "distance_m": 10.5,
+      "contenu": "poussière dans la lumière de la lampe ; à animer",
+      "note": "distance : 9 à 12 m (valeur représentative ci-dessus)"
     }
   ],
   "normales": "convention OpenGL (Y+), alpha = alpha du calque",

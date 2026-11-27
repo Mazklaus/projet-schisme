@@ -94,7 +94,7 @@ DREMM (vox): La 27e avance. Personne ne traîne.
 === assaut_ilse_scene
 > Une ligne de l'Armée, accroupie derrière un mur. Le 4e de Kalthar.
 > Une soldate lève la tête. Un poinçon à la ceinture.
--> assaut_ilse_plaque [si ep01_plaque_gardee == true]
+-> assaut_ilse_plaque [si choix_ep01_plaque == 1]
 ILSE: Encore vous. Les géants passent toujours devant.
 VASKAR: Restez derrière nous.
 ILSE: C'est ce qu'on fait. Depuis le début.

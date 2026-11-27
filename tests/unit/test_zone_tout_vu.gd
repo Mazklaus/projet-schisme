@@ -48,3 +48,34 @@ func test_point_restant_attend_le_filet() -> void:
 	assert_eq(ch.declencheur_pret(), -1)
 	Jeu.etat = sauve[0]
 	Catalogue.episodes = sauve[1]
+
+
+func test_zone_a_declencheur_de_position_ignore_tout_vu() -> void:
+	var sauve: Array = [Jeu.etat.duplicate(true), Catalogue.episodes.duplicate(true)]
+	var ch := await _zone_c05(false)
+	ch.pois_vus["poi_mur"] = true
+	ch.pois_vus["poi_sefa_note"] = true
+	ch.config.declencheurs = [{"apres": [], "x": 1600, "noeud": "suite"}]
+	ch.boite.hide()
+	ch.joueur.position.x = 900.0
+	ch.temps_jeu = 10.0
+	ch.declencheur_pret()
+	ch.temps_jeu = 30.0
+	assert_eq(ch.declencheur_pret(), -1, "§9.4 : la suite attend le bout du chemin")
+	ch.joueur.position.x = 1650.0
+	assert_eq(ch.declencheur_pret(), 0)
+	Jeu.etat = sauve[0]
+	Catalogue.episodes = sauve[1]
+
+
+func test_aucun_point_disponible_n_est_pas_tout_vu() -> void:
+	var sauve: Array = [Jeu.etat.duplicate(true), Catalogue.episodes.duplicate(true)]
+	var ch := await _zone_c05(false)
+	ch.pois = {}
+	assert_false(ch.tous_pois_vus(), "zone vide")
+	ch.pois = {"poi_x": Vector2(100, 100)}
+	ch.pois_vus.clear()
+	var dispo := ch.poi_disponible("poi_x")
+	assert_false(ch.tous_pois_vus(), "rien vu : %s" % ("point disponible" if dispo else "aucun point disponible"))
+	Jeu.etat = sauve[0]
+	Catalogue.episodes = sauve[1]

@@ -134,7 +134,8 @@ func _attacher_figurants_cine() -> void:
 	horus.scale = Vector2(1, 0.55)
 	fond.add_child(horus)
 	var voie := ullanor.get_node("Calque_30_voie")
-	for d in [["PoutreSeule", "poutre", 0.12], ["Civiere", "civiere", 0.3], ["IlsePlaque", "ilse_plaque", 0.45]]:
+	# IlsePlaque : même hauteur à l'écran que l'ancienne image (70 px × 0,45) avec la v2 de CA1 (340 px).
+	for d in [["PoutreSeule", "poutre", 0.12], ["Civiere", "civiere", 0.3], ["IlsePlaque", "ilse_plaque", 0.093]]:
 		var s := _sprite(d[1], false)
 		s.name = d[0]
 		s.position = Vector2(1180, 722)
