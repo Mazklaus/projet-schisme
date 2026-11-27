@@ -135,5 +135,6 @@
     "apercu.png",
     "apercu_grille.png (contrôle de la grille)"
   ],
-  "statut": "essai v2 (corrections DA : galerie basse et brute, plein cadre, fond bouché)"
+  "statut": "essai v2 (corrections DA : galerie basse et brute, plein cadre, fond bouché)",
+  "pret_jeu": true
 }

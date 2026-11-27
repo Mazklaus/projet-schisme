@@ -186,6 +186,9 @@ func nettoyer() -> void:
 		if is_instance_valid(img):
 			img.position = img.get_meta("position_mes")
 			img.modulate.a = img.get_meta("alpha_mes", 1.0)
+			if img.has_meta("materiau_mes"):
+				img.material = img.get_meta("materiau_mes")
+				img.remove_meta("materiau_mes")
 			img.remove_meta("position_mes")
 			img.remove_meta("alpha_mes")
 	_images_animees.clear()
@@ -740,8 +743,23 @@ func _animer_calque(e: Dictionary) -> void:
 			t.tween_property(img, "modulate:a", 1.0, maxf(duree, 0.01))
 		"disparaitre":
 			t.tween_property(img, "modulate:a", 0.0, maxf(duree, 0.01))
+		"eclairs":
+			# Éclairs de bouche peints (46_tirs du bloc) : chaque cellule de l'image (une fenêtre)
+			# s'allume sur son propre rythme, par à-coups ; sinon les éclairs fixes se lisent comme
+			# des étoiles posées sur la façade.
+			t.kill()
+			if not img.has_meta("materiau_mes"):
+				img.set_meta("materiau_mes", img.material)
+			var m := ShaderMaterial.new()
+			m.shader = _shader_clignoter()
+			var tex := (img as Sprite2D).texture if img is Sprite2D else null
+			var taille := tex.get_size() if tex else Vector2(1920, 1080)
+			m.set_shader_parameter("cellules", taille / float(e.get("cellule_px", 60.0)))
+			m.set_shader_parameter("cadence", float(e.get("cadence", 3.0)))
+			m.set_shader_parameter("part", float(e.get("part", 0.12)))
+			img.material = m
 		_:
-			t.kill()  # « clignoter » et autres : shader du Lead, pas encore
+			t.kill()
 
 
 # ------------------------------------------------------------------------------ plein écran
@@ -829,6 +847,33 @@ static func texture_hologramme(nom: String) -> Array:
 		var p: Array = HOLO_PROVISOIRE[nom]
 		return [load(p[0]), p[1], p[2]]
 	return [null, Rect2(), 1.0]
+
+
+static var _shader_clig: Shader
+
+
+static func _shader_clignoter() -> Shader:
+	if _shader_clig == null:
+		_shader_clig = Shader.new()
+		_shader_clig.code = """
+shader_type canvas_item;
+render_mode blend_add;
+uniform vec2 cellules = vec2(32.0, 18.0);
+uniform float cadence = 3.0;
+uniform float part = 0.12;
+float h(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+void fragment() {
+	vec2 c = floor(UV * cellules);
+	float ph = h(c) * 17.0;
+	float tick = floor(TIME * cadence + ph);
+	float on = step(1.0 - part, h(c + tick * 0.37));
+	float f = fract(TIME * cadence + ph);
+	vec4 col = texture(TEXTURE, UV);
+	float k = on * exp(-f * 6.0);
+	COLOR = vec4(col.rgb * col.a * k, col.a * k);
+}
+"""
+	return _shader_clig
 
 
 static func shader_hologramme() -> Shader:

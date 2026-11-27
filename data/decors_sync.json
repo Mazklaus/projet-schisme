@@ -219,7 +219,7 @@
    "calques/30_gravats.png": "78b99d61acfea74edd035954c66052d0",
    "calques/30_gravats.retouche.json": "f74aabe19802f9e85bcd9ac28de72183",
    "calques/30_gravats_normal.png": "61d184d8fbb34dc981a72b0620a29175",
-   "calques/40_personnages.png": "7a0ee1270138f26cf2857d43d04f9c7f",
+   "calques/40_personnages.png": "78dfc1edf3bbb89925c69c7310dcffa6",
    "calques/40_personnages_normal.png": "f7a05daf484845ca3fef7286dc5d2b87",
    "calques/40_personnages_ombre.png": "6900491cd19d932d6a5d646033a70a9c",
    "calques/41_lisere_main.png": "5d6f13b49b89e0c30c31fd3faa912dc1",
@@ -231,7 +231,7 @@
    "calques/50_avant_plan_normal.png": "c0eddd20b971843ba12d3d2a3c0e0786",
    "calques/90_poussiere.png": "0f9b688a7cd523fefd4d0e6abc50fd43",
    "calques/gabarit_40_personnages.png": "4e134eb35d1f6462a897c519b4bda241",
-   "cthonia_tunnel.json": "267c2a763f8be1fa4ecf2ac433818595"
+   "cthonia_tunnel.json": "37b0f2fed0757e9be5602d6223661e6d"
   },
   "source": "episode-01/cthonia_tunnel"
  },
@@ -445,12 +445,13 @@
    "calques/30_voie.png": "74bdbf9d9a46605b2a36c86354555cce",
    "calques/30_voie.retouche.json": "48965ae52402b1a1de6ee4ab66ffc2f0",
    "calques/30_voie_ombre.png": "19313f9c3d2454be9724988ce5054efa",
+   "calques/31_foule.png": "bae39ebe78a9714c25dc3c39fa3641cd",
    "calques/35_dais.peint.json": "8c5640913b6e9efb39f7fcea70dabeab",
    "calques/35_dais.png": "b22b0a5eadf796309bf9e6a3d29e9bb8",
    "calques/35_dais.retouche.json": "10439c824a5cd255cddcb189db823786",
    "calques/50_avant_plan.png": "953650d41a235f3220282d4a993116ca",
    "calques/90_particules.png": "cbc341ab9f9dab12c383a6a660d2fa1d",
-   "ullanor_aube.json": "b67d604823882e6f0b309e43ed98132e"
+   "ullanor_aube.json": "6e1eccae17c1d9ddd3cfe67b84732951"
   },
   "source": "episode-01/ullanor_aube"
  },
@@ -476,13 +477,14 @@
    "calques/30_voie.png": "312a0f3bbe62ddeb3c404dc2e23e9a0d",
    "calques/30_voie.retouche.json": "ea1900f75bfe86315c3cdc09a6b2fe90",
    "calques/30_voie_ombre.png": "19313f9c3d2454be9724988ce5054efa",
+   "calques/31_foule.png": "38df8eb021c39d948a2e7a8c46aefe71",
    "calques/32_feux.png": "5955ca605f8832fc4dd59a7dd34ff16b",
    "calques/35_dais.peint.json": "0005918d09553150b6bfd2cc0e40200a",
    "calques/35_dais.png": "5693f5267d687cab27076023a423dcb6",
    "calques/35_dais.retouche.json": "aa0840b598163132e83ca29101521a1a",
    "calques/50_avant_plan.png": "953650d41a235f3220282d4a993116ca",
    "calques/90_particules.png": "0c6d8030c02058df3146eb1ff485718c",
-   "ullanor_nuit.json": "e58c2fa0a099281b455d99c892141c46"
+   "ullanor_nuit.json": "b82b218b0b717ba238761286a0d05332"
   },
   "source": "episode-01/ullanor_nuit"
  },

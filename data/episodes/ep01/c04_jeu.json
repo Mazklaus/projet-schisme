@@ -665,6 +665,13 @@
           "calque": "Calque_45_fenetres_allumees",
           "anim": "clignoter",
           "densite": 0.1
+        },
+        {
+          "calque": "Calque_46_tirs",
+          "anim": "eclairs",
+          "cellule_px": 60,
+          "cadence": 3.0,
+          "part": 0.12
         }
       ],
       "figures": [
