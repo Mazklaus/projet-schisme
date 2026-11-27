@@ -303,6 +303,9 @@
    "calques/30_facade.png": "ae56ca9f2ada1f8790edcc77cb323524",
    "calques/30_facade_normal.png": "cbfa647daefac8663047a312d2645da1",
    "calques/30_facade_ombre.png": "434b1f283cff62ba985cd2b1705462b8",
+   "calques/40_personnages.png": "61319952064060156b37755821122936",
+   "calques/40_personnages_normal.png": "aa24a2c48b00fbadaebbc505ef3ffed5",
+   "calques/40_personnages_ombre.png": "779fcc852d978e64322a74973c475ec7",
    "calques/45_fenetres_allumees.png": "9c83852eb9871d4a6bacde8248d09f48",
    "calques/46_tirs.png": "ef42d4f0632944ccbea31d0f1bf2d9af",
    "calques/50_avant_plan.png": "bef36c6b914e5a042d2a1826f266de39",
@@ -311,7 +314,7 @@
    "calques/90_particules.png": "94154281b69e13b290dd421a9b3d3510",
    "calques/gabarit_36_fenetres.png": "6afef37745f8531606fa8185632d3f7a",
    "calques/gabarit_40_personnages.png": "8155744a136169389b1965a21e1dfff1",
-   "orvane_bloc.json": "4efae2d88f9616a441fc321c5e7067c2"
+   "orvane_bloc.json": "7c64994be5ea18e6c4a227d3101a674d"
   },
   "source": "episode-01/orvane_bloc"
  },

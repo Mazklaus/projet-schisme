@@ -56,9 +56,12 @@
       "note": "gabarit : tireurs et « visages qui ne tirent pas », à moitié cachés par les cadres ; CA1 fera les vrais"
     },
     {
-      "fichier": "calques/gabarit_40_personnages.png",
+      "fichier": "calques/40_personnages.png",
       "ordre": 40,
-      "note": "gabarit : Vaskar accroupi derrière la margelle, Dremm debout au vox"
+      "note": "gabarit : Vaskar accroupi derrière la margelle, Dremm debout au vox",
+      "normal": "calques/40_personnages_normal.png",
+      "eclaire": true,
+      "ombre": "calques/40_personnages_ombre.png"
     },
     {
       "fichier": "calques/45_fenetres_allumees.png",
