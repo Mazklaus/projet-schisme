@@ -126,6 +126,8 @@ func test_gestes_json() -> void:
 	for nom in ["montrer", "croiser_bras", "main_epaule", "saluer", "degainer", "agenouiller",
 			"casque_sous_bras", "main_pommeau"]:
 		assert_true(d.gestes.has(nom), "geste demandé par le GD : " + nom)
+	for nom in ["graver", "accroupi"]:
+		assert_true(d.gestes.has(nom), "geste demandé par le LD (ép. 1) : " + nom)
 
 
 func test_courbe_anticipation_et_depassement() -> void:
@@ -283,3 +285,60 @@ func test_ombre_de_contact() -> void:
 	assert_eq(r.get_child(1), o, "sous toutes les pièces (juste après le squelette)")
 	assert_eq(o.position, Vector2(20 - 51, 340 - 347), "pose relative aux pieds")
 	assert_string_contains((o.material as ShaderMaterial).shader.code, "blend_mul")
+	assert_eq(o.light_mask, 0, "hors des Light2D : sinon la lampe l'éclaire en rectangle")
+
+
+func test_ombre_compense_l_ambiance() -> void:
+	var cm := CanvasModulate.new()
+	cm.color = Color(0.5, 0.25, 1.0)
+	add_child_autofree(cm)
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d["ombre"] = {"fichier": "pied_avant.png", "pose": [20, 340]}
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	r.compenser_ambiance()
+	var m: Color = r.ombre.self_modulate
+	assert_almost_eq(m.r, 2.0, 0.001)
+	assert_almost_eq(m.g, 4.0, 0.001)
+	assert_almost_eq(m.b, 1.0, 0.001)
+	cm.visible = false
+	r.compenser_ambiance()
+	assert_eq(r.ombre.self_modulate, Color.WHITE)
+
+
+func test_arme_dos_derriere_le_corps() -> void:
+	assert_lt(RigPersonnage.ORDRE.find("arme_dos"), RigPersonnage.ORDRE.find("bassin"), "fusil sur le dos : derrière le corps")
+	assert_gt(RigPersonnage.ORDRE.find("arme_dos"), RigPersonnage.ORDRE.find("cape"))
+
+
+func test_graver_lent_avec_mains_dediees() -> void:
+	# mains_graver ajoutée pour le test : entrée lente de 2 s (fiche 16), bascule à mi-geste.
+	var d = JSON.parse_string(FileAccess.get_file_as_string(DOSSIER + "/rig.json"))
+	d.pieces["mains_graver"] = {"fichier": "avant_bras_avant.png", "pose": [6, 100], "pivot": [10, 5], "parent": "torse"}
+	var r := RigPersonnage.new()
+	r.construire(d, DOSSIER)
+	add_child_autofree(r)
+	assert_almost_eq(r.duree_visible("graver"), 2.0, 0.001, "entrée propre au geste")
+	r.avancer(0.016)
+	assert_false(r.pieces.mains_graver.visible)
+	r.jouer_geste("graver")
+	_avancer(r, 0.6)
+	assert_false(r.pieces.mains_graver.visible, "geste lent : pas encore à mi-chemin")
+	_avancer(r, 1.8)
+	assert_true(r.pieces.mains_graver.visible)
+	assert_false(r.pieces.avant_bras_avant.visible)
+	assert_false(r.pieces.main_arriere.visible)
+	assert_eq(r.geste_en_cours(), "graver", "tenu")
+	r.jouer_geste("repos")
+	_avancer(r, 3.0)
+	assert_false(r.pieces.mains_graver.visible)
+	assert_true(r.pieces.avant_bras_avant.visible)
+
+
+func test_accroupi_baisse_le_bassin() -> void:
+	var r := _rig()
+	r.jouer_geste("accroupi")
+	_avancer(r, 2.0)
+	assert_gt(r._bassin_y, 60.0)
+	assert_eq(r.geste_en_cours(), "accroupi", "tenu derrière le muret")

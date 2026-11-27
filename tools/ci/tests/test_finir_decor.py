@@ -61,6 +61,20 @@ class TestFinirDecor(unittest.TestCase):
         self.assertEqual(Image.open(f"{c}/10_salle.png").getpixel((0, 0))[:3], (200, 100, 50))
         self.assertFalse(os.path.exists(f"{c}/10_salle.retouche.json"))
 
+    def test_reprise_d_une_retouche_choisie(self):
+        choix = os.path.join(self.tmp.name, "fond")
+        os.makedirs(choix)
+        Image.new("RGBA", (32, 18), (10, 20, 30, 255)).save(os.path.join(choix, "10_salle_g62.png"))
+        json.dump({"statut": "fige", "choix": "DA"}, open(os.path.join(choix, "10_salle_g62.retouche.json"), "w"))
+        r = self.lancer("--retouche-de", choix, "--graine", "62")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertNotIn("faux.py", r.stdout)                            # aucune retouche relancée
+        c = os.path.join(self.d, "calques")
+        self.assertEqual(Image.open(f"{c}/4k/10_salle.png").size, (64, 36))   # 1080 choisi, remonté en 4k
+        self.assertEqual(Image.open(f"{c}/10_salle.png").getpixel((0, 0))[:3], (10, 20, 30))
+        fiche = json.load(open(f"{c}/10_salle.retouche.json"))
+        self.assertEqual((fiche["statut"], fiche["sortie"]), ("fige", "calques/10_salle.png"))
+
 
 if __name__ == "__main__":
     unittest.main()

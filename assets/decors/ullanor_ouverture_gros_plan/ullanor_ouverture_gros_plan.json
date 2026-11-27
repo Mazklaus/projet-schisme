@@ -1,101 +1,101 @@
 {
- "plan": "ullanor_ouverture_gros_plan",
- "episode": 1,
- "chapitres": [
-  1
- ],
- "decor_source": "ullanor_triomphe (tranche-verticale/ullanor.json, repris par ch01 : @reprendre ullanor:ouverture)",
- "cadre_px": [
-  1920,
-  1080
- ],
- "usage": "fond des gros plans de Dremm et Vaskar pendant le Triomphe (depart_empereur, depart_horus, depart_silence, dremm_fin, poi_dremm, poi_ilse, ilse_*, poi_etendard, poi_sergent, poi_titan)",
- "description": "Le Triomphe à l'aube, mise au point sur le personnage : le Warlord doré de droite noyé dans la nappe de poussière, le soleil bas en contre-jour à gauche avec sa gloire, ciel de fumées hautes, rangs de la Légion fondus dans le bas.",
- "source": "image cible recomposée en 4k par tranche-verticale/assembler.py sans Horus, Vaskar, Dremm ni avant-plan ; fenêtre [1045, 278, 1765, 683] agrandie x2,67, Titan assombri (x0,7) ; flou 9 px",
- "zones_calmes": {
-  "gauche": {
-   "x_px": [
-    190,
-    850
-   ],
-   "note": "ciel et gloire du soleil : la tête passe en contre-jour"
+  "plan": "ullanor_ouverture_gros_plan",
+  "episode": 1,
+  "chapitres": [
+    1
+  ],
+  "decor_source": "ullanor_triomphe (tranche-verticale/ullanor.json, repris par ch01 : @reprendre ullanor:ouverture)",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "usage": "fond des gros plans de Dremm et Vaskar pendant le Triomphe (depart_empereur, depart_horus, depart_silence, dremm_fin, poi_dremm, poi_ilse, ilse_*, poi_etendard, poi_sergent, poi_titan)",
+  "description": "Le Triomphe à l'aube, mise au point sur le personnage : le Warlord doré de droite noyé dans la nappe de poussière, le soleil bas en contre-jour à gauche avec sa gloire, ciel de fumées hautes, rangs de la Légion fondus dans le bas.",
+  "source": "image cible recomposée en 4k par tranche-verticale/assembler.py sans Horus, Vaskar, Dremm ni avant-plan ; fenêtre [1045, 278, 1765, 683] agrandie x2,67, Titan assombri (x0,7) ; flou 9 px",
+  "zones_calmes": {
+    "gauche": {
+      "x_px": [
+        190,
+        850
+      ],
+      "note": "ciel et gloire du soleil : la tête passe en contre-jour"
+    },
+    "droite": {
+      "x_px": [
+        1070,
+        1730
+      ],
+      "note": "le Titan flou, sombre et doré"
+    },
+    "regle": "personnage à gauche ou à droite, tête au tiers haut ; le soleil reste visible bas à gauche"
   },
-  "droite": {
-   "x_px": [
-    1070,
-    1730
-   ],
-   "note": "le Titan flou, sombre et doré"
+  "lumieres": {
+    "cle": {
+      "source": "soleil bas (8°), contre-jour",
+      "position_px": [
+        280,
+        752
+      ],
+      "couleur": "#FFE8B0",
+      "direction_camera": [
+        0.45,
+        -0.12,
+        -0.88
+      ],
+      "note": "derrière les personnages, à gauche : liseré chaud côté gauche (crâne, joue, épaulière), comme sur l'image cible"
+    },
+    "contre": {
+      "source": "rebond de la poussière dorée, par devant et en dessous",
+      "couleur": "#C99A5B",
+      "force": 0.25,
+      "direction_camera": [
+        0.0,
+        0.5,
+        0.86
+      ],
+      "note": "la face vers la caméra reste dans une pénombre dorée (jamais noire)"
+    },
+    "voile": {
+      "couleur": "#C99A5B",
+      "d0_m": 3000
+    }
   },
-  "regle": "personnage à gauche ou à droite, tête au tiers haut ; le soleil reste visible bas à gauche"
- },
- "lumieres": {
-  "cle": {
-   "source": "soleil bas (8°), contre-jour",
-   "position_px": [
-    280,
-    752
-   ],
-   "couleur": "#FFE8B0",
-   "direction_camera": [
-    0.45,
-    -0.12,
-    -0.88
-   ],
-   "note": "derrière les personnages, à gauche : liseré chaud côté gauche (crâne, joue, épaulière), comme sur l'image cible"
-  },
-  "contre": {
-   "source": "rebond de la poussière dorée, par devant et en dessous",
-   "couleur": "#C99A5B",
-   "force": 0.25,
-   "direction_camera": [
-    0.0,
-    0.5,
-    0.86
-   ],
-   "note": "la face vers la caméra reste dans une pénombre dorée (jamais noire)"
-  },
-  "voile": {
-   "couleur": "#C99A5B",
-   "d0_m": 3000
-  }
- },
- "calques": [
-  {
-   "fichier": "calques/00_fond_flou.png",
-   "auteur": "CA2",
-   "distance_m": 1050,
-   "note": "déjà voilé, éclairé et flou : ne pas revoiler"
-  },
-  {
-   "fichier": "calques/gabarit_40_gauche.png",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/gabarit_40_droite.png",
-   "pour": "CA1"
-  },
-  {
-   "fichier": "calques/gabarit_41_lisere_gauche.png",
-   "mode": "additif",
-   "pour": "CA1",
-   "contenu": "liseré du soleil, côté gauche"
-  },
-  {
-   "fichier": "calques/gabarit_41_lisere_droite.png",
-   "mode": "additif",
-   "pour": "CA1",
-   "contenu": "liseré du soleil, côté gauche"
-  },
-  {
-   "fichier": "calques/90_poussiere.png",
-   "mode": "normal",
-   "auteur": "CA2",
-   "contenu": "poussière dorée floue, plus dense près du soleil, à faire dériver"
-  }
- ],
- "valeurs_sous_1A1612_pct": 0.0,
- "generateur": "cA2/gros_plans_ep01.py ouverture [--4k]",
- "statut": "VALIDÉ par le DA (27/11, corrections faites), 1080 et 4k",
- "4k": "calques/4k/ (mêmes noms)"
+  "calques": [
+    {
+      "fichier": "calques/00_fond_flou.png",
+      "auteur": "CA2",
+      "distance_m": 1050,
+      "note": "déjà voilé, éclairé et flou : ne pas revoiler"
+    },
+    {
+      "fichier": "calques/gabarit_40_gauche.png",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/gabarit_40_droite.png",
+      "pour": "CA1"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_gauche.png",
+      "mode": "additif",
+      "pour": "CA1",
+      "contenu": "liseré du soleil, côté gauche"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_droite.png",
+      "mode": "additif",
+      "pour": "CA1",
+      "contenu": "liseré du soleil, côté gauche"
+    },
+    {
+      "fichier": "calques/90_poussiere.png",
+      "mode": "normal",
+      "auteur": "CA2",
+      "contenu": "poussière dorée floue, plus dense près du soleil, à faire dériver"
+    }
+  ],
+  "valeurs_sous_1A1612_pct": 0.0,
+  "generateur": "cA2/gros_plans_ep01.py ouverture [--4k]",
+  "statut": "VALIDÉ par le DA (27/11, corrections faites), 1080 et 4k",
+  "4k": "calques/4k/ (mêmes noms)"
 }

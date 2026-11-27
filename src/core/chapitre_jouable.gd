@@ -44,6 +44,8 @@ var pois_vus := {}
 var joueur: PersonnageJoue
 var decors: Dictionary = {}
 var decor_courant := ""
+## Effets de mise en scène des nœuds (src/core/mise_en_scene.gd).
+var mise_en_scene: MiseEnScene
 var temps_jeu := 0.0
 ## Secondes passées sans bouger ni lire (remis à zéro à chaque mouvement).
 var inactif := 0.0
@@ -121,6 +123,11 @@ func jouer_noeud(nom: String) -> void:
 	super.jouer_noeud(nom)
 
 
+func noircir_sous_carton() -> void:
+	if _voile_noir:
+		_voile_noir.modulate.a = 1.0
+
+
 ## Si le début du chapitre ne change pas de décor, on lève le noir sur le décor de la scène.
 func _lever_noir_initial() -> void:
 	await get_tree().process_frame
@@ -137,6 +144,12 @@ func _avant_dialogue() -> void:
 		else:
 			push_error("Fichier jeu illisible : %s" % infos.jeu)
 	lecteur.noeud_entre.connect(_mise_en_scene_du_noeud)
+	mise_en_scene = MiseEnScene.new()
+	mise_en_scene.camera = camera
+	mise_en_scene.drapeaux = Jeu.etat.drapeaux
+	mise_en_scene.position_joueur = func(): return joueur.global_position if is_instance_valid(joueur) else Vector2(960, 900)
+	mise_en_scene.figurant = func(nom: String): return props.get(nom)
+	add_child(mise_en_scene)
 	_regie = RegieGrosPlans.charger("res://data/episodes/%s/gros_plans.json" % Jeu.etat.episode)
 	lecteur.noeud_entre.connect(_regie_entrer)
 	boite.evenement.connect(_sur_evenement_dialogue)
@@ -183,6 +196,8 @@ func _regie_entrer(noeud: String) -> void:
 
 
 func _sur_evenement_dialogue(e: Dictionary) -> void:
+	if mise_en_scene and e.get("type") == "replique":
+		mise_en_scene.ligne()
 	var avant := _regie.plan
 	var p := _regie.decider(e)
 	if p != avant or (p != "large" and _couche_gp and not _couche_gp.visible):
@@ -228,7 +243,7 @@ func _afficher_gros_plan(p: String) -> void:
 		_ecran_buste.name = "EcranBuste"
 		_ecran_buste.centered = false
 		_ecran_buste.texture = _vue_buste.get_texture()
-		_ecran_buste.material = materiau_premultiplie()
+		_ecran_buste.material = materiau_premultiplie().duplicate()
 		_couche_buste.add_child(_ecran_buste)
 		_racine_buste = Node2D.new()
 		_racine_buste.name = "Buste"
@@ -239,6 +254,19 @@ func _afficher_gros_plan(p: String) -> void:
 		_racine_gp = construire_fond_gros_plan(id_fond, scene_gp)
 		_couche_gp.add_child(_racine_gp)
 		_fond_gp = cle_fond
+		var accord: Dictionary = _racine_gp.get_meta("accord", {})
+		var mat := _ecran_buste.material as ShaderMaterial
+		mat.set_shader_parameter("teinte", accord.get("teinte", Color.WHITE))
+		mat.set_shader_parameter("plafond", float(accord.get("plafond", 10.0)))
+		mat.set_shader_parameter("exposition", float(accord.get("exposition", 1.0)))
+		var lis: Dictionary = accord.get("lisere", {})
+		mat.set_shader_parameter("lisere_force", float(lis.get("force", 0.0)))
+		if not lis.is_empty():
+			var c := Color(String(lis.get("couleur", "#FFE8B0")))
+			mat.set_shader_parameter("lisere_couleur", Vector3(c.r, c.g, c.b))
+			var dl: Array = lis.get("direction", [-1.0, 0.0])
+			mat.set_shader_parameter("lisere_dir", Vector2(dl[0], dl[1]).normalized())
+			mat.set_shader_parameter("lisere_px", float(lis.get("px", 3.0)))
 	_poser_buste(p, false)
 	if not _couche_gp.visible:
 		_racine_gp.modulate.a = 0.0
@@ -291,6 +319,61 @@ func _poser_buste(p: String, enchaine := true) -> void:
 	for n in _racine_buste.get_children():
 		if n != sp and not (meme_cadrage and n == ancien):
 			n.queue_free()
+	_accorder_visage(tete.x + float(_regie.scene.get("decalage_x", {}).get(p.to_upper(), 0.0)), cle)
+
+
+## DA 27/11 : dans un gros plan, le visage porte. Sa médiane ne descend pas à plus de
+## ECART_VISAGE sous celle de l'armure (valeurs finales, exposition comprise) : on mesure le
+## buste rendu une fois, puis le visage seul est remonté dans le shader d'affichage.
+const ECART_VISAGE := 0.08
+const GAIN_VISAGE_MAX := 3.0
+
+
+func _accorder_visage(tete_x: float, cle: String) -> void:
+	var mat := _ecran_buste.material as ShaderMaterial
+	var h := float(_vue_buste.size.y)
+	var w := float(_vue_buste.size.x)
+	# Tête : crâne à CRANE_CIBLE, menton à MENTON_CIBLE (cadrage) ; on garde le centre du visage.
+	var cy := (CRANE_CIBLE + MENTON_CIBLE) * 0.5
+	var demi_h := (MENTON_CIBLE - CRANE_CIBLE) * 0.5
+	var demi_w := demi_h * h / w / RAPPORT_TETE * 0.8
+	mat.set_shader_parameter("visage", Vector4(tete_x / w, cy, demi_w, demi_h))
+	mat.set_shader_parameter("gain_visage", 1.0)
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	if not is_instance_valid(_vue_buste) or cle != _cle_buste:
+		return
+	var img := _vue_buste.get_texture().get_image()
+	if img == null:
+		return
+	img.resize(320, 180, Image.INTERPOLATE_BILINEAR)
+	var expo := float(mat.get_shader_parameter("exposition"))
+	var face := _mediane_zone(img, Rect2((tete_x / w - demi_w * 0.6) * 320, (cy - demi_h * 0.5) * 180, demi_w * 1.2 * 320, demi_h * 180))
+	var armure := _mediane_zone(img, Rect2((tete_x / w - demi_w * 2.5) * 320, (MENTON_CIBLE + 0.12) * 180, demi_w * 5.0 * 320, 0.25 * 180))
+	if OS.has_environment("DEBUG_VISAGE"):
+		print("visage ", face, " armure ", armure, " expo ", expo, " tete_x ", tete_x)
+	if face <= 0.0 or armure <= 0.0:
+		return
+	var voulu := armure * expo - ECART_VISAGE
+	if face * expo < voulu:
+		mat.set_shader_parameter("gain_visage", clampf(voulu / (face * expo), 1.0, GAIN_VISAGE_MAX))
+
+
+static func _mediane_zone(img: Image, r: Rect2) -> float:
+	var v := PackedFloat32Array()
+	var x0 := clampi(int(r.position.x), 0, img.get_width() - 1)
+	var y0 := clampi(int(r.position.y), 0, img.get_height() - 1)
+	var x1 := clampi(int(r.end.x), x0 + 1, img.get_width())
+	var y1 := clampi(int(r.end.y), y0 + 1, img.get_height())
+	for y in range(y0, y1):
+		for x in range(x0, x1):
+			var c := img.get_pixel(x, y)
+			if c.a > 0.6:
+				v.append(Color(c.r / c.a, c.g / c.a, c.b / c.a).get_luminance())
+	if v.size() < 10:
+		return -1.0
+	v.sort()
+	return v[v.size() / 2]
 
 
 ## Cadrage des gros plans (tools/gros_plans/cadrage.py, calcul de CA1) : la tête du buste prend
@@ -527,13 +610,41 @@ static func materiau_premultiplie() -> ShaderMaterial:
 		sh.code = """
 shader_type canvas_item;
 render_mode blend_premul_alpha;
+// Accord avec le fond du gros plan : teinte du fond, et plafond (haute lumière du fond)
+// approché en douceur à partir de 75 %.
+uniform vec3 teinte = vec3(1.0);
+uniform float plafond = 10.0;
+uniform float exposition = 1.0;
+// Visage : remonté seul (ellipse en UV, bord adouci) pour ne pas passer sous l'armure.
+uniform vec4 visage = vec4(0.5, 0.3, 0.1, 0.15);
+uniform float gain_visage = 1.0;
+// Liseré de contre-jour : arête de la silhouette tournée vers la source (hors plafond).
+uniform vec3 lisere_couleur = vec3(1.0, 0.91, 0.69);
+uniform vec2 lisere_dir = vec2(-1.0, 0.0);
+uniform float lisere_force = 0.0;
+uniform float lisere_px = 3.0;
 varying vec4 modulation;
 void vertex() {
 	modulation = COLOR;
 }
 void fragment() {
 	vec4 t = texture(TEXTURE, UV);
-	COLOR = vec4(t.rgb * modulation.rgb, t.a) * modulation.a;
+	vec3 u = t.rgb / max(t.a, 0.0001) * teinte * exposition;
+	vec2 dv = (UV - visage.xy) / visage.zw;
+	u *= mix(1.0, gain_visage, 1.0 - smoothstep(0.7, 1.0, length(dv)));
+	float L = dot(u, vec3(0.2126, 0.7152, 0.0722));
+	float k = 0.75 * plafond;
+	if (L > k) {
+		float Lc = k + (plafond - k) * (1.0 - exp(-(L - k) / (plafond - k)));
+		u *= Lc / L;
+	}
+	if (lisere_force > 0.0) {
+		vec2 pas = lisere_dir * TEXTURE_PIXEL_SIZE;
+		float bord = max(1.0 - texture(TEXTURE, UV + pas * lisere_px).a,
+				0.6 * (1.0 - texture(TEXTURE, UV + pas * lisere_px * 0.5).a));
+		u += lisere_couleur * lisere_force * bord;
+	}
+	COLOR = vec4(u * t.a * modulation.rgb, t.a) * modulation.a;
 }
 """
 		_materiau_premult = ShaderMaterial.new()
@@ -611,7 +722,79 @@ static func construire_fond_gros_plan(id: String, scene: Dictionary = {}) -> Nod
 				var t := sp.create_tween().set_loops()
 				for a in [0.88, 1.0, 0.93, 1.0]:
 					t.tween_property(sp, "modulate:a", a, randf_range(0.15, 0.35)))
+	racine.set_meta("accord", accord_du_fond(racine, "%s|%s" % [id, scene.get("etat", "")]))
 	return racine
+
+
+## Accord du buste avec son fond (DA 27/11 : l'armure restait blanc-gris sur un fond ambre) :
+## « teinte » = chroma moyenne du fond (luminance 1, dosée par FORCE_TEINTE_FOND), « plafond » =
+## haute lumière du fond (centile 99,5 de la luminance), que le buste ne dépasse pas.
+const FORCE_TEINTE_FOND := 0.6
+const ECHANTILLON_FOND := Vector2i(160, 90)
+static var _accords := {}
+
+
+const ACCORD := "res://data/gros_plans_accord.json"
+
+
+## Réglages d'un fond (et état) dans data/gros_plans_accord.json : « exposition »,
+## « force_teinte » (part de la teinte du fond reprise), « lisere » {couleur, direction, force, px}.
+static func reglage_du_fond(cle: String) -> Dictionary:
+	var d = JSON.parse_string(FileAccess.get_file_as_string(ACCORD)) if FileAccess.file_exists(ACCORD) else null
+	var fonds: Dictionary = d.get("fonds", {}) if typeof(d) == TYPE_DICTIONARY else {}
+	var e = fonds.get(cle, fonds.get(cle.get_slice("|", 0), {}))
+	return e if typeof(e) == TYPE_DICTIONARY else {}
+
+
+static func exposition_du_fond(cle: String) -> float:
+	return float(reglage_du_fond(cle).get("exposition", 1.0))
+
+
+static func accord_du_fond(racine: Node2D, cle: String) -> Dictionary:
+	if _accords.has(cle):
+		return _accords[cle]
+	var w := ECHANTILLON_FOND.x
+	var h := ECHANTILLON_FOND.y
+	var px := PackedColorArray()
+	px.resize(w * h)
+	px.fill(Color.BLACK)
+	for sp in racine.get_children():
+		if not (sp is Sprite2D) or sp.texture == null:
+			continue
+		var img: Image = sp.texture.get_image()
+		if img == null:
+			continue
+		if img.is_compressed():
+			img.decompress()
+		img = img.duplicate()
+		img.resize(w, h, Image.INTERPOLATE_BILINEAR)
+		var add := (sp.material as CanvasItemMaterial) != null \
+			and (sp.material as CanvasItemMaterial).blend_mode == CanvasItemMaterial.BLEND_MODE_ADD
+		var op := float(sp.modulate.a)
+		for y in h:
+			for x in w:
+				var c := img.get_pixel(x, y)
+				var a := c.a * op
+				var i := y * w + x
+				px[i] = px[i] + Color(c.r * a, c.g * a, c.b * a, 0.0) if add \
+					else px[i].lerp(Color(c.r, c.g, c.b), a)
+	var somme := Color(0, 0, 0)
+	var lums := PackedFloat32Array()
+	lums.resize(px.size())
+	for i in px.size():
+		somme += px[i]
+		lums[i] = px[i].get_luminance()
+	lums.sort()
+	var moy := somme / float(px.size())
+	var l := maxf(moy.get_luminance(), 0.01)
+	var chroma := Color(moy.r / l, moy.g / l, moy.b / l)
+	var reg := reglage_du_fond(cle)
+	var t := Color(1, 1, 1).lerp(chroma, float(reg.get("force_teinte", FORCE_TEINTE_FOND)))
+	var lt := maxf(t.get_luminance(), 0.01)
+	var r := {"teinte": Color(t.r / lt, t.g / lt, t.b / lt), "plafond": maxf(lums[int(lums.size() * 0.995)], 0.12),
+		"exposition": float(reg.get("exposition", 1.0)), "lisere": reg.get("lisere", {})}
+	_accords[cle] = r
+	return r
 
 
 # --------------------------------------------------------------------------- mise en scène
@@ -631,6 +814,39 @@ func _mise_en_scene_du_noeud(noeud: String) -> void:
 	# « etats » : [[nom, durée], …] enchaînés sur le décor affiché (l'aube pendant le C7).
 	if m.has("etats") and decor_par_id(decor_courant) is Decor25D:
 		_enchainer_etats(decor_par_id(decor_courant), m.etats)
+	# Particules, tirs, éclairs, tremblements, calques animés (MiseEnScene, Level Designer).
+	# Un nœud qui commence par @decor : les effets attendent le nouveau décor (sinon ils
+	# seraient posés sur l'ancien, puis retirés par le changement).
+	if mise_en_scene:
+		if _commence_par_decor(noeud):
+			_mise_en_scene_en_attente = m
+		else:
+			_jouer_mise_en_scene(m)
+
+
+var _mise_en_scene_en_attente: Dictionary = {}
+
+
+func _jouer_mise_en_scene(m: Dictionary) -> void:
+	var d := decor_par_id(decor_courant)
+	if d == null:
+		return
+	mise_en_scene.drapeaux = Jeu.etat.drapeaux
+	mise_en_scene.jouer(m, d, monde_de(d))
+
+
+## Vrai si le nœud change de décor avant sa première réplique ou son premier choix.
+func _commence_par_decor(noeud: String) -> bool:
+	if lecteur == null:
+		return false
+	for instr in lecteur.dialogue.get("noeuds", {}).get(noeud, []):
+		match instr.get("type"):
+			"commande":
+				if instr.get("nom") == "decor":
+					return true
+			"replique", "menu":
+				return false
+	return false
 
 
 func _enchainer_etats(d: Decor25D, liste: Array) -> void:
@@ -691,6 +907,8 @@ var _tween_ambiance: Tween
 ## ses lumières. Rend la teinte de départ du fondu (la surexposition si un souvenir était actif,
 ## alpha 0 sinon).
 func reinitialiser_image() -> Color:
+	if mise_en_scene:
+		mise_en_scene.nettoyer()
 	if _tween_souvenir and _tween_souvenir.is_valid():
 		_tween_souvenir.kill()
 	_tween_souvenir = null
@@ -745,6 +963,8 @@ func _construire_ui() -> void:
 	_vox.offset_bottom = 140
 	_vox.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_vox.add_theme_font_size_override("font_size", 30)
+	_vox.add_theme_font_override("font", StyleSchisme.italique())
+	_vox.add_theme_color_override("font_color", StyleSchisme.TEXTE)
 	_vox.add_theme_color_override("font_outline_color", Color.BLACK)
 	_vox.add_theme_constant_override("outline_size", 8)
 	_ui.add_child(_vox)
@@ -760,6 +980,8 @@ func _construire_ui() -> void:
 	_ui.add_child(_voile_noir)
 	_invite = Label.new()
 	_invite.add_theme_font_size_override("font_size", 26)
+	_invite.add_theme_font_override("font", StyleSchisme.texte(500))
+	_invite.add_theme_color_override("font_color", StyleSchisme.MARBRE)
 	_invite.add_theme_color_override("font_outline_color", Color.BLACK)
 	_invite.add_theme_constant_override("outline_size", 8)
 	_invite.z_index = 100
@@ -783,15 +1005,16 @@ func _construire_aide_deplacement() -> Control:
 	l.offset_bottom = -70
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", 34)
-	l.add_theme_color_override("font_color", Color("#F2EAD3"))
+	l.add_theme_font_size_override("font_size", 32)
+	l.add_theme_font_override("font", StyleSchisme.texte(500))
+	l.add_theme_color_override("font_color", StyleSchisme.MARBRE)
 	l.add_theme_color_override("font_outline_color", Color.BLACK)
 	l.add_theme_constant_override("outline_size", 8)
 	var plaque := StyleBoxFlat.new()
 	plaque.bg_color = Color(0.04, 0.03, 0.02, 0.82)
-	plaque.border_color = Color("#C9A44C")
-	plaque.set_border_width_all(2)
-	plaque.set_corner_radius_all(6)
+	plaque.border_color = StyleSchisme.OR_TERNI
+	plaque.set_border_width_all(1)
+	plaque.set_corner_radius_all(0)
 	plaque.content_margin_left = 28
 	plaque.content_margin_right = 28
 	plaque.content_margin_top = 12
@@ -847,7 +1070,18 @@ func _sprite(nom: String, normales := true) -> Sprite2D:
 	s.texture = tex
 	# Origine aux pieds : le tri en profondeur (y_sort) se fait sur la ligne du sol.
 	s.offset = Vector2(0, -tex.diffuse_texture.get_height() / 2.0)
+	s.scale = Vector2.ONE * echelle_prop(nom)
 	return s
+
+
+## Échelle d'un accessoire peint au double (props/echelles.json) ; 1 sinon.
+static var _echelles_props: Dictionary = {}
+static func echelle_prop(nom: String) -> float:
+	if _echelles_props.is_empty():
+		var d = JSON.parse_string(FileAccess.get_file_as_string(PROPS + "echelles.json")) \
+			if FileAccess.file_exists(PROPS + "echelles.json") else null
+		_echelles_props = d if typeof(d) == TYPE_DICTIONARY else {"_": 1}
+	return float(_echelles_props.get(nom, 1.0))
 
 
 ## Silhouette grise étiquetée, pour un figurant que la chaîne d'images n'a pas encore livré.
@@ -860,12 +1094,21 @@ func _sprite_provisoire(nom: String) -> Sprite2D:
 	s.name = nom
 	s.texture = ImageTexture.create_from_image(img)
 	s.offset = Vector2(0, -130)
-	var l := Label.new()
-	l.text = nom
-	l.position = Vector2(-60, -300)
-	l.add_theme_font_size_override("font_size", 20)
-	s.add_child(l)
+	if etiquettes_de_debogage():
+		var l := Label.new()
+		l.name = "EtiquetteDebogage"
+		l.text = nom
+		l.position = Vector2(-60, -300)
+		l.add_theme_font_size_override("font_size", 20)
+		s.add_child(l)
 	return s
+
+
+## Étiquettes de débogage (noms des silhouettes et décors provisoires) : dans l'éditeur
+## seulement, jamais dans une build exportée (règle GD 27/11, contrôlée en CI).
+## SCHISME_SANS_DEBUG=1 les coupe aussi dans l'éditeur (bots de capture, tests).
+static func etiquettes_de_debogage() -> bool:
+	return OS.has_feature("editor") and OS.get_environment("SCHISME_SANS_DEBUG") != "1"
 
 
 ## « @geste <perso> <geste> [attendre] » : geste d'un personnage découpé (data/anim/gestes.json).
@@ -1005,8 +1248,9 @@ func _decor_provisoire(id: String) -> Node2D:
 	sol.color = Color.from_hsv(teinte, 0.3, 0.2)
 	sol.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	n.add_child(sol)
-	for x in range(0, int(TAILLE_PROVISOIRE.x), 1920):
+	for x in range(0, int(TAILLE_PROVISOIRE.x), 1920 if etiquettes_de_debogage() else 1 << 30):
 		var l := Label.new()
+		l.name = "EtiquetteDebogage"
 		l.text = "décor provisoire : %s" % id
 		l.position = Vector2(x + 520, 160)
 		l.add_theme_font_size_override("font_size", 56)
@@ -1074,6 +1318,10 @@ func _changer_decor(id_demande: String) -> void:
 	if cible.visible and decor_courant == id:
 		if cible is Decor25D and not etat.is_empty() and cible.etat != etat:
 			cible.appliquer_etat(etat, 1.5)
+		if mise_en_scene and not _mise_en_scene_en_attente.is_empty():
+			var m := _mise_en_scene_en_attente
+			_mise_en_scene_en_attente = {}
+			_jouer_mise_en_scene(m)
 		if _voile_noir.modulate.a > 0.0 and phase != "ecran_fin":
 			await _fondu_noir(0.0, 0.35)
 		return
@@ -1119,6 +1367,10 @@ func _changer_decor(id_demande: String) -> void:
 		camera.en_cours = false
 		camera.position = cible.global_position + taille_decor(cible) / 2.0
 		camera.zoom = Vector2.ONE
+	if mise_en_scene and not _mise_en_scene_en_attente.is_empty():
+		var m := _mise_en_scene_en_attente
+		_mise_en_scene_en_attente = {}
+		_jouer_mise_en_scene(m)
 	await _fondu_noir(0.0, 0.35)
 
 
@@ -1188,8 +1440,11 @@ func _commencer_jeu(nom: String) -> void:
 			continue
 		var p: Array = config.pois[k]
 		pois[k] = Vector2(p[0], p[1])
+	# Décor avec ses personnages peints (calque 40_personnages de CA1) : les figurants
+	# provisoires les doubleraient.
+	var peints := d != null and d.get_node_or_null(^"Calque_40_personnages") != null
 	for k in config.get("figurants", {}):
-		if pois.has(k) and not props.has(config.figurants[k]):
+		if not peints and pois.has(k) and not props.has(config.figurants[k]):
 			_figurant(monde_de(d), config.figurants[k], pois[k] + Vector2(0, -10))
 	_declenches = {}
 	_vus_depuis = {}
@@ -1280,12 +1535,14 @@ var _tout_vu_depuis := -1.0
 
 
 func tous_pois_vus() -> bool:
-	if pois.is_empty():
-		return false
+	# Aucun point disponible (zone vide, Ilse morte) : rien n'a été « tout vu ».
+	var comptes := 0
 	for k in pois:
-		if not pois_vus.has(k) and poi_disponible(k):
+		if pois_vus.has(k):
+			comptes += 1
+		elif poi_disponible(k):
 			return false
-	return true
+	return comptes > 0
 
 
 func _suivre_declencheurs() -> bool:
@@ -1303,7 +1560,12 @@ func declencheur_pret() -> int:
 	if boite.visible:
 		_tout_vu_depuis = -1.0
 		return -1
-	if _tout_vu_depuis < 0.0 and tous_pois_vus():
+	# Spec §9.4 : une zone à déclencheur de position (« x ») avance par le chemin et le filet
+	# max_s, jamais par la règle « tout vu » (assaut du ch. 4 : la suite est au bout de la rue).
+	var par_position := false
+	for d in config.get("declencheurs", []):
+		par_position = par_position or (d as Dictionary).has("x")
+	if not par_position and _tout_vu_depuis < 0.0 and tous_pois_vus():
 		_tout_vu_depuis = temps_jeu
 	var tout_vu := _tout_vu_depuis >= 0.0 and temps_jeu - _tout_vu_depuis >= TOUT_VU_S
 	var liste: Array = config.get("declencheurs", [])
@@ -1442,39 +1704,48 @@ func rappel_fin() -> String:
 	return ""
 
 
+## Écran de fin (maquette UI v0.1, écran 8) : « FIN DE L'ÉPISODE N », titre, « Ce que l'archive
+## a gardé » (le rappel, une ou plusieurs lignes), boutons en cartouches.
 func _construire_ecran_fin(titre: String, rappel: String) -> Control:
 	var centre := CenterContainer.new()
 	centre.name = "EcranFin"
 	centre.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var vb := VBoxContainer.new()
 	vb.alignment = BoxContainer.ALIGNMENT_CENTER
-	vb.add_theme_constant_override("separation", 18)
+	vb.add_theme_constant_override("separation", 26)
 	centre.add_child(vb)
-	var l_titre := Label.new()
-	l_titre.text = titre
+	var ep := Catalogue.episode(Jeu.etat.episode)
+	vb.add_child(StyleSchisme.surtitre("FIN DE L'ÉPISODE %d" % int(ep.get("numero", 1))))
+	var l_titre := StyleSchisme.label(titre, StyleSchisme.titre(500), 90, StyleSchisme.MARBRE, 0.06)
 	l_titre.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l_titre.add_theme_font_size_override("font_size", 84)
-	l_titre.add_theme_color_override("font_color", Color("#F2EAD3"))
 	vb.add_child(l_titre)
-	var ligne := Label.new()
+	vb.add_child(StyleSchisme.regle_fleur())
+	if not rappel.is_empty():
+		var tete := StyleSchisme.label("CE QUE L'ARCHIVE A GARDÉ", StyleSchisme.titre(600), 18, StyleSchisme.OR_TERNI, 0.36)
+		tete.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vb.add_child(tete)
+	var ligne := StyleSchisme.label(rappel, StyleSchisme.italique(), 30, Color("#D8CFBB"))
 	ligne.name = "Rappel"
-	ligne.text = rappel
 	ligne.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	ligne.add_theme_font_size_override("font_size", 30)
-	ligne.add_theme_color_override("font_color", Color("#C9A44C"))
+	ligne.add_theme_constant_override("line_spacing", 8)
 	vb.add_child(ligne)
 	var espace := Control.new()
-	espace.custom_minimum_size.y = 40
+	espace.custom_minimum_size.y = 30
 	vb.add_child(espace)
-	for d in [["Rejouer", func(): Jeu.nouvelle_partie(Jeu.etat.episode)], ["Quitter", func(): get_tree().quit()]]:
+	var boutons := HBoxContainer.new()
+	boutons.alignment = BoxContainer.ALIGNMENT_CENTER
+	boutons.add_theme_constant_override("separation", 26)
+	vb.add_child(boutons)
+	for d in [["Rejouer", func(): Jeu.nouvelle_partie(Jeu.etat.episode)],
+			["Menu", func(): get_tree().change_scene_to_file(Jeu.MENU)],
+			["Quitter", func(): get_tree().quit()]]:
 		var b := Button.new()
 		b.name = d[0]
 		b.text = d[0]
-		b.custom_minimum_size = Vector2(320, 0)
-		b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		b.add_theme_font_size_override("font_size", 30)
+		b.custom_minimum_size = Vector2(290, 62)
+		StyleBoxCartouche.habiller(b)
 		b.pressed.connect(d[1])
-		vb.add_child(b)
+		boutons.add_child(b)
 	return centre
 
 
@@ -1487,7 +1758,8 @@ func jouer_vox(noeud: String) -> void:
 	var e := l.avancer()
 	while e.type == "replique":
 		var nom := BoiteDialogue.nom_affiche(e)
-		_vox_file.append(("%s : %s" % [nom, e.texte]) if not nom.is_empty() else e.texte)
+		var t := BoiteDialogue.typographie(e.texte)
+		_vox_file.append(("%s\u00A0: %s" % [nom, t]) if not nom.is_empty() else t)
 		e = l.avancer()
 	if not _vox_actif:
 		_vox_suivant()
@@ -1500,7 +1772,7 @@ func _vox_suivant() -> void:
 		return
 	_vox_actif = true
 	var texte: String = _vox_file.pop_front()
-	if texte.contains("(vox)"):
+	if texte.contains(BoiteDialogue.SUFFIXE_VOX):
 		Son.bruitage("vox_crepite")
 	_vox.text = texte
 	_vox.show()

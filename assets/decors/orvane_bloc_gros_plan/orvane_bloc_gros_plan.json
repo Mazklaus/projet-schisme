@@ -1,80 +1,80 @@
 {
- "plan": "orvane_bloc_gros_plan",
- "episode": 1,
- "decor_source": "orvane_bloc",
- "cadre_px": [
-  1920,
-  1080
- ],
- "usage": "ch04 attendre, evacuer",
- "type": "longue traîne : recadrage flou du décor (liste validée par le DA le 27/11)",
- "source": "aperçu(s) du décor, fenêtre [300, 60, 1260, 600] agrandie x2.00, préflou 2 px, flou 14 px ; les silhouettes éventuelles du décor sont fondues dans le flou",
- "zones_calmes": {
-  "gauche": {
-   "x_px": [
-    190,
-    850
-   ]
-  },
-  "droite": {
-   "x_px": [
-    1070,
-    1730
-   ]
-  }
- },
- "lumieres": "reprendre la clé et les appoints du décor source (voir lumieres_source) : mêmes directions et couleurs",
- "lumieres_source": {
-  "lumieres": [
-   {
-    "nom": "aube_est",
-    "type": "DirectionalLight2D (ou PointLight2D très lointaine à droite)",
-    "couleur": "#E8B48A",
-    "direction": "de la droite, rasante",
-    "energie_par_etat": {
-     "nuit": 0.0,
-     "aube_naissante": 0.6,
-     "aube": 1.2
-    },
-    "note": "l'horloge du choix : interpoler sur la durée du compte à rebours C7"
-   },
-   {
-    "nom": "eclairs_tirs",
-    "type": "PointLight2D par fenêtre de tir, très courte portée (120 px)",
-    "couleur": "#FFE6B0",
-    "energie": 0.8,
-    "note": "synchronisées avec 46_tirs"
-   }
+  "plan": "orvane_bloc_gros_plan",
+  "episode": 1,
+  "decor_source": "orvane_bloc",
+  "cadre_px": [
+    1920,
+    1080
   ],
-  "etats": {
-   "nuit": {
-    "canvas_modulate": "#4E5A78"
-   },
-   "aube_naissante": {
-    "canvas_modulate": "#4A4A60"
-   },
-   "aube": {
-    "canvas_modulate": "#5E5C6C"
-   }
-  }
- },
- "calques": [
-  {
-   "fichier": "calques/00_fond_flou_nuit.png",
-   "etat": "nuit",
-   "auteur": "CA2",
-   "distance_m": 8,
-   "note": "déjà éclairé et flou"
+  "usage": "ch04 attendre, evacuer",
+  "type": "longue traîne : recadrage flou du décor (liste validée par le DA le 27/11)",
+  "source": "aperçu(s) du décor, fenêtre [300, 60, 1260, 600] agrandie x2.00, préflou 2 px, flou 14 px ; les silhouettes éventuelles du décor sont fondues dans le flou",
+  "zones_calmes": {
+    "gauche": {
+      "x_px": [
+        190,
+        850
+      ]
+    },
+    "droite": {
+      "x_px": [
+        1070,
+        1730
+      ]
+    }
   },
-  {
-   "fichier": "calques/00_fond_flou_aube.png",
-   "etat": "aube",
-   "auteur": "CA2",
-   "distance_m": 8,
-   "note": "déjà éclairé et flou"
-  }
- ],
- "generateur": "cA2/gros_plans_ep01.py orvane_bloc [--4k]",
- "4k": "calques/4k/ (mêmes noms)",
- "statut": "longue traîne, validée en principe par le DA (27/11)"
+  "lumieres": "reprendre la clé et les appoints du décor source (voir lumieres_source) : mêmes directions et couleurs",
+  "lumieres_source": {
+    "lumieres": [
+      {
+        "nom": "aube_est",
+        "type": "DirectionalLight2D (ou PointLight2D très lointaine à droite)",
+        "couleur": "#E8B48A",
+        "direction": "de la droite, rasante",
+        "energie_par_etat": {
+          "nuit": 0.0,
+          "aube_naissante": 0.6,
+          "aube": 1.2
+        },
+        "note": "l'horloge du choix : interpoler sur la durée du compte à rebours C7"
+      },
+      {
+        "nom": "eclairs_tirs",
+        "type": "PointLight2D par fenêtre de tir, très courte portée (120 px)",
+        "couleur": "#FFE6B0",
+        "energie": 0.8,
+        "note": "synchronisées avec 46_tirs"
+      }
+    ],
+    "etats": {
+      "nuit": {
+        "canvas_modulate": "#4E5A78"
+      },
+      "aube_naissante": {
+        "canvas_modulate": "#4A4A60"
+      },
+      "aube": {
+        "canvas_modulate": "#5E5C6C"
+      }
+    }
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_fond_flou_nuit.png",
+      "etat": "nuit",
+      "auteur": "CA2",
+      "distance_m": 8,
+      "note": "déjà éclairé et flou"
+    },
+    {
+      "fichier": "calques/00_fond_flou_aube.png",
+      "etat": "aube",
+      "auteur": "CA2",
+      "distance_m": 8,
+      "note": "déjà éclairé et flou"
+    }
+  ],
+  "generateur": "cA2/gros_plans_ep01.py orvane_bloc [--4k]",
+  "4k": "calques/4k/ (mêmes noms)",
+  "statut": "longue traîne, validée en principe par le DA (27/11)"
 }

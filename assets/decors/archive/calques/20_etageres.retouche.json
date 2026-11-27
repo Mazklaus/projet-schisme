@@ -1,0 +1,41 @@
+{
+  "entree": "episode-01/archive/calques/20_etageres.png",
+  "sortie": "calques/20_etageres.png",
+  "date": "2026-11-27T16:15:01",
+  "modeles": [
+    "Lykon/dreamshaper-xl-lightning",
+    "diffusers/controlnet-depth-sdxl-1.0-small",
+    "madebyollin/sdxl-vae-fp16-fix"
+  ],
+  "invite": ", close old wooden archive shelves crammed with leather-bound books, rolled parchment scrolls, brass data cylinders, battered vox units, dust, cobwebs, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+  "invite_negative": "people, figures, faces, text, letters, glyphs, aquila, skull, glowing, lamp, candle, window, neon, smooth, flat, plain, icons, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
+  "reglages": {
+    "modele": "xl",
+    "preset": "close old wooden archive shelves crammed with leather-bound books, rolled parchment scrolls, brass data cylinders, battered vox units, dust, cobwebs",
+    "invite": "",
+    "force": 0.75,
+    "pas": 8,
+    "cfg": 2.0,
+    "controle": 0.5,
+    "largeur": 1536,
+    "profondeur": "",
+    "fond": "0A0805",
+    "marge": 0.08,
+    "alpha_nouveau": false,
+    "lumiere": 10.0,
+    "couleur": 0.7,
+    "composantes": true,
+    "masque": "",
+    "proteger": "",
+    "negatif": "people, figures, faces, text, letters, glyphs, aquila, skull, glowing, lamp, candle, window, neon, smooth, flat, plain, icons",
+    "identite": "",
+    "identite_force": 0.6,
+    "graines": "61"
+  },
+  "statut": "fige",
+  "note": "passer statut a 'fige' quand la DA a choisi et le GD valide",
+  "pretraitement": "gain x8, pretexture amp 0.25 graine 2, retouche, gain x0.125",
+  "choix": "DA 27/11 19:49 (20_etageres_g61)",
+  "installe": "2026-11-27T19:50:20",
+  "note_4k": "4k = agrandissement provisoire du 1080 peint, à refaire au lot 4k de fin"
+}

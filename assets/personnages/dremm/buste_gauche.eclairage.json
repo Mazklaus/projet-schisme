@@ -81,5 +81,5 @@
    "normal": "buste_gauche_assurance_normal.png"
   }
  },
- "variantes_note": "Bustes finaux CA1 (visage §5 posé, cou et col peints, retouche TP2 g93, céramite crème 5b), validés DA 27/11. buste_gauche.png = corps Tools seul (entrée de poser_bustes.py), à ne pas utiliser en jeu."
+ "variantes_note": "Bustes finaux CA1 (visage §5 posé, cou et col peints, retouche TP2 g93c, céramite crème 5b), validés DA 27/11. buste_gauche.png = corps Tools seul (entrée de poser_bustes.py), à ne pas utiliser en jeu."
 }

@@ -1,0 +1,20 @@
+{
+  "_doc": "Côtés réellement peints des bustes de gros plan (règle GD 27/11 : pas de miroir sur un personnage asymétrique). Les quatre personnages (Dremm, Sefa, Vaskar, Krenn) ont leurs deux côtés peints par CA1 (chaine-images/retouche, g93, validés DA 27/11) : aucun miroir. tools/ci/verifier_bustes.py refuse qu'une scène place un personnage d'un côté non peint, et exige une entrée ici pour tout personnage qui a des bustes. « miroir_tolere » : personnages dont la DA confirme sur capture que le miroir passe inaperçu (jamais Dremm).",
+  "dremm": [
+    "gauche",
+    "droite"
+  ],
+  "sefa": [
+    "gauche",
+    "droite"
+  ],
+  "krenn": [
+    "gauche",
+    "droite"
+  ],
+  "vaskar": [
+    "gauche",
+    "droite"
+  ],
+  "miroir_tolere": []
+}

@@ -149,7 +149,7 @@ KRENN: N'oublie jamais lequel nous a faits.
 === message_ilse
 -> message_ilse_vivante [si vivant_ilse == true]
 // Défaut : Ilse est morte, ou il n'y a pas de sauvegarde.
-~ ep01_plaque_gardee = false
+~ choix_ep01_plaque = 3
 DREMM: Les mortels de l'Armée sont sur les transports. Loin derrière.
 DREMM: Ils nous suivent. Ils nous suivront toujours.
 -> loge
@@ -169,12 +169,12 @@ DREMM: Ils nous suivent. Ils nous suivront toujours.
 * La ranger -> plaque_rangee
 
 === plaque_gardee
-~ ep01_plaque_gardee = true
+~ choix_ep01_plaque = 1
 > Il glisse la plaque sous son plastron.
 -> loge
 
 === plaque_rangee
-~ ep01_plaque_gardee = false
+~ choix_ep01_plaque = 2
 > Il la range avec les trophées. Entre un croc d'ork et une bannière brûlée.
 -> loge
 

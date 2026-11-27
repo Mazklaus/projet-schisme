@@ -38,7 +38,6 @@
       0.98,
       2.95
     ],
-    "calque": "45_lampe",
     "couleur": "#FFC27A",
     "energie": {
       "veille": 1.8,
@@ -53,7 +52,8 @@
     "scintillement": {
       "amplitude": 0.03,
       "note": "quasi fixe : lampe électrique civile, pas une flamme"
-    }
+    },
+    "calque": "45_lampe"
   },
   "appoints": [
     {
@@ -63,14 +63,14 @@
         485
       ],
       "couleur": "#B8C4D0",
+      "calque": "00_coque",
       "energie": {
         "veille": 0.6,
         "nuit_lampe": 0.12,
         "nuit_lampe_serre": 0.12
       },
       "portee_px": 140,
-      "note": "hublot à 2,2 m, hauteur d'œil d'Astartes",
-      "calque": "00_coque"
+      "note": "hublot à 2,2 m, hauteur d'œil d'Astartes"
     },
     {
       "type": "CanvasModulate",
@@ -81,41 +81,45 @@
     {
       "fichier": "calques/05_hublot.png",
       "auteur": "CA2",
-      "distance_m": "derrière la porte",
+      "distance_m": 7.0,
       "contenu": "le couloir des géants derrière le verre, froid et flou",
-      "intensite_par_etat": {
-        "veille": 1.0,
-        "nuit_lampe": 0.35,
-        "nuit_lampe_serre": 0.35
-      }
+      "note": "distance : derrière la porte m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/00_coque.png",
       "normal": "calques/00_coque_normal.png",
       "auteur": "CA2",
-      "distance_m": "1 à 5,6",
-      "contenu": "plafond bas nervuré, mur gauche, mur du fond, mur droit, tôles rivetées, conduite, grille, sas d'Astartes démesuré coupé par le plafond (chambranle massif, renforts, seuil, volant à 1,45 m, hublot à 2,2 m percé dans l'alpha), le seul liseré d'or"
+      "distance_m": 3.3,
+      "contenu": "plafond bas nervuré, mur gauche, mur du fond, mur droit, tôles rivetées, conduite, grille, sas d'Astartes démesuré coupé par le plafond (chambranle massif, renforts, seuil, volant à 1,45 m, hublot à 2,2 m percé dans l'alpha), le seul liseré d'or",
+      "note": "distance : 1 à 5,6 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/20_sol.png",
       "normal": "calques/20_sol_normal.png",
       "ombre": "calques/20_sol_ombre.png",
       "auteur": "CA2",
-      "distance_m": "0,2 à 5,6",
-      "contenu": "tôles du sol, tapis usé apporté par les civils ; ombres radiales de la lampe"
+      "distance_m": 2.9,
+      "contenu": "tôles du sol, tapis usé apporté par les civils ; ombres radiales de la lampe",
+      "note": "distance : 0,2 à 5,6 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/30_mobilier.png",
       "normal": "calques/30_mobilier_normal.png",
       "auteur": "CA2",
-      "distance_m": "1,6 à 5,6",
-      "contenu": "couchettes superposées, feuillets épinglés (illisibles), table de travail (feuillets, encrier, livre), pied de lampe, chevalet dont la toile est tournée vers le mur"
+      "distance_m": 3.6,
+      "contenu": "couchettes superposées, feuillets épinglés (illisibles), table de travail (feuillets, encrier, livre), pied de lampe, chevalet dont la toile est tournée vers le mur",
+      "note": "distance : 1,6 à 5,6 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/40_personnages.png",
       "auteur": "CA1 / kit Blender",
-      "distance_m": "1,9 et 5",
-      "contenu": "Sefa assise de profil à sa table, dos à la porte ; un poète allongé sur la couchette du haut. Gabarit : calques/gabarit_40_personnages.png"
+      "distance_m": 3.45,
+      "contenu": "Sefa Morn assise de profil (trois-quarts dos) à sa table, sur un tabouret, avant-bras droit posé sur le plateau, tête penchée sur ses feuillets ; un poète allongé sur le dos sur la couchette du haut, tête à gauche, bras sous la nuque",
+      "normal": "calques/40_personnages_normal.png",
+      "ombre": "calques/40_personnages_ombre.png (multiply, noir + alpha, sous 40)",
+      "generateur": "cA1/barge_quartiers_civils/rendu_qc.py + post_qc.py (kit_civil, Tools)",
+      "statut": "v1 CA1, à valider DA, puis retouche TP2",
+      "note": "distance : 1,9 et 5 m ; ombres portées par la lampe-lumen (passe Cycles ponctuelle) : sol, plateau, mur du fond. CA2 : l'ombre-boîte « Sefa assise » de 20_sol_ombre fait doublon, à retirer."
     },
     {
       "fichier": "calques/45_lampe.png",
@@ -133,8 +137,9 @@
     {
       "fichier": "calques/90_particules.png",
       "auteur": "CA2",
-      "distance_m": "2 à 4",
-      "contenu": "poussière dans la lumière de la lampe ; à animer"
+      "distance_m": 3.0,
+      "contenu": "poussière dans la lumière de la lampe ; à animer",
+      "note": "distance : 2 à 4 m (valeur représentative ci-dessus)"
     }
   ],
   "normales": "convention OpenGL (Y+), alpha = alpha du calque",
@@ -143,6 +148,7 @@
     "apercu.png"
   ],
   "statut": "essai v2",
+  "_note": "Tools 27/11, retours DA : nuit « lampe seule » (Sefa écrit), plans serrés resserrés, lumières qui suivent la parallaxe de leur calque",
   "etats": {
     "veille": {
       "canvas_modulate": "#17161A",
@@ -150,11 +156,11 @@
     },
     "nuit_lampe": {
       "canvas_modulate": "#0B0C11",
-      "note": "DA 27/11 19:42, Sefa écrit seule : la lampe de bureau est la seule clé chaude ; tout le reste tombe presque au noir ; voile froid très bas venu du hublot ; DA 27/11 20:50 : chute vers le noir à ~1,5 largeur de bureau (portée 200)"
+      "note": "DA 27/11 : la lampe de bureau est la seule clé chaude ; chute au noir à ~1,5 largeur de bureau ; hublot seul contre-poids froid"
     },
     "nuit_lampe_serre": {
       "canvas_modulate": "#0B0C11",
-      "note": "DA 27/11 20:07 : plans serrés sefa_ecrit et sefa_trait ; même nuit, flaque resserrée autour de la lampe (bords et haut du mur −40 %)"
+      "note": "DA 27/11 20:07 : plans serrés sefa_ecrit et sefa_trait ; flaque resserrée autour de la lampe (bords et haut du mur −40 %)"
     }
   },
   "etat_initial": "veille"
