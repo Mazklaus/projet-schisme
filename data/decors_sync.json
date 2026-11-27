@@ -3,9 +3,11 @@
   "fichiers": {
    "archive.json": "5bb2b0797dd48193ded4893136c405af",
    "calques/10_fond.peint.json": "aab944b95bf210d8fe0a75f4c2bc0402",
-   "calques/10_fond.png": "ee86271a162195d6ae8ebd01631748d6",
+   "calques/10_fond.png": "1644b09102dd503955c08f9165e3aabc",
    "calques/10_fond.retouche.json": "8320aa83d130de065df22d375587faee",
-   "calques/20_etageres.png": "a05646ba67931b297a0e246a2886cba2",
+   "calques/20_etageres.peint.json": "baf24c96307685ef22981abb532cb687",
+   "calques/20_etageres.png": "80d9f91b23189c368fa6297964aa3905",
+   "calques/20_etageres.retouche.json": "dffd608107c23f9aa178e6517cbf184b",
    "calques/20_etageres_normal.png": "2226db9cc8157caa4c1d296b1e60a28c",
    "calques/30_table.peint.json": "c376f322a7ad64196621778b1a10fa5b",
    "calques/30_table.png": "3e802ebe7ffa72b4ff3aaff7fd2294e2",
@@ -417,9 +419,11 @@
  "terra_unification": {
   "fichiers": {
    "calques/00_ciel.png": "60b7dec48971c2961c0362910edc69e5",
-   "calques/10_ruines.png": "011fa8cf85e5c8e565f24a4fca1b20d8",
+   "calques/10_ruines.peint.json": "5acd80901e1b2c20a42618113d8bc3ff",
+   "calques/10_ruines.png": "7dcac8e4dea10503a4976d801fe20c13",
+   "calques/10_ruines.retouche.json": "d266f84a72e2431e239a0e20a14e9796",
    "calques/30_champ.peint.json": "53a7f3b92929fc1db066604377e1456b",
-   "calques/30_champ.png": "ceff7dbfd84191a1c2edfa2f7ebb3ee2",
+   "calques/30_champ.png": "ae56b492be7f79cc9babe059fe4bc901",
    "calques/30_champ.retouche.json": "a4706b5f669eda5707201ba2ed91638e",
    "calques/35_lumiere.png": "30c46a8f5aabd2f50903e1018a1b615c",
    "calques/40_soldats.png": "4bb91b3d6fe3ae78bf44d5d10b7cd75d",
