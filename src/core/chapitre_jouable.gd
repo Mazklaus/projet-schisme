@@ -244,6 +244,14 @@ func _afficher_gros_plan(p: String) -> void:
 		mat.set_shader_parameter("teinte", accord.get("teinte", Color.WHITE))
 		mat.set_shader_parameter("plafond", float(accord.get("plafond", 10.0)))
 		mat.set_shader_parameter("exposition", float(accord.get("exposition", 1.0)))
+		var lis: Dictionary = accord.get("lisere", {})
+		mat.set_shader_parameter("lisere_force", float(lis.get("force", 0.0)))
+		if not lis.is_empty():
+			var c := Color(String(lis.get("couleur", "#FFE8B0")))
+			mat.set_shader_parameter("lisere_couleur", Vector3(c.r, c.g, c.b))
+			var dl: Array = lis.get("direction", [-1.0, 0.0])
+			mat.set_shader_parameter("lisere_dir", Vector2(dl[0], dl[1]).normalized())
+			mat.set_shader_parameter("lisere_px", float(lis.get("px", 3.0)))
 	_poser_buste(p, false)
 	if not _couche_gp.visible:
 		_racine_gp.modulate.a = 0.0
@@ -296,6 +304,61 @@ func _poser_buste(p: String, enchaine := true) -> void:
 	for n in _racine_buste.get_children():
 		if n != sp and not (meme_cadrage and n == ancien):
 			n.queue_free()
+	_accorder_visage(tete.x + float(_regie.scene.get("decalage_x", {}).get(p.to_upper(), 0.0)), cle)
+
+
+## DA 27/11 : dans un gros plan, le visage porte. Sa médiane ne descend pas à plus de
+## ECART_VISAGE sous celle de l'armure (valeurs finales, exposition comprise) : on mesure le
+## buste rendu une fois, puis le visage seul est remonté dans le shader d'affichage.
+const ECART_VISAGE := 0.08
+const GAIN_VISAGE_MAX := 3.0
+
+
+func _accorder_visage(tete_x: float, cle: String) -> void:
+	var mat := _ecran_buste.material as ShaderMaterial
+	var h := float(_vue_buste.size.y)
+	var w := float(_vue_buste.size.x)
+	# Tête : crâne à CRANE_CIBLE, menton à MENTON_CIBLE (cadrage) ; on garde le centre du visage.
+	var cy := (CRANE_CIBLE + MENTON_CIBLE) * 0.5
+	var demi_h := (MENTON_CIBLE - CRANE_CIBLE) * 0.5
+	var demi_w := demi_h * h / w / RAPPORT_TETE * 0.8
+	mat.set_shader_parameter("visage", Vector4(tete_x / w, cy, demi_w, demi_h))
+	mat.set_shader_parameter("gain_visage", 1.0)
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	if not is_instance_valid(_vue_buste) or cle != _cle_buste:
+		return
+	var img := _vue_buste.get_texture().get_image()
+	if img == null:
+		return
+	img.resize(320, 180, Image.INTERPOLATE_BILINEAR)
+	var expo := float(mat.get_shader_parameter("exposition"))
+	var face := _mediane_zone(img, Rect2((tete_x / w - demi_w * 0.6) * 320, (cy - demi_h * 0.5) * 180, demi_w * 1.2 * 320, demi_h * 180))
+	var armure := _mediane_zone(img, Rect2((tete_x / w - demi_w * 2.5) * 320, (MENTON_CIBLE + 0.12) * 180, demi_w * 5.0 * 320, 0.25 * 180))
+	if OS.has_environment("DEBUG_VISAGE"):
+		print("visage ", face, " armure ", armure, " expo ", expo, " tete_x ", tete_x)
+	if face <= 0.0 or armure <= 0.0:
+		return
+	var voulu := armure * expo - ECART_VISAGE
+	if face * expo < voulu:
+		mat.set_shader_parameter("gain_visage", clampf(voulu / (face * expo), 1.0, GAIN_VISAGE_MAX))
+
+
+static func _mediane_zone(img: Image, r: Rect2) -> float:
+	var v := PackedFloat32Array()
+	var x0 := clampi(int(r.position.x), 0, img.get_width() - 1)
+	var y0 := clampi(int(r.position.y), 0, img.get_height() - 1)
+	var x1 := clampi(int(r.end.x), x0 + 1, img.get_width())
+	var y1 := clampi(int(r.end.y), y0 + 1, img.get_height())
+	for y in range(y0, y1):
+		for x in range(x0, x1):
+			var c := img.get_pixel(x, y)
+			if c.a > 0.6:
+				v.append(Color(c.r / c.a, c.g / c.a, c.b / c.a).get_luminance())
+	if v.size() < 10:
+		return -1.0
+	v.sort()
+	return v[v.size() / 2]
 
 
 ## Cadrage des gros plans (tools/gros_plans/cadrage.py, calcul de CA1) : la tête du buste prend
@@ -537,6 +600,14 @@ render_mode blend_premul_alpha;
 uniform vec3 teinte = vec3(1.0);
 uniform float plafond = 10.0;
 uniform float exposition = 1.0;
+// Visage : remonté seul (ellipse en UV, bord adouci) pour ne pas passer sous l'armure.
+uniform vec4 visage = vec4(0.5, 0.3, 0.1, 0.15);
+uniform float gain_visage = 1.0;
+// Liseré de contre-jour : arête de la silhouette tournée vers la source (hors plafond).
+uniform vec3 lisere_couleur = vec3(1.0, 0.91, 0.69);
+uniform vec2 lisere_dir = vec2(-1.0, 0.0);
+uniform float lisere_force = 0.0;
+uniform float lisere_px = 3.0;
 varying vec4 modulation;
 void vertex() {
 	modulation = COLOR;
@@ -544,11 +615,19 @@ void vertex() {
 void fragment() {
 	vec4 t = texture(TEXTURE, UV);
 	vec3 u = t.rgb / max(t.a, 0.0001) * teinte * exposition;
+	vec2 dv = (UV - visage.xy) / visage.zw;
+	u *= mix(1.0, gain_visage, 1.0 - smoothstep(0.7, 1.0, length(dv)));
 	float L = dot(u, vec3(0.2126, 0.7152, 0.0722));
 	float k = 0.75 * plafond;
 	if (L > k) {
 		float Lc = k + (plafond - k) * (1.0 - exp(-(L - k) / (plafond - k)));
 		u *= Lc / L;
+	}
+	if (lisere_force > 0.0) {
+		vec2 pas = lisere_dir * TEXTURE_PIXEL_SIZE;
+		float bord = max(1.0 - texture(TEXTURE, UV + pas * lisere_px).a,
+				0.6 * (1.0 - texture(TEXTURE, UV + pas * lisere_px * 0.5).a));
+		u += lisere_couleur * lisere_force * bord;
 	}
 	COLOR = vec4(u * t.a * modulation.rgb, t.a) * modulation.a;
 }
@@ -643,12 +722,17 @@ static var _accords := {}
 const ACCORD := "res://data/gros_plans_accord.json"
 
 
-## « exposition » calée par fond (et état) dans data/gros_plans_accord.json ; 1 sinon.
-static func exposition_du_fond(cle: String) -> float:
+## Réglages d'un fond (et état) dans data/gros_plans_accord.json : « exposition »,
+## « force_teinte » (part de la teinte du fond reprise), « lisere » {couleur, direction, force, px}.
+static func reglage_du_fond(cle: String) -> Dictionary:
 	var d = JSON.parse_string(FileAccess.get_file_as_string(ACCORD)) if FileAccess.file_exists(ACCORD) else null
 	var fonds: Dictionary = d.get("fonds", {}) if typeof(d) == TYPE_DICTIONARY else {}
 	var e = fonds.get(cle, fonds.get(cle.get_slice("|", 0), {}))
-	return float(e.get("exposition", 1.0)) if typeof(e) == TYPE_DICTIONARY else 1.0
+	return e if typeof(e) == TYPE_DICTIONARY else {}
+
+
+static func exposition_du_fond(cle: String) -> float:
+	return float(reglage_du_fond(cle).get("exposition", 1.0))
 
 
 static func accord_du_fond(racine: Node2D, cle: String) -> Dictionary:
@@ -689,10 +773,11 @@ static func accord_du_fond(racine: Node2D, cle: String) -> Dictionary:
 	var moy := somme / float(px.size())
 	var l := maxf(moy.get_luminance(), 0.01)
 	var chroma := Color(moy.r / l, moy.g / l, moy.b / l)
-	var t := Color(1, 1, 1).lerp(chroma, FORCE_TEINTE_FOND)
+	var reg := reglage_du_fond(cle)
+	var t := Color(1, 1, 1).lerp(chroma, float(reg.get("force_teinte", FORCE_TEINTE_FOND)))
 	var lt := maxf(t.get_luminance(), 0.01)
 	var r := {"teinte": Color(t.r / lt, t.g / lt, t.b / lt), "plafond": maxf(lums[int(lums.size() * 0.995)], 0.12),
-		"exposition": exposition_du_fond(cle)}
+		"exposition": float(reg.get("exposition", 1.0)), "lisere": reg.get("lisere", {})}
 	_accords[cle] = r
 	return r
 
