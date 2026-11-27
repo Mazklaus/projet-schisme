@@ -150,7 +150,9 @@
         7
       ],
       "note": "désynchronisé par bougie"
-    }
+    },
+    "couleur_groupe": "#E89A50",
+    "portee_bougie_px": 120
   },
   "appoints": [
     {
@@ -171,7 +173,7 @@
     },
     {
       "type": "CanvasModulate",
-      "couleur": "#0F0F12",
+      "couleur": "#121010",
       "note": "la salle reste sombre hors des bougies"
     }
   ],

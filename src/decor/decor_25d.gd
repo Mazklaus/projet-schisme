@@ -221,11 +221,28 @@ static func lumieres_du_plan(L: Dictionary) -> Array:
 		return []
 	var sc = L.get("scintillement", 0.0)
 	var amplitude := float(sc.get("amplitude", 0.0)) if typeof(sc) == TYPE_DICTIONARY else float(sc)
-	var energie := float(L.get("energie_totale", L.get("energie", 1.0))) / points.size()
-	if points.size() > 1:
-		# Des bougies proches se recouvrent : chacune porte un peu plus que sa part.
-		energie *= 2.0
 	var sortie: Array = []
+	var energie := float(L.get("energie", 1.0))
+	if points.size() > 1:
+		# Groupe (bougies) : une lumière de groupe au barycentre, à traîne longue (profil de
+		# l'aperçu de la DA : 1,4·exp(−r/380) + 0,4·exp(−r/110)), qui porte les piliers et la
+		# voûte ; puis une petite lumière par bougie pour le scintillement local.
+		var b = L.get("barycentre_px")
+		if typeof(b) != TYPE_ARRAY:
+			var somme := Vector2.ZERO
+			for pt in points:
+				somme += Vector2(pt[0], pt[1])
+			somme /= points.size()
+			b = [somme.x, somme.y]
+		var total := float(L.get("energie_totale", 1.4))
+		sortie.append({"position_px": b, "couleur": L.get("couleur_groupe", L.get("couleur", "#FFB060")),
+			"intensite": total * 1.8 / 1.4, "rayon_px": 1100.0 / 2.5, "profil": "traine", "hauteur_px": 500.0,
+			"scintillement": amplitude * 0.3})
+		energie = 0.05
+		for pt in points:
+			sortie.append({"position_px": pt, "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
+				"rayon_px": float(L.get("portee_bougie_px", 120.0)) / 2.5, "scintillement": amplitude})
+		return sortie
 	for pt in points:
 		sortie.append({"position_px": pt, "couleur": L.get("couleur", "#FFB060"), "intensite": energie,
 			"rayon_px": float(L.get("portee_px", 300)) / 2.5, "scintillement": amplitude})
@@ -304,35 +321,59 @@ func _poser_veille(v: Dictionary) -> void:
 ## Lumières ponctuelles d'un état (feux du bivouac, lampes) : une PointLight2D chacune, avec
 ## un scintillement léger. Elles éclairent les calques « lumiere » et les personnages posés.
 func _poser_lumieres(liste: Array) -> void:
-	var tex: GradientTexture2D = null
+	var textures := {}
 	for i in liste.size():
 		var L: Dictionary = liste[i]
 		if not L.has("position_px"):
 			continue
-		if tex == null:
-			var g := Gradient.new()
-			g.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0)])
-			tex = GradientTexture2D.new()
-			tex.gradient = g
-			tex.fill = GradientTexture2D.FILL_RADIAL
-			tex.fill_from = Vector2(0.5, 0.5)
-			tex.fill_to = Vector2(1, 0.5)
-			tex.width = 256
-			tex.height = 256
+		var profil: String = L.get("profil", "lineaire")
+		if not textures.has(profil):
+			textures[profil] = _texture_lumiere(profil)
 		var l := PointLight2D.new()
 		l.name = "Lumiere_%02d" % i
-		l.texture = tex
+		l.texture = textures[profil]
 		l.position = Vector2(L.position_px[0], L.position_px[1])
 		l.texture_scale = float(L.get("rayon_px", 120)) * 2.5 / 128.0
 		l.color = Color(L.get("couleur", "#FFB060"))
 		l.energy = float(L.get("intensite", 1.0))
-		l.height = 40.0
+		# Hauteur (normal maps) : une lumière de groupe éclaire de face, sinon les murs tournés
+		# vers la caméra ne reçoivent presque rien.
+		l.height = float(L.get("hauteur_px", 40.0))
 		l.range_item_cull_mask = MASQUE_LUMIERE | 1
 		var sc := float(L.get("scintillement", 0.0))
 		if sc > 0.0:
 			l.set_meta("energie", l.energy)
 			l.set_meta("scintillement", sc)
 		add_child(l)
+
+
+## Texture radiale d'une lumière (256 px, rayon 128) : « lineaire » (feux) ou « traine »
+## (décroissance exponentielle à longue traîne de l'aperçu de la DA, sur un rayon de 1100 px).
+static func _texture_lumiere(profil: String) -> GradientTexture2D:
+	var g := Gradient.new()
+	if profil == "traine":
+		var offsets := PackedFloat32Array()
+		var couleurs := PackedColorArray()
+		for i in 17:
+			var t := i / 16.0
+			var r := t * 1100.0
+			var v := (1.4 * exp(-r / 380.0) + 0.4 * exp(-r / 110.0)) / 1.8
+			if i == 16:
+				v = 0.0
+			offsets.append(t)
+			couleurs.append(Color(v, v, v, 1.0))
+		g.offsets = offsets
+		g.colors = couleurs
+	else:
+		g.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0)])
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1, 0.5)
+	tex.width = 256
+	tex.height = 256
+	return tex
 
 
 func _process(_delta: float) -> void:
