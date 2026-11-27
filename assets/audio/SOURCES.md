@@ -55,4 +55,4 @@ python3 tools/son/encoder_ogg.py /tmp/wav_ep02 assets/audio
 | Fichier | Fonction du générateur | Graine | Où il sonne | Ce que c'est |
 |---|---|---|---|---|
 | `amb_ep02_vengeful_spirit` | `amb_vengeful_spirit` | 5001 | chapitres 2 et 3, le vaisseau à l'état pur | Boucle de 60 s : cœur du vaisseau (harmoniques stables de 32 Hz), air dans les gaines, relais régulier, escouade qui passe en cadence, sas lourds, machines des ponts inférieurs ; réverbération de cathédrale (6,5 s) |
-| `amb_ep02_loge` | `amb_loge` | 5002 | chapitres 2 et 3, la salle de la loge | Boucle de 45 s : une vingtaine de bougies, une assemblée silencieuse qui respire, armures qui craquent, le cœur du vaisseau étouffé par les murs ; rien d'occulte (ni nappe dissonante ni chuchotement) |
+| `amb_ep02_loge` | `amb_loge` | 5002 | chapitres 2 et 3, la salle de la loge | Boucle de 45 s, veillée chaleureuse : conversations graves et inintelligibles de cinq frères (syllabes voisées sans mots, filtrées), gobelets posés sur la caisse-table, un rire bref de temps en temps, bougies qui grésillent, cœur du vaisseau étouffé ; rien d'occulte, aucun mot |
