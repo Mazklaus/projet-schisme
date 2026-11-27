@@ -258,7 +258,7 @@ func avancer(delta: float) -> void:
 	# l'arrivée et ease-in-out : jamais de saut, même d'un geste à l'autre.
 	var g: Dictionary = _gestes.get("gestes", {}).get(_geste, {})
 	_temps_geste += delta
-	var actif := not g.is_empty() and _geste != "repos" \
+	var actif: bool = not g.is_empty() and _geste != "repos" \
 		and (g.get("tenir", false) or _temps_geste < _entree + float(g.get("duree", 1.0)))
 	if actif != _transition_vers_geste or _relancer:
 		_relancer = false
@@ -283,7 +283,7 @@ func avancer(delta: float) -> void:
 		os[n].position = repos[n]
 	for racine in squelette.get_children():
 		racine.position = repos[String(racine.name)] + Vector2(0, bob + _bassin_y)
-	var montre := actif and _poids > 0.5
+	var montre: bool = actif and _poids > 0.5
 	_variantes(String(g.get("main", "")) if montre else "", String(g.get("tete", "")) if montre else "")
 	_pieces_geste(g if montre else {})
 	# Clignement : 0,12 s toutes les 2 à 6 s.
@@ -360,7 +360,7 @@ func _variantes(main: String, tete: String) -> void:
 		if pieces.has(n):
 			var voulu := "main_avant" + ("_" + main if not main.is_empty() else "")
 			pieces[n].visible = n == voulu if pieces.has(voulu) else n == "main_avant"
-	var face := tete == "face" and pieces.has("tete_face")
+	var face: bool = tete == "face" and pieces.has("tete_face")
 	if pieces.has("tete"):
 		pieces.tete.visible = not face
 	if pieces.has("tete_face"):
@@ -382,7 +382,7 @@ func _pieces_geste(g: Dictionary) -> void:
 
 
 func _clignement(ferme: bool) -> void:
-	var face := pieces.has("tete_face") and pieces.tete_face.visible
+	var face: bool = pieces.has("tete_face") and pieces.tete_face.visible
 	if pieces.has("yeux_fermes"):
 		pieces.yeux_fermes.visible = ferme and not face
 	if pieces.has("yeux_fermes_face"):

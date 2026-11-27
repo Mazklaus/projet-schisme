@@ -80,7 +80,7 @@ func test_enchainement_sans_saut() -> void:
 	var r := _rig()
 	r.jouer_geste("montrer")
 	_avancer(r, 1.0)
-	var avant := r.os.bras_avant.rotation
+	var avant: float = r.os.bras_avant.rotation
 	r.jouer_geste("saluer")
 	r.avancer(1.0 / 60.0)
 	assert_almost_eq(r.os.bras_avant.rotation, avant, deg_to_rad(12.0), "pas de retour brutal au repos")
@@ -97,7 +97,7 @@ func test_marche_et_pas() -> void:
 	watch_signals(r)
 	r.marche = 1.0
 	_avancer(r, 1.4)
-	var pas := get_signal_emit_count(r, "evenement_anim")
+	var pas: int = get_signal_emit_count(r, "evenement_anim")
 	assert_between(pas, 3, 5, "un appui toutes les 0,35 s environ")
 	r.marche = 0.0
 	_avancer(r, 1.0)
