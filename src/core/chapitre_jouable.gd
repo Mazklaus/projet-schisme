@@ -1500,10 +1500,12 @@ func _commencer_jeu(nom: String) -> void:
 	# Décor avec ses personnages peints (calque 40_personnages de CA1) : les figurants
 	# provisoires les doubleraient.
 	var peints := personnages_peints(d)
+	var poses := 0
 	for k in config.get("figurants", {}):
 		var spec := spec_figure(config.figurants[k])
 		if not peints and pois.has(k) and not spec.nom.is_empty() and not props.has(spec.nom):
 			poser_figure(_figurant(monde_de(d), spec.nom, pois[k] + Vector2(0, -10)), spec)
+			poses += 1
 	# « props » de zone : {cle: {nom, position, geste, miroir, decalage, echelle}}, chacun sous sa
 	# condition (« conditions »[cle]). Posés même sur un décor peint : la mise en scène les veut.
 	# Retrouvés par leur nom (@geste ilse agenouiller) et par leur clé.
@@ -1518,6 +1520,11 @@ func _commencer_jeu(nom: String) -> void:
 		var f := _figurant(monde_de(d), spec.nom, Vector2(float(spec.position[0]), float(spec.position[1])))
 		poser_figure(f, spec)
 		props[String(k)] = f
+		poses += 1
+	# Le gabarit de la DA (silhouettes grises) doublerait les figures posées : masqué tant qu'il y en a.
+	var gab := d.get_node_or_null(^"Calque_40_personnages") if d else null
+	if gab and bool(gab.get_meta("gabarit", false)):
+		gab.visible = poses == 0
 	_declenches = {}
 	_vus_depuis = {}
 	_tout_vu_depuis = -1.0
