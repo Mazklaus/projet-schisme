@@ -202,7 +202,7 @@ def verifier_decor(dossier):
 
 
 AUTO_LISSE = ("ciel", "flou", "lumiere", "lumière", "brume", "voile", "halo", "rayons", "particules", "fumee",
-              "fumée", "lumens", "lisere", "liseré")
+              "fumée", "lumens", "lisere", "liseré", "phares", "faisceaux", "additif")
 SEUIL_APLAT = 0.45
 
 
