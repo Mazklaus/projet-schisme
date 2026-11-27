@@ -1,0 +1,41 @@
+{
+  "entree": "episode-01/archive/calques/10_fond.png",
+  "sortie": "calques/10_fond.png",
+  "date": "2026-11-27T15:46:24",
+  "modeles": [
+    "Lykon/dreamshaper-xl-lightning",
+    "diffusers/controlnet-depth-sdxl-1.0-small",
+    "madebyollin/sdxl-vae-fp16-fix"
+  ],
+  "invite": ", dark sealed archive gallery, back wall of old iron shelves packed with dusty data-slates, scroll cases and parchment rolls, cracked low stone ceiling, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+  "invite_negative": "people, figures, faces, text, letters, glyphs, aquila, skull, glowing, lamp, candle, window, neon, smooth, flat, plain, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
+  "reglages": {
+    "modele": "xl",
+    "preset": "dark sealed archive gallery, back wall of old iron shelves packed with dusty data-slates, scroll cases and parchment rolls, cracked low stone ceiling",
+    "invite": "",
+    "force": 0.7,
+    "pas": 8,
+    "cfg": 2.0,
+    "controle": 0.5,
+    "largeur": 1536,
+    "profondeur": "",
+    "fond": "0A0805",
+    "marge": 0.08,
+    "alpha_nouveau": false,
+    "lumiere": 10.0,
+    "couleur": 0.7,
+    "composantes": false,
+    "masque": "",
+    "proteger": "",
+    "negatif": "people, figures, faces, text, letters, glyphs, aquila, skull, glowing, lamp, candle, window, neon, smooth, flat, plain",
+    "identite": "",
+    "identite_force": 0.6,
+    "graines": "62"
+  },
+  "statut": "fige",
+  "note": "passer statut a 'fige' quand la DA a choisi et le GD valide",
+  "pretraitement": "gain.py x8 (calque très sombre), retouche, puis gain.py x0.1250",
+  "choix": "DA 27/11 15:56 (10_fond_g62)",
+  "installe": "2026-11-27T15:58:38",
+  "note_4k": "4k = agrandissement provisoire du 1080 peint, à refaire au lot 4k de fin"
+}

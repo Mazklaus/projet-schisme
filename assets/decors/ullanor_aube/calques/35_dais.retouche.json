@@ -1,0 +1,41 @@
+{
+  "entree": "tranche-verticale/calques/35_dais.png (copie propre pour nuit/aube)",
+  "sortie": "calques/35_dais.png",
+  "date": "2026-11-27T16:00:52",
+  "modeles": [
+    "Lykon/dreamshaper-xl-lightning",
+    "diffusers/controlnet-depth-sdxl-1.0-small",
+    "madebyollin/sdxl-vae-fp16-fix"
+  ],
+  "invite": ", imperial triumphal dais platform of polished granite and gold, steps, banners, honour guard stands, grimdark oil painting, painterly brushstrokes, rich texture, dramatic rim light, cinematic, highly detailed",
+  "invite_negative": "people, figures, faces, text, letters, glowing windows, lit windows, lamp, neon, modern, smooth, flat, plain, text, letters, watermark, signature, logo, blurry, lowres, cartoon, toy, plastic, 3d render, deformed, extra limbs, bad anatomy, modern clothes, skull mask, chaos star, glowing eyes, glowing lenses, emissive lights, neon",
+  "reglages": {
+    "modele": "xl",
+    "preset": "imperial triumphal dais platform of polished granite and gold, steps, banners, honour guard stands",
+    "invite": "",
+    "force": 0.65,
+    "pas": 8,
+    "cfg": 2.0,
+    "controle": 0.5,
+    "largeur": 1024,
+    "profondeur": "",
+    "fond": "8A6A48",
+    "marge": 0.08,
+    "alpha_nouveau": false,
+    "lumiere": 10.0,
+    "couleur": 0.7,
+    "composantes": true,
+    "masque": "",
+    "proteger": "",
+    "negatif": "people, figures, faces, text, letters, glowing windows, lit windows, lamp, neon, modern, smooth, flat, plain",
+    "identite": "",
+    "identite_force": 0.6,
+    "graines": "61"
+  },
+  "statut": "fige",
+  "note": "passer statut a 'fige' quand la DA a choisi et le GD valide",
+  "pretraitement": "pretexture amp 0.12-0.15 graine 1",
+  "choix": "DA 27/11 19:49 (35_dais_g61)",
+  "installe": "2026-11-27T19:52:32",
+  "note_4k": "4k = agrandissement provisoire du 1080 peint, à refaire au lot 4k de fin"
+}

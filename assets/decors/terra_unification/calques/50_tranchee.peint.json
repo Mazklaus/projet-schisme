@@ -1,0 +1,14 @@
+{
+ "outil": "peindre_plan.py",
+ "source": "/home/user/tp3/install_tmp/terra_unification/50_tranchee.png",
+ "sortie": "calques/50_tranchee.png",
+ "date": "2026-11-27T15:58:33",
+ "reglages": {
+  "paliers": 6,
+  "sp": 12,
+  "sr": 26,
+  "grosse": 18,
+  "fine": 6,
+  "ouverture": 7
+ }
+}

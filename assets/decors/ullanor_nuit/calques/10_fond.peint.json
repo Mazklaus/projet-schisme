@@ -1,0 +1,14 @@
+{
+ "outil": "peindre_plan.py",
+ "source": "/home/user/tp3/install_tmp/ullanor_nuit/10_fond.png",
+ "sortie": "calques/10_fond.png",
+ "date": "2026-11-27T19:51:27",
+ "reglages": {
+  "paliers": 7,
+  "sp": 9,
+  "sr": 20,
+  "grosse": 16,
+  "fine": 6,
+  "ouverture": 0
+ }
+}
