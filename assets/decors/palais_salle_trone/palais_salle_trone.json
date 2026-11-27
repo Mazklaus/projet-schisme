@@ -1,0 +1,227 @@
+{
+  "plan": "palais_salle_trone",
+  "episode": 2,
+  "chapitres": [
+    1
+  ],
+  "etats": [
+    "soir",
+    "crepuscule"
+  ],
+  "description": "63-19, la salle du trône prise, le soir. Trois-quarts : le dais adossé au mur gauche, le trône vide tourné vers les baies (dossier au soleil à 12 rayons), quatre hautes baies à droite dont les rais traversent la salle jusqu'aux marches ; colonnes gainées de laiton terni qui coupent les rais ; la couronne couchée au sol dans le coin bas droit, avec un reflet. Proportions humaines : 16 m sous plafond, marches de 0,33 m. Générateur : cA2/palais_salle_trone_calques.py [--4k] ; base : planche ép. 2 (63-B, validée).",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "position_m": [
+      8.0,
+      1.7,
+      2.0
+    ],
+    "lacet_deg": -10,
+    "focale_px": 820,
+    "centre_px": [
+      960,
+      560
+    ]
+  },
+  "echelle": {
+    "salle_m": "24 x 40, plafond 16",
+    "baies_m": "3 x 12",
+    "dais": "6 marches de 0,33 m",
+    "astartes_m": 2.3
+  },
+  "regle_palette": "laiton terni #9C8250, pierre #CDBFA2 ; azur #4A6E9E (tentures) et rouge #8E2F2A (tapis, coussin) mats ; la seule lumière chaude vient des baies",
+  "eclairage": "calques en ALBÉDO + occlusion ; la seule source est le soleil du soir par les baies (taches au sol déclarées ci-dessous)",
+  "lumieres": {
+    "soleil": {
+      "type": "DirectionalLight2D + 4 PointLight2D allongées sur les taches au sol (ou masque 47_rais)",
+      "direction_3d": [
+        -0.74,
+        -0.52,
+        0.42
+      ],
+      "taches_sol_px": [
+        [
+          [
+            1360,
+            746
+          ],
+          [
+            721,
+            619
+          ],
+          [
+            674,
+            619
+          ],
+          [
+            653,
+            624
+          ]
+        ],
+        [
+          [
+            1312,
+            659
+          ],
+          [
+            837,
+            606
+          ],
+          [
+            801,
+            606
+          ],
+          [
+            793,
+            609
+          ]
+        ],
+        [
+          [
+            1295,
+            628
+          ],
+          [
+            912,
+            598
+          ],
+          [
+            882,
+            598
+          ],
+          [
+            881,
+            600
+          ]
+        ],
+        [
+          [
+            1286,
+            611
+          ],
+          [
+            965,
+            592
+          ],
+          [
+            939,
+            592
+          ],
+          [
+            941,
+            594
+          ]
+        ]
+      ],
+      "couleur_par_etat": {
+        "soir": "#FFB070",
+        "crepuscule": "#E86A48"
+      },
+      "energie_par_etat": {
+        "soir": 1.35,
+        "crepuscule": 0.9
+      }
+    },
+    "reflet_couronne": {
+      "type": "émissif additif (46), couleur #E8C27E",
+      "position_px": [
+        1611,
+        962
+      ],
+      "note": "scintille doucement quand la caméra bouge ; s'éteint quand Dremm la ramasse"
+    }
+  },
+  "etats_detail": {
+    "soir": {
+      "canvas_modulate": "#382C28",
+      "lisere_51": "#FFC890",
+      "energie_rais_47": 0.55,
+      "note": "le palais pris, les frères rient ; rais du soir jusqu'au pied du dais"
+    },
+    "crepuscule": {
+      "canvas_modulate": "#241C1E",
+      "lisere_51": "#E88A70",
+      "energie_rais_47": 0.35,
+      "note": "après le choix (« Il a aimé ça » : le rire s'arrête) ; les rais rougissent et s'allongent, à enchaîner sur 4 s"
+    }
+  },
+  "poi": {
+    "couronne": [
+      1611,
+      962
+    ],
+    "trone": [
+      715,
+      538
+    ]
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_dehors.png",
+      "auteur": "CA2",
+      "contenu": "ciel du soir et toits lointains à contre-jour (vus par les baies)"
+    },
+    {
+      "fichier": "calques/10_salle.png",
+      "normal": "calques/10_salle_normal.png",
+      "ombre": "calques/10_salle_ombre.png",
+      "auteur": "CA2",
+      "distance_m": 21.0,
+      "contenu": "plafond à caissons, sol de pierre polie et bandes de laiton, tapis rouge usé, tentures azur, dais à 6 marches, trône vide, baies percées",
+      "note": "distance : 2 à 40 m (valeur représentative ci-dessus)"
+    },
+    {
+      "fichier": "calques/20_colonnes.png",
+      "normal": "calques/20_colonnes_normal.png",
+      "auteur": "CA2",
+      "distance_m": 21.0,
+      "contenu": "cinq colonnes gainées de laiton terni",
+      "note": "distance : 7 à 35 m (valeur représentative ci-dessus)"
+    },
+    {
+      "fichier": "calques/30_couronne.png",
+      "auteur": "CA2",
+      "contenu": "la couronne couchée au sol (objet manipulable : à détacher pour l'animation de Dremm)"
+    },
+    {
+      "fichier": "calques/gabarit_40_personnages.png",
+      "auteur": "CA2 → CA1",
+      "contenu": "Vaskar (de dos) [987, 801], Dremm (ramasse la couronne) [1314, 783], frère [736, 658], frère [790, 629], frère [1028, 626]"
+    },
+    {
+      "fichier": "calques/46_reflet_couronne.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "reflet de la couronne"
+    },
+    {
+      "fichier": "calques/47_rais.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "rais de poussière des quatre baies, coupés par les colonnes ; teinte et énergie par état"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": 1.5,
+      "contenu": "pilier sombre à gauche (8 %), tenture relevée en haut"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "liseré blanc teinté par état"
+    },
+    {
+      "fichier": "calques/90_poussiere.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "poussière dans les rais"
+    }
+  ],
+  "statut": "en revue DA"
+}

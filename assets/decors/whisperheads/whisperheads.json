@@ -1,0 +1,170 @@
+{
+  "plan": "whisperheads",
+  "episode": 2,
+  "chapitres": [
+    2
+  ],
+  "etats": [
+    "approche",
+    "voix",
+    "tirs"
+  ],
+  "jeu": "@jeu : montée de la pente vers la forteresse ; Venn s'arrête au milieu du sentier",
+  "description": "Les Whisperheads : une pente d'éboulis sous la pluie fine, un sentier en lacets, la forteresse trapue sur sa crête au tiers gauche, des bancs de brouillard en deux calques. La seule couleur est le vox : un fanal au mât de la forteresse. Aucun monstre, aucun œil lumineux, une seule fente au donjon. Générateur : cA2/whisperheads_calques.py [--4k] ; base : planche ép. 2 (WH).",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "hauteur_m": 1.8,
+    "focale_px": 900,
+    "horizon_px": 430,
+    "note": "caméra basse sur la pente, on lève les yeux vers la crête"
+  },
+  "echelle": {
+    "forteresse_m": "≈ 900 de distance, donjon de 25",
+    "astartes_m": 2.3,
+    "pente": "≈ 25 % de déclivité"
+  },
+  "regle_palette": "gris #0E1416 → #5E6C70, roc #2A3236 ; vox #9FD8B0 = la SEULE couleur (fanal, liseré en état voix) ; tirs en blanc",
+  "lumieres": {
+    "ambiance": {
+      "type": "CanvasModulate",
+      "par_etat": {
+        "approche": "#9AA4A6",
+        "voix": "#66746E",
+        "tirs": "#828C90"
+      }
+    },
+    "vox": {
+      "type": "PointLight2D",
+      "position_px": [
+        612,
+        168
+      ],
+      "couleur": "#9FD8B0",
+      "portee_px": "90 (approche) à 170 (voix)",
+      "energie_par_etat": {
+        "approche": 0.6,
+        "voix": 1.8,
+        "tirs": 0.8
+      },
+      "voix": "pulsation forte (énergie 0,6 à 1,8) et coupures franches de 40 à 300 ms"
+    },
+    "tirs": {
+      "type": "PointLight2D ×3 aléatoires dans l'enceinte (état tirs)",
+      "couleur": "#FFFFFF",
+      "duree_s": 0.06
+    }
+  },
+  "brume": {
+    "37_brume_loin": "devant les montagnes, derrière la forteresse",
+    "38_brume_pres": "devant la forteresse, à mi-pente",
+    "animation": "défilement horizontal lent ; en état voix, sens INVERSE du vent (voir 90_bruine)",
+    "densite_par_etat": {
+      "approche": 0.8,
+      "voix": 1.1,
+      "tirs": 0.9
+    },
+    "teinte_vox_par_etat": {
+      "approche": 0.0,
+      "voix": 0.15,
+      "tirs": 0.05
+    },
+    "teinte": "#9FD8B0 mélangé à la brume (modulate du calque)"
+  },
+  "etats_detail": {
+    "approche": {
+      "canvas_modulate": "#9AA4A6",
+      "lisere_51": "#B8C4C8",
+      "note": "la pente, le brouillard immobile, le fanal fixe"
+    },
+    "voix": {
+      "canvas_modulate": "#66746E",
+      "lisere_51": "#9FD8B0",
+      "note": "« Samus » : le fanal vacille (coupures irrégulières 2 à 9 Hz), les calques 37/38 glissent CONTRE le vent (vers la gauche, alors que la bruine tombe vers la gauche aussi : la brume remonte à droite), liseré teinté vox"
+    },
+    "tirs": {
+      "canvas_modulate": "#828C90",
+      "lisere_51": "#C8D0D4",
+      "note": "cris au vox, tirs dans l'enceinte : éclairs blancs (aucune couleur), au loin"
+    }
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel.png",
+      "auteur": "CA2",
+      "contenu": "ciel couvert"
+    },
+    {
+      "fichier": "calques/05_montagnes.png",
+      "auteur": "CA2",
+      "contenu": "deux plans de montagnes, névés"
+    },
+    {
+      "fichier": "calques/37_brume_loin.png",
+      "auteur": "CA2",
+      "contenu": "banc de brouillard lointain (alpha)"
+    },
+    {
+      "fichier": "calques/10_forteresse.png",
+      "normal": "calques/10_forteresse_normal.png",
+      "auteur": "CA2",
+      "contenu": "crête et forteresse trapue, mât vox"
+    },
+    {
+      "fichier": "calques/38_brume_pres.png",
+      "auteur": "CA2",
+      "contenu": "banc de brouillard à mi-pente (alpha)"
+    },
+    {
+      "fichier": "calques/20_pente.png",
+      "normal": "calques/20_pente_normal.png",
+      "ombre": "calques/20_pente_ombre.png",
+      "auteur": "CA2",
+      "contenu": "éboulis, sentier en lacets"
+    },
+    {
+      "fichier": "calques/gabarit_40_personnages.png",
+      "auteur": "CA2 → CA1",
+      "contenu": "Vaskar [560, 905], Venn (s'arrête) [900, 800], frère (hors sentier) [700, 770], frère [250, 1030], Krenn (en tête) [1440, 612]"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_figures.png",
+      "mode": "additif",
+      "auteur": "CA2 → CA1",
+      "contenu": "liseré des figures côté forteresse ; teinte #9FD8B0, énergie par état (0 / 0,8 / 0,3) : à reporter sur les calques 40 de CA1"
+    },
+    {
+      "fichier": "calques/46_vox.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "fanal vox, teinte #9FD8B0"
+    },
+    {
+      "fichier": "calques/47_tirs.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "éclairs de tirs blancs (état tirs)"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "contenu": "bloc de roche en bas à droite (10 %), pierres en bas à gauche"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "liseré du rocher, teinté par état"
+    },
+    {
+      "fichier": "calques/90_bruine.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "pluie fine, tombe vers la gauche"
+    }
+  ],
+  "statut": "en revue DA"
+}

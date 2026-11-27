@@ -1,0 +1,246 @@
+{
+  "plan": "palais_6319",
+  "episode": 2,
+  "chapitres": [
+    1
+  ],
+  "etats": [
+    "assaut",
+    "eclair"
+  ],
+  "jeu": "séquence légère (@jeu) : la 27e tient le flanc ouest",
+  "description": "63-19, cour d'or du flanc ouest pendant l'assaut. Une Terra imitée, sincère : laiton terni partout, mais à hauteur d'homme (étages de 3,5 m, marches de 0,35 m). Coupoles aplaties côtelées, flèches à gradins, lanternons de laiton, pas de bulbes. Palais et escalier d'apparat au tiers droit, tour au fond, colonnade et fresque à gauche, colonnes de fumée. Générateur : cA2/palais_6319_calques.py [--4k] ; base : planche ép. 2 (63-A) et notes du DA.",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "position_m": [
+      -4.0,
+      1.7,
+      0.0
+    ],
+    "lacet_deg": 5,
+    "focale_px": 800,
+    "centre_px": [
+      960,
+      610
+    ],
+    "note": "à hauteur d'homme (1,7 m) : la majesté est imitée, pas démesurée"
+  },
+  "echelle": {
+    "cour_m": "≈ 70 x 60",
+    "palais_m": "30 de large, corniche à 17,5, coupole à 25",
+    "escalier": "20 marches de 0,35 m",
+    "tour_m": 98.0,
+    "astartes_m": 2.3,
+    "humain_m": 1.8
+  },
+  "regle_palette": "laiton terni #9C8250 (jamais d'or vif), ivoire #EFE6CF, pierre #D8CCB0 ; azur #4A6E9E et rouge #8E2F2A seulement sur tissus et fresque ; soleil à 12 rayons en laiton clair",
+  "eclairage": "calques en ALBÉDO + occlusion ; orientation au soleil et ombres portées (colonnes, portique, escalier) dans les *_ombre.png",
+  "lumieres": {
+    "soleil": {
+      "type": "DirectionalLight2D",
+      "direction": "haut gauche, légèrement derrière la caméra",
+      "couleur": "#FFE8C4",
+      "energie_par_etat": {
+        "assaut": 1.0,
+        "eclair": 0.9
+      }
+    },
+    "feux": {
+      "type": "PointLight2D ×5",
+      "positions_px": [
+        [
+          692,
+          611
+        ],
+        [
+          878,
+          611
+        ],
+        [
+          1257,
+          611
+        ],
+        [
+          1237,
+          611
+        ],
+        [
+          994,
+          611
+        ]
+      ],
+      "couleur": "#FF9A48",
+      "energie": 0.8,
+      "scintillement": {
+        "amplitude": 0.15,
+        "frequence_hz": [
+          3,
+          7
+        ]
+      }
+    },
+    "eclair": {
+      "type": "PointLight2D (état eclair)",
+      "position_px": [
+        772,
+        166
+      ],
+      "couleur": "#FFFFFF",
+      "energie": 2.5,
+      "duree_s": 0.15
+    }
+  },
+  "etats_detail": {
+    "assaut": {
+      "canvas_modulate": "#C8BCA8",
+      "lisere_51": "#FFE8C4",
+      "note": "le flanc ouest tient ; soleil haut à gauche, fumées, feux en ville"
+    },
+    "eclair": {
+      "canvas_modulate": "#B8B4B0",
+      "lisere_51": "#F4F4FF",
+      "note": "@plan tour_loin puis horus_loin : éclair blanc au sommet de la tour ; flash global 0,15 s (+60 % puis retour)"
+    }
+  },
+  "recadrages": {
+    "tour_loin": {
+      "rect_px": [
+        512,
+        46,
+        520,
+        292
+      ],
+      "note": "zoom ×3,7 sur le sommet de la tour ; utiliser les calques 4k"
+    },
+    "horus_loin": {
+      "rect_px": [
+        652,
+        116,
+        240,
+        135
+      ],
+      "note": "Horus minuscule (gabarit_48) ; aucun visage lisible à cette distance, par décision du texte"
+    }
+  },
+  "poi": {
+    "poi_fresque": [
+      428,
+      445
+    ],
+    "poi_garde": [
+      1411,
+      711
+    ],
+    "garde_apparat": [
+      1463,
+      667
+    ]
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel.png",
+      "auteur": "CA2",
+      "contenu": "ciel pâle et chaud, soleil hors champ en haut à gauche"
+    },
+    {
+      "fichier": "calques/05_ville.png",
+      "ombre": "calques/05_ville_ombre.png",
+      "auteur": "CA2",
+      "distance_m": 220.0,
+      "contenu": "ville lointaine : blocs à étages, coupoles aplaties, flèches à gradins ; brume",
+      "note": "distance : 110 à 330 m (valeur représentative ci-dessus)"
+    },
+    {
+      "fichier": "calques/08_tour.png",
+      "normal": "calques/08_tour_normal.png",
+      "ombre": "calques/08_tour_ombre.png",
+      "auteur": "CA2",
+      "distance_m": 175,
+      "contenu": "la tour de l'« Empereur », cinq gradins, balcon de laiton"
+    },
+    {
+      "fichier": "calques/35_fumees.png",
+      "auteur": "CA2",
+      "contenu": "cinq colonnes de fumée (alpha), penchées vers la droite"
+    },
+    {
+      "fichier": "calques/10_palais.png",
+      "normal": "calques/10_palais_normal.png",
+      "ombre": "calques/10_palais_ombre.png",
+      "auteur": "CA2",
+      "distance_m": 57.0,
+      "contenu": "palais au tiers droit, escalier d'apparat décalé, coupole aplatie excentrée, pavillons à gradins, portail de laiton",
+      "note": "distance : 44 à 70 m (valeur représentative ci-dessus)"
+    },
+    {
+      "fichier": "calques/36_bannieres.png",
+      "normal": "calques/36_bannieres_normal.png",
+      "auteur": "CA2",
+      "contenu": "deux bannières azur au soleil à 12 rayons (non symétriques), pavois rouge déchiré"
+    },
+    {
+      "fichier": "calques/20_cour.png",
+      "normal": "calques/20_cour_normal.png",
+      "ombre": "calques/20_cour_ombre.png",
+      "auteur": "CA2",
+      "distance_m": 61.0,
+      "contenu": "dalles de pierre et laiton, cabochons, colonnade gauche, fresque (POI), gravats",
+      "note": "distance : 2 à 120 m (valeur représentative ci-dessus)"
+    },
+    {
+      "fichier": "calques/gabarit_25_dixieme.png",
+      "auteur": "CA2 → CA1",
+      "contenu": "la 10e monte l'escalier (silhouettes blanches, Loken non distingué)"
+    },
+    {
+      "fichier": "calques/gabarit_34_gardes.png",
+      "auteur": "CA2 → CA1",
+      "contenu": "garde d'apparat mort (poi_garde), garde à genoux (garde_apparat)"
+    },
+    {
+      "fichier": "calques/gabarit_40_personnages.png",
+      "auteur": "CA2 → CA1",
+      "contenu": "la 27e : Vaskar [1142, 847], Krenn [1259, 759], Frère [780, 743], frère [685, 706], frère [1307, 687]"
+    },
+    {
+      "fichier": "calques/gabarit_48_horus.png",
+      "auteur": "CA2 → CA1",
+      "contenu": "Horus au sommet de la tour, état eclair seulement"
+    },
+    {
+      "fichier": "calques/46_feux.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "foyers au pied des fumées, fenêtres du palais qui brûlent ; ORDRE DE RENDU : entre 08_tour et 10_palais"
+    },
+    {
+      "fichier": "calques/47_eclair.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "éclair de téléportation : halo et colonne verticale, sans forme ni symbole"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": 2,
+      "contenu": "fût brisé à droite (9 %) ; statue de laiton renversée en bas à gauche (tête couronnée, sans visage)"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "liseré blanc teinté par état"
+    },
+    {
+      "fichier": "calques/90_cendres.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "cendres en suspension"
+    }
+  ],
+  "statut": "en revue DA"
+}

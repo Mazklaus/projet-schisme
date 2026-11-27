@@ -44,7 +44,7 @@
     {
       "type": "CanvasModulate",
       "couleur": "#474C55",
-      "note": "ambiant froid ; aucune autre source"
+      "note": "ambiant froid calé en jeu par le Lead sur l'aperçu validé (27/11) ; aucune autre source"
     }
   ],
   "etats": {
@@ -55,41 +55,70 @@
     {
       "fichier": "calques/00_exterieur_nuit.png",
       "auteur": "CA2",
-      "distance_m": "infini",
-      "contenu": "étoiles, Orvane (pierre bleu-gris, terminateur), flotte du détachement en silhouettes gothiques"
+      "distance_m": 10000.0,
+      "contenu": "étoiles, Orvane (pierre bleu-gris, terminateur), flotte du détachement en silhouettes gothiques",
+      "note": "distance : infini m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/00_exterieur_aube.png",
       "auteur": "CA2",
-      "distance_m": "infini",
-      "contenu": "même cadre, limbe chaud et soleil qui point à droite"
+      "distance_m": 10000.0,
+      "contenu": "même cadre, limbe chaud et soleil qui point à droite",
+      "note": "distance : infini m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/20_baie.png",
       "normal": "calques/20_baie_normal.png",
       "ombre": "calques/20_baie_ombre.png",
       "auteur": "CA2",
-      "distance_m": "1,5 à 9",
-      "contenu": "mur d'acier, pilastres rivetés, allège et appui, ogive percée dans l'alpha, meneaux et traverses opaques, liseré d'or terni, plancher ; ombres des meneaux vers nous"
+      "distance_m": 5.25,
+      "contenu": "mur d'acier, pilastres rivetés, allège et appui, ogive percée dans l'alpha, meneaux et traverses opaques, liseré d'or terni, plancher ; ombres des meneaux vers nous",
+      "note": "distance : 1,5 à 9 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/40_personnages.png",
       "auteur": "CA1 / kit Blender",
-      "distance_m": "7,4 à 8,3",
-      "contenu": "Vaskar (profil, plus près de la baie) et Dremm adossé près du meneau droit, PAS alignés, en silhouette à contre-jour avec un liseré froid. Gabarit : calques/gabarit_40_personnages.png"
+      "distance_m": 7.85,
+      "contenu": "Vaskar (profil, tourné vers Dremm, casque à la main côté baie) et Dremm adossé près du meneau droit, une semelle contre l'acier, PAS alignés ; Mk II 2,45 m ; albédo assombri (silhouette à contre-jour)",
+      "note": "distance : 7,4 à 8,3 m (valeur représentative ci-dessus)",
+      "normal": "calques/40_personnages_normal.png",
+      "ombre": "calques/40_personnages_ombre.png (multiply, noir + alpha, sous 40 ; ombres longues vers nous)",
+      "generateur": "cA1/barge_galerie/rendu_bg.py + post_bg.py (-- 1920|3840)",
+      "statut": "v1b CA1 (contre-jour franc), validé DA, retouche TP2"
+    },
+    {
+      "fichier": "calques/41_lisere_froid.png",
+      "auteur": "CA1",
+      "melange": "additif",
+      "etats": [
+        "nuit",
+        "aube"
+      ],
+      "contenu": "liseré froid #B8C8E0 de la baie sur les arêtes de Vaskar et Dremm (contre-jour)"
+    },
+    {
+      "fichier": "calques/41_lisere_soleil_vs.png",
+      "auteur": "CA1",
+      "melange": "additif",
+      "etats": [
+        "vs"
+      ],
+      "contenu": "liseré de soleil #FFE8B0 côté gauche sur Vaskar et Dremm (état vs, ép. 2 ch. 1), d'après le gabarit de CA2 ; remplace 41_lisere_froid dans cet état"
     },
     {
       "fichier": "calques/50_avant_plan.png",
       "normal": "calques/50_avant_plan_normal.png",
       "auteur": "CA2",
-      "distance_m": "2 à 2,4",
-      "contenu": "colonne d'acier presque noire coupée à droite (liseré froid), rambarde basse en bas du cadre"
+      "distance_m": 2.2,
+      "contenu": "colonne d'acier presque noire coupée à droite (liseré froid), rambarde basse en bas du cadre",
+      "note": "distance : 2 à 2,4 m (valeur représentative ci-dessus)"
     },
     {
       "fichier": "calques/90_particules.png",
       "auteur": "CA2",
-      "distance_m": "4 à 8,5",
-      "contenu": "poussière dans la lumière de la baie ; à animer"
+      "distance_m": 6.25,
+      "contenu": "poussière dans la lumière de la baie ; à animer",
+      "note": "distance : 4 à 8,5 m (valeur représentative ci-dessus)"
     }
   ],
   "normales": "convention OpenGL (Y+), alpha = alpha du calque",
@@ -98,5 +127,28 @@
     "apercu_nuit.png",
     "apercu_aube.png"
   ],
-  "statut": "essai"
+  "statut": "essai",
+  "etats_supplementaires": {
+    "vs": {
+      "episode": 2,
+      "chapitre": 1,
+      "plan": "vs_dans_la_baie",
+      "exterieur": "calques/00_exterieur_vs.png (remplace 00_exterieur_nuit/aube)",
+      "apercu": "apercu_vs_dans_la_baie.png",
+      "generateur": "cA2/barge_galerie_baie_calques.py [--4k]",
+      "valeurs_sous_1A1612_pct": 35.2,
+      "lisere_personnages": {
+        "fichier": "calques/gabarit_41_lisere_soleil_vs.png",
+        "mode": "additif",
+        "couleur": "#FFE8B0",
+        "auteur": "CA2",
+        "pour": "CA1",
+        "note": "liseré du soleil côté gauche sur Vaskar et Dremm (sinon noir sur la coque noire) : à reporter sur leurs calques 40 dans cet état",
+        "livre": "calques/41_lisere_soleil_vs.png (CA1, 27/11)"
+      },
+      "statut": "validé DA (v2)",
+      "note": "la baie se remplit d'un seul vaisseau : le flanc du Vengeful Spirit, en biais (proche à gauche, la proue fuit à droite et laisse voir le vide), coque ivoire dans l'ombre qui tombe dans le noir vers le bas, liseré de soleil (gauche) sur les arêtes hautes et les flèches ; lignes de ponts en diagonale, contreforts, bandeaux d'or, superstructure-cathédrale ; hublots ~20 % en lignes fines ; pinces d'amarrage ; quatre remorqueurs minuscules avec feux rouge/vert (à animer : dérive lente, feux clignotants). Animer en glissant lentement 00_exterieur_vs vers la gauche (le vaisseau se range). Lumière intérieure : PointLight2D large à la baie, #C8C0A8"
+    }
+  },
+  "ambiance": "#474C55"
 }

@@ -1,0 +1,182 @@
+{
+  "plan": "vs_salle_briefing",
+  "episode": 2,
+  "chapitres": [
+    1
+  ],
+  "etats": [
+    "briefing",
+    "silence"
+  ],
+  "description": "Vengeful Spirit, salle de briefing de la 27e. Trois-quarts, caméra basse près du mur gauche : l'oculus du mur droit montre 63-19 en orbite et donne la clé froide et rasante. L'hololith projette la même planète en lignes de lumière (sans texte ni symbole). Marbre et or terni, vert d'eau seulement en ombre. Générateur : cA2/vs_salle_briefing_calques.py [--4k] ; base : planche ép. 2.",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "position_m": [
+      -3.2,
+      2.0,
+      0.0
+    ],
+    "lacet_deg": 24,
+    "focale_px": 1000,
+    "centre_px": [
+      960,
+      500
+    ],
+    "note": "œil à 2 m (hauteur d'Astartes assis), pas de couloir central"
+  },
+  "echelle": {
+    "salle_m": "16 de large, 24 de profondeur, voûte de 9 à 12",
+    "oculus_m": 7.8,
+    "table_m": "6 x 4,4, plateau à 1",
+    "hololith_m": 2.4,
+    "astartes_m": 2.3
+  },
+  "regle_palette": "marbre #E6DECB et or terni #B8963E dominants ; vert d'eau #1F4A47 en ombre ≤ 20 % ; l'azur #4A6E9E n'entre que par l'oculus et l'hololith",
+  "eclairage": "calques en ALBÉDO + occlusion ; ombres longues (table, personnages) cuites dans 10_salle_ombre, vers le mur gauche",
+  "lumieres": {
+    "cle": {
+      "type": "DirectionalLight2D (ou PointLight2D large à l'oculus)",
+      "position_px": [
+        1255,
+        316
+      ],
+      "couleur": "#D6E4F2",
+      "portee_px": 2200,
+      "energie_par_etat": {
+        "briefing": 1.25,
+        "silence": 0.95
+      }
+    },
+    "hololith": {
+      "type": "PointLight2D",
+      "position_px": [
+        1070,
+        412
+      ],
+      "couleur": "#8FD6E8",
+      "portee_px": 520,
+      "energie_par_etat": {
+        "briefing": 1.4,
+        "silence": 0.0
+      },
+      "scintillement": {
+        "amplitude": 0.06,
+        "frequence_hz": [
+          8,
+          14
+        ]
+      }
+    },
+    "lumens": {
+      "type": "PointLight2D ×5",
+      "positions_px": [
+        [
+          -68,
+          189
+        ],
+        [
+          193,
+          328
+        ],
+        [
+          292,
+          381
+        ],
+        [
+          345,
+          409
+        ],
+        [
+          377,
+          427
+        ]
+      ],
+      "portee_px": "≈ 1,4 m à leur distance",
+      "couleur_par_etat": {
+        "briefing": "#E8B060",
+        "silence": "#E07040"
+      },
+      "energie_par_etat": {
+        "briefing": 0.35,
+        "silence": 0.9
+      },
+      "silence": "pulsation 0,4 Hz, ±30 %"
+    }
+  },
+  "etats_detail": {
+    "briefing": {
+      "canvas_modulate": "#1A1E24",
+      "lisere_51": "#D6E4F2",
+      "note": "Dremm présente 63-19 : l'oculus et l'hololith racontent la même planète ; lumens bas, chauds"
+    },
+    "silence": {
+      "canvas_modulate": "#15171B",
+      "lisere_51": "#E8A080",
+      "note": "Les vox se taisent : hololith coupé (coupure franche), lumens passés en veille d'alerte, pulsation lente 0,4 Hz ; reste l'oculus, le monde qui a tué Sejanus"
+    }
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_exterieur_6319.png",
+      "auteur": "CA2",
+      "contenu": "63-19 en orbite, terminateur à gauche, flotte en contre-jour ; non éclairé (fond)"
+    },
+    {
+      "fichier": "calques/10_salle.png",
+      "normal": "calques/10_salle_normal.png",
+      "ombre": "calques/10_salle_ombre.png",
+      "auteur": "CA2",
+      "distance_m": 14.0,
+      "contenu": "sol de marbre incrusté, mur gauche à pilastres et lampes lumen à cage de laiton, mur droit et oculus percé (8 meneaux), porte blindée rivetée, deux étendards repliés mats, voûte à doubleaux",
+      "note": "distance : 2 à 26 m (valeur représentative ci-dessus)"
+    },
+    {
+      "fichier": "calques/30_table.png",
+      "normal": "calques/30_table_normal.png",
+      "auteur": "CA2",
+      "distance_m": 11.5,
+      "contenu": "table de stratégie en marbre noir veiné, rebord d'or, projecteur, plaques éteintes",
+      "note": "distance : 9 à 14 m (valeur représentative ci-dessus)"
+    },
+    {
+      "fichier": "calques/gabarit_40_personnages.png",
+      "auteur": "CA2 → CA1",
+      "contenu": "gabarits : Vaskar (de dos) [816, 923], Krenn [1162, 782], Frère [1406, 736], Dremm (préside) [1390, 676], officier [1247, 650], officier [824, 661], officier [1015, 645]"
+    },
+    {
+      "fichier": "calques/45_hololith.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "globe de 63-19 en lignes de lumière, un point de débarquement ; ÉTEINT en état silence"
+    },
+    {
+      "fichier": "calques/46_lumens.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "cœurs des lampes lumen, teinte et énergie par état"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "distance_m": 1.5,
+      "contenu": "pilastre noir à gauche (9 %), étendard replié coupé en haut à droite"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "liseré blanc, teinté par état (voir etats_detail)"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "poussière dans le faisceau de l'oculus"
+    }
+  ],
+  "statut": "en revue DA"
+}

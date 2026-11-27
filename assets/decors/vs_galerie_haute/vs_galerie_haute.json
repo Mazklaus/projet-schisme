@@ -1,0 +1,136 @@
+{
+  "plan": "vs_galerie_haute",
+  "episode": 2,
+  "chapitres": [
+    2
+  ],
+  "etats": [
+    "arrivee",
+    "vide"
+  ],
+  "description": "Vengeful Spirit, galerie haute : plongée de 30 m sur le grand hangar. Les navettes civiles se posent, des centaines de silhouettes et de malles. Balustrade de marbre et laiton en diagonale au premier plan, Sefa à la rambarde, le poète qui court. Clé froide par la bouche ouverte (champ de confinement), projecteurs lumen chauds en bas. Générateur : cA2/vs_galerie_haute_calques.py [--4k].",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "position_m": [
+      -34.0,
+      30.0,
+      -6.0
+    ],
+    "lacet_deg": 26,
+    "tangage_deg": -24,
+    "focale_px": 900,
+    "centre_px": [
+      960,
+      470
+    ]
+  },
+  "hangar_partage": {
+    "avec": "vs_grand_hangar (ép. 2 ch. 6)",
+    "dimensions_m": {
+      "x": [
+        -60.0,
+        60.0
+      ],
+      "z": [
+        0,
+        220.0
+      ],
+      "voute": 70.0
+    },
+    "bouche": "ouverte au fond (z 220), 88 x 52",
+    "note": "même volume, autre cadrage : la Légion rangée sur le pont"
+  },
+  "echelle": {
+    "navette_m": "24 x 9 x 7",
+    "humain_m": 1.8,
+    "astartes_m": 2.3
+  },
+  "regle_palette": "galerie : marbre et or (VS pur) ; hangar : acier #5E646A riveté sous des doubleaux, liernes et arcs DORÉS (démesure impériale, même vocabulaire que vs_galerie ép. 1) ; clé #BFD8F0 par la bouche, lumens #E8B060",
+  "lumieres": {
+    "bouche": {
+      "type": "PointLight2D large",
+      "position_px": [
+        657,
+        118
+      ],
+      "couleur": "#BFD8F0",
+      "energie_par_etat": {
+        "arrivee": 1.1,
+        "vide": 1.0
+      }
+    },
+    "lumens": {
+      "type": "PointLight2D ×20 (flaques au sol)",
+      "couleur": "#E8B060",
+      "energie_par_etat": {
+        "arrivee": 1.6,
+        "vide": 1.0
+      }
+    }
+  },
+  "etats_detail": {
+    "arrivee": {
+      "canvas_modulate": "#40403E",
+      "lisere_51": "#DCE6F0",
+      "note": "trois mois après 63-19 : les navettes civiles se posent ; Sefa reste à la rambarde"
+    },
+    "vide": {
+      "canvas_modulate": "#2E302E",
+      "lisere_51": "#C8D4E0",
+      "note": "hangar sans foule ni navettes en approche, pour réemploi"
+    }
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_espace.png",
+      "auteur": "CA2",
+      "contenu": "étoiles par la bouche du hangar"
+    },
+    {
+      "fichier": "calques/10_hangar.png",
+      "normal": "calques/10_hangar_normal.png",
+      "ombre": "calques/10_hangar_ombre.png",
+      "auteur": "CA2",
+      "contenu": "pont, mur droit à contreforts, voûte à doubleaux, bouche percée"
+    },
+    {
+      "fichier": "calques/20_navettes.png",
+      "normal": "calques/20_navettes_normal.png",
+      "ombre": "calques/20_navettes_ombre.png",
+      "auteur": "CA2",
+      "contenu": "7 navettes civiles (5 posées, rampes abaissées ; 2 en approche) ; absent en état vide"
+    },
+    {
+      "fichier": "calques/gabarit_34_foule.png",
+      "auteur": "CA2 → CA1",
+      "contenu": "foule des remembrancers et leurs malles (gabarit de densité)"
+    },
+    {
+      "fichier": "calques/45_galerie.png",
+      "normal": "calques/45_galerie_normal.png",
+      "auteur": "CA2",
+      "contenu": "balustrade de marbre et laiton, sol de la galerie, pilier à gauche (8 %)"
+    },
+    {
+      "fichier": "calques/gabarit_40_personnages.png",
+      "auteur": "CA2 → CA1",
+      "contenu": "Sefa [1330, 830] à la rambarde ; le poète [560, 960] qui court"
+    },
+    {
+      "fichier": "calques/46_feux.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "réacteurs des navettes en approche, cœurs des projecteurs"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "liseré de la main courante et du pilier"
+    }
+  ],
+  "statut": "en revue DA"
+}

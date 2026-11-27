@@ -1,0 +1,134 @@
+{
+  "plan": "vs_quartiers_sefa",
+  "episode": 2,
+  "chapitres": [
+    2
+  ],
+  "etats": [
+    "lampe",
+    "hublot"
+  ],
+  "description": "Vengeful Spirit, quartiers de Sefa : cabine civile de 4 x 5 m sous 2,9 m, poutres basses (Vaskar y tient à peine). Table d'écriture couverte de feuillets, croquis épinglés (illisibles), couchette, malle de Terra, tapis usé, hublot. Une seule clé : la lampe lumen à cage de laiton. Générateur : cA2/vs_quartiers_sefa_calques.py [--4k].",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "camera": {
+    "position_m": [
+      1.6,
+      1.85,
+      0.25
+    ],
+    "lacet_deg": -33,
+    "tangage_deg": -6,
+    "focale_px": 600,
+    "centre_px": [
+      960,
+      500
+    ],
+    "note": "depuis la porte, en coin : pas de couloir central"
+  },
+  "echelle": {
+    "cabine_m": "4 x 5, plafond 2,9, poutres à 2,68",
+    "astartes_m": 2.3,
+    "humain_m": 1.8
+  },
+  "regle_palette": "acier #5E646A plus chaud qu'à l'ordinaire, laiton #9C7E48, papier #D8CCB0, bois #5A4030 ; un seul rouge (le tapis) ; vert d'eau en ombre seulement",
+  "lumieres": {
+    "lampe": {
+      "type": "PointLight2D",
+      "position_px": [
+        883,
+        533
+      ],
+      "couleur": "#E8B060",
+      "portee_px": 950,
+      "energie_par_etat": {
+        "lampe": 1.5,
+        "hublot": 0.0
+      },
+      "scintillement": {
+        "amplitude": 0.04,
+        "frequence_hz": [
+          1,
+          3
+        ]
+      }
+    },
+    "hublot": {
+      "type": "PointLight2D + flaque allongée sur la couchette",
+      "position_px": [
+        1482,
+        523
+      ],
+      "couleur": "#B8CCE0",
+      "portee_px": 500,
+      "energie_par_etat": {
+        "lampe": 0.25,
+        "hublot": 1.3
+      }
+    }
+  },
+  "etats_detail": {
+    "lampe": {
+      "canvas_modulate": "#302C28",
+      "lisere_51": "#E8B060",
+      "note": "Sefa écrit, Vaskar debout sous les poutres ; la lampe est la seule clé"
+    },
+    "hublot": {
+      "canvas_modulate": "#2A303A",
+      "lisere_51": "#B8CCE0",
+      "note": "lampe éteinte (réemploi, nuit) : seule la lueur froide du hublot"
+    }
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_dehors.png",
+      "auteur": "CA2",
+      "contenu": "étoiles (par le hublot)"
+    },
+    {
+      "fichier": "calques/10_cabine.png",
+      "normal": "calques/10_cabine_normal.png",
+      "ombre": "calques/10_cabine_ombre.png",
+      "auteur": "CA2",
+      "contenu": "murs rivetés, poutres basses, sol de tôle, tapis, feuillets épinglés, hublot percé ; ombres radiales depuis la lampe"
+    },
+    {
+      "fichier": "calques/30_mobilier.png",
+      "normal": "calques/30_mobilier_normal.png",
+      "auteur": "CA2",
+      "contenu": "table d'écriture et feuillets, encrier, lampe à cage, couchette, malle, tabouret"
+    },
+    {
+      "fichier": "calques/gabarit_40_personnages.png",
+      "auteur": "CA2 → CA1",
+      "contenu": "Sefa assise [821, 743] ; Vaskar debout [1093, 735], la tête à 2 cm des poutres"
+    },
+    {
+      "fichier": "calques/gabarit_41_lisere_vaskar.png",
+      "mode": "additif",
+      "auteur": "CA2 → CA1",
+      "contenu": "liseré côté hublot, #B8CCE0, état hublot seulement"
+    },
+    {
+      "fichier": "calques/46_lampe.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "cœur de la lampe"
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "normal": "calques/50_avant_plan_normal.png",
+      "auteur": "CA2",
+      "contenu": "chambranle de porte à droite (9 %)"
+    },
+    {
+      "fichier": "calques/51_lisere.png",
+      "mode": "additif",
+      "auteur": "CA2",
+      "contenu": "liseré du chambranle, teinté par état"
+    }
+  ],
+  "statut": "en revue DA"
+}
