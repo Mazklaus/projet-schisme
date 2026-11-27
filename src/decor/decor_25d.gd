@@ -188,14 +188,17 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 	var cle: Dictionary = g.cle if typeof(g.get("cle")) == TYPE_DICTIONARY else {}
 	var ambiant := ""
 	var veille := {}
-	lum.append_array(lumieres_du_plan(cle))
+	# Seules les sources prévues en Light2D par la DA deviennent des lumières du moteur (un
+	# « soleil » de clé, comme à Ullanor, est déjà peint dans les calques).
+	if String(cle.get("type", "")).contains("Light2D"):
+		lum.append_array(lumieres_du_plan(cle))
 	for a in g.get("appoints", []) if typeof(g.get("appoints")) == TYPE_ARRAY else []:
 		if typeof(a) != TYPE_DICTIONARY:
 			continue
 		var type := String(a.get("type", ""))
 		if type.contains("CanvasModulate") and not type.contains("Directional") and a.has("couleur"):
 			ambiant = a.couleur
-		elif a.has("position_px"):
+		elif a.has("position_px") and type.contains("Light2D"):
 			lum.append_array(lumieres_du_plan(a))
 		elif a.has("niveau") and a.has("couleur"):
 			# Veille froide sur le fond seulement (« zone : fond et ogive ») ; ambiant ailleurs.
