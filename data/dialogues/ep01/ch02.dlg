@@ -6,6 +6,7 @@
 // ================================================================ 0. L'archive
 === archive_ch2
 @decor archive
+@ambiance archive 1.5
 @plan archive_etagere
 > Sur une étagère, un vieux bolter. Il n'a plus de culasse.
 @carton 3 Il disait qu'il l'avait vu, une fois. De près.
@@ -14,6 +15,7 @@
 // ================================================================ 1. Le départ (galerie d'observation)
 === depart
 @decor vs_galerie
+@ambiance ep02_vengeful_spirit 2
 @plan galerie_flotte
 > La flotte blanche s'arrache à Ullanor.
 DREMM: Regarde. Là. Le vaisseau d'or.
@@ -25,6 +27,7 @@ DREMM: Vers ses tours et ses conseils. Nous, on part vers tout le reste.
 // ================================================================ 2. Les quartiers de la 27e (4 points, Krenn obligatoire)
 === quartiers
 @decor vs_quartiers_27
+@ambiance ep02_vengeful_spirit 2
 @jeu
 -> FIN
 
@@ -76,6 +79,7 @@ KRENN: Assieds-toi, Hol. Il part, alors je vais te le raconter.
 // ================================================================ 3. Flash-back : l'Unification (Terra)
 === unification
 @decor terra_unification
+@ambiance ep02_unification 1
 @titre 3 Terra. Avant la Croisade.
 > La boue. Les ruines. Le feu, partout.
 @jeu
@@ -86,6 +90,8 @@ SOLDAT: Baisse la tête, gamin ! Ils tirent sur tout ce qui bouge !
 === unification_lumiere
 // Déclenché à l'abri : une lumière blanc-or traverse la ligne de feu, sans se presser. Aucune forme dans son cœur.
 // CANON : l'Empereur n'est qu'une lumière. Ni silhouette, ni visage, ni texte (consigne DA).
+// Les tirs s'arrêtent : il ne reste que le vent.
+@ambiance ullanor_vent 0.3
 > Les tirs s'arrêtent. Une lumière avance dans le feu.
 > La lumière s'arrête devant lui.
 * Se relever -> krenn_releve
@@ -103,12 +109,14 @@ SOLDAT: Baisse la tête, gamin ! Ils tirent sur tout ce qui bouge !
 -> unification_fin
 
 === unification_fin
+@ambiance ep02_unification 2
 > La lumière repart. Le feu reprend derrière elle.
 -> retour_krenn
 
 // ================================================================ 4. Retour aux quartiers
 === retour_krenn
 @decor vs_quartiers_27
+@ambiance ep02_vengeful_spirit 2
 -> retour_releve [si ep01_krenn_releve == true]
 KRENN: Je suis resté à genoux. Je n'ai jamais su s'il m'avait vu.
 -> retour_suite
@@ -172,6 +180,7 @@ DREMM: Ils nous suivent. Ils nous suivront toujours.
 // ================================================================ 6. La loge (cales basses)
 === loge
 @decor vs_cales_loge
+@ambiance ep02_loge 2
 > Des bougies. Des visages découverts. Des frères de cinq compagnies.
 DREMM: Personne ne commande ici. Ni capitaine, ni sergent.
 DREMM: Juste des frères qui se parlent sans casque.
@@ -220,6 +229,7 @@ DREMM: Personne n'a besoin. C'est justement pour ça qu'on jure.
 // ================================================================ 7. Retombée (galerie d'observation, nuit de bord)
 === retombee
 @decor vs_galerie
+@ambiance ep02_vengeful_spirit 2
 @plan galerie_nuit
 -> retombee_loge [si choix_ep01_loge == 1]
 // Défaut (2 ou 3) : le silence, puis la plaisanterie tendue.
@@ -231,6 +241,8 @@ DREMM: Moi non plus, ce soir.
 
 === retombee_loge
 DREMM: Tu sais ce qu'on va devenir ? Les premiers. Partout.
+// Le motif d'Horus, quand Dremm le place devant tous.
+@musique ep01_horus 3
 DREMM: Lui devant. Nous juste derrière. Personne entre nous.
 VASKAR: Et l'Empereur ?
 DREMM: L'Empereur est parti, Hol. C'est nous qui restons.
@@ -238,12 +250,14 @@ DREMM: L'Empereur est parti, Hol. C'est nous qui restons.
 
 // ================================================================ 8. Accroche
 === annonce
+@musique stop 3
 > Une annonce de bord : la 27e passe sur une barge de bataille, pour un détachement.
 > Trois civils embarqueront avec elle.
 DREMM: Des remembrancers. Les premiers. Des gens qui vont écrire sur nous.
 VASKAR: Écrire quoi ?
 DREMM: Ce qu'on voudra bien leur dire.
 @decor archive
+@ambiance archive 2
 @plan archive_table
 > Sur la table, une plaque de données vierge.
 -> FIN
