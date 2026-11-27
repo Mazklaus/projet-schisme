@@ -58,3 +58,22 @@ python3 tools/son/encoder_ogg.py /tmp/wav_ep02 assets/audio
 |---|---|---|---|---|
 | `amb_ep02_vengeful_spirit` | `amb_vengeful_spirit` | 5001 | chapitres 2 et 3, le vaisseau à l'état pur | Boucle de 60 s : cœur du vaisseau (harmoniques stables de 32 Hz), air dans les gaines, relais régulier, escouade qui passe en cadence, sas lourds, machines des ponts inférieurs ; réverbération de cathédrale (6,5 s) |
 | `amb_ep02_loge` | `amb_loge` | 5002 | chapitres 2 et 3, la salle de la loge | Boucle de 45 s, veillée chaleureuse : conversations graves et inintelligibles de cinq frères (syllabes voisées sans mots, filtrées), gobelets posés sur la caisse-table, un rire bref de temps en temps, bougies qui grésillent, cœur du vaisseau étouffé ; rien d'occulte, aucun mot |
+
+### Épisode 1, chapitres 3 à 5 : barge et Orvane (`tools/son/generer_ep01_ch3_5.py`, mêmes outils)
+
+```
+python3 tools/son/generer_ep01_ch3_5.py /tmp/wav_ch35
+python3 tools/son/encoder_ogg.py /tmp/wav_ch35 assets/audio
+```
+
+| Fichier | Fonction du générateur | Graine | Où il sonne | Ce que c'est |
+|---|---|---|---|---|
+| `amb_ep03_barge_pont` | `amb_barge_pont` | 6001 | ch. 3, pont d'embarquement (`barge_pont_embarquement`) | Boucle de 50 s : hangar immense, turbines de navette qui retombent, hydraulique, métal chaud qui cliquette, grue, serfs au loin (voix sans mots) |
+| `amb_ep03_barge` | `amb_barge` | 6002 | ch. 3 à 5, intérieur de la barge (`barge_quartiers_27`, `barge_galerie`, `barge_briefing`) | Boucle de 50 s : moteurs proches, ventilation, relais toutes les 1,25 s, tuyaux qui travaillent, pas dans une coursive voisine |
+| `amb_ep03_quartiers_civils` | `amb_quartiers_civils` | 6003 | ch. 3, quartiers des remembrancers (`barge_quartiers_civils`) | Boucle de 45 s : conversations d'hommes et de femmes sans mots, plume, papier, tasses, rires, la barge assourdie |
+| `amb_ep03_cabine` | `amb_cabine` | 6004 | ch. 3 et 5, Sefa la nuit, quartiers du codicier (`barge_quartiers_codicier`) | Boucle de 40 s : cabine close, barge étouffée, aération ; rien d'étrange (le frisson du codicier passe par ses yeux) |
+| `amb_ep04_orvane_nuit` | `amb_orvane_nuit` | 6005 | ch. 4, approche et émissaire (`orvane_nuit`) | Boucle de 50 s : cité-ruche humaine la nuit, grondement de la ville, sirène lointaine, vent, générateur, coups sourds |
+| `amb_ep04_orvane_rues` | `amb_orvane_rues` | 6006 | ch. 4, assaut (`orvane_rues`, `or-rue`, `orvane_barricade`) | Boucle de 50 s : tirs laser et à projectiles à moyenne distance, ricochets, sirène, feu, gravats, foule qui fuit au loin (sans mots) |
+| `amb_ep04_orvane_bloc` | `amb_orvane_bloc` | 6007 | ch. 4, le bloc d'habitation à l'aube (`orvane_bloc`, crise C7) | Boucle de 45 s : tirs isolés entre les murs, voix étouffées de civils (sans mots), verre qui tombe, vent, premiers oiseaux |
+| `amb_ep04_orvane_matin` | `amb_orvane_matin` | 6008 | ch. 4, retombée (`orvane_aube`) | Boucle de 45 s : feux qui finissent, conduite qui goutte, sirène qui s'éloigne, cendre dans le vent, quelques oiseaux ; identique pour toutes les branches |
+| `amb_ep05_orvane_soir` | `amb_orvane_soir` | 6009 | ch. 5, graver les morts (`orvane_soir`) | Boucle de 45 s : vent, brasero, générateur, insectes du soir, et loin deux ciseaux qui frappent la pierre (on grave des noms) |
