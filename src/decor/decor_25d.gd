@@ -475,6 +475,9 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			var t := Color(amb.couleur) * float(amb.get("gain", 1.0))
 			t.a = 1.0
 			c.teinte = t.to_html()
+		# « exposition » : gain du calque (un mur peint trop sombre qu'on doit lire dans la pénombre).
+		if float(k.get("exposition", 1.0)) != 1.0:
+			c.exposition = float(k.exposition)
 		# Vie du décor (« vie », « foule ») : passée telle quelle au moteur.
 		for cle_vie in ["vie", "foule"]:
 			if k.has(cle_vie):
@@ -1243,6 +1246,10 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		sprite.material = add
 	if k.has("teinte"):
 		sprite.self_modulate = Color(k.teinte)
+	if k.has("exposition"):
+		# Au-delà de 1 : le modulate multiplie dans le shader (pas d'écrêtage à 8 bits ici).
+		var e := float(k.exposition)
+		sprite.self_modulate = Color(sprite.self_modulate.r * e, sprite.self_modulate.g * e, sprite.self_modulate.b * e, sprite.self_modulate.a)
 	couche.add_child(sprite)
 	if k.has("tete"):
 		_poser_tete(couche, sprite, dossier, k.tete)
