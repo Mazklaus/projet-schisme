@@ -26,6 +26,26 @@ func nouvelle_partie(id_episode := "") -> void:
 	aller_au_chapitre(id_episode, ep.chapitres[0].id)
 
 
+## Démarre un épisode (éventuellement à un chapitre donné) avec les drapeaux d'une sauvegarde
+## existante : import d'un épisode à l'autre (systeme-de-choix.md §6), ou test d'un chapitre
+## à partir de la sauvegarde de la tranche. Les clés locales d'autres épisodes sont purgées.
+func importer(emplacement: int, id_episode: String, id_chapitre := "") -> bool:
+	var d := Sauvegarde.lire(emplacement)
+	var ep := Catalogue.episode(id_episode)
+	if d.is_empty() or ep.is_empty():
+		push_error("Import impossible : emplacement %d, épisode %s" % [emplacement, id_episode])
+		return false
+	etat = Sauvegarde.etat_vierge()
+	etat.drapeaux.merge(etat_defaut(id_episode))
+	var prefixe := id_episode.get_slice("_", 0) + "_"
+	for cle in d.drapeaux:
+		if not RegEx.create_from_string("^ep[0-9]{2,3}_").search(cle) or cle.begins_with(prefixe):
+			etat.drapeaux[cle] = d.drapeaux[cle]
+	etat.episodes_termines = d.get("episodes_termines", [])
+	aller_au_chapitre(id_episode, id_chapitre if not id_chapitre.is_empty() else ep.chapitres[0].id)
+	return true
+
+
 ## Drapeaux de data/episodes/<id>/etat_defaut.json, ou de data/episodes/epNN/ (préfixe de
 ## l'id) tant que l'épisode n'a pas son dossier ; {} si absent.
 static func etat_defaut(id_episode: String) -> Dictionary:

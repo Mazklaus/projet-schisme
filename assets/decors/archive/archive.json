@@ -1,0 +1,95 @@
+{
+  "plan": "archive",
+  "episode": 1,
+  "chapitres": [
+    1,
+    5
+  ],
+  "description": "L'archive du cadre (AR), 017.M31 : une galerie scellée, une table, une seule lampe. L'Archiviste n'a pas de visage (sa main seulement). Décor NEUTRE tant que la bible de l'Archiviste n'a pas fixé le lieu (pas de signe du Palais ni du Siège au-delà des fissures du plafond). Vignette : cA2/planche_ep1_lieux_b.png (AR). Générateur : cA1/archive/archive_calques.py. Coordonnées en 1080p (cible 4K = x2, --4k).",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "etat": "unique",
+  "regle_palette": "noir chaud #13100D dominant (>= 50 % sous #1A1612), bois #3A2A1C, lampe #C8904A, plaque #8C7A5A ; aucune couleur de Légion",
+  "horizon_y": 520,
+  "point_de_fuite_px": [
+    1000,
+    520
+  ],
+  "cle": {
+    "type": "lampe (Light2D)",
+    "position_px": [
+      1160,
+      455
+    ],
+    "couleur": "#C8904A",
+    "force": 1.0,
+    "rayon_px": 560,
+    "note": "SEULE lumière du plan : un globe-lumen dans une cage de laiton (rayonne dans toutes les directions, plus fort vers la table). Les calques portent déjà son atténuation ; la Light2D la relance sur les normales et peut vaciller (±5 %). Le globe est peint plein (il éclaire, il n'est pas éclairé)."
+  },
+  "appoints": [],
+  "appoints_note": "aucun : ni remplissage, ni contre-jour (règle 1)",
+  "rebond": null,
+  "voile": null,
+  "echelle": {
+    "plan_personnages_m": 1.2,
+    "px_par_m": 700,
+    "note": "plan serré sur la table : la plaque d'Ilse (~0,5 m) fait ~350 px, la main ~130 px"
+  },
+  "calques": [
+    {
+      "fichier": "calques/10_fond.png",
+      "auteur": "CA1",
+      "distance_m": 6,
+      "contenu": "mur du fond, rayonnages (plaques, rouleaux), plafond bas fissuré ; presque tout dans le noir"
+    },
+    {
+      "fichier": "calques/20_etageres.png",
+      "normal": "calques/20_etageres_normal.png",
+      "auteur": "CA1",
+      "distance_m": 3,
+      "contenu": "étagères proches à gauche et à droite : vox abîmés, rouleaux couchés, plaques debout"
+    },
+    {
+      "fichier": "calques/30_table.png",
+      "normal": "calques/30_table_normal.png",
+      "ombre": "calques/30_table_ombre.png",
+      "auteur": "CA1",
+      "distance_m": 1.2,
+      "contenu": "table, globe-lumen impérial (socle de fer à griffes, fût de laiton annelé, cage de laiton ; le globe = position de la Light2D), rouleaux, vox impérial (façade rivetée, grille de laiton, câbles, aucun aquila), fragment d'épaulière à numéro illisible ; ombres portées à l'opposé de la lampe (multiplication)"
+    },
+    {
+      "fichier": "calques/35_plaque_ilse.png",
+      "normal": "calques/35_plaque_ilse_normal.png",
+      "auteur": "CA1",
+      "distance_m": 1.1,
+      "contenu": "la plaque de blindage gravée d'Ilse : impact, rivets, restes de peinture olive ; six lignes de noms en signes rayés, ILLISIBLES. Calque à part : la main la pose (ch. 1, scène 0). Variante vivant_ilse (ligne de plus) à faire au besoin."
+    },
+    {
+      "fichier": "calques/40_main_archiviste.png",
+      "normal": "calques/40_main_archiviste_normal.png",
+      "auteur": "CA1",
+      "distance_m": 1.0,
+      "contenu": "main droite âgée qui entre par la gauche dans une manche de laine sombre, posée sur la plaque ; trace d'encre sur l'index (rime avec Sefa). Jamais de visage. Animation cutout : glisser depuis le bord gauche, se poser, rester."
+    },
+    {
+      "fichier": "calques/50_avant_plan.png",
+      "auteur": "CA1",
+      "distance_m": 0.6,
+      "contenu": "montant d'étagère flou collé au bord gauche (discret), pile de plaques floue en bas à droite, dans le noir"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA1",
+      "distance_m": 1.1,
+      "contenu": "poussière dans le cône de la lampe ; à animer (dérive lente)"
+    }
+  ],
+  "normales": "convention OpenGL (Y+ vers le haut), attendue par Godot 4 ; alpha = alpha du calque",
+  "apercus": [
+    "apercu_archive.png"
+  ],
+  "chaine": "base procédurale CA1 -> retouche img2img TP2 (la main en priorité : elle est schématique) -> peindre_plan.py en dernier",
+  "statut": "essai"
+}

@@ -1,0 +1,61 @@
+{
+  "_doc": "Zones d'exploration du chapitre 2 (ch02-game-design.md).",
+  "quartiers": {
+    "decor": "vs_quartiers_27",
+    "pois": {
+      "poi_trophees": [
+        800,
+        870
+      ],
+      "poi_joueurs": [
+        1450,
+        880
+      ],
+      "poi_rumeur": [
+        2050,
+        870
+      ],
+      "poi_krenn": [
+        2750,
+        880
+      ]
+    },
+    "figurants": {
+      "poi_joueurs": "frere_1",
+      "poi_rumeur": "frere_2",
+      "poi_krenn": "krenn"
+    },
+    "obligatoires": [
+      "poi_krenn"
+    ],
+    "declencheurs": [
+      {
+        "apres": [],
+        "max_s": 300,
+        "noeud": "poi_krenn"
+      }
+    ]
+  },
+  "unification": {
+    "decor": "terra_unification",
+    "personnage": "krenn_jeune",
+    "echelle": 0.8,
+    "declencheurs": [
+      {
+        "x": 1000,
+        "noeud": "unification_lumiere"
+      }
+    ],
+    "depart": [
+      200,
+      920
+    ],
+    "limites": [
+      120,
+      860,
+      1680,
+      140
+    ],
+    "_note": "Décor 1920 px (CA1) : la brèche entre x 900 et 1150 est réservée au jeune Krenn."
+  }
+}

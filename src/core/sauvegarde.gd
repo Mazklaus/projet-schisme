@@ -12,7 +12,7 @@ extends Node
 
 signal sauvegardee(emplacement: int)
 
-const VERSION := 2
+const VERSION := 3
 ## v2 : clés de la tranche renommées selon systeme-de-choix.md §6.
 const RENOMMAGES_V2 := {
 	"choix_ullanor": "choix_ep01_ullanor",
@@ -120,6 +120,20 @@ func _migrer_vers_2(d: Dictionary) -> Dictionary:
 		if dr.has(ancien):
 			dr[RENOMMAGES_V2[ancien]] = dr[ancien]
 			dr.erase(ancien)
+	d["drapeaux"] = dr
+	return d
+
+
+## v3 : les traits sont propres à chaque personnage joué (systeme-de-choix.md v1.2) :
+## trait_<nom> → trait_vaskar_<nom> (seul personnage joué avant la v3).
+const TRAITS_V3 := ["obeissance", "compassion", "doute", "fraternite", "orgueil"]
+
+func _migrer_vers_3(d: Dictionary) -> Dictionary:
+	var dr: Dictionary = d.get("drapeaux", {})
+	for t in TRAITS_V3:
+		if dr.has("trait_" + t):
+			dr["trait_vaskar_" + t] = dr["trait_" + t]
+			dr.erase("trait_" + t)
 	d["drapeaux"] = dr
 	return d
 

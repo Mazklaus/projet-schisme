@@ -32,6 +32,8 @@ jobs:
       - run: pip install --quiet pillow
       - run: python3 tools/ci/verifier_decors.py .
       - run: python3 tools/ci/verifier_cles.py .
+      # Spec du système de choix (Game Designer) : nommage, canon, défauts minutés, règle 3.1.
+      - run: python3 tools/ci/verif_choix.py data/dialogues/ep01 --registre data/personnages.json
 
   tests:
     name: Tests et parcours de la démo
@@ -83,6 +85,17 @@ jobs:
           if grep -E "SCRIPT ERROR|^ERROR" ullanor.log; then exit 1; fi
           ~/godot/godot --headless -s res://tools/ci/parcours_ullanor.gd -- --choix=silence --immobile --sans-poi 2>&1 | tee ullanor.log
           if grep -E "SCRIPT ERROR|^ERROR" ullanor.log; then exit 1; fi
+      - name: Parcours de l'épisode 1 (chapitres jouables, trois politiques, import de la tranche)
+        run: |
+          set -o pipefail
+          for p in premier dernier silence; do
+            ~/godot/godot --headless -s res://tools/ci/parcours_episode.gd -- --episode=ep01 --politique=$p --vitesse=8 --attendu=choix_ep01_depart,choix_ep01_ullanor,choix_ep01_loge,vivant_ilse 2>&1 | tee episode.log
+            if grep -E "SCRIPT ERROR|^ERROR" episode.log; then exit 1; fi
+          done
+          # Sauvegarde de la tranche (emplacement 0), puis reprise au chapitre 2 de l'épisode 1.
+          ~/godot/godot --headless -s res://tools/ci/parcours_ullanor.gd -- --choix=sortir 2>&1 | tee episode.log
+          ~/godot/godot --headless -s res://tools/ci/parcours_episode.gd -- --episode=ep01 --chapitre=c02 --importer=0 --vitesse=8 --attendu=choix_ep01_ullanor,vivant_ilse,connait_ilse_sauveur,choix_ep01_loge 2>&1 | tee episode.log
+          if grep -E "SCRIPT ERROR|^ERROR" episode.log; then exit 1; fi
 
   export:
     name: Export Windows et Linux

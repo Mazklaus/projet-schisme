@@ -123,7 +123,8 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 		if typeof(k) == TYPE_DICTIONARY and k.has("distance_m") and float(k.distance_m) > 0.0:
 			distances.append(float(k.distance_m))
 	var ref := float(g.get("distance_reference_m", distances.min() if not distances.is_empty() else 1.0))
-	var voile: Dictionary = g.get("voile", {})
+	# Champs facultatifs : absents ou null (« voile »: null dans un intérieur) reviennent au même.
+	var voile: Dictionary = g.voile if typeof(g.get("voile")) == TYPE_DICTIONARY else {}
 	var calques := []
 	for k in g.get("calques", []):
 		if typeof(k) != TYPE_DICTIONARY or not k.has("fichier"):
@@ -158,8 +159,17 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 			c.fichier = base + "_plat.png"
 			if ResourceLoader.exists(dossier.path_join(base + "_plat_normal.png")):
 				c.normales = base + "_plat_normal.png"
-		if ResourceLoader.exists(dossier.path_join(base + "_ombre.png")):
-			c.ombre = base + "_ombre.png"
+		# « ombre »: false : les ombres du soleil d'un autre état (nuit, aube) ne s'appliquent pas.
+		if typeof(k.get("ombre", true)) != TYPE_BOOL or k.get("ombre", true):
+			if ResourceLoader.exists(dossier.path_join(base + "_ombre.png")):
+				c.ombre = base + "_ombre.png"
+		# État d'un lieu (nuit, aube…) : « ambiance » {couleur, gain} multiplie chaque calque de
+		# décor, sauf ceux qui portent « ambiance »: false (ciel, flammes).
+		var amb: Dictionary = g.ambiance if typeof(g.get("ambiance")) == TYPE_DICTIONARY else {}
+		if amb.has("couleur") and k.get("ambiance", true):
+			var t := Color(amb.couleur) * float(amb.get("gain", 1.0))
+			t.a = 1.0
+			c.teinte = t.to_html()
 		if typeof(k.get("tete")) == TYPE_DICTIONARY:
 			var t: Dictionary = k.tete
 			var manquants := ["corps", "fichier", "avant"].filter(
@@ -170,7 +180,8 @@ static func depuis_guide(g: Dictionary, dossier: String) -> Dictionary:
 				c.tete = t
 		calques.append(c)
 	return {"version": VERSION_FORMAT, "taille": g.cadre_px, "calques": calques,
-		"source": "guide", "cle": g.get("cle", {})}
+		"source": "guide", "cle": g.cle if typeof(g.get("cle")) == TYPE_DICTIONARY else {},
+		"lumieres": g.lumieres if typeof(g.get("lumieres")) == TYPE_ARRAY else []}
 
 
 static func valider(d) -> PackedStringArray:
@@ -216,6 +227,51 @@ func construire() -> void:
 	for i in d.calques.size():
 		var k: Dictionary = d.calques[i]
 		calques.append(_creer_calque(dossier, k, i))
+	_poser_lumieres(d.get("lumieres", []))
+
+
+## Lumières ponctuelles d'un état (feux du bivouac, lampes) : une PointLight2D chacune, avec
+## un scintillement léger. Elles éclairent les calques « lumiere » et les personnages posés.
+func _poser_lumieres(liste: Array) -> void:
+	var tex: GradientTexture2D = null
+	for i in liste.size():
+		var L: Dictionary = liste[i]
+		if not L.has("position_px"):
+			continue
+		if tex == null:
+			var g := Gradient.new()
+			g.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0)])
+			tex = GradientTexture2D.new()
+			tex.gradient = g
+			tex.fill = GradientTexture2D.FILL_RADIAL
+			tex.fill_from = Vector2(0.5, 0.5)
+			tex.fill_to = Vector2(1, 0.5)
+			tex.width = 256
+			tex.height = 256
+		var l := PointLight2D.new()
+		l.name = "Lumiere_%02d" % i
+		l.texture = tex
+		l.position = Vector2(L.position_px[0], L.position_px[1])
+		l.texture_scale = float(L.get("rayon_px", 120)) * 2.5 / 128.0
+		l.color = Color(L.get("couleur", "#FFB060"))
+		l.energy = float(L.get("intensite", 1.0))
+		l.height = 40.0
+		l.range_item_cull_mask = MASQUE_LUMIERE | 1
+		var sc := float(L.get("scintillement", 0.0))
+		if sc > 0.0:
+			l.set_meta("energie", l.energy)
+			l.set_meta("scintillement", sc)
+		add_child(l)
+
+
+func _process(_delta: float) -> void:
+	# Scintillement des feux : bruit lent et propre à chaque lumière.
+	var t := Time.get_ticks_msec() / 1000.0
+	for l in get_children():
+		if l is PointLight2D and l.has_meta("scintillement"):
+			var e: float = l.get_meta("energie")
+			var sc: float = l.get_meta("scintillement")
+			l.energy = e * (1.0 + sc * (sin(t * 7.3 + l.position.x) * 0.6 + sin(t * 13.1 + l.position.y) * 0.4))
 
 
 func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
@@ -255,6 +311,8 @@ func _creer_calque(dossier: String, k: Dictionary, index: int) -> Parallax2D:
 		var add := CanvasItemMaterial.new()
 		add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 		sprite.material = add
+	if k.has("teinte"):
+		sprite.self_modulate = Color(k.teinte)
 	couche.add_child(sprite)
 	if k.has("tete"):
 		_poser_tete(couche, sprite, dossier, k.tete)

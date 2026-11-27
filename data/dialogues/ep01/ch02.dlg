@@ -1,0 +1,249 @@
+// Épisode 1, chapitre 2 « Le Vengeful Spirit » : répliques, v0.1 (Narrative Designer, 27/11).
+// Structure : ch02-sequencier.md (validé par le GD). Clés : ch02-game-design.md (Game Designer), spec v1.0.
+// MAJ 27/11 (canon) : les remembrancers du corps principal arrivent trois mois après 63-19 ; ici, seule une avant-garde de trois (dont Sefa) rejoint la 27e sur la barge du détachement.
+// Aucune voix. Répliques de 2 lignes au plus. Les @ sont indicatifs (à adapter par le Lead).
+
+// ================================================================ 0. L'archive
+=== archive_ch2
+@decor archive
+@plan archive_etagere
+> Sur une étagère, un vieux bolter. Il n'a plus de culasse.
+@carton 3 Il disait qu'il l'avait vu, une fois. De près.
+-> depart
+
+// ================================================================ 1. Le départ (galerie d'observation)
+=== depart
+@decor vs_galerie
+@plan galerie_flotte
+> La flotte blanche s'arrache à Ullanor.
+DREMM: Regarde. Là. Le vaisseau d'or.
+DREMM: Il part de l'autre côté.
+VASKAR: Vers Terra.
+DREMM: Vers ses tours et ses conseils. Nous, on part vers tout le reste.
+-> quartiers
+
+// ================================================================ 2. Les quartiers de la 27e (4 points, Krenn obligatoire)
+=== quartiers
+@decor vs_quartiers_27
+@jeu
+-> FIN
+
+=== poi_trophees
+> Des crocs d'ork, une lame xenos, un fragment de bannière brûlée. Chaque objet porte un nom de monde.
+VASKAR: Quarante mondes. Je me souviens de chacun.
+-> FIN
+
+=== poi_joueurs
+> Deux frères jouent aux dés de Cthonia, sur une caisse de munitions.
+FRÈRE 1: Tu triches.
+FRÈRE 2: Je gagne. Ce n'est pas pareil.
+-> FIN
+
+=== poi_rumeur
+> Trois frères, près de l'armurerie, à voix basse.
+FRÈRE 3: Il a refusé le nom. Je te le jure.
+FRÈRE 4: L'Empereur lui offre sa Légion, et il dit non ?
+FRÈRE 3: Il a dit qu'on était les Luna Wolves. Point.
+* « Il a raison. Le nom est à lui. » -> rumeur_fraternite
+* « Il devrait le prendre. On l'a mérité. » -> rumeur_orgueil
+* Ne rien dire -> rumeur_silence
+
+=== rumeur_fraternite
+~ trait_vaskar_fraternite += 1
+VASKAR: Il a raison. Le nom est à lui. Nous, on a déjà le nôtre.
+FRÈRE 3: Parle pour toi. Moi, je le porterais bien.
+-> FIN
+
+=== rumeur_orgueil
+~ trait_vaskar_orgueil += 1
+VASKAR: Il devrait le prendre. On l'a mérité, ce nom.
+FRÈRE 4: Voilà. Enfin un qui parle juste.
+-> FIN
+
+=== rumeur_silence
+> Vaskar passe sans s'arrêter.
+-> FIN
+
+=== poi_krenn
+> Le sergent Krenn nettoie un vieux bolter, pièce par pièce.
+KRENN: Ils ne font plus celui-là depuis un siècle.
+VASKAR: Pourquoi vous le gardez ?
+KRENN: Parce qu'il était là, ce jour-là.
+VASKAR: Quel jour ?
+KRENN: Assieds-toi, Hol. Il part, alors je vais te le raconter.
+-> unification
+
+// ================================================================ 3. Flash-back : l'Unification (Terra)
+=== unification
+@decor terra_unification
+@titre 3 Terra. Avant la Croisade.
+> La boue. Les ruines. Le feu, partout.
+@jeu
+// Le jeune Krenn avance dans la tranchée, puis se met à couvert.
+SOLDAT: Baisse la tête, gamin ! Ils tirent sur tout ce qui bouge !
+-> FIN
+
+=== unification_lumiere
+// Déclenché à l'abri : une lumière blanc-or traverse la ligne de feu, sans se presser. Aucune forme dans son cœur.
+// CANON : l'Empereur n'est qu'une lumière. Ni silhouette, ni visage, ni texte (consigne DA).
+> Les tirs s'arrêtent. Une lumière avance dans le feu.
+> La lumière s'arrête devant lui.
+* Se relever -> krenn_releve
+* Rester à genoux -> krenn_genoux
+*! 15 -> krenn_genoux
+
+=== krenn_releve
+~ ep01_krenn_releve = true
+> Il se relève. Ses jambes tremblent. Il ne baisse pas les yeux.
+-> unification_fin
+
+=== krenn_genoux
+~ ep01_krenn_releve = false
+> Il reste à genoux, le front dans la boue.
+-> unification_fin
+
+=== unification_fin
+> La lumière repart. Le feu reprend derrière elle.
+-> retour_krenn
+
+// ================================================================ 4. Retour aux quartiers
+=== retour_krenn
+@decor vs_quartiers_27
+-> retour_releve [si ep01_krenn_releve == true]
+KRENN: Je suis resté à genoux. Je n'ai jamais su s'il m'avait vu.
+-> retour_suite
+
+=== retour_releve
+KRENN: Je me suis relevé. Je ne sais toujours pas d'où m'est venu ce courage.
+-> retour_suite
+
+=== retour_suite
+KRENN: Il ne m'a rien dit. Il n'avait pas besoin.
+-> retour_empereur [si choix_ep01_depart == 1]
+-> retour_horus [si choix_ep01_depart == 2]
+// Défaut (3, ou état importé incomplet).
+KRENN: Le Maître de Guerre est un grand chef. Mais ce n'est pas lui que j'ai vu.
+-> message_ilse
+
+=== retour_empereur
+VASKAR: Il sait ce qu'il fait. Je l'ai dit à Dremm.
+KRENN: Alors tu as compris plus vite que ton capitaine.
+-> message_ilse
+
+=== retour_horus
+> Krenn regarde Vaskar longtemps, sans rien dire.
+KRENN: Le fils est grand, Hol. Le père est plus grand.
+KRENN: N'oublie jamais lequel nous a faits.
+-> message_ilse
+
+// ================================================================ 5. Le message d'Ilse (variante)
+=== message_ilse
+-> message_ilse_vivante [si vivant_ilse == true]
+// Défaut : Ilse est morte, ou il n'y a pas de sauvegarde.
+~ ep01_plaque_gardee = false
+DREMM: Les mortels de l'Armée sont sur les transports. Loin derrière.
+DREMM: Ils nous suivent. Ils nous suivront toujours.
+-> loge
+
+=== message_ilse_vivante
+> Un serviteur apporte une plaque de blindage et un mot plié.
+-> mot_connu [si connait_ilse_sauveur == true]
+> « Pour celui qui a appelé. Je ne sais pas qui. Le 4e de Kalthar suit la flotte. — I.V. »
+-> plaque_choix
+
+=== mot_connu
+> « Vous avez oublié de graver votre nom. Je l'ai fait. Le 4e de Kalthar suit la flotte. — I.V. »
+-> plaque_choix
+
+=== plaque_choix
+* La garder sur soi -> plaque_gardee
+* La ranger -> plaque_rangee
+
+=== plaque_gardee
+~ ep01_plaque_gardee = true
+> Il glisse la plaque sous son plastron.
+-> loge
+
+=== plaque_rangee
+~ ep01_plaque_gardee = false
+> Il la range avec les trophées. Entre un croc d'ork et une bannière brûlée.
+-> loge
+
+// ================================================================ 6. La loge (cales basses)
+=== loge
+@decor vs_cales_loge
+> Des bougies. Des visages découverts. Des frères de cinq compagnies.
+DREMM: Personne ne commande ici. Ni capitaine, ni sergent.
+DREMM: Juste des frères qui se parlent sans casque.
+FRÈRE DE LA LOGE: Asaro dit que tu es le meilleur de sa compagnie.
+VASKAR: Asaro exagère.
+FRÈRE DE LA LOGE: Asaro n'exagère jamais quand il parle de toi.
+DREMM: On se jure une chose, Hol. Une seule.
+DREMM: Que quoi qu'il arrive, aucun de nous ne restera seul.
+DREMM: Comme dans le tunnel.
+// C5 : pas de minuteur (choix moral lent). Quitter la salle sans un mot vaut 3.
+* Prêter le serment -> loge_entrer
+* « Pas encore, Dremm. » -> loge_refuser
+* Partir sans répondre -> loge_partir
+
+=== loge_entrer
+~ choix_ep01_loge = 1
+~ relation_dremm += 1
+~ trait_vaskar_fraternite += 1
+~ trait_vaskar_doute += 0
+> Vaskar pose la main sur celles des autres.
+VASKAR: Aucun de nous ne restera seul.
+DREMM: Voilà. Maintenant, tu es vraiment rentré.
+-> loge_echo
+
+=== loge_refuser
+~ choix_ep01_loge = 2
+~ relation_dremm -= 1
+~ trait_vaskar_fraternite += 0
+~ trait_vaskar_doute += 1
+VASKAR: Pas encore, Dremm. Je n'ai pas besoin de jurer pour rester.
+DREMM: Personne n'a besoin. C'est justement pour ça qu'on jure.
+-> loge_echo
+
+=== loge_partir
+~ choix_ep01_loge = 3
+~ relation_dremm += 0
+~ trait_vaskar_fraternite += 0
+~ trait_vaskar_doute += 1
+> Vaskar recule hors de la lumière des bougies. La porte se referme.
+-> loge_echo
+
+=== loge_echo
+@carton 3 Dremm s'en souviendra.
+-> retombee
+
+// ================================================================ 7. Retombée (galerie d'observation, nuit de bord)
+=== retombee
+@decor vs_galerie
+@plan galerie_nuit
+-> retombee_loge [si choix_ep01_loge == 1]
+// Défaut (2 ou 3) : le silence, puis la plaisanterie tendue.
+> Ils regardent les étoiles longtemps, sans parler.
+DREMM: Tu te perds encore dans les tunnels, Hol ?
+VASKAR: Je ne sais pas.
+DREMM: Moi non plus, ce soir.
+-> annonce
+
+=== retombee_loge
+DREMM: Tu sais ce qu'on va devenir ? Les premiers. Partout.
+DREMM: Lui devant. Nous juste derrière. Personne entre nous.
+VASKAR: Et l'Empereur ?
+DREMM: L'Empereur est parti, Hol. C'est nous qui restons.
+-> annonce
+
+// ================================================================ 8. Accroche
+=== annonce
+> Une annonce de bord : la 27e passe sur une barge de bataille, pour un détachement.
+> Trois civils embarqueront avec elle.
+DREMM: Des remembrancers. Les premiers. Des gens qui vont écrire sur nous.
+VASKAR: Écrire quoi ?
+DREMM: Ce qu'on voudra bien leur dire.
+@decor archive
+@plan archive_table
+> Sur la table, une plaque de données vierge.
+-> FIN

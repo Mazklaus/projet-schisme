@@ -1,0 +1,121 @@
+{
+  "plan": "terra_unification",
+  "episode": 1,
+  "chapitres": [
+    2
+  ],
+  "description": "Flash-back de Krenn : les dernières guerres de l'Unification sur Terra. Une tranchée, le no man's land, les ruines de l'ancienne Terra. L'Empereur n'est QU'UNE LUMIÈRE : aucune figure, aucun visage, une source blanc-or qui avance dans le no man's land et écrase tout. Générateur : cA1/terra_unification/terra_calques.py. Coordonnées en 1080p (cible 4K = x2, --4k).",
+  "cadre_px": [
+    1920,
+    1080
+  ],
+  "etat": "flash-back",
+  "regle_palette": "Terra, mémoire : os #E9E2D2, cendre #B9B2A3, ocre pâle #C9B48C, boue claire #8E8270, ombre relevée #4A443C (rien sous #3A3530) ; lumière #FFF4D6. Aucune couleur de Légion. Exception assumée à la règle 6 (le noir garde le mystère) : ici, c'est la lumière qui cache.",
+  "horizon_y": 500,
+  "point_de_fuite_px": [
+    1240,
+    500
+  ],
+  "cle": {
+    "type": "l'Empereur (Light2D, mobile)",
+    "position_px": [
+      1240,
+      520
+    ],
+    "couleur": "#FFF4D6",
+    "force": 1.6,
+    "note": "SEULE source. Elle traverse la ligne de feu de gauche à droite sans se presser (déplacer la Light2D ET le calque 35 ensemble), puis s'arrête face au jeune Krenn. Jamais de silhouette dans le cœur : s'il le faut, monter la force plutôt que dessiner."
+  },
+  "appoints": [],
+  "appoints_note": "aucun",
+  "rebond": {
+    "couleur": "#C9B48C",
+    "force": 0.15
+  },
+  "voile": {
+    "couleur": "#B9B2A3",
+    "note": "fort : les ruines sont à moitié effacées"
+  },
+  "echelle": {
+    "plan_personnages_m": 10,
+    "px_par_m": 111,
+    "humain_px": 200,
+    "note": "fantassins de l'Unification 1,80 m ≈ 200 px sur le parapet"
+  },
+  "calques": [
+    {
+      "fichier": "calques/00_ciel.png",
+      "auteur": "CA1",
+      "distance_m": "infini",
+      "contenu": "ciel de cendre, blanchi autour de la source"
+    },
+    {
+      "fichier": "calques/10_ruines.png",
+      "auteur": "CA1",
+      "distance_m": 2000,
+      "contenu": "arcologies et tours brisées de l'ancienne Terra, deux squelettes hors d'échelle ; brèche au droit de la source ; liseré de contre-jour"
+    },
+    {
+      "fichier": "calques/30_champ.png",
+      "auteur": "CA1",
+      "distance_m": 40,
+      "contenu": "no man's land : cratères, barbelés, carcasse de char au canon brisé"
+    },
+    {
+      "fichier": "calques/35_lumiere.png",
+      "auteur": "CA1",
+      "distance_m": 30,
+      "mode": "additif",
+      "contenu": "LA LUMIÈRE : cœur blanc, halo, rais ; aucune forme. À déplacer avec la Light2D."
+    },
+    {
+      "fichier": "calques/40_soldats.png",
+      "auteur": "CA1",
+      "distance_m": 10,
+      "contenu": "fantassins de l'Unification sur le parapet de sacs (casque à bord, masque, manteau long, fusil à baïonnette) : debout pétrifiés, un genou à terre, recroquevillés tête baissée. Brèche x 900 à 1150 : place du jeune Krenn (personnage jouable, hors calque)."
+    },
+    {
+      "fichier": "calques/50_tranchee.png",
+      "auteur": "CA1",
+      "distance_m": 3,
+      "contenu": "paroi de tranchée au premier plan : piquets, planches, mottes, flaques qui renvoient le ciel, étendard tombé"
+    },
+    {
+      "fichier": "calques/90_particules.png",
+      "auteur": "CA1",
+      "distance_m": 8,
+      "contenu": "cendre qui tombe, plus dense près de la lumière ; à animer (chute lente)"
+    }
+  ],
+  "traitement_flashback": {
+    "nom": "mémoire surexposée (proposition CA1, à valider DA)",
+    "oppose_a": "Cthonia : une source chaude dans le noir, grain fort, vignettage noir, plafond bas",
+    "parametres": {
+      "desaturation": 0.35,
+      "noirs_releves": 0.23,
+      "halation": {
+        "seuil": 0.8,
+        "rayon_px": 30,
+        "force": 0.35,
+        "teinte": "#FFEBBF"
+      },
+      "vignettage_blanc": {
+        "couleur": "#E9E2D2",
+        "debut": 0.75,
+        "force": 0.55
+      },
+      "grain": {
+        "sigma": 0.035,
+        "taille": "fin"
+      }
+    },
+    "note": "shader de post-traitement plein écran, actif seulement pendant le flash-back ; aperçus : apercu_terra_brut.png (sans) et apercu_terra_flashback.png (avec)"
+  },
+  "normales": "aucune : tout est en contre-jour, le liseré est peint ; la Light2D sert au halo et au déplacement",
+  "apercus": [
+    "apercu_terra_brut.png",
+    "apercu_terra_flashback.png"
+  ],
+  "chaine": "base procédurale CA1 -> retouche img2img TP2 (soldats en priorité ; ne JAMAIS laisser une figure naître dans la lumière) -> peindre_plan.py -> traitement flash-back dans Godot",
+  "statut": "essai"
+}

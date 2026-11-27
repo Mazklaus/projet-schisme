@@ -10,7 +10,23 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--nouvelle-partie") and not _raccourci_utilise:
 			_raccourci_utilise = true
-			Jeu.nouvelle_partie(a.get_slice("=", 1) if a.contains("=") else "")
+			# « --chapitre=<id> » et « --importer=<emplacement> » : démarrer à un chapitre, avec
+			# les drapeaux d'une sauvegarde (la tranche, l'épisode précédent).
+			var ep := a.get_slice("=", 1) if a.contains("=") else ""
+			var chap := ""
+			var import_de := -1
+			for b in OS.get_cmdline_user_args():
+				if b.begins_with("--chapitre="):
+					chap = b.get_slice("=", 1)
+				elif b.begins_with("--importer="):
+					import_de = int(b.get_slice("=", 1))
+			if import_de >= 0:
+				Jeu.importer(import_de, ep if not ep.is_empty() else Catalogue.ordre[0], chap)
+			elif not chap.is_empty():
+				Jeu.nouvelle_partie(ep)
+				Jeu.aller_au_chapitre(Jeu.etat.episode, chap)
+			else:
+				Jeu.nouvelle_partie(ep)
 			return
 	var centre := CenterContainer.new()
 	centre.set_anchors_preset(Control.PRESET_FULL_RECT)

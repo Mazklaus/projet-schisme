@@ -18,11 +18,11 @@ extends SceneTree
 
 const ATTENDU := {
 	"sortir": {"choix_ep01_ullanor": 1, "vivant_ilse": true, "connait_ilse_sauveur": true,
-		"relation_dremm": -1, "relation_ilse": 2, "trait_compassion": 1},
+		"relation_dremm": -1, "relation_ilse": 2, "trait_vaskar_compassion": 1},
 	"auxiliaires": {"choix_ep01_ullanor": 2, "vivant_ilse": true, "connait_ilse_sauveur": false,
 		"relation_dremm": 0, "relation_ilse": 0},
 	"obeir": {"choix_ep01_ullanor": 3, "vivant_ilse": false, "relation_dremm": 1, "relation_ilse": 0,
-		"trait_obeissance": 1},
+		"trait_vaskar_obeissance": 1},
 }
 const OPTION := {"sortir": 0, "auxiliaires": 1, "obeir": 2}
 
