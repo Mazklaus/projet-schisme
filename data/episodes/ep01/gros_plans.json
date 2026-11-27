@@ -19,6 +19,7 @@
     {
       "chapitre": "c03",
       "decor": "barge_quartiers_civils_gros_plan",
+      "decalage_x": {"SEFA": -40},
       "noeuds": [
         "entretien*",
         "plaque_*",

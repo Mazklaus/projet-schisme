@@ -278,6 +278,9 @@ func _poser_buste(p: String, enchaine := true) -> void:
 	_cle_buste = cle
 	var tete := tete_du_fond(id_fond, cote, _racine_gp.get_meta("zones", {}) if _racine_gp else {})
 	var sp := construire_sprite_buste(chemin, tete, cote, p)
+	# « decalage_x » de la scène {perso: px} : écarter une tête d'un point lumineux du fond
+	# (DA : le hublot de la cabine faisait une auréole à Sefa).
+	sp.position.x += float(_regie.scene.get("decalage_x", {}).get(p.to_upper(), 0.0))
 	sp.set_meta("cadrage", "%s|%s" % [p, cote])
 	_racine_buste.add_child(sp)
 	if meme_cadrage:
