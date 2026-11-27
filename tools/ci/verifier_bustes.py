@@ -5,7 +5,7 @@ Les bustes de CA1 sont peints d'un seul côté ; l'autre côté livré est un mi
 (relevé QA v2). data/bustes_peints.json donne les côtés peints de chaque personnage. Pour chaque
 personnage placé dans data/episodes/*/gros_plans.json et qui a des bustes
 (assets/personnages/<perso>/), le côté choisi doit exister et être peint ; un personnage à bustes
-non déclaré est une erreur. Un personnage sans buste reste en plan large (régie) : non contrôlé.
+non déclaré est une erreur. « miroir_tolere » (liste de la DA) lève la règle pour un personnage. Un personnage sans buste reste en plan large (régie) : non contrôlé.
 Code 1 s'il y a une erreur.
 """
 import json
@@ -33,7 +33,7 @@ def main() -> int:
                 cotes = peints.get(perso.lower())
                 if cotes is None:
                     erreurs.append(f"{lieu} : déclarer les côtés peints de {perso} dans data/bustes_peints.json")
-                elif cote not in cotes:
+                elif cote not in cotes and perso.lower() not in peints.get("miroir_tolere", []):
                     erreurs.append(f"{lieu} : {perso} à {cote} utilise un buste non peint (miroir) ; "
                                    f"côté peint : {', '.join(cotes)}")
     for e in erreurs:

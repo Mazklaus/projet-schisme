@@ -27,7 +27,7 @@
         "poi_*",
         "dremm_sefa*"
       ],
-      "cotes": {"SEFA": "gauche", "VASKAR": "droite", "DREMM": "gauche"}
+      "cotes": {"SEFA": "droite", "VASKAR": "droite", "DREMM": "gauche"}
     },
     {
       "chapitre": "c01",
