@@ -186,18 +186,19 @@ func _afficher_gros_plan(p: String) -> void:
 			t.tween_callback(_couche_gp.hide)
 		return
 	var id_fond := String(_regie.scene.get("decor", ""))
+	var cle_fond := "%s|%s" % [id_fond, _regie.scene.get("etat", "")]
 	if _couche_gp == null:
 		_couche_gp = CanvasLayer.new()
 		_couche_gp.name = "GrosPlanDialogue"
 		_couche_gp.layer = COUCHE_GROS_PLAN
 		_couche_gp.visible = false
 		add_child(_couche_gp)
-	if id_fond != _fond_gp:
+	if cle_fond != _fond_gp:
 		if _racine_gp:
 			_racine_gp.queue_free()
-		_racine_gp = construire_fond_gros_plan(id_fond)
+		_racine_gp = construire_fond_gros_plan(id_fond, _regie.scene)
 		_couche_gp.add_child(_racine_gp)
-		_fond_gp = id_fond
+		_fond_gp = cle_fond
 	var cote := _regie.cote_du_plan()
 	var buste := _racine_gp.get_node_or_null(^"Buste") as Sprite2D
 	if buste == null:
@@ -221,7 +222,9 @@ func _afficher_gros_plan(p: String) -> void:
 
 ## Fond de gros plan de CA2 (assets/decors/<id>) : calques déjà éclairés, posés tels quels ;
 ## « additif » en addition, avec un vacillement léger. Les gabarits de CA1 ne vont pas en jeu.
-static func construire_fond_gros_plan(id: String) -> Node2D:
+## La scène peut choisir un « etat » (calques marqués « etat » d'un autre état écartés) et des
+## « opacites » {calque: a} (poussière à 0,4 la nuit, galerie).
+static func construire_fond_gros_plan(id: String, scene: Dictionary = {}) -> Node2D:
 	var racine := Node2D.new()
 	racine.name = "Fond_" + id
 	var dossier := DOSSIER_DECORS.path_join(id)
@@ -234,6 +237,8 @@ static func construire_fond_gros_plan(id: String) -> Node2D:
 	for k in g.get("calques", []):
 		if typeof(k) != TYPE_DICTIONARY or not k.has("fichier") or k.has("pour"):
 			continue
+		if k.has("etat") and String(k.etat) != String(scene.get("etat", k.etat)):
+			continue
 		var chemin := dossier.path_join(k.fichier)
 		if not ResourceLoader.exists(chemin):
 			continue
@@ -242,7 +247,9 @@ static func construire_fond_gros_plan(id: String) -> Node2D:
 		sp.texture = load(chemin)
 		sp.centered = false
 		sp.light_mask = 0
-		var additif := String(k.get("mode", "")) == "additif" or sp.name.begins_with("9")
+		var mode := String(k.get("mode", ""))
+		var additif := mode == "additif" or (mode.is_empty() and sp.name.begins_with("9"))
+		sp.modulate.a = float(scene.get("opacites", {}).get(sp.name, 1.0))
 		var m := CanvasItemMaterial.new()
 		m.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 		if additif:
